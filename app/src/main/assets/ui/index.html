@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
   <meta name="color-scheme" content="light">
-  <title>Bearagnostic Android Foundation</title>
+  <title>Bearagnostic for Android</title>
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
@@ -19,16 +19,16 @@
 
     <section class="hero">
       <div class="hero-glow" aria-hidden="true"></div>
-      <span class="kicker" data-i18n="kicker">ANDROID FOUNDATION</span>
-      <h1 data-i18n-html="headline">One tap.<br><em>A real file checkup.</em></h1>
-      <p data-i18n="intro">The native foundation is ready for Bearagnostic's device-level file-health engine.</p>
+      <span class="kicker" data-i18n="kicker">ONE-TAP NATIVE CHECKUP</span>
+      <h1 data-i18n-html="headline">One tap.<br><em>Your files, checked locally.</em></h1>
+      <p data-i18n="intro">Bearagnostic can now scan user-accessible shared storage directly on Android after you grant access.</p>
     </section>
 
     <section class="status-card" aria-labelledby="statusTitle">
       <div class="status-card__head">
         <div>
           <span class="eyebrow" data-i18n="systemStatus">SYSTEM STATUS</span>
-          <h2 id="statusTitle" data-i18n="foundationReady">Foundation ready</h2>
+          <h2 id="statusTitle" data-i18n="nativeReady">Native checkup ready</h2>
         </div>
         <div class="pulse" aria-hidden="true"><i></i></div>
       </div>
@@ -36,36 +36,64 @@
       <div class="status-list">
         <div class="status-row">
           <span class="status-icon blue" aria-hidden="true">↔</span>
-          <div><strong data-i18n="nativeBridge">Native bridge</strong><small data-i18n="nativeBridgeSub">Secure local UI ↔ Android communication</small></div>
-          <b class="state good" id="bridgeState" data-i18n="ready">Ready</b>
+          <div><strong data-i18n="nativeBridge">Native bridge</strong><small data-i18n="nativeBridgeSub">Local UI ↔ Android communication</small></div>
+          <b class="state good" data-i18n="ready">Ready</b>
         </div>
         <div class="status-row">
           <span class="status-icon mint" aria-hidden="true">✓</span>
-          <div><strong data-i18n="storageAccess">Storage access</strong><small data-i18n="storageAccessSub">User-controlled permission for accessible files</small></div>
+          <div><strong data-i18n="storageAccess">Storage access</strong><small data-i18n="storageAccessSub">Permission for user-accessible shared files</small></div>
           <b class="state" id="storageState" data-i18n="notGranted">Not granted</b>
         </div>
         <div class="status-row">
           <span class="status-icon violet" aria-hidden="true">⌁</span>
-          <div><strong data-i18n="scannerEngine">Scanner engine</strong><small data-i18n="scannerEngineSub">Native one-tap analysis arrives in the next batch</small></div>
-          <b class="state quiet" data-i18n="next">Next</b>
+          <div><strong data-i18n="scannerEngine">Scanner engine</strong><small data-i18n="scannerEngineSub">Native metadata + SHA-256 duplicate verification</small></div>
+          <b class="state good" id="scannerState" data-i18n="ready">Ready</b>
         </div>
       </div>
+    </section>
+
+    <section class="scan-card" id="scanCard" aria-live="polite" hidden>
+      <div class="scan-head">
+        <div>
+          <span class="eyebrow" data-i18n="checkup">CHECKUP</span>
+          <h2 id="scanTitle" data-i18n="scanning">Scanning accessible files</h2>
+        </div>
+        <span class="scan-phase" id="scanPhase">—</span>
+      </div>
+
+      <div class="progress-track" id="progressTrack" aria-hidden="true"><i id="progressFill"></i></div>
+      <p class="progress-note" id="progressNote" data-i18n="progressTruth">File discovery is indeterminate; duplicate verification shows measured byte progress.</p>
+
+      <div class="metrics">
+        <div><strong id="reviewedFiles">0</strong><span data-i18n="filesReviewed">files reviewed</span></div>
+        <div><strong id="largeFiles">0</strong><span data-i18n="largeFiles">large files</span></div>
+        <div><strong id="olderFiles">0</strong><span data-i18n="olderFiles">older files</span></div>
+        <div><strong id="duplicateCopies">—</strong><span data-i18n="duplicateCopies">exact duplicate copies</span></div>
+      </div>
+
+      <div class="result-line" id="resultLine" hidden>
+        <strong id="reclaimable">0 B</strong>
+        <span data-i18n="duplicateSpace">verified duplicate space that may be reclaimable after review</span>
+      </div>
+
+      <button class="cancel" id="cancelButton" type="button" data-i18n="cancelScan">Cancel checkup</button>
     </section>
 
     <section class="trust-note">
       <div class="shield" aria-hidden="true">◆</div>
       <div>
         <strong data-i18n="privacyTitle">Local by design</strong>
-        <p data-i18n="privacyBody">This foundation does not scan, upload, or delete files. Android remains in control of protected storage.</p>
+        <p data-i18n="privacyBody">The scanner reads accessible shared-storage metadata and hashes duplicate candidates locally. It does not upload or delete files.</p>
       </div>
     </section>
 
-    <button class="primary" id="accessButton" type="button">
-      <span class="primary__copy"><strong data-i18n="prepareAccess">Prepare device access</strong><small data-i18n="prepareAccessSub">Android will show the system permission screen</small></span>
+    <button class="primary" id="primaryButton" type="button">
+      <span class="primary__copy"><strong id="primaryTitle" data-i18n="prepareAccess">Prepare device access</strong><small id="primarySub" data-i18n="prepareAccessSub">Android will show the system permission screen</small></span>
       <span class="primary__arrow" aria-hidden="true">›</span>
     </button>
 
-    <p class="footnote" id="buildLabel">Bearagnostic for Android · Foundation 01</p>
+    <p class="scope-note" data-i18n="scopeNote">Scope: user-accessible shared storage only. Android-protected app-private areas remain out of scope.</p>
+    <p class="footnote" id="buildLabel">Bearagnostic for Android</p>
   </main>
 
   <script src="./app.js"></script>

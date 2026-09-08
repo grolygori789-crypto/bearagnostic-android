@@ -23,6 +23,12 @@ class NativeBridge(private val activity: MainActivity) {
         }
     }
 
+    @JavascriptInterface
+    fun startOneTapScan(): String = activity.startOneTapScan()
+
+    @JavascriptInterface
+    fun cancelOneTapScan(): String = activity.cancelOneTapScan()
+
     fun statusJson(): String = JSONObject().apply {
         put("platform", "android")
         put("bridgeVersion", BRIDGE_VERSION)
@@ -30,11 +36,13 @@ class NativeBridge(private val activity: MainActivity) {
         put("versionCode", BuildConfig.VERSION_CODE)
         put("apiLevel", Build.VERSION.SDK_INT)
         put("broadStorageAccess", StorageAccessController.hasAccess(activity))
-        put("scannerReady", false)
+        put("scannerReady", true)
+        put("scannerRunning", activity.isScannerRunning())
+        put("scanScope", "accessible_shared_storage")
     }.toString()
 
     companion object {
         const val JS_INTERFACE_NAME = "BearagnosticNative"
-        const val BRIDGE_VERSION = 1
+        const val BRIDGE_VERSION = 2
     }
 }
