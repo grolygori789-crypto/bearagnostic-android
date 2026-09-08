@@ -77,3 +77,49 @@ button,input,select{font:inherit}button{border:0;color:inherit}button:focus-visi
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 html[data-motion="reduced"] *,html[data-motion="reduced"] *::before,html[data-motion="reduced"] *::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
 [hidden]{display:none!important}
+
+/* Batch 12 — visual parity corrections against the approved HTML/PWA Build 11 */
+.checkup-cta__icon>img{
+  width:92%!important;
+  height:92%!important;
+  margin:0!important;
+}
+.health-card__icon--legacy{
+  height:min(82%,54px)!important;
+  aspect-ratio:1;
+  border-radius:50%;
+  overflow:visible!important;
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+.health-card__icon--legacy::before{display:none!important}
+.health-card__icon--legacy img{
+  display:block;
+  width:112%;
+  height:112%;
+  margin:-6%;
+  object-fit:contain;
+  filter:drop-shadow(0 5px 10px rgba(24,139,116,.10));
+}
+.editorial-card>img{
+  left:auto!important;
+  right:0!important;
+  width:58%!important;
+  height:100%!important;
+  object-fit:cover!important;
+  object-position:62% 54%!important;
+}
+.editorial-card__veil{
+  background:linear-gradient(90deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.96) 43%,rgba(255,255,255,.70) 58%,rgba(255,255,255,.10) 100%)!important;
+}
+/* Preserve the original Home copy. Scan-depth choice is presented after tapping the CTA. */
+.checkup-cta__copy small{max-width:none!important}
+
+/* Batch 12 — restore HTML/PWA Build 11 checkup viewport behavior exactly. */
+.app-shell.is-checkup{grid-template-rows:auto minmax(0,1fr)!important}
+.app-shell.is-checkup .bottom-nav,
+.app-shell.is-checkup .app-footer{display:none!important}
+.app-shell.is-checkup .app-main{overflow:hidden}
+.scan-screen{padding:0!important;overflow:hidden}
+.scan-screen.is-active{display:grid!important;grid-template-rows:minmax(0,2.65fr) auto minmax(0,1.35fr) auto auto;gap:clamp(6px,.75dvh,9px);padding-bottom:clamp(8px,1dvh,12px)!important}

@@ -11,7 +11,7 @@
   <meta name="apple-mobile-web-app-title" content="Bearagnostic">
   <meta name="format-detection" content="telephone=no">
   <meta name="description" content="Bearagnostic is a premium, local-first file-health checkup assistant by Benedict Interactive.">
-  <meta name="application-version" content="0.11.0-alpha11">
+  <meta name="application-version" content="0.12.0-alpha12">
   <title>Bearagnostic</title>
   <link rel="preload" as="image" href="../media/dr-bear-approved.webp">
   <link rel="stylesheet" href="./styles.css">
@@ -62,7 +62,7 @@
 
         <button class="checkup-cta" id="startCheckup" type="button">
           <span class="checkup-cta__icon glass-image-shell" aria-hidden="true"><img src="../media/checkup.png" alt=""></span>
-          <span class="checkup-cta__copy"><strong data-i18n="startCheckup">Start Checkup</strong><small data-i18n="startCheckupBody">Choose how deeply Bearagnostic should check.</small></span>
+          <span class="checkup-cta__copy"><strong data-i18n="startCheckup">Start Checkup</strong><small data-i18n="startCheckupBody">Choose files or a folder to analyze.</small></span>
           <span class="checkup-cta__arrow" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></svg></span>
         </button>
 
@@ -86,7 +86,7 @@
         </section>
 
         <button class="health-card" id="healthCard" type="button">
-          <span class="health-card__icon"><svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10Z"/></svg></span>
+          <span class="health-card__icon health-card__icon--legacy" aria-hidden="true"><img src="../media/file-health.png" alt=""></span>
           <span class="health-card__copy"><strong data-i18n="fileHealth">File Health</strong><small id="healthSummary" data-i18n="fileHealthSub">Your checkup summary will appear here.</small></span>
           <span class="health-card__arrow"><svg viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></svg></span>
         </button>
@@ -179,7 +179,7 @@
       <button class="nav-button" type="button" data-nav="more"><img class="nav-glass-icon" src="../media/nav-more.png" alt="" aria-hidden="true"><span data-i18n="navMore">More</span></button>
     </nav>
 
-    <footer class="app-footer"><span class="app-footer__studio">BENEDICT INTERACTIVE</span><span class="app-footer__build">v0.11 · B11</span></footer>
+    <footer class="app-footer"><span class="app-footer__studio">BENEDICT INTERACTIVE</span><span class="app-footer__build">v0.12 · B12</span></footer>
   </div>
 
   <div class="modal-scrim" id="modalScrim" hidden></div>
