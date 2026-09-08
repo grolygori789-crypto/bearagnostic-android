@@ -34,7 +34,7 @@
   const $ = id => document.getElementById(id);
   const $$ = (sel, root=document) => [...root.querySelectorAll(sel)];
   const STORAGE='bearagnostic.android.';
-  const LAUNCH_KEY=`${STORAGE}launch.seen.b9`;
+  const LAUNCH_KEY=`${STORAGE}launch.seen.b10`;
   const LANG_KEY=`${STORAGE}language`;
   const RING=289.03;
   const STAGES=['preparing','file_details','file_sizes','duplicates','modified_dates','finalizing'];
@@ -63,7 +63,7 @@
     let done=false;const first=storageGet(LAUNCH_KEY)!=='1';const timings=first?{studio:2400,product:2600,fade:300}:{studio:1100,product:1300,fade:220};
     const finish=()=>{if(done)return;done=true;if(appRoot)appRoot.hidden=false;if(launch)launch.classList.add('is-leaving');setTimeout(()=>{if(launch)launch.hidden=true;storageSet(LAUNCH_KEY,'1');readNativeState()},timings.fade)};
     const watchdog=setTimeout(finish,first?6200:3400);
-    try{if(appRoot)appRoot.hidden=true;if(launch)launch.hidden=false;studioStage?.classList.add('is-active');productStage?.classList.remove('is-active');await wait(timings.studio);studioStage?.classList.remove('is-active');productStage?.classList.add('is-active');await wait(timings.product);clearTimeout(watchdog);finish()}catch(_){clearTimeout(watchdog);finish()}
+    try{if(appRoot)appRoot.hidden=false;if(launch)launch.hidden=false;studioStage?.classList.add('is-active');productStage?.classList.remove('is-active');await wait(timings.studio);studioStage?.classList.remove('is-active');productStage?.classList.add('is-active');await wait(timings.product);clearTimeout(watchdog);finish()}catch(_){clearTimeout(watchdog);finish()}
   }
 
   function switchScreen(name){const target=document.querySelector(`[data-screen="${name}"]`);if(!target)return;$$('.screen').forEach(s=>{const a=s===target;s.hidden=!a;s.classList.toggle('is-active',a)});currentScreen=name;appRoot?.classList.toggle('is-checkup',name==='checkup');$$('.nav-button').forEach(b=>b.classList.toggle('is-active',b.dataset.nav===name));if(name==='checkup')renderScanAction()}
@@ -121,6 +121,6 @@
     document.addEventListener('visibilitychange',()=>{if(!document.hidden)readNativeState()});
   }
 
-  function boot(){language=detectLanguage();applyLanguage(language,false);bind();resetProgress();switchScreen('home');runOpening();setTimeout(()=>{if(appRoot?.hidden){appRoot.hidden=false;if(launch)launch.hidden=true;readNativeState()}},7000)}
+  function boot(){language=detectLanguage();applyLanguage(language,false);bind();resetProgress();switchScreen('home');runOpening();setTimeout(()=>{if(appRoot)appRoot.hidden=false;if(launch&&!launch.hidden){launch.hidden=true;readNativeState()}},7000)}
   boot();
 })();

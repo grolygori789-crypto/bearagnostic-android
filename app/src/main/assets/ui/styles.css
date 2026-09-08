@@ -88,3 +88,14 @@ body{background:radial-gradient(circle at 90% 8%,rgba(180,226,255,.28),transpare
 @media (max-height:700px){.app-shell{grid-template-rows:82px 1fr 94px 20px}.home-screen{grid-template-rows:28% 13% 18% 12% 19%;gap:2%}.home-hero__copy{top:27%}.home-hero__bear{height:108%}.scan-screen{grid-template-rows:39% 10% 25% 9% 12%;gap:1.25%}.scan-copy{top:7%}.scan-title{font-size:clamp(29px,8.5vw,44px)}.scan-subtitle{margin-top:8px}.scan-stage small{display:none}.app-header .brand-wordmark small{display:none}}
 @media (min-width:600px){.app-shell{max-width:560px;margin:0 auto;box-shadow:0 0 60px rgba(30,70,100,.08)}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}}
+
+/* Batch 10 launch hardening — visual source is the approved legacy HTML screenshot. */
+.product-ident > img {
+  width: clamp(92px, 25vw, 118px) !important;
+  height: clamp(92px, 25vw, 118px) !important;
+  object-fit: contain !important;
+  border-radius: 24% !important;
+  background: rgba(255,255,255,.96) !important;
+  padding: 2px !important;
+  box-shadow: 0 8px 26px rgba(69,111,151,.10), inset 0 0 0 1px rgba(150,177,201,.16) !important;
+}

@@ -2,11 +2,8 @@ package com.benedictinteractive.bearagnostic
 
 import android.app.Activity
 import android.graphics.Color
-import android.os.Build
 import android.os.Bundle
 import android.view.View
-import android.view.WindowInsets
-import android.view.WindowInsetsController
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -27,7 +24,6 @@ class MainActivity : Activity() {
         window.statusBarColor = Color.TRANSPARENT
         window.navigationBarColor = Color.TRANSPARENT
 
-        scanner = FileHealthScanner(applicationContext)
         webView = WebView(this)
         nativeBridge = NativeBridge(this)
 
@@ -41,7 +37,7 @@ class MainActivity : Activity() {
                 super.onPageFinished(view, url)
                 // Runtime safety net: the HTML opening remains authoritative, but a
                 // JavaScript regression must never strand the user behind the launch layer.
-                webView.postDelayed({ forceAppVisibleIfLaunchStalled() }, 8_500L)
+                webView.postDelayed({ forceAppVisibleIfLaunchStalled() }, 6_500L)
             }
         }
 
@@ -79,24 +75,14 @@ class MainActivity : Activity() {
 
     @Suppress("DEPRECATION")
     private fun applyImmersiveMode() {
-        // API 30+ needs WindowInsetsController for reliable edge-to-edge immersive mode.
-        // Older supported Android versions retain the proven legacy system-UI flags.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            window.setDecorFitsSystemWindows(false)
-            window.insetsController?.let { controller ->
-                controller.hide(WindowInsets.Type.statusBars() or WindowInsets.Type.navigationBars())
-                controller.systemBarsBehavior =
-                    WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-            }
-        } else {
-            window.decorView.systemUiVisibility =
-                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or
-                    View.SYSTEM_UI_FLAG_FULLSCREEN or
-                    View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
-                    View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
-                    View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
-                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-        }
+        // Conservative path already proven to launch on the physical development device.
+        window.decorView.systemUiVisibility =
+            View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or
+                View.SYSTEM_UI_FLAG_FULLSCREEN or
+                View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
+                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
+                View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
     }
 
     private fun forceAppVisibleIfLaunchStalled() {
@@ -138,6 +124,7 @@ class MainActivity : Activity() {
             }.toString()
         }
 
+        ensureScanner()
         val scanMode = FileHealthScanner.ScanMode.fromWire(mode)
         val customScopes = parseCustomScopes(customScopesJson)
         val request = FileHealthScanner.ScanRequest(
@@ -184,11 +171,17 @@ class MainActivity : Activity() {
 
     fun cancelOneTapScan(): String {
         val wasRunning = isScannerRunning()
-        if (wasRunning) scanner.cancel()
+        if (wasRunning && ::scanner.isInitialized) scanner.cancel()
         return JSONObject().apply {
             put("accepted", wasRunning)
             if (!wasRunning) put("reason", "no_scan_running")
         }.toString()
+    }
+
+    private fun ensureScanner() {
+        if (!::scanner.isInitialized) {
+            scanner = FileHealthScanner(applicationContext)
+        }
     }
 
     private fun parseCustomScopes(raw: String): Set<String> {

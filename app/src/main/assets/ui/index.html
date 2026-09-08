@@ -30,7 +30,7 @@
     </div>
   </section>
 
-  <div id="appRoot" class="app-shell" hidden>
+  <div id="appRoot" class="app-shell">
     <header class="app-header">
       <button class="brand-button" id="homeBrandButton" type="button" aria-label="Bearagnostic home">
         <span class="brand-wordmark" aria-hidden="true">
@@ -154,6 +154,16 @@
     <button class="sheet-primary" id="customSave" type="button" data-i18n="useCustom">Use Custom Scan</button>
   </section>
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+  <script>
+    // Independent launch fail-safe: the Home shell exists beneath the opening layer.
+    // Even if the main bundle fails, the opening can never trap the user indefinitely.
+    window.setTimeout(function () {
+      var launch = document.getElementById('launch');
+      var app = document.getElementById('appRoot');
+      if (app) app.hidden = false;
+      if (launch) launch.hidden = true;
+    }, 6500);
+  </script>
   <script src="./app.js"></script>
 </body>
 </html>
