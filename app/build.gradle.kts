@@ -10,8 +10,8 @@ android {
         applicationId = "com.benedictinteractive.bearagnostic"
         minSdk = 26
         targetSdk = 36
-        versionCode = 2
-        versionName = "0.2.0-alpha02"
+        versionCode = 3
+        versionName = "0.3.0-alpha03"
     }
 
     buildFeatures {
@@ -23,10 +23,23 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
+    signingConfigs {
+        getByName("debug") {
+            // Development-only signing identity. This key is intentionally stable so
+            // CI-built .debug APKs can update one another during active development.
+            // Never use this signing configuration for production or Play release builds.
+            storeFile = rootProject.file("signing/bearagnostic-debug.jks")
+            storePassword = "android"
+            keyAlias = "bearagnosticdebug"
+            keyPassword = "android"
+        }
+    }
+
     buildTypes {
         debug {
             applicationIdSuffix = ".debug"
             versionNameSuffix = "-debug"
+            signingConfig = signingConfigs.getByName("debug")
         }
         release {
             isMinifyEnabled = false

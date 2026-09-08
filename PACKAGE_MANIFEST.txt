@@ -1,17 +1,20 @@
-Bearagnostic Android Native Scanner 02
-Overwrite-first repository overlay package
+Bearagnostic Android Persistent Dev Signing 03
+Repository root patch package
 Generated: 2026-09-08
+Production baseline commit: 850617e84580376c29ae128b81d2823837d8ca71
+Production baseline CI: GitHub Actions run 34193902495 = success
+Version: 0.3.0-alpha03
+Version code: 3
+Debug application ID: com.benedictinteractive.bearagnostic.debug
+Development key alias: bearagnosticdebug
+Development certificate SHA-256: 88:0C:E4:E2:34:2D:E5:19:26:3C:D2:A1:80:D4:EF:3F:89:AB:68:CE:2E:C4:D3:43:36:67:A8:63:5D:82:0B:C3
+Development certificate SHA-1: 4A:10:F7:EE:DA:01:6C:A2:65:70:A8:0D:C0:EF:FC:0D:09:68:5D:42
+Development certificate serial: 9c2363bcc9a1e84e
 
-Changed/new files in this package:
-6f72be28c3101a9d940c893e09a9a95bdfd15f8fc5f38c13aaaeefce660345e2  ./README.md
-420fa28fabfebc4ecbea6dc5ca8a07fa5486a934cb033394b7b70c7b042eb71f  ./UPLOAD_INSTRUCTIONS.md
-e71213576d01f39af98220310f9acc66cf9ce53e6d9c772b733966b22bb3cc93  ./app/build.gradle.kts
-223ee74dcea6e0e58ae28b68e36bb8dfc8651337812b738252af892b9fafc7de  ./app/src/main/AndroidManifest.xml
-d25ce6e494562132b4882a7ee369eeaba63458af7b60333f4694a64799e982a1  ./app/src/main/assets/ui/app.js
-1dbc03ced26b6997237e868e664d47aa0bcbeb7d39177280f92d5dd146d71329  ./app/src/main/assets/ui/index.html
-94ed104815282773d9f3f26b4229b680e2cdc6c23ae6c6c98157242abee56036  ./app/src/main/assets/ui/styles.css
-655639f3d6b8d1e5e2132837e9eef854d0c6065a1016aa65ea47d224c73e62fe  ./app/src/main/java/com/benedictinteractive/bearagnostic/FileHealthScanner.kt
-760b664ac7255972943e366067b15a486994da4ca594affa0da3911cfacadf38  ./app/src/main/java/com/benedictinteractive/bearagnostic/MainActivity.kt
-6430d1359ac4bad323d8f7fdbe35e440d397055c4d078da7f88f6a3e522f4bad  ./app/src/main/java/com/benedictinteractive/bearagnostic/NativeBridge.kt
-55774a95a35999c52522ed1d877e793d6eb2fdb49dd20a81bf3f17ac8ee197fa  ./docs/architecture/FOUNDATION.md
-6c57756383a8a7a2de0aeb36dbf3f0373cf2e0662484117c6e4e7ebdd6ef2baf  ./docs/architecture/QA.md
+Changed/new repository paths:
+690e5e4fb2ea6c0f754c2e84bbd7cd7c893dd768dd3847feae587b091de2a5fc  ./README.md
+823ef7d7f661affaf73b7252eb1e41c6001f627c972ede5e6af445c8bb54d5b8  ./UPLOAD_INSTRUCTIONS.md
+84b671c95a6371a60c07d6f01bf22b6288ad27f0e88a9000af4b2ed5029c250d  ./app/build.gradle.kts
+f19374d19d13d9662f8779bf9fa7aef36012127c5486f4ae93917d8b1a72d35a  ./docs/architecture/FOUNDATION.md
+95cb2c06a2da8749fef8ec2b1fabf839d7a8a2cdf0ce9d2db49b2797a6924bac  ./docs/architecture/QA.md
+0d9503a744024a717fd4f517dfecbf5c04e293ef8b95b7c028adf04c15127a7f  ./signing/bearagnostic-debug.jks

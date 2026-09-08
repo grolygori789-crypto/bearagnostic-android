@@ -23,6 +23,12 @@ NativeBridge (JavaScript interface)
                 ├── modified-date count
                 ├── same-size duplicate grouping
                 └── full-file SHA-256 verification
+
+Debug build pipeline
+        │
+        ├── stable .debug application ID
+        ├── stable development-only signing key
+        └── monotonically increasing versionCode
 ```
 
 The WebView contains only local packaged assets. It is not a remote website shell. Native Android code remains authoritative for permissions, filesystem access, scanning, hashing, deletion, and platform truth.
@@ -54,6 +60,30 @@ There is no fabricated universal scan percentage.
 - During duplicate verification the candidate byte total is known, so progress is derived from actual bytes read by SHA-256 hashing.
 - Completion is emitted only after the native engine finishes its real work.
 
+## Persistent development signing — Batch 03
+
+Debug builds use `com.benedictinteractive.bearagnostic.debug` and the repository development key at:
+
+`signing/bearagnostic-debug.jks`
+
+The debug build type explicitly references that key. This removes dependence on the ephemeral `$HOME/.android/debug.keystore` generated independently on each GitHub Actions runner.
+
+The key is intentionally development-only and public because it exists solely to make repeatable sideload testing possible. It is not an authentication boundary, must not protect production identity, and must never be used by the release build.
+
+Release signing remains separate and private.
+
+### Update invariant
+
+For a normal Android in-place development update, successive builds must preserve:
+
+- the debug application ID;
+- the signing identity;
+- a compatible/non-decreasing version code.
+
+Batch 03 establishes that invariant for future Bearagnostic debug builds.
+
+Earlier CI debug APKs used runner-local debug certificates. A device that already has one of those builds installed may require one final uninstall before the first Batch 03 install. After migration to Batch 03, future batches should update the debug app in place.
+
 ## Security and privacy boundaries
 
 - The app does not bypass Android sandboxing.
@@ -61,8 +91,9 @@ There is no fabricated universal scan percentage.
 - `Android/data` and `Android/obb` are deliberately excluded from traversal.
 - File contents are read only when needed to verify same-size duplicate candidates.
 - There is no network upload path in the scanner.
-- There is no deletion path in Native Scanner 02.
+- There is no deletion path in the scanner.
 - A future cleanup flow must require explicit review and confirmation before any destructive action.
+- The public development signing key is never reused for the production package.
 
 ## Resource safety
 
@@ -74,4 +105,4 @@ There is no fabricated universal scan percentage.
 
 ## Next production responsibility
 
-The next scanner milestone should add a reviewable result model for duplicate groups, large files, and older files without introducing silent deletion. Cleanup remains a separate responsibility from scanning.
+After Batch 03 passes CI and physical update-path testing, the next scanner milestone should add a reviewable result model for duplicate groups, large files, and older files without introducing silent deletion. Cleanup remains a separate responsibility from scanning.
