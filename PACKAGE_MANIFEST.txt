@@ -1,0 +1,32 @@
+Bearagnostic Android Foundation 01
+Repository root package
+Generated: 2026-09-08
+
+3850f2fa32bffb422a768dcbb07acbd798719cd536a52d04550a12b4e89305e5  ./.github/workflows/android-debug-apk.yml
+2710bcad968f94dda2039123da52acf5a27a7d5b3929187681977daa2b10fe33  ./.gitignore
+f5fa5ebbc0d537e17ea4e4df5aa13f599492052e2b64eea9d75a9f97810d30d0  ./README.md
+a8db6b78d9805dec17d00f597cab19d42510314e7aa169869e74c3778b3e2910  ./UPLOAD_INSTRUCTIONS.md
+02702055eaa5ef2dd46d2375594c33530bc46476ee56c8fa5714b38e7275e46c  ./app/build.gradle.kts
+d060140ed5652c245478d0b243e05f287e14cdcd84ddc2b429e5eda7b57c2f17  ./app/src/main/AndroidManifest.xml
+46d1e4fedb65958398d7e6bf46743717faa73adb7da847f8cfcb0f7b504ddfa0  ./app/src/main/assets/ui/app.js
+d2d0eec56063dfca72553e15c1744aa90319d80fcd94d2e271c5a9eb3403031f  ./app/src/main/assets/ui/index.html
+ad72e1627276c75cdf52a4877ba5374ba79f9493e76ff7eb245758969323139b  ./app/src/main/assets/ui/styles.css
+c8116d799bcfc2c38a02f1e06bcffd05bfb1353b026f481f0d985e6247bae66a  ./app/src/main/java/com/benedictinteractive/bearagnostic/MainActivity.kt
+5443922089b3449c842d22654543cb68190a48ffd2938036ee42b51a904d6c56  ./app/src/main/java/com/benedictinteractive/bearagnostic/NativeBridge.kt
+26f2d62eface847e1ffd5fc078dc9f42d5cdb837a6d04a337b1a27a8f055e863  ./app/src/main/java/com/benedictinteractive/bearagnostic/StorageAccessController.kt
+43cfc2c947fcc9ce425530b628dbce7152012b8957747ddeb1d509944d9d6385  ./app/src/main/res/drawable/ic_launcher_foreground.xml
+7a537c99f0f550c885a1a73e6a45285e9e9ffd23b10badb22dfc94b26314f1f5  ./app/src/main/res/drawable/ic_launcher_legacy_background.xml
+5e41e609a75b3b265d9235ea5d594cf67d645dd98369bfecb92a7550b660798a  ./app/src/main/res/drawable/ic_launcher_legacy_round_background.xml
+d0b7050d918713b6bd1598265d44b6553aecc667db9be269c11c75b61521ca75  ./app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml
+d0b7050d918713b6bd1598265d44b6553aecc667db9be269c11c75b61521ca75  ./app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml
+26f9498a08eac617cc8ee97e69c339d24e871bce8e0f99f555a823bac3d3f388  ./app/src/main/res/mipmap-anydpi/ic_launcher.xml
+75270baf64011daf681a175875f303e065a50a3e0dc740743d6aca0179a61945  ./app/src/main/res/mipmap-anydpi/ic_launcher_round.xml
+a1fa7faef72e8066896de017586561295eb754ca7443d12c1668f9782c575d31  ./app/src/main/res/values-night/themes.xml
+e37a6b60e3cfd5383ab35b7c81e6133bbf3900c36f00b748a735207dd11d5c4a  ./app/src/main/res/values/colors.xml
+d0a47a4564c9dfb433634e7be37fb2365b1f00301f87c17f255203732c3cd1ab  ./app/src/main/res/values/strings.xml
+5ee8c7201a0552e28624cffcc0eaaf5ba3945493da2e71da36d6f6df2f5f63a1  ./app/src/main/res/values/themes.xml
+786a6aef9d41e1075240be92fad07fb11f25717c0253245646957542649034f3  ./build.gradle.kts
+68d5faf9a6ed8b46a7b65358109f202c8969987a095225ebe3040d55b8afa376  ./docs/architecture/FOUNDATION.md
+93c523f101b92bd38309cf021205af3f49eb9175f8042eeed27281e3acf87066  ./docs/architecture/QA.md
+d8edf9329d9eec67be680c9d052bea08c50bbbd3f81ca5bdcbb919ac77f4a964  ./gradle.properties
+4d9a366cf3933943f504208b1f74e9ebcdd48ee8fb7ddff0effa4fd7cab560c4  ./settings.gradle.kts

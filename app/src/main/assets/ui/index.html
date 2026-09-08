@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+  <meta name="color-scheme" content="light">
+  <title>Bearagnostic Android Foundation</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <main class="shell">
+    <header class="brand-row">
+      <div class="brand" aria-label="Bearagnostic">
+        <strong>Bear<span>agnostic</span></strong>
+        <small>FILE HEALTH <i></i> BRIGHTER DAYS</small>
+      </div>
+      <div class="android-pill">ANDROID</div>
+    </header>
+
+    <section class="hero">
+      <div class="hero-glow" aria-hidden="true"></div>
+      <span class="kicker" data-i18n="kicker">ANDROID FOUNDATION</span>
+      <h1 data-i18n-html="headline">One tap.<br><em>A real file checkup.</em></h1>
+      <p data-i18n="intro">The native foundation is ready for Bearagnostic's device-level file-health engine.</p>
+    </section>
+
+    <section class="status-card" aria-labelledby="statusTitle">
+      <div class="status-card__head">
+        <div>
+          <span class="eyebrow" data-i18n="systemStatus">SYSTEM STATUS</span>
+          <h2 id="statusTitle" data-i18n="foundationReady">Foundation ready</h2>
+        </div>
+        <div class="pulse" aria-hidden="true"><i></i></div>
+      </div>
+
+      <div class="status-list">
+        <div class="status-row">
+          <span class="status-icon blue" aria-hidden="true">↔</span>
+          <div><strong data-i18n="nativeBridge">Native bridge</strong><small data-i18n="nativeBridgeSub">Secure local UI ↔ Android communication</small></div>
+          <b class="state good" id="bridgeState" data-i18n="ready">Ready</b>
+        </div>
+        <div class="status-row">
+          <span class="status-icon mint" aria-hidden="true">✓</span>
+          <div><strong data-i18n="storageAccess">Storage access</strong><small data-i18n="storageAccessSub">User-controlled permission for accessible files</small></div>
+          <b class="state" id="storageState" data-i18n="notGranted">Not granted</b>
+        </div>
+        <div class="status-row">
+          <span class="status-icon violet" aria-hidden="true">⌁</span>
+          <div><strong data-i18n="scannerEngine">Scanner engine</strong><small data-i18n="scannerEngineSub">Native one-tap analysis arrives in the next batch</small></div>
+          <b class="state quiet" data-i18n="next">Next</b>
+        </div>
+      </div>
+    </section>
+
+    <section class="trust-note">
+      <div class="shield" aria-hidden="true">◆</div>
+      <div>
+        <strong data-i18n="privacyTitle">Local by design</strong>
+        <p data-i18n="privacyBody">This foundation does not scan, upload, or delete files. Android remains in control of protected storage.</p>
+      </div>
+    </section>
+
+    <button class="primary" id="accessButton" type="button">
+      <span class="primary__copy"><strong data-i18n="prepareAccess">Prepare device access</strong><small data-i18n="prepareAccessSub">Android will show the system permission screen</small></span>
+      <span class="primary__arrow" aria-hidden="true">›</span>
+    </button>
+
+    <p class="footnote" id="buildLabel">Bearagnostic for Android · Foundation 01</p>
+  </main>
+
+  <script src="./app.js"></script>
+</body>
+</html>
