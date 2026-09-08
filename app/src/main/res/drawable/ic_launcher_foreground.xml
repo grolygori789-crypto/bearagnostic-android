@@ -1,28 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="108dp"
-    android:height="108dp"
-    android:viewportWidth="108"
-    android:viewportHeight="108">
-    <path
-        android:fillColor="#6E4A34"
-        android:pathData="M30,24a13,13 0,1 0,0.1 0M78,24a13,13 0,1 0,0.1 0" />
-    <path
-        android:fillColor="#865D42"
-        android:pathData="M54,18C33,18 20,34 20,58C20,80 34,91 54,91C74,91 88,80 88,58C88,34 75,18 54,18Z" />
-    <path
-        android:fillColor="#F2D3B6"
-        android:pathData="M54,54C43,54 37,61 39,70C41,82 67,82 69,70C71,61 65,54 54,54Z" />
-    <path
-        android:fillColor="#17283A"
-        android:pathData="M54,63C50,63 48,66 50,69C52,72 56,72 58,69C60,66 58,63 54,63Z" />
-    <path
-        android:fillColor="@android:color/transparent"
-        android:strokeColor="#173B5C"
-        android:strokeWidth="3.2"
-        android:strokeLineCap="round"
-        android:pathData="M30,49a13,11 0,1 0,26 0a13,11 0,1 0,-26 0M52,49L56,49M56,49a13,11 0,1 0,26 0a13,11 0,1 0,-26 0" />
-    <path
-        android:fillColor="#173B5C"
-        android:pathData="M42,49a2.6,2.6 0,1 0,0.1 0M66,49a2.6,2.6 0,1 0,0.1 0" />
-</vector>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:width="82dp"
+        android:height="82dp"
+        android:gravity="center"
+        android:drawable="@drawable/bearagnostic_legacy_app_icon" />
+</layer-list>

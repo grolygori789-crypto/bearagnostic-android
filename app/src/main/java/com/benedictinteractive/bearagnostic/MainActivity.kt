@@ -2,11 +2,8 @@ package com.benedictinteractive.bearagnostic
 
 import android.app.Activity
 import android.graphics.Color
-import android.os.Build
 import android.os.Bundle
 import android.view.View
-import android.view.WindowInsets
-import android.view.WindowInsetsController
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -31,16 +28,23 @@ class MainActivity : Activity() {
         webView = WebView(this)
         nativeBridge = NativeBridge(this)
 
-        webView.setBackgroundColor(Color.TRANSPARENT)
+        webView.setBackgroundColor(Color.rgb(246, 249, 253))
         webView.webViewClient = object : WebViewClient() {
             override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
                 return url?.startsWith("file:///android_asset/") != true
+            }
+
+            override fun onPageFinished(view: WebView?, url: String?) {
+                super.onPageFinished(view, url)
+                // Runtime safety net: the HTML opening remains authoritative, but a
+                // JavaScript regression must never strand the user behind the launch layer.
+                webView.postDelayed({ forceAppVisibleIfLaunchStalled() }, 8_500L)
             }
         }
 
         webView.settings.apply {
             javaScriptEnabled = true
-            domStorageEnabled = false
+            domStorageEnabled = true
             allowFileAccess = true
             allowContentAccess = false
             setSupportZoom(false)
@@ -72,22 +76,24 @@ class MainActivity : Activity() {
 
     @Suppress("DEPRECATION")
     private fun applyImmersiveMode() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            window.setDecorFitsSystemWindows(false)
-            window.insetsController?.let { controller ->
-                controller.hide(WindowInsets.Type.statusBars() or WindowInsets.Type.navigationBars())
-                controller.systemBarsBehavior =
-                    WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-            }
-        } else {
-            window.decorView.systemUiVisibility =
-                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or
-                    View.SYSTEM_UI_FLAG_FULLSCREEN or
-                    View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
-                    View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
-                    View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
-                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-        }
+        // One conservative implementation for API 26–36. The previous WindowInsets
+        // branch introduced an unnecessary launch-time variable on some OEM builds.
+        window.decorView.systemUiVisibility =
+            View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or
+                View.SYSTEM_UI_FLAG_FULLSCREEN or
+                View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
+                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
+                View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+    }
+
+    private fun forceAppVisibleIfLaunchStalled() {
+        if (!::webView.isInitialized || isFinishing || isDestroyed) return
+        webView.evaluateJavascript(
+            "(function(){var l=document.getElementById('launch');var a=document.getElementById('appRoot');" +
+                "if(a&&a.hidden){a.hidden=false;}if(l&&!l.hidden){l.hidden=true;}return true;})()",
+            null,
+        )
     }
 
     override fun onRequestPermissionsResult(

@@ -20,7 +20,11 @@
     </div>
     <div class="launch__stage launch__product" data-launch-stage="product">
       <div class="product-ident">
-        <img src="../media/bearagnostic-master-logo.webp" alt="Bearagnostic" width="180" height="180">
+        <img class="product-ident__app-icon" src="../media/legacy-app-icon.webp" alt="" width="92" height="92">
+        <div class="brand-wordmark brand-wordmark--launch" aria-label="Bearagnostic">
+          <strong>Bear<span>agnostic</span></strong>
+          <small>FILE HEALTH <i></i> BRIGHTER DAYS</small>
+        </div>
         <p data-i18n="doctorIn">Dr. Bear is in.</p>
       </div>
     </div>
@@ -195,6 +199,14 @@
   </section>
 
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+  <script>
+    // Independent boot fail-safe: never leave a production build trapped on opening.
+    window.__bearagnosticLaunchFailSafe=setTimeout(function(){
+      var launch=document.getElementById('launch'),app=document.getElementById('appRoot');
+      if(app&&app.hidden)app.hidden=false;
+      if(launch&&!launch.hidden)launch.hidden=true;
+    },8500);
+  </script>
   <script src="./app.js"></script>
 </body>
 </html>

@@ -43,7 +43,7 @@
   const $ = (id) => document.getElementById(id);
   const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
   const STORAGE = 'bearagnostic.android.';
-  const BUILD_LAUNCH_KEY = `${STORAGE}launch.seen.b7`;
+  const BUILD_LAUNCH_KEY = `${STORAGE}launch.seen.b8`;
   const LANG_KEY = `${STORAGE}language`;
   const MOTION_KEY = `${STORAGE}motion`;
   const RING_LENGTH = 289.03;
@@ -122,7 +122,7 @@
   function closeSheets() { [modeSheet,customSheet,infoSheet].forEach((s)=>{if(s)s.hidden=true;}); if (modalScrim) modalScrim.hidden=true; }
   function openInfo(kind) {
     if (kind === 'privacy') { $('infoKicker').textContent=t('privacyKicker'); $('infoTitle').textContent=t('privacyTitle'); $('infoContent').innerHTML=`<p>${escapeHtml(t('privacyBody'))}</p>`; }
-    else { $('infoKicker').textContent=t('aboutKicker'); $('infoTitle').textContent='Bearagnostic'; $('infoContent').innerHTML=`<div class="info-hero"><img src="../media/bearagnostic-master-logo.webp" alt=""><div><strong>Bearagnostic</strong><span>${escapeHtml(nativeState.versionName || '0.7.0-alpha07-debug')} · Benedict Interactive</span></div></div><p>${escapeHtml(t('aboutBody'))}</p>`; }
+    else { $('infoKicker').textContent=t('aboutKicker'); $('infoTitle').textContent='Bearagnostic'; $('infoContent').innerHTML=`<div class="info-hero"><img src="../media/bearagnostic-master-logo.webp" alt=""><div><strong>Bearagnostic</strong><span>${escapeHtml(nativeState.versionName || '0.8.0-alpha08-debug')} · Benedict Interactive</span></div></div><p>${escapeHtml(t('aboutBody'))}</p>`; }
     openSheet(infoSheet);
   }
   function escapeHtml(v){return String(v).replace(/[&<>"']/g,(c)=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
@@ -238,26 +238,52 @@
   });
 
   function bindEvents(){
-    $('homeBrandButton').addEventListener('click',()=>switchScreen('home'));
-    $('settingsButton').addEventListener('click',()=>switchScreen('preferences'));
-    $('preferencesBack').addEventListener('click',()=>switchScreen('home'));
-    $$('.nav-button[data-nav]').forEach((button)=>button.addEventListener('click',()=>switchScreen(button.dataset.nav)));
-    $('startCheckup').addEventListener('click',()=>{selectedMode='smart';pendingSmartStart=true;switchScreen('checkup');resetProgressUI();renderModeChip();if(nativeState.broadStorageAccess){pendingSmartStart=false;setTimeout(()=>startNativeScan('smart'),120);}else{try{window.BearagnosticNative?.requestBroadStorageAccess?.();}catch(_){}}});
-    $('healthCard').addEventListener('click',()=>switchScreen('checkup'));
-    scanAction.addEventListener('click',()=>{if(scanState==='running'){cancelScan();return;}if(!nativeState.broadStorageAccess){try{window.BearagnosticNative?.requestBroadStorageAccess?.();}catch(_){}return;}startNativeScan(selectedMode);});
-    modeChip.addEventListener('click',()=>{if(scanState!=='running')openSheet(modeSheet);});
-    $('modeClose').addEventListener('click',closeSheets);$('customClose').addEventListener('click',closeSheets);$('infoClose').addEventListener('click',closeSheets);modalScrim.addEventListener('click',closeSheets);
-    $$('.mode-option').forEach((button)=>button.addEventListener('click',()=>{const mode=button.dataset.mode;if(mode==='custom'){selectedMode='custom';renderModeChip();openSheet(customSheet);}else{selectedMode=mode;renderModeChip();resetProgressUI();closeSheets();}}));
-    $('customSave').addEventListener('click',()=>{if(customScopes().length===0){showToast(language==='th'?'เลือกอย่างน้อย 1 ตำแหน่ง':language==='ja'?'1つ以上選択してください':'Choose at least one location');return;}selectedMode='custom';renderModeChip();resetProgressUI();closeSheets();});
-    $('privacyRow').addEventListener('click',()=>openInfo('privacy'));$('aboutRow').addEventListener('click',()=>openInfo('about'));
-    $$('.tool-card,.utility-list button[data-tool]').forEach((button)=>button.addEventListener('click',()=>showToast(t('comingSoon'))));
-    $$('[data-language-group] [data-lang]').forEach((button)=>button.addEventListener('click',()=>applyLanguage(button.dataset.lang,true)));
-    $('motionSelect').addEventListener('change',(event)=>{const mode=event.target.value;document.documentElement.dataset.motion=mode;storageSet(MOTION_KEY,mode);});
+    const on=(target,event,handler)=>{if(target)target.addEventListener(event,handler);};
+    on($('homeBrandButton'),'click',()=>switchScreen('home'));
+    on($('settingsButton'),'click',()=>switchScreen('preferences'));
+    on($('preferencesBack'),'click',()=>switchScreen('home'));
+    $$('.nav-button[data-nav]').forEach((button)=>on(button,'click',()=>switchScreen(button.dataset.nav)));
+    on($('startCheckup'),'click',()=>{selectedMode='smart';pendingSmartStart=true;switchScreen('checkup');resetProgressUI();renderModeChip();if(nativeState.broadStorageAccess){pendingSmartStart=false;setTimeout(()=>startNativeScan('smart'),120);}else{try{window.BearagnosticNative?.requestBroadStorageAccess?.();}catch(_){}}});
+    on($('healthCard'),'click',()=>switchScreen('checkup'));
+    on(scanAction,'click',()=>{if(scanState==='running'){cancelScan();return;}if(!nativeState.broadStorageAccess){try{window.BearagnosticNative?.requestBroadStorageAccess?.();}catch(_){}return;}startNativeScan(selectedMode);});
+    on(modeChip,'click',()=>{if(scanState!=='running')openSheet(modeSheet);});
+    on($('modeClose'),'click',closeSheets);on($('customClose'),'click',closeSheets);on($('infoClose'),'click',closeSheets);on(modalScrim,'click',closeSheets);
+    $$('.mode-option').forEach((button)=>on(button,'click',()=>{const mode=button.dataset.mode;if(mode==='custom'){selectedMode='custom';renderModeChip();openSheet(customSheet);}else{selectedMode=mode;renderModeChip();resetProgressUI();closeSheets();}}));
+    on($('customSave'),'click',()=>{if(customScopes().length===0){showToast(language==='th'?'เลือกอย่างน้อย 1 ตำแหน่ง':language==='ja'?'1つ以上選択してください':'Choose at least one location');return;}selectedMode='custom';renderModeChip();resetProgressUI();closeSheets();});
+    on($('privacyRow'),'click',()=>openInfo('privacy'));on($('aboutRow'),'click',()=>openInfo('about'));
+    $$('.tool-card,.utility-list button[data-tool]').forEach((button)=>on(button,'click',()=>showToast(t('comingSoon'))));
+    $$('[data-language-group] [data-lang]').forEach((button)=>on(button,'click',()=>applyLanguage(button.dataset.lang,true)));
+    on($('motionSelect'),'change',(event)=>{const mode=event.target.value;document.documentElement.dataset.motion=mode;storageSet(MOTION_KEY,mode);});
     document.addEventListener('visibilitychange',()=>{if(!document.hidden&&launchFinished)readNativeState();});
   }
 
+  function revealAppFallback(){
+    launchFinished=true;
+    if(appRoot)appRoot.hidden=false;
+    if(launch)launch.hidden=true;
+    try{switchScreen('home');}catch(_){}
+    try{readNativeState();}catch(_){}
+  }
+
   function boot(){
-    language=detectLanguage();applyLanguage(language,false);const motion=storageGet(MOTION_KEY,'system');document.documentElement.dataset.motion=motion;$('motionSelect').value=motion;bindEvents();renderModeChip();resetProgressUI();switchScreen('home');runOpening();
+    // Start the legacy opening before optional UI wiring so a secondary control can
+    // never prevent Benedict Interactive -> Bearagnostic -> Home from completing.
+    const rescue=setTimeout(revealAppFallback,8_000);
+    try{
+      language=detectLanguage();
+      const motion=storageGet(MOTION_KEY,'system');
+      document.documentElement.dataset.motion=motion;
+      const motionSelect=$('motionSelect');if(motionSelect)motionSelect.value=motion;
+      switchScreen('home');
+      runOpening().finally(()=>clearTimeout(rescue));
+      applyLanguage(language,false);
+      bindEvents();
+      renderModeChip();
+      resetProgressUI();
+    }catch(_){
+      clearTimeout(rescue);
+      revealAppFallback();
+    }
   }
   boot();
 })();
