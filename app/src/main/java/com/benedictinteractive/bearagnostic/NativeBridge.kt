@@ -11,16 +11,12 @@ class NativeBridge(private val activity: MainActivity) {
 
     @JavascriptInterface
     fun requestBroadStorageAccess() {
-        activity.runOnUiThread {
-            StorageAccessController.request(activity)
-        }
+        activity.runOnUiThread { StorageAccessController.request(activity) }
     }
 
     @JavascriptInterface
     fun refreshNativeState() {
-        activity.runOnUiThread {
-            activity.pushNativeStateToWeb()
-        }
+        activity.runOnUiThread { activity.pushNativeStateToWeb() }
     }
 
     @JavascriptInterface
@@ -44,10 +40,12 @@ class NativeBridge(private val activity: MainActivity) {
         put("scannerRunning", activity.isScannerRunning())
         put("scanScope", "accessible_shared_storage")
         put("scanModes", "smart,quick,deep,custom")
+        put("analysisRulesVersion", FileHealthScanner.ANALYSIS_RULES_VERSION)
+        put("scannerCapabilities", "metadata,categories,old,large,temp,apk,archives,zero_byte,empty_folders,screenshots,media,downloads,sha256_duplicates")
     }.toString()
 
     companion object {
         const val JS_INTERFACE_NAME = "BearagnosticNative"
-        const val BRIDGE_VERSION = 3
+        const val BRIDGE_VERSION = 4
     }
 }
