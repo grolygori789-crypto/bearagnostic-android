@@ -5,10 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#f6f9fd">
   <meta name="color-scheme" content="light">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Bearagnostic">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="description" content="Bearagnostic is a premium, local-first file-health checkup assistant by Benedict Interactive.">
+  <meta name="application-version" content="0.11.0-alpha11">
   <title>Bearagnostic</title>
+  <link rel="preload" as="image" href="../media/dr-bear-approved.webp">
   <link rel="stylesheet" href="./styles.css">
 </head>
-<body>
+<body data-build="11">
   <section id="launch" class="launch" aria-label="Bearagnostic opening">
     <div class="launch__stage launch__studio is-active" data-launch-stage="studio">
       <div class="studio-ident" aria-hidden="true">
@@ -20,7 +28,7 @@
     </div>
     <div class="launch__stage launch__product" data-launch-stage="product">
       <div class="product-ident">
-        <img src="../media/legacy-app-icon.webp" alt="" width="104" height="104">
+        <img src="../media/legacy-app-icon.webp" alt="" width="92" height="92">
         <div class="brand-wordmark brand-wordmark--launch" aria-label="Bearagnostic">
           <strong>Bear<span>agnostic</span></strong>
           <small>FILE HEALTH <i></i> BRIGHTER DAYS</small>
@@ -30,16 +38,16 @@
     </div>
   </section>
 
-  <div id="appRoot" class="app-shell">
+  <div id="appRoot" class="app-shell" hidden>
     <header class="app-header">
       <button class="brand-button" id="homeBrandButton" type="button" aria-label="Bearagnostic home">
         <span class="brand-wordmark" aria-hidden="true">
           <strong>Bear<span>agnostic</span></strong>
-          <small><b>FILE HEALTH</b><i></i><b>BRIGHTER DAYS</b></small>
+          <small><b data-i18n="brandFileHealth">FILE HEALTH</b><i></i><b data-i18n="brandBrighterDays">BRIGHTER DAYS</b></small>
         </span>
       </button>
-      <button class="header-settings" id="settingsButton" type="button" aria-label="Preferences">
-        <img src="../media/header-gear.png" alt="" aria-hidden="true">
+      <button class="header-settings header-settings--premium" id="settingsButton" type="button" data-i18n-aria="preferences" aria-label="Preferences">
+        <img class="header-premium-gear" src="../media/header-gear.png" alt="" aria-hidden="true">
       </button>
     </header>
 
@@ -53,26 +61,38 @@
         </section>
 
         <button class="checkup-cta" id="startCheckup" type="button">
-          <span class="checkup-cta__icon"><img src="../media/checkup.png" alt="" aria-hidden="true"></span>
+          <span class="checkup-cta__icon glass-image-shell" aria-hidden="true"><img src="../media/checkup.png" alt=""></span>
           <span class="checkup-cta__copy"><strong data-i18n="startCheckup">Start Checkup</strong><small data-i18n="startCheckupBody">Choose how deeply Bearagnostic should check.</small></span>
-          <span class="checkup-cta__arrow" aria-hidden="true">›</span>
+          <span class="checkup-cta__arrow" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></svg></span>
         </button>
 
         <section class="quick-tools" aria-label="Quick tools">
-          <button class="tool-card" type="button" data-tool="cleanup"><span class="tool-card__icon"><img src="../media/cleanup.png" alt=""></span><strong data-i18n="cleanup">Cleanup</strong><small data-i18n="cleanupSub">Review candidates</small></button>
-          <button class="tool-card" type="button" data-tool="duplicates"><span class="tool-card__icon"><img src="../media/duplicates.png" alt=""></span><strong data-i18n="duplicates">Duplicates</strong><small data-i18n="duplicatesSub">Find repeats</small></button>
-          <button class="tool-card" type="button" data-tool="large"><span class="tool-card__icon"><img src="../media/large-files.png" alt=""></span><strong data-i18n="largeFiles">Large Files</strong><small data-i18n="largeFilesSub">Biggest files</small></button>
-          <button class="tool-card" type="button" data-tool="older"><span class="tool-card__icon"><img src="../media/older-files.png" alt=""></span><strong data-i18n="olderFiles">Older Files</strong><small data-i18n="olderFilesSub">Older edits</small></button>
+          <button class="tool-card" type="button" data-tool="cleanup">
+            <span class="tool-card__icon tool-card__icon--blue glass-image-shell" aria-hidden="true"><img src="../media/cleanup.png" alt=""></span>
+            <strong data-i18n="cleanup">Cleanup</strong><small data-i18n="cleanupSub">Review candidates</small>
+          </button>
+          <button class="tool-card" type="button" data-tool="duplicates">
+            <span class="tool-card__icon tool-card__icon--violet glass-image-shell" aria-hidden="true"><img src="../media/duplicates.png" alt=""></span>
+            <strong data-i18n="duplicates">Duplicates</strong><small data-i18n="duplicatesSub">Find repeats</small>
+          </button>
+          <button class="tool-card" type="button" data-tool="large">
+            <span class="tool-card__icon tool-card__icon--amber glass-image-shell" aria-hidden="true"><img src="../media/large-files.png" alt=""></span>
+            <strong data-i18n="largeFiles">Large Files</strong><small data-i18n="largeFilesSub">Biggest files</small>
+          </button>
+          <button class="tool-card" type="button" data-tool="older">
+            <span class="tool-card__icon tool-card__icon--mint glass-image-shell" aria-hidden="true"><img src="../media/older-files.png" alt=""></span>
+            <strong data-i18n="olderFiles">Older Files</strong><small data-i18n="olderFilesSub">Older edits</small>
+          </button>
         </section>
 
         <button class="health-card" id="healthCard" type="button">
-          <span class="health-card__icon"><img src="../media/file-health.png" alt=""></span>
+          <span class="health-card__icon"><svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10Z"/></svg></span>
           <span class="health-card__copy"><strong data-i18n="fileHealth">File Health</strong><small id="healthSummary" data-i18n="fileHealthSub">Your checkup summary will appear here.</small></span>
-          <span class="health-card__arrow" aria-hidden="true">›</span>
+          <span class="health-card__arrow"><svg viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></svg></span>
         </button>
 
         <section class="editorial-card" aria-label="Bearagnostic note">
-          <img src="../media/home-editorial-still-life.png" alt="" aria-hidden="true">
+          <img src="../media/home-editorial-still-life.png" alt="" loading="eager">
           <div class="editorial-card__veil"></div>
           <div class="editorial-card__quote"><span aria-hidden="true">“</span><blockquote data-i18n="editorialQuote">A cleaner device leads to a calmer mind.</blockquote><small>— Bearagnostic</small></div>
         </section>
@@ -80,90 +100,124 @@
 
       <section class="screen scan-screen" id="checkupScreen" data-screen="checkup" data-state="idle" hidden>
         <section class="scan-hero" aria-labelledby="scanTitle">
-          <img class="scan-hero__scene" src="../media/scanning-clinical-scene.webp" alt="Dr. Bear reviewing a tablet" draggable="false">
+          <img class="scan-hero__scene" src="../media/scanning-clinical-scene.webp" alt="Dr. Bear reviewing a tablet in the Bearagnostic clinic" draggable="false">
+          <div class="scan-stream-glow" aria-hidden="true"></div>
+          <div class="scan-file-stream" id="scanFileStream" aria-hidden="true"></div>
           <div class="scan-copy">
             <span class="scan-kicker" id="scanKicker" data-i18n="scanKicker">SCANNING YOUR FILES</span>
             <h2 class="scan-title" id="scanTitle"><span id="scanTitleText" data-i18n="scanIdleTitle">Ready for a checkup</span><span class="scan-title__dots" aria-hidden="true"><i>.</i><i>.</i><i>.</i></span></h2>
-            <p class="scan-subtitle" id="scanSubtitle" data-i18n="scanIdleSub">Choose a scan mode. Bearagnostic only reports work the native scanner actually completes.</p>
+            <p class="scan-subtitle" id="scanSubtitle" data-i18n="scanIdleSub">Choose a scan mode. Every stage reflects real native work.</p>
           </div>
         </section>
 
         <section class="scan-rail" aria-label="Checkup stages">
           <div class="scan-rail__line" aria-hidden="true"><div class="scan-rail__progress" id="scanRailProgress"></div></div>
           <div class="scan-stages">
-            <div class="scan-stage" data-stage="preparing"><span class="scan-stage__dot">✓</span><strong data-i18n="stagePreparing">Preparing</strong><small data-i18n="stagePreparingSub">Getting ready</small></div>
-            <div class="scan-stage" data-stage="file_details"><span class="scan-stage__dot">✓</span><strong data-i18n="stageDetails">File Details</strong><small data-i18n="stageDetailsSub">Reading info</small></div>
-            <div class="scan-stage" data-stage="file_sizes"><span class="scan-stage__dot">✓</span><strong data-i18n="stageSizes">File Sizes</strong><small data-i18n="stageSizesSub">Analyzing</small></div>
-            <div class="scan-stage" data-stage="duplicates"><span class="scan-stage__dot">✓</span><strong data-i18n="stageDuplicates">Duplicates</strong><small id="duplicateStageSub" data-i18n="stageDuplicatesSub">Finding matches</small></div>
-            <div class="scan-stage" data-stage="modified_dates"><span class="scan-stage__dot">✓</span><strong data-i18n="stageDates">Modified Dates</strong><small data-i18n="stageDatesSub">Checking dates</small></div>
-            <div class="scan-stage" data-stage="finalizing"><span class="scan-stage__dot">✓</span><strong data-i18n="stageFinalizing">Finalizing</strong><small data-i18n="stageFinalizingSub">Almost there</small></div>
+            <div class="scan-stage" data-scan-stage data-phase="preparing"><span class="scan-stage__dot"><svg class="scan-stage__check" viewBox="0 0 24 24"><path d="m6 12 4 4 8-9"/></svg></span><strong data-i18n="stagePreparing">Preparing</strong><small data-i18n="stagePreparingSub">Getting ready</small></div>
+            <div class="scan-stage" data-scan-stage data-phase="file_details"><span class="scan-stage__dot"><svg class="scan-stage__check" viewBox="0 0 24 24"><path d="m6 12 4 4 8-9"/></svg></span><strong data-i18n="stageDetails">File Details</strong><small data-i18n="stageDetailsSub">Reading info</small></div>
+            <div class="scan-stage" data-scan-stage data-phase="file_sizes"><span class="scan-stage__dot"><svg class="scan-stage__check" viewBox="0 0 24 24"><path d="m6 12 4 4 8-9"/></svg></span><strong data-i18n="stageSizes">File Sizes</strong><small data-i18n="stageSizesSub">Analyzing</small></div>
+            <div class="scan-stage" data-scan-stage data-phase="duplicates"><span class="scan-stage__dot"><svg class="scan-stage__check" viewBox="0 0 24 24"><path d="m6 12 4 4 8-9"/></svg></span><strong data-i18n="stageDuplicates">Duplicates</strong><small data-i18n="stageDuplicatesSub">Finding matches</small></div>
+            <div class="scan-stage" data-scan-stage data-phase="modified_dates"><span class="scan-stage__dot"><svg class="scan-stage__check" viewBox="0 0 24 24"><path d="m6 12 4 4 8-9"/></svg></span><strong data-i18n="stageDates">Modified Dates</strong><small data-i18n="stageDatesSub">Checking dates</small></div>
+            <div class="scan-stage" data-scan-stage data-phase="finalizing"><span class="scan-stage__dot"><svg class="scan-stage__check" viewBox="0 0 24 24"><path d="m6 12 4 4 8-9"/></svg></span><strong data-i18n="stageFinalizing">Finalizing</strong><small data-i18n="stageFinalizingSub">Almost there</small></div>
           </div>
         </section>
 
         <section class="scan-dashboard" aria-live="polite">
           <div class="scan-progress">
-            <div class="scan-ring" id="scanRing">
+            <div class="scan-ring">
               <svg viewBox="0 0 110 110" aria-hidden="true"><defs><linearGradient id="scanRingGradient" x1="14" y1="94" x2="94" y2="16" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#25c1ef"/><stop offset="1" stop-color="#197fea"/></linearGradient></defs><circle class="scan-ring__track" cx="55" cy="55" r="46"/><circle class="scan-ring__value" id="scanRingValue" cx="55" cy="55" r="46"/></svg>
               <div class="scan-ring__copy"><strong><span id="scanPercent">0</span><small>%</small></strong><span id="scanRingLabel" data-i18n="ready">READY</span></div>
             </div>
           </div>
           <div class="scan-findings">
-            <div class="scan-finding"><span class="finding-icon">▱</span><b id="scanReviewed">0</b><span data-i18n="filesReviewed">files reviewed</span></div>
-            <div class="scan-finding"><span class="finding-icon">▣</span><b id="scanDuplicates">0</b><span id="scanDuplicatesLabel" data-i18n="duplicateCandidates">duplicate candidates</span></div>
-            <div class="scan-finding"><span class="finding-icon">□</span><b id="scanLarge">0</b><span data-i18n="largeNoted">large files noted</span></div>
-            <div class="scan-finding"><span class="finding-icon">◷</span><b id="scanOlder">0</b><span data-i18n="olderFound">older files found</span></div>
+            <div class="scan-finding"><svg viewBox="0 0 24 24"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v5h5"/></svg><b id="scanReviewed">0</b><span id="scanReviewedLabel" data-i18n="filesReviewed">files reviewed</span></div>
+            <div class="scan-finding"><svg viewBox="0 0 24 24"><rect x="4" y="6" width="11" height="13" rx="2"/><rect x="9" y="3" width="11" height="13" rx="2"/></svg><b id="scanDuplicates">0</b><span id="scanDuplicatesLabel" data-i18n="duplicateCandidates">duplicate candidates</span></div>
+            <div class="scan-finding"><svg viewBox="0 0 24 24"><path d="M3 7h7l2 2h9v10H3z"/></svg><b id="scanLarge">0</b><span id="scanLargeLabel" data-i18n="largeNoted">large files noted</span></div>
+            <div class="scan-finding"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 7v5l3 2"/></svg><b id="scanOlder">0</b><span id="scanOlderLabel" data-i18n="olderFound">older files found</span></div>
           </div>
           <div class="scan-quote"><span class="scan-quote__mark" aria-hidden="true">“</span><blockquote id="scanQuote" data-i18n="quoteIdle">Your files. Your choice.</blockquote><small>— Dr. Bear</small></div>
         </section>
 
-        <section class="scan-tip"><span class="scan-tip__bulb" aria-hidden="true">💡</span><div class="scan-tip__copy"><strong id="scanTipTitle" data-i18n="tipTitle">Did you know?</strong><span id="scanTipBody" data-i18n="tipBody">Bearagnostic analyzes accessible files locally on this device.</span></div><span class="scan-tip__arrow" aria-hidden="true">›</span></section>
+        <section class="scan-tip"><span class="scan-tip__bulb" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4"/><path d="M8.3 14.6A6 6 0 1 1 15.7 14.6C14.7 15.4 14 16.4 14 18h-4c0-1.6-.7-2.6-1.7-3.4Z"/><path d="M12 2V1M4.9 4.9l-.8-.8M19.1 4.9l.8-.8M2 12H1M23 12h-1"/></svg></span><div class="scan-tip__copy"><strong id="scanTipTitle" data-i18n="tipTitle">Did you know?</strong><span id="scanTipBody" data-i18n="tipBody">Bearagnostic analyzes accessible files locally on this device.</span></div><span class="scan-tip__arrow" aria-hidden="true">›</span></section>
         <div class="scan-bottom"><button class="scan-action" id="scanAction" type="button"><span id="scanActionLabel" data-i18n="chooseMode">Choose scan mode</span></button><div class="scan-studio">BEARAGNOSTIC</div></div>
       </section>
 
-      <section class="screen utility-screen" id="toolsScreen" data-screen="tools" hidden><div class="utility-head"><span>TOOLS</span><h2 data-i18n="toolsTitle">Focused file review</h2><p data-i18n="toolsBody">Cleaner tools will use the same native evidence.</p></div></section>
-      <section class="screen utility-screen" id="insightsScreen" data-screen="insights" hidden><div class="utility-head"><span>INSIGHTS</span><h2 data-i18n="insightsTitle">Real results only</h2><p data-i18n="insightsBody">Insights remain empty until real scans create real data.</p></div></section>
-      <section class="screen utility-screen" id="moreScreen" data-screen="more" hidden><div class="utility-head"><span>MORE</span><h2>Bearagnostic</h2><p data-i18n="privacyBody">Local-first file health by Benedict Interactive.</p></div></section>
-      <section class="screen utility-screen" id="preferencesScreen" data-screen="preferences" hidden><div class="utility-head"><span>PREFERENCES</span><h2 data-i18n="preferences">Preferences</h2><div class="language-row"><button data-lang="en">EN</button><button data-lang="ja">日本語</button><button data-lang="th">ไทย</button></div><button id="preferencesBack" class="simple-back" type="button">‹ <span data-i18n="back">Back</span></button></div></section>
+      <section class="screen utility-screen" id="toolsScreen" data-screen="tools" hidden>
+        <div class="utility-head"><span data-i18n="toolsKicker">TOOLS</span><h2 data-i18n="toolsTitle">Focused file review</h2><p data-i18n="toolsBody">Each tool uses the same truthful native evidence.</p></div>
+        <div class="utility-list">
+          <button type="button" data-tool="cleanup"><span class="mini-icon blue"><img src="../media/cleanup.png" alt=""></span><span><strong data-i18n="cleanup">Cleanup</strong><small data-i18n="cleanupSub">Review candidates</small></span><b>›</b></button>
+          <button type="button" data-tool="duplicates"><span class="mini-icon violet"><img src="../media/duplicates.png" alt=""></span><span><strong data-i18n="duplicates">Duplicates</strong><small data-i18n="duplicatesSub">Find repeats</small></span><b>›</b></button>
+          <button type="button" data-tool="large"><span class="mini-icon amber"><img src="../media/large-files.png" alt=""></span><span><strong data-i18n="largeFiles">Large Files</strong><small data-i18n="largeFilesSub">Biggest files</small></span><b>›</b></button>
+          <button type="button" data-tool="older"><span class="mini-icon mint"><img src="../media/older-files.png" alt=""></span><span><strong data-i18n="olderFiles">Older Files</strong><small data-i18n="olderFilesSub">Older edits</small></span><b>›</b></button>
+        </div>
+      </section>
+
+      <section class="screen utility-screen" id="insightsScreen" data-screen="insights" hidden>
+        <div class="utility-head"><span data-i18n="insightsKicker">INSIGHTS</span><h2 data-i18n="insightsTitle">Useful patterns, once they exist</h2><p data-i18n="insightsBody">Insights stay empty until real checkups create honest local history.</p></div>
+        <div class="utility-empty"><img src="../media/nav-insights.png" alt="" aria-hidden="true"><strong data-i18n="noInsights">No insights yet</strong><small data-i18n="noInsightsSub">Run a real checkup first. Bearagnostic will never invent a score.</small></div>
+      </section>
+
+      <section class="screen utility-screen" id="moreScreen" data-screen="more" hidden>
+        <div class="utility-head"><span data-i18n="moreKicker">MORE</span><h2>Bearagnostic</h2><p data-i18n="privacyBody">Local-first file health by Benedict Interactive.</p></div>
+        <div class="utility-list"><button id="privacyRow" type="button"><span class="soft-icon mint">✓</span><span><strong data-i18n="privacyLocal">Privacy & local data</strong><small data-i18n="privacyLocalSub">What stays on your device</small></span><b>›</b></button></div>
+      </section>
+
+      <section class="screen settings-screen" id="preferencesScreen" data-screen="preferences" hidden>
+        <div class="settings-title-row"><button class="back-button" id="preferencesBack" type="button" aria-label="Back">‹</button><div><span data-i18n="preferencesKicker">PREFERENCES</span><h2 data-i18n="preferences">Preferences</h2><p data-i18n="preferencesSub">Language and motion</p></div></div>
+        <section class="settings-group">
+          <div class="setting-row"><div><strong data-i18n="language">Language</strong><small data-i18n="languageSub">Choose the interface language</small></div><div class="segmented" data-language-group><button type="button" data-lang="en">EN</button><button type="button" data-lang="ja">日本語</button><button type="button" data-lang="th">ไทย</button></div></div>
+          <div class="setting-row"><div><strong data-i18n="motion">Motion</strong><small data-i18n="motionSub">Choose how much interface motion you want</small></div><select id="motionSelect"><option value="system">System</option><option value="full">Full</option><option value="reduced">Reduced</option></select></div>
+        </section>
+      </section>
     </main>
 
     <nav class="bottom-nav" aria-label="Primary navigation">
-      <button class="nav-button is-active" type="button" data-nav="home"><img src="../media/nav-home.png" alt=""><span data-i18n="navHome">Home</span></button>
-      <button class="nav-button" type="button" data-nav="checkup"><img src="../media/nav-checkup.png" alt=""><span data-i18n="navCheckup">Checkup</span></button>
-      <button class="nav-button" type="button" data-nav="tools"><img src="../media/nav-tools.png" alt=""><span data-i18n="navTools">Tools</span></button>
-      <button class="nav-button" type="button" data-nav="insights"><img src="../media/nav-insights.png" alt=""><span data-i18n="navInsights">Insights</span></button>
-      <button class="nav-button" type="button" data-nav="more"><img src="../media/nav-more.png" alt=""><span data-i18n="navMore">More</span></button>
+      <button class="nav-button is-active" type="button" data-nav="home"><img class="nav-glass-icon" src="../media/nav-home.png" alt="" aria-hidden="true"><span data-i18n="navHome">Home</span></button>
+      <button class="nav-button" type="button" data-nav="checkup"><img class="nav-glass-icon" src="../media/nav-checkup.png" alt="" aria-hidden="true"><span data-i18n="navCheckup">Checkup</span></button>
+      <button class="nav-button" type="button" data-nav="tools"><img class="nav-glass-icon" src="../media/nav-tools.png" alt="" aria-hidden="true"><span data-i18n="navTools">Tools</span></button>
+      <button class="nav-button" type="button" data-nav="insights"><img class="nav-glass-icon" src="../media/nav-insights.png" alt="" aria-hidden="true"><span data-i18n="navInsights">Insights</span></button>
+      <button class="nav-button" type="button" data-nav="more"><img class="nav-glass-icon" src="../media/nav-more.png" alt="" aria-hidden="true"><span data-i18n="navMore">More</span></button>
     </nav>
-    <footer class="app-footer"><span>BENEDICT INTERACTIVE</span><span id="footerBuild">BEARAGNOSTIC</span></footer>
+
+    <footer class="app-footer"><span class="app-footer__studio">BENEDICT INTERACTIVE</span><span class="app-footer__build">v0.11 · B11</span></footer>
   </div>
 
   <div class="modal-scrim" id="modalScrim" hidden></div>
+
   <section class="sheet mode-sheet" id="modeSheet" role="dialog" aria-modal="true" aria-labelledby="modeSheetTitle" hidden>
     <div class="sheet__handle"></div>
-    <div class="sheet-head"><div><span data-i18n="scanDepth">SCAN DEPTH</span><h2 id="modeSheetTitle" data-i18n="chooseHow">Choose how deeply to scan</h2></div><button id="modeClose" type="button">×</button></div>
+    <div class="sheet-title-row"><div><span data-i18n="scanDepth">SCAN DEPTH</span><h2 id="modeSheetTitle" data-i18n="chooseHow">Choose how deeply to scan</h2></div><button id="modeClose" type="button" aria-label="Close">×</button></div>
+    <p class="sheet-lead" data-i18n="modeLead">Automatic scope and scan depth are separate. Choose the amount of real work you want Bearagnostic to perform.</p>
     <div class="mode-grid">
-      <button type="button" class="mode-option is-selected" data-mode="smart"><b>✦</b><span><strong>Smart</strong><small data-i18n="smartDesc">Full metadata scan with focused duplicate verification.</small></span><em data-i18n="recommended">Recommended</em></button>
-      <button type="button" class="mode-option" data-mode="quick"><b>⚡</b><span><strong>Quick</strong><small data-i18n="quickDesc">Fast scan of high-value shared locations.</small></span></button>
-      <button type="button" class="mode-option" data-mode="deep"><b>◎</b><span><strong>Deep</strong><small data-i18n="deepDesc">Multi-pass full accessible-storage scan with content probes and exact duplicates.</small></span></button>
-      <button type="button" class="mode-option" data-mode="custom"><b>⌘</b><span><strong>Custom</strong><small data-i18n="customDesc">Choose locations and duplicate verification.</small></span></button>
+      <button type="button" class="mode-option" data-mode="smart"><span class="mode-symbol">✦</span><span><strong data-i18n="smart">Smart Scan</strong><small data-i18n="smartDesc">All accessible shared storage, real metadata, content sampling, and focused verified duplicates.</small></span><em data-i18n="recommended">Recommended</em></button>
+      <button type="button" class="mode-option" data-mode="quick"><span class="mode-symbol">⚡</span><span><strong data-i18n="quick">Quick Scan</strong><small data-i18n="quickDesc">Priority folders and metadata rules only. Fast by design.</small></span></button>
+      <button type="button" class="mode-option" data-mode="deep"><span class="mode-symbol">◎</span><span><strong data-i18n="deep">Deep Scan</strong><small data-i18n="deepDesc">All accessible shared storage with a full streaming content read plus exact duplicate verification.</small></span></button>
+      <button type="button" class="mode-option" data-mode="custom"><span class="mode-symbol">⌘</span><span><strong data-i18n="custom">Custom Scan</strong><small data-i18n="customDesc">Choose locations and whether exact duplicate verification runs.</small></span></button>
     </div>
   </section>
-  <section class="sheet custom-sheet" id="customSheet" role="dialog" aria-modal="true" hidden>
-    <div class="sheet__handle"></div><div class="sheet-head"><div><span>CUSTOM</span><h2 data-i18n="customTitle">Choose what to scan</h2></div><button id="customClose" type="button">×</button></div>
-    <div class="scope-grid"><label><input type="checkbox" value="downloads" checked><span data-i18n="downloads">Downloads</span></label><label><input type="checkbox" value="photos" checked><span data-i18n="photos">Photos</span></label><label><input type="checkbox" value="videos" checked><span data-i18n="videos">Videos</span></label><label><input type="checkbox" value="documents" checked><span data-i18n="documents">Documents</span></label><label><input type="checkbox" value="music"><span data-i18n="music">Music</span></label></div>
-    <label class="verify-row"><input id="verifyDuplicates" type="checkbox" checked><span><strong data-i18n="verifyExact">Verify exact duplicates</strong><small>SHA-256</small></span></label>
-    <button class="sheet-primary" id="customSave" type="button" data-i18n="useCustom">Use Custom Scan</button>
+
+  <section class="sheet custom-sheet" id="customSheet" role="dialog" aria-modal="true" aria-labelledby="customTitle" hidden>
+    <div class="sheet__handle"></div>
+    <div class="sheet-title-row"><div><span>CUSTOM</span><h2 id="customTitle" data-i18n="customTitle">Choose what to scan</h2></div><button id="customClose" type="button" aria-label="Close">×</button></div>
+    <div class="scope-grid">
+      <label><input type="checkbox" value="downloads" checked><span data-i18n="downloads">Downloads</span></label>
+      <label><input type="checkbox" value="photos" checked><span data-i18n="photos">Photos</span></label>
+      <label><input type="checkbox" value="videos" checked><span data-i18n="videos">Videos</span></label>
+      <label><input type="checkbox" value="documents" checked><span data-i18n="documents">Documents</span></label>
+      <label><input type="checkbox" value="music"><span data-i18n="music">Music</span></label>
+    </div>
+    <label class="verify-row"><span><strong data-i18n="verifyDuplicates">Verify exact duplicates</strong><small data-i18n="verifyDuplicatesSub">Uses streaming SHA-256 after exact-size filtering.</small></span><input id="customVerify" type="checkbox" checked></label>
+    <button class="primary-button" id="customStart" type="button" data-i18n="startCustom">Start Custom Scan</button>
   </section>
+
+  <section class="sheet permission-sheet" id="permissionSheet" role="dialog" aria-modal="true" aria-labelledby="permissionTitle" hidden>
+    <div class="sheet__handle"></div>
+    <div class="sheet-title-row"><div><span data-i18n="storageAccess">STORAGE ACCESS</span><h2 id="permissionTitle" data-i18n="permissionTitle">Allow Bearagnostic to inspect shared storage</h2></div><button id="permissionClose" type="button" aria-label="Close">×</button></div>
+    <p class="sheet-lead" data-i18n="permissionBody">Android controls this permission. Bearagnostic still cannot enter protected app-private storage.</p>
+    <button class="primary-button" id="grantStorage" type="button" data-i18n="openSettings">Open Android settings</button>
+  </section>
+
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
-  <script>
-    // Independent launch fail-safe: the Home shell exists beneath the opening layer.
-    // Even if the main bundle fails, the opening can never trap the user indefinitely.
-    window.setTimeout(function () {
-      var launch = document.getElementById('launch');
-      var app = document.getElementById('appRoot');
-      if (app) app.hidden = false;
-      if (launch) launch.hidden = true;
-    }, 6500);
-  </script>
   <script src="./app.js"></script>
 </body>
 </html>

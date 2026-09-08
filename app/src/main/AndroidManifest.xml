@@ -1,11 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!--
-      Bearagnostic's one-tap file-health engine needs broad user-file access.
-      Android 11+ exposes this as a special access setting controlled by the user.
-      The app never bypasses Android's protected app-private storage.
-    -->
     <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
@@ -14,10 +9,10 @@
     <application
         android:allowBackup="false"
         android:fullBackupContent="false"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/bearagnostic_legacy_app_icon"
         android:label="@string/app_name"
         android:requestLegacyExternalStorage="true"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@drawable/bearagnostic_legacy_app_icon"
         android:supportsRtl="true"
         android:theme="@style/Theme.Bearagnostic"
         android:usesCleartextTraffic="false">

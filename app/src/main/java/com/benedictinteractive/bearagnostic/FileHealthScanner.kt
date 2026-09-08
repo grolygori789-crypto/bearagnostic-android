@@ -24,15 +24,15 @@ import java.util.concurrent.atomic.AtomicBoolean
 /**
  * Truth-first, read-only shared-storage scanner.
  *
- * QUICK  = priority shared folders; metadata/rule analysis; no duplicate hashing.
- * SMART  = all accessible shared storage; metadata/rule analysis; focused exact duplicates.
- * DEEP   = all accessible shared storage; multi-pass analysis; real content probes on every
+ * QUICK  = priority shared folders; metadata/rule analysis; no content reads or duplicate hashing.
+ * SMART  = all accessible shared storage; metadata/rules; bounded real content sampling on every
+ *          readable non-empty file; focused exact duplicate verification in high-value folders.
+ * DEEP   = all accessible shared storage; metadata/rules; full streaming content read of every
  *          readable non-empty file; exact duplicate verification across the accessible scope.
- * CUSTOM = selected shared folders with optional exact duplicate verification.
+ * CUSTOM = selected shared folders; metadata/rules; optional exact duplicate verification.
  *
- * There is deliberately no artificial scan delay. Every stage shown by the UI corresponds to
- * native work that has actually run. The temporary inventory is stored only in app cache for the
- * duration of one scan and is deleted in finally; it keeps traversal memory bounded.
+ * No artificial delay is used. Scan duration is determined by actual filesystem work. The scanner
+ * stays bounded by streaming reads and a temporary on-disk inventory that is deleted after each run.
  */
 class FileHealthScanner(private val context: Context) {
     interface Listener {
@@ -58,11 +58,16 @@ class FileHealthScanner(private val context: Context) {
         val verifyDuplicates: Boolean = true,
     )
 
+    private enum class ContentReadMode(val wireName: String) {
+        NONE("none"), SAMPLE("sample"), FULL("full")
+    }
+
     private data class ScanPlan(
         val targets: List<File>,
         val duplicateEligibleRoots: List<File>,
         val verifyDuplicates: Boolean,
-        val contentProbe: Boolean,
+        val contentReadMode: ContentReadMode,
+        val contentReadLimitBytes: Long,
         val scope: String,
         val duplicateCoverage: String,
         val analysisDepth: String,
@@ -148,35 +153,29 @@ class FileHealthScanner(private val context: Context) {
 
             inventory = File.createTempFile("bearagnostic_inventory_", ".bin", context.cacheDir)
             emit(listener, request, plan, "preparing", counters)
-            discoverIntoInventory(
-                plan = plan,
-                inventory = inventory,
-                counters = counters,
-                listener = listener,
-                request = request,
-                startedAt = startedAt,
-            )
+            discoverIntoInventory(plan, inventory, counters, listener, request, startedAt)
 
             if (counters.discoveredFiles == 0L) {
                 emit(listener, request, plan, "finalizing", counters)
-                val result = buildResult(
-                    request, plan, counters, startedAt,
-                    candidateFiles = 0, candidateBytes = 0,
-                    hashedFiles = 0, hashedBytes = 0,
-                    duplicateGroups = 0, duplicateCopies = 0,
-                    duplicateReclaimableBytes = 0, hashReadFailures = 0,
-                    rootsScanned = plan.targets.size,
+                listener.onComplete(
+                    buildResult(
+                        request, plan, counters, startedAt,
+                        candidateFiles = 0, candidateBytes = 0,
+                        hashedFiles = 0, hashedBytes = 0,
+                        duplicateGroups = 0, duplicateCopies = 0,
+                        duplicateReclaimableBytes = 0, hashReadFailures = 0,
+                        rootsScanned = plan.targets.size,
+                    )
                 )
-                listener.onComplete(result)
                 return
             }
 
-            // Stage 2: File Details — type/context classification and, in Deep mode,
-            // a real bounded content read from every readable non-empty file.
+            // Stage 2: File Details. Smart performs a real bounded content sample. Deep performs a
+            // complete streaming read of every readable non-empty file. This is actual I/O, not UI pacing.
             var processed = 0L
             var lastProgressAt = 0L
             forEachInventory(inventory) { file ->
-                ensureNotCancelled(listener, startedAt, counters.reviewedFiles, request.mode) ?: return
+                ensureNotCancelled()
                 processed++
                 if (!file.exists() || !file.isFile) {
                     counters.missingDuringScan++
@@ -187,31 +186,51 @@ class FileHealthScanner(private val context: Context) {
                     } else {
                         counters.reviewedFiles++
                         classifyDetails(file, size, counters)
-                        if (plan.contentProbe && size > 0L) {
-                            val probed = probeFile(file)
-                            if (probed < 0L) counters.contentProbeFailures++ else {
+                        if (plan.contentReadMode != ContentReadMode.NONE && size > 0L) {
+                            val bytesRead = readContent(file, plan.contentReadLimitBytes) { delta ->
+                                counters.contentProbeBytes = safeAdd(counters.contentProbeBytes, delta)
+                                val now = SystemClock.elapsedRealtime()
+                                if (now - lastProgressAt >= PROGRESS_INTERVAL_MS) {
+                                    lastProgressAt = now
+                                    emit(
+                                        listener, request, plan, "file_details", counters,
+                                        phaseProcessed = processed - 1L,
+                                        phaseTotal = counters.discoveredFiles,
+                                        activeFileBytesRead = counters.contentProbeBytes,
+                                    )
+                                }
+                            }
+                            if (bytesRead < 0L) {
+                                counters.contentProbeFailures++
+                            } else {
                                 counters.contentProbedFiles++
-                                counters.contentProbeBytes = safeAdd(counters.contentProbeBytes, probed)
                             }
                         }
                     }
                 }
                 val now = SystemClock.elapsedRealtime()
-                if (processed % 64L == 0L || now - lastProgressAt >= 180L) {
+                if (processed % 48L == 0L || now - lastProgressAt >= PROGRESS_INTERVAL_MS) {
                     lastProgressAt = now
-                    emit(listener, request, plan, "file_details", counters, phaseProcessed = processed, phaseTotal = counters.discoveredFiles)
+                    emit(
+                        listener, request, plan, "file_details", counters,
+                        phaseProcessed = processed,
+                        phaseTotal = counters.discoveredFiles,
+                    )
                 }
             }
-            emit(listener, request, plan, "file_details", counters, phaseProcessed = processed, phaseTotal = counters.discoveredFiles)
+            emit(
+                listener, request, plan, "file_details", counters,
+                phaseProcessed = processed,
+                phaseTotal = counters.discoveredFiles,
+            )
 
-            // Stage 3: File Sizes — truthful storage totals, large/zero-byte rules, and the
-            // cheap exact-size prefilter used by duplicate verification.
+            // Stage 3: truthful byte totals, large/zero-byte rules, and duplicate size prefilter.
             val firstBySize = HashMap<Long, File>(4096)
             val sameSizeGroups = HashMap<Long, MutableList<File>>()
             processed = 0L
             lastProgressAt = 0L
             forEachInventory(inventory) { file ->
-                ensureNotCancelled(listener, startedAt, counters.reviewedFiles, request.mode) ?: return
+                ensureNotCancelled()
                 processed++
                 if (file.exists() && file.isFile) {
                     val size = safeLength(file)
@@ -223,9 +242,9 @@ class FileHealthScanner(private val context: Context) {
                             counters.largeFileBytes = safeAdd(counters.largeFileBytes, size)
                         }
                         if (plan.verifyDuplicates && size > 0L && isDuplicateEligible(file, plan.duplicateEligibleRoots)) {
-                            val group = sameSizeGroups[size]
-                            if (group != null) {
-                                group.add(file)
+                            val existingGroup = sameSizeGroups[size]
+                            if (existingGroup != null) {
+                                existingGroup.add(file)
                             } else {
                                 val first = firstBySize.putIfAbsent(size, file)
                                 if (first != null) sameSizeGroups[size] = mutableListOf(first, file)
@@ -234,7 +253,7 @@ class FileHealthScanner(private val context: Context) {
                     }
                 }
                 val now = SystemClock.elapsedRealtime()
-                if (processed % 96L == 0L || now - lastProgressAt >= 180L) {
+                if (processed % 96L == 0L || now - lastProgressAt >= PROGRESS_INTERVAL_MS) {
                     lastProgressAt = now
                     emit(listener, request, plan, "file_sizes", counters, phaseProcessed = processed, phaseTotal = counters.discoveredFiles)
                 }
@@ -249,31 +268,27 @@ class FileHealthScanner(private val context: Context) {
                 candidateBytes = safeAdd(candidateBytes, safeMultiply(size, files.size.toLong()))
             }
 
-            // Stage 4: Duplicates — byte-for-byte SHA-256 only after exact-size filtering.
+            // Stage 4: exact duplicate verification = exact size, then streaming SHA-256.
             var hashedFiles = 0L
             var hashedBytes = 0L
             var duplicateGroups = 0L
             var duplicateCopies = 0L
             var duplicateReclaimableBytes = 0L
             var hashReadFailures = 0L
-
             if (plan.verifyDuplicates) {
                 emit(listener, request, plan, "duplicates", counters, candidateFiles, candidateBytes, hashedFiles, hashedBytes)
                 lastProgressAt = 0L
                 for ((size, files) in sameSizeGroups) {
-                    ensureNotCancelled(listener, startedAt, counters.reviewedFiles, request.mode) ?: return
+                    ensureNotCancelled()
                     val byHash = HashMap<String, Int>()
                     for (file in files) {
-                        ensureNotCancelled(listener, startedAt, counters.reviewedFiles, request.mode) ?: return
-                        val digest = hashFile(file) { bytesRead ->
-                            hashedBytes = safeAdd(hashedBytes, bytesRead)
+                        ensureNotCancelled()
+                        val digest = hashFile(file) { delta ->
+                            hashedBytes = safeAdd(hashedBytes, delta)
                             val now = SystemClock.elapsedRealtime()
-                            if (now - lastProgressAt >= 160L) {
+                            if (now - lastProgressAt >= PROGRESS_INTERVAL_MS) {
                                 lastProgressAt = now
-                                emit(
-                                    listener, request, plan, "duplicates", counters,
-                                    candidateFiles, candidateBytes, hashedFiles, hashedBytes,
-                                )
+                                emit(listener, request, plan, "duplicates", counters, candidateFiles, candidateBytes, hashedFiles, hashedBytes)
                             }
                         }
                         if (digest == null) {
@@ -288,25 +303,21 @@ class FileHealthScanner(private val context: Context) {
                             duplicateGroups++
                             val copies = count - 1L
                             duplicateCopies = safeAdd(duplicateCopies, copies)
-                            duplicateReclaimableBytes = safeAdd(
-                                duplicateReclaimableBytes,
-                                safeMultiply(size, copies),
-                            )
+                            duplicateReclaimableBytes = safeAdd(duplicateReclaimableBytes, safeMultiply(size, copies))
                         }
                     }
                 }
+                emit(listener, request, plan, "duplicates", counters, candidateFiles, candidateBytes, hashedFiles, hashedBytes)
             } else {
-                // Quick genuinely skips hashing; the UI receives this real stage transition.
-                emit(listener, request, plan, "duplicates", counters, 0, 0, 0, 0)
+                emit(listener, request, plan, "duplicates", counters)
             }
 
-            // Stage 5: Modified Dates — a separate real pass so the six-stage legacy rail is
-            // not decorative theatre.
+            // Stage 5: separate modification-date pass so the stage rail corresponds to real work.
             val olderThan = System.currentTimeMillis() - OLDER_THAN_MS
             processed = 0L
             lastProgressAt = 0L
             forEachInventory(inventory) { file ->
-                ensureNotCancelled(listener, startedAt, counters.reviewedFiles, request.mode) ?: return
+                ensureNotCancelled()
                 processed++
                 if (file.exists() && file.isFile) {
                     val modified = try { file.lastModified() } catch (_: SecurityException) { 0L }
@@ -317,25 +328,21 @@ class FileHealthScanner(private val context: Context) {
                     }
                 }
                 val now = SystemClock.elapsedRealtime()
-                if (processed % 96L == 0L || now - lastProgressAt >= 180L) {
+                if (processed % 96L == 0L || now - lastProgressAt >= PROGRESS_INTERVAL_MS) {
                     lastProgressAt = now
                     emit(listener, request, plan, "modified_dates", counters, phaseProcessed = processed, phaseTotal = counters.discoveredFiles)
                 }
             }
             emit(listener, request, plan, "modified_dates", counters, phaseProcessed = processed, phaseTotal = counters.discoveredFiles)
 
-            emit(
-                listener, request, plan, "finalizing", counters,
-                candidateFiles, candidateBytes, hashedFiles, hashedBytes,
-            )
-
+            emit(listener, request, plan, "finalizing", counters, candidateFiles, candidateBytes, hashedFiles, hashedBytes)
             listener.onComplete(
                 buildResult(
                     request, plan, counters, startedAt,
                     candidateFiles, candidateBytes, hashedFiles, hashedBytes,
                     duplicateGroups, duplicateCopies, duplicateReclaimableBytes,
                     hashReadFailures, plan.targets.size,
-                ),
+                )
             )
         } catch (_: ScanCancelledException) {
             listener.onCancelled(cancelJson(startedAt, counters.reviewedFiles, request.mode))
@@ -364,12 +371,9 @@ class FileHealthScanner(private val context: Context) {
             val queue = ArrayDeque<File>()
             plan.targets.forEach(queue::addLast)
             var lastProgressAt = 0L
-
             while (queue.isNotEmpty()) {
-                ensureNotCancelled(listener, startedAt, counters.reviewedFiles, request.mode)
-                    ?: throw ScanCancelledException()
+                ensureNotCancelled()
                 val current = queue.removeFirst()
-
                 if (current.isDirectory) {
                     if (shouldSkipDirectory(current, plan.targets)) continue
                     counters.directoriesVisited++
@@ -378,9 +382,7 @@ class FileHealthScanner(private val context: Context) {
                         counters.inaccessibleFolders++
                     } else {
                         if (children.isEmpty() && !isTargetRoot(current, plan.targets)) counters.emptyFolders++
-                        for (child in children) {
-                            if (!isSymbolicLink(child)) queue.addLast(child)
-                        }
+                        for (child in children) if (!isSymbolicLink(child)) queue.addLast(child)
                     }
                 } else if (current.isFile) {
                     output.writeUTF(canonicalFile(current).absolutePath)
@@ -406,11 +408,36 @@ class FileHealthScanner(private val context: Context) {
         }
     }
 
+    private fun readContent(file: File, limitBytes: Long, onBytes: (Long) -> Unit): Long = try {
+        FileInputStream(file).use { input ->
+            val buffer = ByteArray(CONTENT_BUFFER_BYTES)
+            var total = 0L
+            while (limitBytes == Long.MAX_VALUE || total < limitBytes) {
+                ensureNotCancelled()
+                val wanted = if (limitBytes == Long.MAX_VALUE) {
+                    buffer.size
+                } else {
+                    minOf(buffer.size.toLong(), limitBytes - total).toInt()
+                }
+                if (wanted <= 0) break
+                val read = input.read(buffer, 0, wanted)
+                if (read < 0) break
+                if (read == 0) continue
+                total += read.toLong()
+                onBytes(read.toLong())
+            }
+            total
+        }
+    } catch (_: ScanCancelledException) {
+        throw ScanCancelledException()
+    } catch (_: Exception) {
+        -1L
+    }
+
     private fun classifyDetails(file: File, size: Long, c: Counters) {
         val name = file.name.lowercase(Locale.ROOT)
         val ext = file.extension.lowercase(Locale.ROOT)
         val path = normalizedPath(file)
-
         if (name.startsWith('.')) {
             c.hiddenFiles++
             c.hiddenBytes = safeAdd(c.hiddenBytes, size)
@@ -436,52 +463,11 @@ class FileHealthScanner(private val context: Context) {
             c.screenshotBytes = safeAdd(c.screenshotBytes, size)
         }
         when {
-            ext in IMAGE_EXTENSIONS -> {
-                c.imageFiles++
-                c.imageBytes = safeAdd(c.imageBytes, size)
-            }
-            ext in VIDEO_EXTENSIONS -> {
-                c.videoFiles++
-                c.videoBytes = safeAdd(c.videoBytes, size)
-            }
-            ext in AUDIO_EXTENSIONS -> {
-                c.audioFiles++
-                c.audioBytes = safeAdd(c.audioBytes, size)
-            }
-            ext in DOCUMENT_EXTENSIONS -> {
-                c.documentFiles++
-                c.documentBytes = safeAdd(c.documentBytes, size)
-            }
+            ext in IMAGE_EXTENSIONS -> { c.imageFiles++; c.imageBytes = safeAdd(c.imageBytes, size) }
+            ext in VIDEO_EXTENSIONS -> { c.videoFiles++; c.videoBytes = safeAdd(c.videoBytes, size) }
+            ext in AUDIO_EXTENSIONS -> { c.audioFiles++; c.audioBytes = safeAdd(c.audioBytes, size) }
+            ext in DOCUMENT_EXTENSIONS -> { c.documentFiles++; c.documentBytes = safeAdd(c.documentBytes, size) }
         }
-    }
-
-    private fun probeFile(file: File): Long = try {
-        // Deep Scan performs a bounded real content-read on every readable non-empty file.
-        // This is not a timer: it validates that content can actually be read while keeping
-        // I/O bounded. Exact duplicates are still SHA-256 verified only after size filtering.
-        FileInputStream(file).use { input ->
-            val buffer = ByteArray(minOf(CONTENT_PROBE_BYTES, 16 * 1024))
-            var total = 0L
-            while (total < CONTENT_PROBE_BYTES) {
-                if (cancelRequested.get()) throw ScanCancelledException()
-                val remaining = (CONTENT_PROBE_BYTES - total).toInt()
-                val read = input.read(buffer, 0, minOf(buffer.size, remaining))
-                if (read < 0) break
-                if (read == 0) continue
-                total += read.toLong()
-            }
-            total
-        }
-    } catch (_: ScanCancelledException) {
-        throw ScanCancelledException()
-    } catch (_: Exception) {
-        -1L
-    }
-
-    private fun safeLength(file: File): Long? = try {
-        file.length().coerceAtLeast(0L)
-    } catch (_: SecurityException) {
-        null
     }
 
     private fun buildResult(
@@ -506,7 +492,9 @@ class FileHealthScanner(private val context: Context) {
         put("analysisRulesVersion", ANALYSIS_RULES_VERSION)
         put("duplicateCoverage", plan.duplicateCoverage)
         put("duplicateVerificationPerformed", plan.verifyDuplicates)
-        put("contentProbePerformed", plan.contentProbe)
+        put("contentProbePerformed", plan.contentReadMode != ContentReadMode.NONE)
+        put("contentReadMode", plan.contentReadMode.wireName)
+        put("contentReadLimitBytes", plan.contentReadLimitBytes)
         putCounters(this, c)
         put("duplicateGroups", duplicateGroups)
         put("duplicateCopies", duplicateCopies)
@@ -538,7 +526,8 @@ class FileHealthScanner(private val context: Context) {
                 targets = priority.ifEmpty { storageRoots },
                 duplicateEligibleRoots = emptyList(),
                 verifyDuplicates = false,
-                contentProbe = false,
+                contentReadMode = ContentReadMode.NONE,
+                contentReadLimitBytes = 0L,
                 scope = if (priority.isNotEmpty()) "priority_shared_locations" else "accessible_shared_storage",
                 duplicateCoverage = "none",
                 analysisDepth = "quick_multi_pass_metadata",
@@ -547,31 +536,32 @@ class FileHealthScanner(private val context: Context) {
                 targets = storageRoots,
                 duplicateEligibleRoots = priority.ifEmpty { storageRoots },
                 verifyDuplicates = true,
-                contentProbe = false,
+                contentReadMode = ContentReadMode.SAMPLE,
+                contentReadLimitBytes = SMART_SAMPLE_BYTES,
                 scope = "accessible_shared_storage",
                 duplicateCoverage = if (priority.isNotEmpty()) "priority_locations" else "all_accessible",
-                analysisDepth = "smart_multi_pass_full_metadata_focused_duplicates",
+                analysisDepth = "smart_multi_pass_content_sample_focused_duplicates",
             )
             ScanMode.DEEP -> ScanPlan(
                 targets = storageRoots,
                 duplicateEligibleRoots = storageRoots,
                 verifyDuplicates = true,
-                contentProbe = true,
+                contentReadMode = ContentReadMode.FULL,
+                contentReadLimitBytes = Long.MAX_VALUE,
                 scope = "accessible_shared_storage",
                 duplicateCoverage = "all_accessible",
-                analysisDepth = "deep_multi_pass_content_probe_full_duplicates",
+                analysisDepth = "deep_multi_pass_full_content_read_full_duplicates",
             )
             ScanMode.CUSTOM -> {
-                val customTargets = uniqueDirectories(storageRoots.flatMap { root ->
-                    customDirectories(root, request.customScopes)
-                })
+                val customTargets = uniqueDirectories(storageRoots.flatMap { root -> customDirectories(root, request.customScopes) })
                 val targets = customTargets.ifEmpty { priority.ifEmpty { storageRoots } }
                 val verify = request.verifyDuplicates
                 ScanPlan(
                     targets = targets,
                     duplicateEligibleRoots = if (verify) targets else emptyList(),
                     verifyDuplicates = verify,
-                    contentProbe = false,
+                    contentReadMode = ContentReadMode.NONE,
+                    contentReadLimitBytes = 0L,
                     scope = if (customTargets.isNotEmpty()) "custom_shared_locations" else "priority_shared_locations",
                     duplicateCoverage = if (verify) "selected_locations" else "none",
                     analysisDepth = if (verify) "custom_multi_pass_exact_duplicates" else "custom_multi_pass_metadata",
@@ -585,13 +575,10 @@ class FileHealthScanner(private val context: Context) {
         fun addRoot(file: File?) {
             if (file == null) return
             val canonical = canonicalFile(file)
-            if (canonical.exists() && canonical.isDirectory && canonical.canRead()) {
-                roots[canonical.absolutePath] = canonical
-            }
+            if (canonical.exists() && canonical.isDirectory && canonical.canRead()) roots[canonical.absolutePath] = canonical
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            val storageManager = context.getSystemService(StorageManager::class.java)
-            storageManager?.storageVolumes?.forEach { volume -> addRoot(volume.directory) }
+            context.getSystemService(StorageManager::class.java)?.storageVolumes?.forEach { addRoot(it.directory) }
         }
         addRoot(Environment.getExternalStorageDirectory())
         return roots.values.toList()
@@ -625,9 +612,7 @@ class FileHealthScanner(private val context: Context) {
         val unique = LinkedHashMap<String, File>()
         for (file in files) {
             val canonical = canonicalFile(file)
-            if (canonical.exists() && canonical.isDirectory && canonical.canRead()) {
-                unique[canonical.absolutePath] = canonical
-            }
+            if (canonical.exists() && canonical.isDirectory && canonical.canRead()) unique[canonical.absolutePath] = canonical
         }
         return unique.values.toList()
     }
@@ -654,23 +639,12 @@ class FileHealthScanner(private val context: Context) {
         return targets.any { path == canonicalFile(it).absolutePath }
     }
 
-    private fun normalizedPath(file: File): String = canonicalFile(file).absolutePath
-        .replace('\\', '/')
-        .lowercase(Locale.ROOT)
-
-    private fun isDownloadPath(path: String): Boolean =
-        path.contains("/download/") || path.endsWith("/download") ||
-            path.contains("/downloads/") || path.endsWith("/downloads")
-
-    private fun isTemporaryArtifact(name: String, ext: String, path: String): Boolean {
-        if (ext in STRONG_TEMP_EXTENSIONS) return true
-        if (name.endsWith(".download") || name.endsWith(".opdownload")) return true
-        return ext in WEAK_TEMP_EXTENSIONS && isDownloadPath(path)
-    }
-
-    private fun isScreenshot(name: String, path: String): Boolean =
-        path.contains("/screenshots/") || name.contains("screenshot") || name.contains("screen_shot")
-
+    private fun safeLength(file: File): Long? = try { file.length().coerceAtLeast(0L) } catch (_: SecurityException) { null }
+    private fun normalizedPath(file: File): String = canonicalFile(file).absolutePath.replace('\\', '/').lowercase(Locale.ROOT)
+    private fun isDownloadPath(path: String): Boolean = path.contains("/download/") || path.endsWith("/download") || path.contains("/downloads/") || path.endsWith("/downloads")
+    private fun isTemporaryArtifact(name: String, ext: String, path: String): Boolean =
+        ext in STRONG_TEMP_EXTENSIONS || name.endsWith(".download") || name.endsWith(".opdownload") || (ext in WEAK_TEMP_EXTENSIONS && isDownloadPath(path))
+    private fun isScreenshot(name: String, path: String): Boolean = path.contains("/screenshots/") || name.contains("screenshot") || name.contains("screen_shot")
     private fun canonicalFile(file: File): File = try { file.canonicalFile } catch (_: Exception) { file.absoluteFile }
     private fun isSymbolicLink(file: File): Boolean = try { Files.isSymbolicLink(file.toPath()) } catch (_: Exception) { false }
 
@@ -679,7 +653,7 @@ class FileHealthScanner(private val context: Context) {
         FileInputStream(file).use { input ->
             val buffer = ByteArray(HASH_BUFFER_BYTES)
             while (true) {
-                if (cancelRequested.get()) throw ScanCancelledException()
+                ensureNotCancelled()
                 val read = input.read(buffer)
                 if (read < 0) break
                 if (read == 0) continue
@@ -694,9 +668,8 @@ class FileHealthScanner(private val context: Context) {
         null
     }
 
-    private fun ensureNotCancelled(listener: Listener, startedAt: Long, reviewed: Long, mode: ScanMode): Unit? {
-        if (!cancelRequested.get()) return Unit
-        throw ScanCancelledException()
+    private fun ensureNotCancelled() {
+        if (cancelRequested.get()) throw ScanCancelledException()
     }
 
     private fun emit(
@@ -711,6 +684,7 @@ class FileHealthScanner(private val context: Context) {
         hashedBytes: Long = 0,
         phaseProcessed: Long = 0,
         phaseTotal: Long = 0,
+        activeFileBytesRead: Long = 0,
     ) {
         listener.onProgress(JSONObject().apply {
             put("state", "running")
@@ -720,7 +694,9 @@ class FileHealthScanner(private val context: Context) {
             put("analysisDepth", plan.analysisDepth)
             put("duplicateCoverage", plan.duplicateCoverage)
             put("duplicateVerificationEnabled", plan.verifyDuplicates)
-            put("contentProbeEnabled", plan.contentProbe)
+            put("contentProbeEnabled", plan.contentReadMode != ContentReadMode.NONE)
+            put("contentReadMode", plan.contentReadMode.wireName)
+            put("contentReadLimitBytes", plan.contentReadLimitBytes)
             putCounters(this, c)
             put("duplicateCandidateFiles", candidateFiles)
             put("duplicateCandidateBytes", candidateBytes)
@@ -728,6 +704,7 @@ class FileHealthScanner(private val context: Context) {
             put("hashedBytes", hashedBytes)
             put("phaseProcessedFiles", phaseProcessed)
             put("phaseTotalFiles", phaseTotal)
+            put("activeFileBytesRead", activeFileBytesRead)
         }.toString())
     }
 
@@ -798,13 +775,15 @@ class FileHealthScanner(private val context: Context) {
     private class ScanCancelledException : RuntimeException()
 
     companion object {
-        const val ANALYSIS_RULES_VERSION = 3
+        const val ANALYSIS_RULES_VERSION = 4
         const val LARGE_FILE_BYTES = 100L * 1024L * 1024L
         const val OLDER_THAN_DAYS = 365L
         const val OLDER_THAN_MS = OLDER_THAN_DAYS * 24L * 60L * 60L * 1000L
+        const val SMART_SAMPLE_BYTES = 256L * 1024L
         const val HASH_BUFFER_BYTES = 256 * 1024
-        const val CONTENT_PROBE_BYTES = 64 * 1024
+        const val CONTENT_BUFFER_BYTES = 256 * 1024
         const val INVENTORY_BUFFER_BYTES = 64 * 1024
+        const val PROGRESS_INTERVAL_MS = 160L
 
         val DEFAULT_CUSTOM_SCOPES = setOf("downloads", "photos", "videos", "documents")
         val STRONG_TEMP_EXTENSIONS = setOf("part", "partial", "crdownload")
