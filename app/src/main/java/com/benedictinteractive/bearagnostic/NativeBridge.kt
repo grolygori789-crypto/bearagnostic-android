@@ -24,6 +24,10 @@ class NativeBridge(private val activity: MainActivity) {
     }
 
     @JavascriptInterface
+    fun startScan(mode: String, customScopesJson: String, verifyDuplicates: Boolean): String =
+        activity.startScan(mode, customScopesJson, verifyDuplicates)
+
+    @JavascriptInterface
     fun startOneTapScan(): String = activity.startOneTapScan()
 
     @JavascriptInterface
@@ -39,10 +43,11 @@ class NativeBridge(private val activity: MainActivity) {
         put("scannerReady", true)
         put("scannerRunning", activity.isScannerRunning())
         put("scanScope", "accessible_shared_storage")
+        put("scanModes", "smart,quick,deep,custom")
     }.toString()
 
     companion object {
         const val JS_INTERFACE_NAME = "BearagnosticNative"
-        const val BRIDGE_VERSION = 2
+        const val BRIDGE_VERSION = 3
     }
 }

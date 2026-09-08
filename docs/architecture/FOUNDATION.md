@@ -2,7 +2,7 @@
 
 ## Product purpose
 
-The Android edition exists so Bearagnostic can perform a genuine one-tap file-health checkup across user-accessible shared storage after explicit Android permission instead of relying on browser file pickers.
+The Android edition exists so Bearagnostic can perform genuine local file-health analysis across user-accessible shared storage after explicit Android permission instead of relying on browser file pickers.
 
 ## Current architecture
 
@@ -16,13 +16,14 @@ NativeBridge (JavaScript interface)
         │       └── Android-controlled broad storage permission
         │
         └── FileHealthScanner
+                ├── Smart / Quick / Deep / Custom scan plans
                 ├── storage-root discovery
                 ├── iterative file crawler
                 ├── metadata analysis
                 ├── large-file count
                 ├── modified-date count
                 ├── same-size duplicate grouping
-                └── full-file SHA-256 verification
+                └── streaming SHA-256 verification when enabled
 
 Debug build pipeline
         │
@@ -33,24 +34,37 @@ Debug build pipeline
 
 The WebView contains only local packaged assets. It is not a remote website shell. Native Android code remains authoritative for permissions, filesystem access, scanning, hashing, deletion, and platform truth.
 
-## Native Scanner 02 behavior
+## Scan Modes 04 behavior
 
-After storage access is granted, one tap starts a native background scan.
+Batch 04 adds four real scan strategies without replacing the proven scanner core.
 
-The crawler:
+### Smart
 
-1. discovers accessible shared-storage roots;
-2. traverses them iteratively rather than recursively to avoid call-stack growth;
-3. ignores symbolic links to reduce loop risk;
-4. counts real files and bytes reviewed;
-5. detects files at least 100 MB;
-6. detects files older than 365 days using actual `lastModified` values;
-7. groups non-empty files by exact byte size;
-8. hashes only same-size candidate groups using SHA-256;
-9. counts duplicate groups and extra copies only after full hashes match;
-10. reports aggregate results to the local UI.
+- Traverses accessible shared-storage roots for metadata analysis.
+- Uses the standard high-value user locations (Downloads, DCIM, Pictures, Movies, Documents) as the duplicate-verification coverage when those locations exist.
+- Same-size candidates inside that coverage are verified by full-file streaming SHA-256.
+- This is the default balance between breadth and expensive hashing.
 
-The scanner does not persist filenames, paths, file contents, or hashes. Results currently live only for the active UI session.
+### Quick
+
+- Targets high-value user locations when available.
+- Performs metadata analysis for large and older files.
+- Deliberately skips SHA-256 duplicate verification so the UI never labels same-size candidates as exact duplicates.
+- Falls back to accessible shared storage only when no standard high-value locations exist.
+
+### Deep
+
+- Preserves the prior full scanner behavior.
+- Traverses accessible shared storage.
+- Groups non-empty files by exact byte size.
+- Streams SHA-256 across all same-size candidates in the accessible scan scope.
+- Reports duplicates only after hashes match.
+
+### Custom
+
+- Lets the UI choose among Downloads, Photos, Videos, Documents, and Music.
+- Duplicate verification can be enabled or disabled independently.
+- If the UI provides no usable custom target, the scanner safely falls back to priority user locations rather than pretending it scanned a missing location.
 
 ## Progress model
 
@@ -58,51 +72,37 @@ There is no fabricated universal scan percentage.
 
 - During file discovery the total amount of work is unknown, so the UI uses indeterminate activity while showing real counters.
 - During duplicate verification the candidate byte total is known, so progress is derived from actual bytes read by SHA-256 hashing.
-- Completion is emitted only after the native engine finishes its real work.
+- Quick scans and Custom scans with duplicate verification disabled remain indeterminate until real native work completes.
+- Completion is emitted only after the native engine finishes its corresponding work.
 
-## Persistent development signing — Batch 03
+## Persistent development signing
 
 Debug builds use `com.benedictinteractive.bearagnostic.debug` and the repository development key at:
 
 `signing/bearagnostic-debug.jks`
 
-The debug build type explicitly references that key. This removes dependence on the ephemeral `$HOME/.android/debug.keystore` generated independently on each GitHub Actions runner.
-
-The key is intentionally development-only and public because it exists solely to make repeatable sideload testing possible. It is not an authentication boundary, must not protect production identity, and must never be used by the release build.
-
-Release signing remains separate and private.
-
-### Update invariant
-
-For a normal Android in-place development update, successive builds must preserve:
-
-- the debug application ID;
-- the signing identity;
-- a compatible/non-decreasing version code.
-
-Batch 03 establishes that invariant for future Bearagnostic debug builds.
-
-Earlier CI debug APKs used runner-local debug certificates. A device that already has one of those builds installed may require one final uninstall before the first Batch 03 install. After migration to Batch 03, future batches should update the debug app in place.
+The development signing identity remains unchanged in Scan Modes 04. Release signing remains separate and private.
 
 ## Security and privacy boundaries
 
 - The app does not bypass Android sandboxing.
 - `MANAGE_EXTERNAL_STORAGE` does not grant private internal storage of other apps.
-- `Android/data` and `Android/obb` are deliberately excluded from traversal.
-- File contents are read only when needed to verify same-size duplicate candidates.
+- `Android/data` and `Android/obb` remain deliberately excluded from traversal.
+- File contents are read only when needed for enabled SHA-256 duplicate verification.
 - There is no network upload path in the scanner.
-- There is no deletion path in the scanner.
-- A future cleanup flow must require explicit review and confirmation before any destructive action.
-- The public development signing key is never reused for the production package.
+- There is no deletion path in this batch.
+- A future cleanup flow must require explicit review and confirmation before destructive action.
 
 ## Resource safety
 
 - Scanning runs on a dedicated single background executor.
-- The UI receives throttled progress events rather than an event for every file byte.
-- Duplicate hashing is limited to files that already share an exact size with another file.
-- Cancellation is cooperative and checked throughout traversal and hashing.
-- Long arithmetic is saturated to avoid accidental overflow in aggregate counters.
+- Directory traversal remains iterative rather than recursive.
+- Symbolic links are ignored.
+- Progress events remain throttled.
+- Hashing remains limited to same-size candidate groups.
+- Cancellation remains cooperative throughout traversal and hashing.
+- Aggregate long arithmetic remains saturated to avoid overflow.
 
 ## Next production responsibility
 
-After Batch 03 passes CI and physical update-path testing, the next scanner milestone should add a reviewable result model for duplicate groups, large files, and older files without introducing silent deletion. Cleanup remains a separate responsibility from scanning.
+After Scan Modes 04 is CI compile-verified and physically tested, the next logical layer is a reviewable result model and deterministic junk/risk classification. Destructive cleanup remains a separate responsibility.

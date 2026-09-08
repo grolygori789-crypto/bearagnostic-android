@@ -19,16 +19,60 @@
 
     <section class="hero">
       <div class="hero-glow" aria-hidden="true"></div>
-      <span class="kicker" data-i18n="kicker">ONE-TAP NATIVE CHECKUP</span>
-      <h1 data-i18n-html="headline">One tap.<br><em>Your files, checked locally.</em></h1>
-      <p data-i18n="intro">Bearagnostic can now scan user-accessible shared storage directly on Android after you grant access.</p>
+      <span class="kicker" data-i18n="kicker">SMART FILE HEALTH</span>
+      <h1 data-i18n-html="headline">Choose the depth.<br><em>Keep the control.</em></h1>
+      <p data-i18n="intro">Scan locally with the balance of speed and detail that fits what you need.</p>
+    </section>
+
+    <section class="mode-card" aria-labelledby="modeTitle">
+      <div class="section-head">
+        <div>
+          <span class="eyebrow" data-i18n="scanDepth">SCAN DEPTH</span>
+          <h2 id="modeTitle" data-i18n="chooseScan">Choose how Bearagnostic scans</h2>
+        </div>
+        <span class="recommended" data-i18n="smartRecommended">SMART RECOMMENDED</span>
+      </div>
+
+      <div class="mode-grid" role="group" aria-label="Scan mode">
+        <button class="mode-choice is-selected" type="button" data-mode="smart" aria-pressed="true">
+          <span class="mode-icon blue" aria-hidden="true">✦</span>
+          <span><strong data-i18n="smart">Smart</strong><small data-i18n="smartSub">Full metadata scan, focused duplicate verification</small></span>
+        </button>
+        <button class="mode-choice" type="button" data-mode="quick" aria-pressed="false">
+          <span class="mode-icon mint" aria-hidden="true">⚡</span>
+          <span><strong data-i18n="quick">Quick</strong><small data-i18n="quickSub">Fast check of high-value locations</small></span>
+        </button>
+        <button class="mode-choice" type="button" data-mode="deep" aria-pressed="false">
+          <span class="mode-icon violet" aria-hidden="true">◎</span>
+          <span><strong data-i18n="deep">Deep</strong><small data-i18n="deepSub">Most thorough scan and exact duplicate verification</small></span>
+        </button>
+        <button class="mode-choice" type="button" data-mode="custom" aria-pressed="false">
+          <span class="mode-icon amber" aria-hidden="true">⌘</span>
+          <span><strong data-i18n="custom">Custom</strong><small data-i18n="customSub">Choose locations and duplicate verification</small></span>
+        </button>
+      </div>
+
+      <div class="custom-panel" id="customPanel" hidden>
+        <div class="custom-title"><strong data-i18n="customLocations">Locations</strong><span data-i18n="customHint">Select at least one</span></div>
+        <div class="scope-grid">
+          <label><input type="checkbox" value="downloads" checked><span data-i18n="downloads">Downloads</span></label>
+          <label><input type="checkbox" value="photos" checked><span data-i18n="photos">Photos</span></label>
+          <label><input type="checkbox" value="videos" checked><span data-i18n="videos">Videos</span></label>
+          <label><input type="checkbox" value="documents" checked><span data-i18n="documents">Documents</span></label>
+          <label><input type="checkbox" value="music"><span data-i18n="music">Music</span></label>
+        </div>
+        <label class="verify-toggle">
+          <input id="verifyDuplicates" type="checkbox" checked>
+          <span><strong data-i18n="verifyExact">Verify exact duplicates</strong><small data-i18n="verifyExactSub">Uses streaming SHA-256 only on same-size candidates</small></span>
+        </label>
+      </div>
     </section>
 
     <section class="status-card" aria-labelledby="statusTitle">
       <div class="status-card__head">
         <div>
           <span class="eyebrow" data-i18n="systemStatus">SYSTEM STATUS</span>
-          <h2 id="statusTitle" data-i18n="nativeReady">Native checkup ready</h2>
+          <h2 id="statusTitle" data-i18n="nativeReady">Native scanner ready</h2>
         </div>
         <div class="pulse" aria-hidden="true"><i></i></div>
       </div>
@@ -46,7 +90,7 @@
         </div>
         <div class="status-row">
           <span class="status-icon violet" aria-hidden="true">⌁</span>
-          <div><strong data-i18n="scannerEngine">Scanner engine</strong><small data-i18n="scannerEngineSub">Native metadata + SHA-256 duplicate verification</small></div>
+          <div><strong data-i18n="scannerEngine">Scanner engine</strong><small data-i18n="scannerEngineSub">Metadata + optional SHA-256 verification</small></div>
           <b class="state good" id="scannerState" data-i18n="ready">Ready</b>
         </div>
       </div>
@@ -58,11 +102,11 @@
           <span class="eyebrow" data-i18n="checkup">CHECKUP</span>
           <h2 id="scanTitle" data-i18n="scanning">Scanning accessible files</h2>
         </div>
-        <span class="scan-phase" id="scanPhase">—</span>
+        <div class="scan-badges"><span class="scan-mode" id="scanModeLabel">SMART</span><span class="scan-phase" id="scanPhase">—</span></div>
       </div>
 
       <div class="progress-track" id="progressTrack" aria-hidden="true"><i id="progressFill"></i></div>
-      <p class="progress-note" id="progressNote" data-i18n="progressTruth">File discovery is indeterminate; duplicate verification shows measured byte progress.</p>
+      <p class="progress-note" id="progressNote" data-i18n="progressTruth">Discovery stays indeterminate; measured progress appears only when duplicate hashing has a known byte total.</p>
 
       <div class="metrics">
         <div><strong id="reviewedFiles">0</strong><span data-i18n="filesReviewed">files reviewed</span></div>
@@ -73,17 +117,17 @@
 
       <div class="result-line" id="resultLine" hidden>
         <strong id="reclaimable">0 B</strong>
-        <span data-i18n="duplicateSpace">verified duplicate space that may be reclaimable after review</span>
+        <span id="resultDescription" data-i18n="duplicateSpace">verified duplicate space that may be reclaimable after review</span>
       </div>
 
-      <button class="cancel" id="cancelButton" type="button" data-i18n="cancelScan">Cancel checkup</button>
+      <button class="cancel" id="cancelButton" type="button" data-i18n="cancelScan">Cancel scan</button>
     </section>
 
     <section class="trust-note">
       <div class="shield" aria-hidden="true">◆</div>
       <div>
         <strong data-i18n="privacyTitle">Local by design</strong>
-        <p data-i18n="privacyBody">The scanner reads accessible shared-storage metadata and hashes duplicate candidates locally. It does not upload or delete files.</p>
+        <p data-i18n="privacyBody">File analysis stays on this device. This scanner does not upload or delete files.</p>
       </div>
     </section>
 

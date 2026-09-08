@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import org.json.JSONArray
 import org.json.JSONObject
 
 class MainActivity : Activity() {
@@ -77,7 +78,7 @@ class MainActivity : Activity() {
 
     fun isScannerRunning(): Boolean = ::scanner.isInitialized && scanner.isRunning()
 
-    fun startOneTapScan(): String {
+    fun startScan(mode: String, customScopesJson: String, verifyDuplicates: Boolean): String {
         if (!StorageAccessController.hasAccess(this)) {
             return JSONObject().apply {
                 put("accepted", false)
@@ -85,7 +86,15 @@ class MainActivity : Activity() {
             }.toString()
         }
 
-        val accepted = scanner.start(object : FileHealthScanner.Listener {
+        val scanMode = FileHealthScanner.ScanMode.fromWire(mode)
+        val customScopes = parseCustomScopes(customScopesJson)
+        val request = FileHealthScanner.ScanRequest(
+            mode = scanMode,
+            customScopes = customScopes,
+            verifyDuplicates = verifyDuplicates,
+        )
+
+        val accepted = scanner.start(request, object : FileHealthScanner.Listener {
             override fun onProgress(json: String) {
                 pushScanEvent("onScanProgress", json)
             }
@@ -110,9 +119,16 @@ class MainActivity : Activity() {
 
         return JSONObject().apply {
             put("accepted", accepted)
+            put("scanMode", scanMode.wireName)
             if (!accepted) put("reason", "scan_already_running")
         }.toString()
     }
+
+    fun startOneTapScan(): String = startScan(
+        mode = FileHealthScanner.ScanMode.SMART.wireName,
+        customScopesJson = "[]",
+        verifyDuplicates = true,
+    )
 
     fun cancelOneTapScan(): String {
         val wasRunning = isScannerRunning()
@@ -121,6 +137,21 @@ class MainActivity : Activity() {
             put("accepted", wasRunning)
             if (!wasRunning) put("reason", "no_scan_running")
         }.toString()
+    }
+
+    private fun parseCustomScopes(raw: String): Set<String> {
+        val allowed = setOf("downloads", "photos", "videos", "documents", "music")
+        return try {
+            val array = JSONArray(raw)
+            buildSet {
+                for (index in 0 until array.length()) {
+                    val value = array.optString(index).trim().lowercase()
+                    if (value in allowed) add(value)
+                }
+            }
+        } catch (_: Exception) {
+            emptySet()
+        }
     }
 
     private fun pushScanEvent(callback: String, json: String) {
