@@ -8,137 +8,161 @@
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
-  <main class="shell">
-    <header class="brand-row">
+  <div class="app-shell" id="appShell" data-state="idle">
+    <header class="app-header">
       <div class="brand" aria-label="Bearagnostic">
         <strong>Bear<span>agnostic</span></strong>
-        <small>FILE HEALTH <i></i> BRIGHTER DAYS</small>
+        <small><b>FILE HEALTH</b><i></i><b>BRIGHTER DAYS</b></small>
       </div>
-      <div class="android-pill">ANDROID</div>
+      <button class="header-info" id="infoButton" type="button" data-i18n-aria="scanInfo" aria-label="Scan information">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="8"></circle><path d="M12 10v6M12 7.4v.2"></path>
+        </svg>
+      </button>
     </header>
 
-    <section class="hero">
-      <div class="hero-glow" aria-hidden="true"></div>
-      <span class="kicker" data-i18n="kicker">SMART FILE HEALTH</span>
-      <h1 data-i18n-html="headline">Choose the depth.<br><em>Keep the control.</em></h1>
-      <p data-i18n="intro">Scan locally with the balance of speed and detail that fits what you need.</p>
-    </section>
-
-    <section class="mode-card" aria-labelledby="modeTitle">
-      <div class="section-head">
-        <div>
-          <span class="eyebrow" data-i18n="scanDepth">SCAN DEPTH</span>
-          <h2 id="modeTitle" data-i18n="chooseScan">Choose how Bearagnostic scans</h2>
+    <main class="scan-screen">
+      <section class="scan-hero" aria-labelledby="scanTitle">
+        <img class="scan-hero__scene" src="../media/scanning-clinical-scene.webp" alt="" draggable="false">
+        <div class="scan-hero__wash" aria-hidden="true"></div>
+        <div class="scan-copy">
+          <span class="scan-kicker" id="scanKicker" data-i18n="kicker">SMART FILE HEALTH</span>
+          <h1 id="scanTitle"><span id="scanTitleText" data-i18n="idleTitle">Ready when you are</span><span class="scan-dots" id="scanDots" aria-hidden="true"><i>.</i><i>.</i><i>.</i></span></h1>
+          <p id="scanSubtitle" data-i18n="idleSub">Choose the scan depth, then let Dr. Bear check the files Android allows Bearagnostic to access.</p>
+          <button class="mode-chip" id="modeChip" type="button" aria-haspopup="dialog">
+            <span class="mode-chip__dot"></span>
+            <span><strong id="modeChipTitle">Smart Scan</strong><small id="modeChipSub">Recommended balance</small></span>
+            <b aria-hidden="true">⌄</b>
+          </button>
         </div>
-        <span class="recommended" data-i18n="smartRecommended">SMART RECOMMENDED</span>
-      </div>
+      </section>
 
-      <div class="mode-grid" role="group" aria-label="Scan mode">
-        <button class="mode-choice is-selected" type="button" data-mode="smart" aria-pressed="true">
-          <span class="mode-icon blue" aria-hidden="true">✦</span>
-          <span><strong data-i18n="smart">Smart</strong><small data-i18n="smartSub">Full metadata scan, focused duplicate verification</small></span>
-        </button>
-        <button class="mode-choice" type="button" data-mode="quick" aria-pressed="false">
-          <span class="mode-icon mint" aria-hidden="true">⚡</span>
-          <span><strong data-i18n="quick">Quick</strong><small data-i18n="quickSub">Fast check of high-value locations</small></span>
-        </button>
-        <button class="mode-choice" type="button" data-mode="deep" aria-pressed="false">
-          <span class="mode-icon violet" aria-hidden="true">◎</span>
-          <span><strong data-i18n="deep">Deep</strong><small data-i18n="deepSub">Most thorough scan and exact duplicate verification</small></span>
-        </button>
-        <button class="mode-choice" type="button" data-mode="custom" aria-pressed="false">
-          <span class="mode-icon amber" aria-hidden="true">⌘</span>
-          <span><strong data-i18n="custom">Custom</strong><small data-i18n="customSub">Choose locations and duplicate verification</small></span>
-        </button>
-      </div>
-
-      <div class="custom-panel" id="customPanel" hidden>
-        <div class="custom-title"><strong data-i18n="customLocations">Locations</strong><span data-i18n="customHint">Select at least one</span></div>
-        <div class="scope-grid">
-          <label><input type="checkbox" value="downloads" checked><span data-i18n="downloads">Downloads</span></label>
-          <label><input type="checkbox" value="photos" checked><span data-i18n="photos">Photos</span></label>
-          <label><input type="checkbox" value="videos" checked><span data-i18n="videos">Videos</span></label>
-          <label><input type="checkbox" value="documents" checked><span data-i18n="documents">Documents</span></label>
-          <label><input type="checkbox" value="music"><span data-i18n="music">Music</span></label>
+      <section class="scan-rail" aria-label="Scan stages">
+        <div class="scan-rail__line" aria-hidden="true"><div class="scan-rail__progress" id="scanRailProgress"></div></div>
+        <div class="scan-stages">
+          <div class="scan-stage" data-stage="preparing">
+            <span class="scan-stage__dot"><svg viewBox="0 0 24 24"><path d="m6 12 4 4 8-9"/></svg></span>
+            <strong data-i18n="stagePreparing">Preparing</strong><small data-i18n="stagePreparingSub">Getting ready</small>
+          </div>
+          <div class="scan-stage" data-stage="files">
+            <span class="scan-stage__dot"><svg viewBox="0 0 24 24"><path d="m6 12 4 4 8-9"/></svg></span>
+            <strong data-i18n="stageFiles">Files</strong><small data-i18n="stageFilesSub">Reading details</small>
+          </div>
+          <div class="scan-stage" data-stage="duplicates">
+            <span class="scan-stage__dot"><svg viewBox="0 0 24 24"><path d="m6 12 4 4 8-9"/></svg></span>
+            <strong data-i18n="stageDuplicates">Duplicates</strong><small id="duplicateStageSub" data-i18n="stageDuplicatesSub">Verifying matches</small>
+          </div>
+          <div class="scan-stage" data-stage="finalizing">
+            <span class="scan-stage__dot"><svg viewBox="0 0 24 24"><path d="m6 12 4 4 8-9"/></svg></span>
+            <strong data-i18n="stageFinalizing">Finalizing</strong><small data-i18n="stageFinalizingSub">Wrapping up</small>
+          </div>
         </div>
-        <label class="verify-toggle">
-          <input id="verifyDuplicates" type="checkbox" checked>
-          <span><strong data-i18n="verifyExact">Verify exact duplicates</strong><small data-i18n="verifyExactSub">Uses streaming SHA-256 only on same-size candidates</small></span>
-        </label>
-      </div>
-    </section>
+      </section>
 
-    <section class="status-card" aria-labelledby="statusTitle">
-      <div class="status-card__head">
-        <div>
-          <span class="eyebrow" data-i18n="systemStatus">SYSTEM STATUS</span>
-          <h2 id="statusTitle" data-i18n="nativeReady">Native scanner ready</h2>
+      <section class="scan-dashboard" aria-live="polite">
+        <div class="scan-progress">
+          <div class="scan-ring" id="scanRing">
+            <svg viewBox="0 0 110 110" aria-hidden="true">
+              <defs><linearGradient id="ringGradient" x1="14" y1="94" x2="94" y2="16" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#25c1ef"/><stop offset="1" stop-color="#197fea"/></linearGradient></defs>
+              <circle class="scan-ring__track" cx="55" cy="55" r="46"/>
+              <circle class="scan-ring__value" id="scanRingValue" cx="55" cy="55" r="46"/>
+            </svg>
+            <div class="scan-ring__copy">
+              <strong id="ringValue">SMART</strong>
+              <span id="ringLabel" data-i18n="ready">READY</span>
+            </div>
+          </div>
         </div>
-        <div class="pulse" aria-hidden="true"><i></i></div>
-      </div>
 
-      <div class="status-list">
-        <div class="status-row">
-          <span class="status-icon blue" aria-hidden="true">↔</span>
-          <div><strong data-i18n="nativeBridge">Native bridge</strong><small data-i18n="nativeBridgeSub">Local UI ↔ Android communication</small></div>
-          <b class="state good" data-i18n="ready">Ready</b>
+        <div class="scan-findings">
+          <div class="scan-finding">
+            <svg viewBox="0 0 24 24"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v5h5"/></svg>
+            <b id="reviewedFiles">0</b><span data-i18n="filesReviewed">files reviewed</span>
+          </div>
+          <div class="scan-finding">
+            <svg viewBox="0 0 24 24"><rect x="4" y="6" width="11" height="13" rx="2"/><rect x="9" y="3" width="11" height="13" rx="2"/></svg>
+            <b id="duplicateFiles">—</b><span id="duplicateLabel" data-i18n="duplicatesPending">duplicate verification</span>
+          </div>
+          <div class="scan-finding">
+            <svg viewBox="0 0 24 24"><path d="M3 7h7l2 2h9v10H3z"/></svg>
+            <b id="largeFiles">0</b><span data-i18n="largeFiles">large files noted</span>
+          </div>
+          <div class="scan-finding">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 7v5l3 2"/></svg>
+            <b id="olderFiles">0</b><span data-i18n="olderFiles">older files found</span>
+          </div>
         </div>
-        <div class="status-row">
-          <span class="status-icon mint" aria-hidden="true">✓</span>
-          <div><strong data-i18n="storageAccess">Storage access</strong><small data-i18n="storageAccessSub">Permission for user-accessible shared files</small></div>
-          <b class="state" id="storageState" data-i18n="notGranted">Not granted</b>
+
+        <div class="scan-quote">
+          <span aria-hidden="true">“</span>
+          <blockquote id="scanQuote" data-i18n="quoteIdle">Your files. Your choice. Bearagnostic just helps you see clearly.</blockquote>
+          <small>— Dr. Bear</small>
         </div>
-        <div class="status-row">
-          <span class="status-icon violet" aria-hidden="true">⌁</span>
-          <div><strong data-i18n="scannerEngine">Scanner engine</strong><small data-i18n="scannerEngineSub">Metadata + optional SHA-256 verification</small></div>
-          <b class="state good" id="scannerState" data-i18n="ready">Ready</b>
-        </div>
+      </section>
+
+      <section class="scan-tip" id="scanTip">
+        <span class="scan-tip__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M12 3 5 6v5c0 4.4 2.9 7.9 7 9 4.1-1.1 7-4.6 7-9V6z"/><path d="m9 12 2 2 4-5"/></svg>
+        </span>
+        <div><strong id="tipTitle" data-i18n="localTitle">Local by design</strong><p id="tipBody" data-i18n="localBody">File analysis stays on this device. Protected app-private areas remain outside the scan.</p></div>
+        <span class="scan-tip__status" id="accessPill" data-i18n="checkingAccess">Checking access</span>
+      </section>
+
+      <div class="scan-bottom">
+        <button class="scan-action" id="primaryButton" type="button"><span id="primaryTitle" data-i18n="checkingAccess">Checking access</span></button>
+        <div class="scan-studio" id="buildLabel">BEARAGNOSTIC</div>
       </div>
-    </section>
+    </main>
+  </div>
 
-    <section class="scan-card" id="scanCard" aria-live="polite" hidden>
-      <div class="scan-head">
-        <div>
-          <span class="eyebrow" data-i18n="checkup">CHECKUP</span>
-          <h2 id="scanTitle" data-i18n="scanning">Scanning accessible files</h2>
-        </div>
-        <div class="scan-badges"><span class="scan-mode" id="scanModeLabel">SMART</span><span class="scan-phase" id="scanPhase">—</span></div>
-      </div>
+  <div class="sheet-backdrop" id="sheetBackdrop" hidden></div>
 
-      <div class="progress-track" id="progressTrack" aria-hidden="true"><i id="progressFill"></i></div>
-      <p class="progress-note" id="progressNote" data-i18n="progressTruth">Discovery stays indeterminate; measured progress appears only when duplicate hashing has a known byte total.</p>
+  <section class="mode-sheet" id="modeSheet" role="dialog" aria-modal="true" aria-labelledby="modeSheetTitle" hidden>
+    <div class="sheet-handle" aria-hidden="true"></div>
+    <div class="sheet-head">
+      <div><span data-i18n="scanDepth">SCAN DEPTH</span><h2 id="modeSheetTitle" data-i18n="chooseMode">Choose how deeply to scan</h2></div>
+      <button id="modeClose" type="button" data-i18n-aria="close" aria-label="Close">×</button>
+    </div>
+    <div class="mode-grid">
+      <button type="button" class="mode-option" data-mode="smart"><b>✦</b><span><strong data-i18n="smart">Smart</strong><small data-i18n="smartDesc">Full metadata scan with focused duplicate verification.</small></span><em data-i18n="recommended">Recommended</em></button>
+      <button type="button" class="mode-option" data-mode="quick"><b>⚡</b><span><strong data-i18n="quick">Quick</strong><small data-i18n="quickDesc">Fast scan of high-value shared locations. Exact duplicates are not verified.</small></span></button>
+      <button type="button" class="mode-option" data-mode="deep"><b>◎</b><span><strong data-i18n="deep">Deep</strong><small data-i18n="deepDesc">Most thorough accessible-storage scan and exact duplicate verification.</small></span></button>
+      <button type="button" class="mode-option" data-mode="custom"><b>⌘</b><span><strong data-i18n="custom">Custom</strong><small data-i18n="customDesc">Choose locations and whether exact duplicates should be verified.</small></span></button>
+    </div>
+  </section>
 
-      <div class="metrics">
-        <div><strong id="reviewedFiles">0</strong><span data-i18n="filesReviewed">files reviewed</span></div>
-        <div><strong id="largeFiles">0</strong><span data-i18n="largeFiles">large files</span></div>
-        <div><strong id="olderFiles">0</strong><span data-i18n="olderFiles">older files</span></div>
-        <div><strong id="duplicateCopies">—</strong><span data-i18n="duplicateCopies">exact duplicate copies</span></div>
-      </div>
+  <section class="custom-sheet" id="customSheet" role="dialog" aria-modal="true" aria-labelledby="customSheetTitle" hidden>
+    <div class="sheet-handle" aria-hidden="true"></div>
+    <div class="sheet-head">
+      <div><span data-i18n="custom">CUSTOM</span><h2 id="customSheetTitle" data-i18n="customTitle">Choose what to scan</h2></div>
+      <button id="customClose" type="button" data-i18n-aria="close" aria-label="Close">×</button>
+    </div>
+    <div class="scope-grid" role="group" aria-label="Custom scan locations">
+      <label><input type="checkbox" value="downloads" checked><span data-i18n="downloads">Downloads</span></label>
+      <label><input type="checkbox" value="photos" checked><span data-i18n="photos">Photos</span></label>
+      <label><input type="checkbox" value="videos" checked><span data-i18n="videos">Videos</span></label>
+      <label><input type="checkbox" value="documents" checked><span data-i18n="documents">Documents</span></label>
+      <label><input type="checkbox" value="music"><span data-i18n="music">Music</span></label>
+    </div>
+    <label class="verify-row">
+      <input id="verifyDuplicates" type="checkbox" checked>
+      <span><strong data-i18n="verifyExact">Verify exact duplicates</strong><small data-i18n="verifyExactDesc">SHA-256 is used only after cheap same-size filtering.</small></span>
+    </label>
+    <button class="custom-save" id="customSave" type="button" data-i18n="useCustom">Use Custom Scan</button>
+  </section>
 
-      <div class="result-line" id="resultLine" hidden>
-        <strong id="reclaimable">0 B</strong>
-        <span id="resultDescription" data-i18n="duplicateSpace">verified duplicate space that may be reclaimable after review</span>
-      </div>
-
-      <button class="cancel" id="cancelButton" type="button" data-i18n="cancelScan">Cancel scan</button>
-    </section>
-
-    <section class="trust-note">
-      <div class="shield" aria-hidden="true">◆</div>
-      <div>
-        <strong data-i18n="privacyTitle">Local by design</strong>
-        <p data-i18n="privacyBody">File analysis stays on this device. This scanner does not upload or delete files.</p>
-      </div>
-    </section>
-
-    <button class="primary" id="primaryButton" type="button">
-      <span class="primary__copy"><strong id="primaryTitle" data-i18n="prepareAccess">Prepare device access</strong><small id="primarySub" data-i18n="prepareAccessSub">Android will show the system permission screen</small></span>
-      <span class="primary__arrow" aria-hidden="true">›</span>
-    </button>
-
-    <p class="scope-note" data-i18n="scopeNote">Scope: user-accessible shared storage only. Android-protected app-private areas remain out of scope.</p>
-    <p class="footnote" id="buildLabel">Bearagnostic for Android</p>
-  </main>
+  <section class="info-sheet" id="infoSheet" role="dialog" aria-modal="true" aria-labelledby="infoSheetTitle" hidden>
+    <div class="sheet-handle" aria-hidden="true"></div>
+    <div class="sheet-head">
+      <div><span data-i18n="privacy">PRIVACY & SCOPE</span><h2 id="infoSheetTitle" data-i18n="aboutScan">About this scan</h2></div>
+      <button id="infoClose" type="button" data-i18n-aria="close" aria-label="Close">×</button>
+    </div>
+    <div class="info-list">
+      <div><b>✓</b><span><strong data-i18n="localTitle">Local by design</strong><small data-i18n="infoLocal">Files are analyzed on this device and are not uploaded by the current architecture.</small></span></div>
+      <div><b>↔</b><span><strong data-i18n="accessibleOnly">Accessible storage only</strong><small data-i18n="accessibleOnlyDesc">Android-protected app-private and root-only areas remain out of scope.</small></span></div>
+      <div><b>○</b><span><strong data-i18n="readOnly">Read-only scan</strong><small data-i18n="readOnlyDesc">This build scans and reports. It does not delete files.</small></span></div>
+    </div>
+  </section>
 
   <script src="./app.js"></script>
 </body>
