@@ -10,8 +10,8 @@ android {
         applicationId = "com.benedictinteractive.bearagnostic"
         minSdk = 26
         targetSdk = 36
-        versionCode = 5
-        versionName = "0.5.0-alpha05"
+        versionCode = 6
+        versionName = "0.6.0-alpha06"
     }
 
     buildFeatures {

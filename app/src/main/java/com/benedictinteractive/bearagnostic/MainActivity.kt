@@ -2,7 +2,11 @@ package com.benedictinteractive.bearagnostic
 
 import android.app.Activity
 import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
+import android.view.View
+import android.view.WindowInsets
+import android.view.WindowInsetsController
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -17,8 +21,11 @@ class MainActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        window.statusBarColor = Color.rgb(246, 250, 253)
-        window.navigationBarColor = Color.rgb(246, 250, 253)
+        // Enter immersive mode before attaching the WebView so the Benedict Interactive
+        // opening and every subsequent app surface own the complete display from frame one.
+        applyImmersiveMode()
+        window.statusBarColor = Color.TRANSPARENT
+        window.navigationBarColor = Color.TRANSPARENT
 
         scanner = FileHealthScanner(applicationContext)
         webView = WebView(this)
@@ -46,13 +53,40 @@ class MainActivity : Activity() {
 
         webView.addJavascriptInterface(nativeBridge, NativeBridge.JS_INTERFACE_NAME)
         setContentView(webView)
+        applyImmersiveMode()
         webView.loadUrl("file:///android_asset/ui/index.html")
     }
 
     override fun onResume() {
         super.onResume()
+        applyImmersiveMode()
         if (::webView.isInitialized) {
             webView.post { pushNativeStateToWeb() }
+        }
+    }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (hasFocus) applyImmersiveMode()
+    }
+
+    @Suppress("DEPRECATION")
+    private fun applyImmersiveMode() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            window.setDecorFitsSystemWindows(false)
+            window.insetsController?.let { controller ->
+                controller.hide(WindowInsets.Type.statusBars() or WindowInsets.Type.navigationBars())
+                controller.systemBarsBehavior =
+                    WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            }
+        } else {
+            window.decorView.systemUiVisibility =
+                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or
+                    View.SYSTEM_UI_FLAG_FULLSCREEN or
+                    View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
+                    View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
+                    View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
         }
     }
 
