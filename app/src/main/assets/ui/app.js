@@ -3,287 +3,124 @@
 
   const COPY = {
     en: {
-      doctorIn:'Dr. Bear is in.',preferences:'Preferences',heroTitle:'<em>A cleaner device</em><br><em>for a smoother you.</em>',startCheckup:'Start Checkup',startCheckupBody:'Smart scan of accessible storage',
-      duplicates:'Duplicates',duplicatesSub:'Find exact copies',largeFiles:'Large Files',largeFilesSub:'See the biggest',olderFiles:'Old Files',olderFilesSub:'Review by age',downloads:'Downloads',downloadsSub:'Review clutter',fileHealth:'File Health',fileHealthSub:'Your latest checkup summary will appear here.',editorialQuote:'A cleaner device leads to a calmer mind.',
-      scanKicker:'SCANNING YOUR FILES',scanIdleTitle:'Ready for a checkup',scanIdleSub:'Choose a scan mode or start with Smart.',scanRunningTitle:'Checking things out',scanRunningSub:'A cleaner device leads to brighter days.',scanDoneTitle:'Checkup complete',scanDoneSub:'Accessible files have been reviewed locally.',scanCancelledTitle:'Checkup cancelled',scanCancelledSub:'Nothing was deleted. You can run the checkup again.',scanErrorTitle:'Checkup could not finish',scanErrorSub:'Try again. If storage changed during the scan, Bearagnostic will re-check it.',recommendedBalance:'Recommended balance',
-      stagePreparing:'Preparing',stagePreparingSub:'Getting ready',stageFiles:'File Details',stageFilesSub:'Reading info',stageDuplicates:'Duplicates',stageDuplicatesSub:'Finding matches',stageDuplicatesSkipped:'Skipped in Quick',stageFinalizing:'Finalizing',stageFinalizingSub:'Almost there',
-      ready:'READY',scanning:'SCANNING',hashing:'VERIFYING',complete:'COMPLETE',cancelled:'CANCELLED',error:'ERROR',filesReviewed:'files reviewed',duplicateCopies:'exact duplicate copies',duplicatesNotChecked:'not checked',largeNoted:'large files noted',olderFound:'older files found',quoteIdle:'Your files. Your choice.',quoteRunning:'Looking carefully. Bears don’t rush diagnostics.',quoteDone:'All done. The numbers above come from the native scan.',quoteCancelled:'Stopped safely. No files were deleted.',quoteError:'No guesswork. If a scan cannot finish, Bearagnostic says so.',tipTitle:'Did you know?',tipBody:'Bearagnostic analyzes accessible files locally on this device.',local:'LOCAL',verifiedSpace:'Verified duplicate space',noDuplicateCheck:'Quick Scan does not claim exact duplicates.',deepAnalysis:'Deep analysis complete',tempFiles:'temp artifacts',apkFiles:'APK installers',archiveFiles:'archives',zeroByte:'zero-byte',emptyFolders:'empty folders',
-      checkingAccess:'Checking access…',allowAccess:'Allow storage access',startSmart:'Start Smart Scan',startQuick:'Start Quick Scan',startDeep:'Start Deep Scan',startCustom:'Start Custom Scan',cancelScan:'Cancel Scan',runAgain:'Run Checkup Again',
-      toolsKicker:'TOOLS',toolsTitle:'Focused file review',toolsBody:'Cleaner tools will plug into the same native scan engine.',insightsKicker:'INSIGHTS',insightsTitle:'Useful patterns, once they exist',insightsBody:'Insights stay empty until real checkups create honest local history.',noInsights:'No insights yet',noInsightsSub:'Run a real checkup first. Bearagnostic will never invent a score.',moreKicker:'MORE',privacyLocal:'Privacy & local data',privacyLocalSub:'What stays on your device',aboutBearagnostic:'About Bearagnostic',
-      preferencesKicker:'PREFERENCES',preferencesSub:'Language, motion and Android display behavior',language:'Language',languageSub:'Choose the interface language',motion:'Motion',motionSub:'Choose interface motion',motionSystem:'System',motionFull:'Full',motionReduced:'Reduced',fullScreen:'Full screen',fullScreenSub:'Android immersive mode is always enabled',on:'ON',navHome:'Home',navCheckup:'Checkup',navTools:'Tools',navInsights:'Insights',navMore:'More',
-      scanDepth:'SCAN DEPTH',chooseMode:'Choose how deeply to scan',recommended:'Recommended',smartDesc:'Full metadata scan with focused duplicate verification.',quickDesc:'Fast scan of high-value shared locations.',deepDesc:'Most thorough accessible-storage scan and exact duplicate verification.',customDesc:'Choose locations and duplicate verification.',customTitle:'Choose what to scan',photos:'Photos',videos:'Videos',documents:'Documents',music:'Music',verifyExact:'Verify exact duplicates',verifyExactDesc:'Streaming SHA-256 only after same-size filtering.',useCustom:'Use Custom Scan',
-      privacyKicker:'PRIVACY & LOCAL DATA',privacyTitle:'Local-first by design',privacyBody:'Bearagnostic analyzes user-accessible shared storage on this device. Files are not uploaded by the current architecture, and this build does not delete files. Android-protected app-private and root-only areas remain outside the scan.',aboutKicker:'ABOUT',aboutBody:'Bearagnostic for Android is a premium, privacy-first file-health cleaner by Benedict Interactive.',comingSoon:'This cleaner surface is not wired yet. No fake result will be shown.'
+      doctorIn:'Dr. Bear is in.', heroTitle:'<em>A cleaner device</em><br><em>for a smoother you.</em>', startCheckup:'Start Checkup', startCheckupBody:'Choose how deeply Bearagnostic should check.',
+      cleanup:'Cleanup', cleanupSub:'Review candidates', duplicates:'Duplicates', duplicatesSub:'Find repeats', largeFiles:'Large Files', largeFilesSub:'Biggest files', olderFiles:'Older Files', olderFilesSub:'Older edits', fileHealth:'File Health', fileHealthSub:'Your checkup summary will appear here.', editorialQuote:'A cleaner device leads to a calmer mind.',
+      scanKicker:'SCANNING YOUR FILES', scanIdleTitle:'Ready for a checkup', scanIdleSub:'Choose a scan mode. Bearagnostic only reports work the native scanner actually completes.', scanRunningTitle:'Checking things out', scanRunningSub:'Every stage below is real native work.', scanDoneTitle:'Checkup complete', scanDoneSub:'Accessible storage was reviewed locally.', scanCancelledTitle:'Checkup cancelled', scanCancelledSub:'Nothing was deleted.', scanErrorTitle:'Checkup could not finish', scanErrorSub:'Bearagnostic will not invent a successful result.',
+      stagePreparing:'Preparing', stagePreparingSub:'Discovering files', stageDetails:'File Details', stageDetailsSub:'Reading info', stageSizes:'File Sizes', stageSizesSub:'Analyzing', stageDuplicates:'Duplicates', stageDuplicatesSub:'Finding matches', stageDates:'Modified Dates', stageDatesSub:'Checking dates', stageFinalizing:'Finalizing', stageFinalizingSub:'Almost there',
+      ready:'READY', scanning:'SCANNING', verifying:'VERIFYING', filesReviewed:'files reviewed', duplicateCandidates:'duplicate candidates', exactDuplicates:'exact duplicate copies', largeNoted:'large files noted', olderFound:'older files found', quoteIdle:'Your files. Your choice.', quoteRunning:'Looking carefully. Bears don’t rush diagnostics.', quoteDone:'All done. These numbers come from the native scan.', quoteCancelled:'Stopped safely. No files were deleted.', quoteError:'No guesswork. An incomplete scan is never called complete.',
+      tipTitle:'Did you know?', tipBody:'Bearagnostic analyzes accessible files locally on this device.', chooseMode:'Choose scan mode', scanDepth:'SCAN DEPTH', chooseHow:'Choose how deeply to scan', recommended:'Recommended', smartDesc:'Full metadata scan with focused duplicate verification.', quickDesc:'Fast scan of high-value shared locations.', deepDesc:'Multi-pass full accessible-storage scan with content probes and exact duplicates.', customDesc:'Choose locations and duplicate verification.', customTitle:'Choose what to scan', downloads:'Downloads', photos:'Photos', videos:'Videos', documents:'Documents', music:'Music', verifyExact:'Verify exact duplicates', useCustom:'Use Custom Scan',
+      toolsTitle:'Focused file review', toolsBody:'Cleaner tools will use the same native evidence.', insightsTitle:'Real results only', insightsBody:'Insights remain empty until real scans create real data.', privacyBody:'Local-first file health by Benedict Interactive.', preferences:'Preferences', back:'Back', navHome:'Home', navCheckup:'Checkup', navTools:'Tools', navInsights:'Insights', navMore:'More', allowAccess:'Allow storage access', cancelScan:'Cancel Scan', runAgain:'Run Checkup Again', comingSoon:'This surface is not wired yet. No fake result is shown.', selectOne:'Choose at least one location'
     },
     th: {
-      doctorIn:'คุณหมอแบร์พร้อมแล้ว',preferences:'การตั้งค่า',heroTitle:'<em>เครื่องสะอาดขึ้น</em><br><em>ทุกอย่างก็ลื่นขึ้น</em>',startCheckup:'เริ่มตรวจเครื่อง',startCheckupBody:'Smart Scan พื้นที่ที่ Android อนุญาตให้เข้าถึง',
-      duplicates:'ไฟล์ซ้ำ',duplicatesSub:'หาไฟล์ที่ตรงกันจริง',largeFiles:'ไฟล์ขนาดใหญ่',largeFilesSub:'ดูไฟล์ที่กินพื้นที่',olderFiles:'ไฟล์เก่า',olderFilesSub:'ตรวจตามอายุไฟล์',downloads:'ดาวน์โหลด',downloadsSub:'ตรวจไฟล์ค้างสะสม',fileHealth:'สุขภาพไฟล์',fileHealthSub:'ผลตรวจล่าสุดของคุณจะแสดงตรงนี้',editorialQuote:'เครื่องที่เป็นระเบียบขึ้น ชีวิตดิจิทัลก็เบาขึ้น',
-      scanKicker:'กำลังตรวจไฟล์ในเครื่อง',scanIdleTitle:'พร้อมตรวจแล้ว',scanIdleSub:'เลือกวิธีสแกน หรือเริ่มด้วย Smart ได้ทันที',scanRunningTitle:'กำลังตรวจอย่างละเอียด',scanRunningSub:'เครื่องที่สะอาดขึ้น ช่วยให้ทุกอย่างทำงานได้คล่องขึ้น',scanDoneTitle:'ตรวจเรียบร้อยแล้ว',scanDoneSub:'ตรวจไฟล์ที่เข้าถึงได้ภายในเครื่องเรียบร้อยแล้ว',scanCancelledTitle:'ยกเลิกการตรวจแล้ว',scanCancelledSub:'ไม่มีการลบไฟล์ คุณเริ่มตรวจใหม่ได้ทุกเมื่อ',scanErrorTitle:'ตรวจไม่สำเร็จ',scanErrorSub:'ลองอีกครั้ง หาก storage มีการเปลี่ยนแปลง Bearagnostic จะตรวจใหม่ตามจริง',recommendedBalance:'สมดุลที่แนะนำ',
-      stagePreparing:'เตรียมระบบ',stagePreparingSub:'กำลังเตรียม',stageFiles:'รายละเอียดไฟล์',stageFilesSub:'กำลังอ่านข้อมูล',stageDuplicates:'ไฟล์ซ้ำ',stageDuplicatesSub:'กำลังยืนยัน',stageDuplicatesSkipped:'Quick ไม่ตรวจ',stageFinalizing:'สรุปผล',stageFinalizingSub:'ใกล้เสร็จแล้ว',
-      ready:'พร้อม',scanning:'กำลังตรวจ',hashing:'กำลังยืนยัน',complete:'เสร็จแล้ว',cancelled:'ยกเลิก',error:'ผิดพลาด',filesReviewed:'ไฟล์ที่ตรวจแล้ว',duplicateCopies:'สำเนาซ้ำที่ยืนยันแล้ว',duplicatesNotChecked:'ไม่ได้ตรวจ',largeNoted:'ไฟล์ขนาดใหญ่',olderFound:'ไฟล์เก่าที่พบ',quoteIdle:'ไฟล์ของคุณ คุณเป็นคนเลือก',quoteRunning:'กำลังดูให้ละเอียด การตรวจที่ดีไม่ต้องรีบ',quoteDone:'เรียบร้อย ตัวเลขทั้งหมดมาจากการสแกนจริง',quoteCancelled:'หยุดอย่างปลอดภัย ไม่มีไฟล์ถูกลบ',quoteError:'ไม่เดาผล หากตรวจไม่จบ Bearagnostic จะบอกตามจริง',tipTitle:'รู้หรือไม่?',tipBody:'Bearagnostic วิเคราะห์ไฟล์ที่เข้าถึงได้ภายในเครื่องนี้',local:'ในเครื่อง',verifiedSpace:'พื้นที่ไฟล์ซ้ำที่ยืนยันแล้ว',noDuplicateCheck:'Quick Scan จะไม่อ้างว่าไฟล์ใดซ้ำแบบตรงกันจริง',deepAnalysis:'วิเคราะห์ Deep Scan ครบแล้ว',tempFiles:'ไฟล์ชั่วคราว',apkFiles:'ไฟล์ติดตั้ง APK',archiveFiles:'ไฟล์บีบอัด',zeroByte:'ไฟล์ 0 ไบต์',emptyFolders:'โฟลเดอร์ว่าง',
-      checkingAccess:'กำลังตรวจสิทธิ์…',allowAccess:'อนุญาตสิทธิ์เข้าถึงไฟล์',startSmart:'เริ่ม Smart Scan',startQuick:'เริ่ม Quick Scan',startDeep:'เริ่ม Deep Scan',startCustom:'เริ่ม Custom Scan',cancelScan:'ยกเลิกการสแกน',runAgain:'ตรวจอีกครั้ง',
-      toolsKicker:'เครื่องมือ',toolsTitle:'ตรวจไฟล์แบบเจาะจง',toolsBody:'เครื่องมือ Cleaner จะใช้ native scan engine เดียวกัน',insightsKicker:'ข้อมูลเชิงลึก',insightsTitle:'ดูรูปแบบที่มีข้อมูลจริงรองรับ',insightsBody:'ส่วนนี้จะยังว่างจนกว่าการตรวจจริงจะสร้างประวัติในเครื่อง',noInsights:'ยังไม่มีข้อมูล',noInsightsSub:'ตรวจเครื่องจริงก่อน Bearagnostic จะไม่สร้างคะแนนหรือข้อมูลปลอม',moreKicker:'เพิ่มเติม',privacyLocal:'ความเป็นส่วนตัวและข้อมูลในเครื่อง',privacyLocalSub:'ข้อมูลอะไรอยู่บนเครื่องของคุณ',aboutBearagnostic:'เกี่ยวกับ Bearagnostic',
-      preferencesKicker:'การตั้งค่า',preferencesSub:'ภาษา การเคลื่อนไหว และการแสดงผลบน Android',language:'ภาษา',languageSub:'เลือกภาษาของแอป',motion:'การเคลื่อนไหว',motionSub:'เลือกระดับการเคลื่อนไหวของ UI',motionSystem:'ตามระบบ',motionFull:'เต็มรูปแบบ',motionReduced:'ลดการเคลื่อนไหว',fullScreen:'เต็มหน้าจอ',fullScreenSub:'Android Immersive Mode เปิดใช้งานตลอด',on:'เปิด',navHome:'หน้าหลัก',navCheckup:'ตรวจเครื่อง',navTools:'เครื่องมือ',navInsights:'ข้อมูล',navMore:'เพิ่มเติม',
-      scanDepth:'ระดับการสแกน',chooseMode:'เลือกความละเอียดในการสแกน',recommended:'แนะนำ',smartDesc:'ตรวจ metadata ทั้งพื้นที่ และยืนยันไฟล์ซ้ำเฉพาะจุดสำคัญ',quickDesc:'ตรวจเร็วในตำแหน่ง shared storage ที่มีประโยชน์สูง',deepDesc:'ตรวจพื้นที่ที่เข้าถึงได้ละเอียดที่สุด พร้อมยืนยันไฟล์ซ้ำแบบตรงกันจริง',customDesc:'เลือกตำแหน่งและการยืนยันไฟล์ซ้ำเอง',customTitle:'เลือกสิ่งที่ต้องการตรวจ',photos:'รูปภาพ',videos:'วิดีโอ',documents:'เอกสาร',music:'เพลง',verifyExact:'ยืนยันไฟล์ซ้ำแบบตรงกันจริง',verifyExactDesc:'ใช้ SHA-256 แบบ streaming หลังกรองด้วยขนาดไฟล์แล้วเท่านั้น',useCustom:'ใช้ Custom Scan',
-      privacyKicker:'ความเป็นส่วนตัว',privacyTitle:'ออกแบบให้ทำงานในเครื่องเป็นหลัก',privacyBody:'Bearagnostic วิเคราะห์ shared storage ที่ผู้ใช้เข้าถึงได้ภายในเครื่องนี้ สถาปัตยกรรมปัจจุบันไม่อัปโหลดไฟล์ และ build นี้ยังไม่ลบไฟล์ พื้นที่ส่วนตัวของแอปอื่นและพื้นที่ที่ต้องใช้ root ยังคงอยู่นอกขอบเขต',aboutKicker:'เกี่ยวกับแอป',aboutBody:'Bearagnostic for Android คือแอป Cleaner และ File Health ที่เน้นความเป็นส่วนตัว พัฒนาโดย Benedict Interactive',comingSoon:'เครื่องมือนี้ยังไม่ได้เชื่อมระบบ Cleaner จริง จึงจะไม่แสดงผลปลอม'
+      doctorIn:'คุณหมอแบร์พร้อมแล้ว', heroTitle:'<em>เครื่องสะอาดขึ้น</em><br><em>ทุกอย่างก็ลื่นขึ้น</em>', startCheckup:'เริ่มตรวจเครื่อง', startCheckupBody:'เลือกความละเอียดที่ต้องการให้ Bearagnostic ตรวจ',
+      cleanup:'ทำความสะอาด', cleanupSub:'ตรวจรายการก่อนลบ', duplicates:'ไฟล์ซ้ำ', duplicatesSub:'หาไฟล์ที่ซ้ำจริง', largeFiles:'ไฟล์ขนาดใหญ่', largeFilesSub:'ดูไฟล์ที่กินพื้นที่', olderFiles:'ไฟล์เก่า', olderFilesSub:'ตรวจตามอายุไฟล์', fileHealth:'สุขภาพไฟล์', fileHealthSub:'ผลตรวจล่าสุดจะแสดงตรงนี้', editorialQuote:'เครื่องที่เป็นระเบียบขึ้น ชีวิตดิจิทัลก็เบาขึ้น',
+      scanKicker:'กำลังตรวจไฟล์ในเครื่อง', scanIdleTitle:'พร้อมตรวจแล้ว', scanIdleSub:'เลือกโหมดสแกน Bearagnostic จะแสดงเฉพาะงานที่ native scanner ทำจริง', scanRunningTitle:'กำลังตรวจอย่างละเอียด', scanRunningSub:'ทุกขั้นด้านล่างคืองานจริงของ native scanner', scanDoneTitle:'ตรวจเรียบร้อยแล้ว', scanDoneSub:'ตรวจพื้นที่ที่ Android อนุญาตให้เข้าถึงภายในเครื่องแล้ว', scanCancelledTitle:'ยกเลิกการตรวจแล้ว', scanCancelledSub:'ไม่มีการลบไฟล์', scanErrorTitle:'ตรวจไม่สำเร็จ', scanErrorSub:'Bearagnostic จะไม่สร้างผลสำเร็จปลอมขึ้นมา',
+      stagePreparing:'เตรียมระบบ', stagePreparingSub:'ค้นหาไฟล์', stageDetails:'รายละเอียดไฟล์', stageDetailsSub:'อ่านข้อมูล', stageSizes:'ขนาดไฟล์', stageSizesSub:'วิเคราะห์', stageDuplicates:'ไฟล์ซ้ำ', stageDuplicatesSub:'ยืนยันไฟล์', stageDates:'วันที่แก้ไข', stageDatesSub:'ตรวจเวลา', stageFinalizing:'สรุปผล', stageFinalizingSub:'ใกล้เสร็จแล้ว',
+      ready:'พร้อม', scanning:'กำลังตรวจ', verifying:'กำลังยืนยัน', filesReviewed:'ไฟล์ที่ตรวจแล้ว', duplicateCandidates:'ไฟล์ที่อาจซ้ำ', exactDuplicates:'สำเนาซ้ำที่ยืนยันแล้ว', largeNoted:'ไฟล์ขนาดใหญ่', olderFound:'ไฟล์เก่าที่พบ', quoteIdle:'ไฟล์ของคุณ คุณเป็นคนเลือก', quoteRunning:'กำลังตรวจให้ละเอียด การตรวจที่ดีไม่ต้องรีบ', quoteDone:'เรียบร้อย ตัวเลขทั้งหมดมาจากการสแกนจริง', quoteCancelled:'หยุดอย่างปลอดภัย ไม่มีไฟล์ถูกลบ', quoteError:'ไม่เดาผล การตรวจที่ไม่จบจะไม่ถูกเรียกว่าเสร็จ',
+      tipTitle:'รู้หรือไม่?', tipBody:'Bearagnostic วิเคราะห์ไฟล์ที่เข้าถึงได้ภายในเครื่องนี้', chooseMode:'เลือกโหมดสแกน', scanDepth:'ระดับการสแกน', chooseHow:'เลือกความละเอียดในการสแกน', recommended:'แนะนำ', smartDesc:'ตรวจ metadata ทั้งพื้นที่ และยืนยันไฟล์ซ้ำในจุดสำคัญ', quickDesc:'ตรวจเร็วในตำแหน่ง shared storage สำคัญ', deepDesc:'ตรวจหลายขั้นทั่วพื้นที่ที่เข้าถึงได้ อ่านข้อมูลจริงของทุกไฟล์ และยืนยันไฟล์ซ้ำ', customDesc:'เลือกตำแหน่งและการยืนยันไฟล์ซ้ำเอง', customTitle:'เลือกสิ่งที่ต้องการตรวจ', downloads:'ดาวน์โหลด', photos:'รูปภาพ', videos:'วิดีโอ', documents:'เอกสาร', music:'เพลง', verifyExact:'ยืนยันไฟล์ซ้ำแบบตรงกันจริง', useCustom:'ใช้ Custom Scan',
+      toolsTitle:'ตรวจไฟล์แบบเจาะจง', toolsBody:'เครื่องมือ Cleaner จะใช้หลักฐานจาก native scanner เดียวกัน', insightsTitle:'ใช้เฉพาะข้อมูลจริง', insightsBody:'ข้อมูลเชิงลึกจะยังว่างจนกว่าจะมีผลสแกนจริง', privacyBody:'File Health แบบ local-first โดย Benedict Interactive', preferences:'การตั้งค่า', back:'ย้อนกลับ', navHome:'หน้าหลัก', navCheckup:'ตรวจเครื่อง', navTools:'เครื่องมือ', navInsights:'ข้อมูล', navMore:'เพิ่มเติม', allowAccess:'อนุญาตสิทธิ์เข้าถึงไฟล์', cancelScan:'ยกเลิกการสแกน', runAgain:'ตรวจอีกครั้ง', comingSoon:'ส่วนนี้ยังไม่ได้เชื่อมการทำงาน จึงไม่แสดงผลปลอม', selectOne:'เลือกอย่างน้อย 1 ตำแหน่ง'
     },
     ja: {
-      doctorIn:'Dr. Bear が診察します。',preferences:'設定',heroTitle:'<em>端末をすっきり。</em><br><em>毎日をもっと軽やかに。</em>',startCheckup:'チェックを開始',startCheckupBody:'Android でアクセス可能な領域を Smart Scan',
-      duplicates:'重複ファイル',duplicatesSub:'完全一致を確認',largeFiles:'大きなファイル',largeFilesSub:'容量の大きい順に確認',olderFiles:'古いファイル',olderFilesSub:'更新日で確認',downloads:'ダウンロード',downloadsSub:'たまったファイルを確認',fileHealth:'ファイルヘルス',fileHealthSub:'最新のチェック結果がここに表示されます。',editorialQuote:'端末が整うと、デジタルな毎日も軽くなる。',
-      scanKicker:'ファイルをチェック中',scanIdleTitle:'チェックの準備完了',scanIdleSub:'スキャン方法を選ぶか、Smart ですぐに開始できます。',scanRunningTitle:'丁寧に確認中',scanRunningSub:'端末をすっきり。毎日を軽やかに。',scanDoneTitle:'チェック完了',scanDoneSub:'アクセス可能なファイルを端末内で確認しました。',scanCancelledTitle:'チェックをキャンセルしました',scanCancelledSub:'ファイルは削除されていません。いつでも再開できます。',scanErrorTitle:'チェックを完了できませんでした',scanErrorSub:'もう一度お試しください。ストレージが変化した場合は再確認します。',recommendedBalance:'おすすめのバランス',
-      stagePreparing:'準備',stagePreparingSub:'準備中',stageFiles:'ファイル情報',stageFilesSub:'情報を確認',stageDuplicates:'重複確認',stageDuplicatesSub:'一致を検証',stageDuplicatesSkipped:'Quick では省略',stageFinalizing:'仕上げ',stageFinalizingSub:'もう少し',
-      ready:'準備完了',scanning:'チェック中',hashing:'検証中',complete:'完了',cancelled:'キャンセル',error:'エラー',filesReviewed:'確認済みファイル',duplicateCopies:'確認済み重複コピー',duplicatesNotChecked:'未確認',largeNoted:'大きなファイル',olderFound:'古いファイル',quoteIdle:'ファイルはあなたのもの。選ぶのもあなた。',quoteRunning:'丁寧に確認中。診断は急ぎません。',quoteDone:'完了しました。表示値はネイティブスキャンの実測です。',quoteCancelled:'安全に停止しました。ファイルは削除されていません。',quoteError:'推測はしません。完了できない場合はそのままお伝えします。',tipTitle:'ご存じですか？',tipBody:'アクセス可能なファイルはこの端末内で解析されます。',local:'ローカル',verifiedSpace:'確認済み重複容量',noDuplicateCheck:'Quick Scan では完全一致の重複を判定しません。',deepAnalysis:'Deep Scan 解析完了',tempFiles:'一時ファイル候補',apkFiles:'APK インストーラー',archiveFiles:'アーカイブ',zeroByte:'0 バイト',emptyFolders:'空フォルダ',
-      checkingAccess:'アクセスを確認中…',allowAccess:'ストレージアクセスを許可',startSmart:'Smart Scan を開始',startQuick:'Quick Scan を開始',startDeep:'Deep Scan を開始',startCustom:'Custom Scan を開始',cancelScan:'スキャンをキャンセル',runAgain:'もう一度チェック',
-      toolsKicker:'ツール',toolsTitle:'目的別ファイル確認',toolsBody:'Cleaner ツールは同じネイティブスキャンエンジンを使用します。',insightsKicker:'インサイト',insightsTitle:'実データがあるときだけ表示',insightsBody:'実際のチェック履歴ができるまで、ここには何も作りません。',noInsights:'まだインサイトはありません',noInsightsSub:'まず実際のチェックを実行してください。Bearagnostic はスコアを捏造しません。',moreKicker:'その他',privacyLocal:'プライバシーと端末内データ',privacyLocalSub:'端末内に残る情報',aboutBearagnostic:'Bearagnostic について',
-      preferencesKicker:'設定',preferencesSub:'言語、モーション、Android 表示',language:'言語',languageSub:'表示言語を選択',motion:'モーション',motionSub:'UI の動きを選択',motionSystem:'システム',motionFull:'フル',motionReduced:'少なめ',fullScreen:'全画面',fullScreenSub:'Android の没入モードは常に有効です',on:'オン',navHome:'ホーム',navCheckup:'チェック',navTools:'ツール',navInsights:'インサイト',navMore:'その他',
-      scanDepth:'スキャンの深さ',chooseMode:'スキャン方法を選択',recommended:'おすすめ',smartDesc:'全体のメタデータ確認＋重要箇所の重複検証',quickDesc:'重要な共有領域をすばやく確認',deepDesc:'アクセス可能な領域を最も詳しく確認し、完全一致の重複を検証',customDesc:'対象と重複検証を自分で選択',customTitle:'チェック対象を選択',photos:'写真',videos:'動画',documents:'書類',music:'音楽',verifyExact:'完全一致の重複を検証',verifyExactDesc:'同じサイズで絞り込んだ後だけストリーミング SHA-256 を使用します。',useCustom:'Custom Scan を使用',
-      privacyKicker:'プライバシー',privacyTitle:'ローカルファースト設計',privacyBody:'Bearagnostic はユーザーがアクセス可能な共有ストレージを端末内で解析します。現在の構成ではファイルをアップロードせず、このビルドでは削除も行いません。Android が保護する他アプリの専用領域や root 専用領域は対象外です。',aboutKicker:'情報',aboutBody:'Bearagnostic for Android は Benedict Interactive による、プライバシー重視の Cleaner / File Health アプリです。',comingSoon:'この Cleaner 画面はまだ実処理に接続されていないため、架空の結果は表示しません。'
+      doctorIn:'Dr. Bearが準備できました', heroTitle:'<em>端末をすっきり</em><br><em>毎日をもっと軽やかに。</em>', startCheckup:'チェックを開始', startCheckupBody:'スキャンの深さを選択します',
+      cleanup:'クリーンアップ', cleanupSub:'候補を確認', duplicates:'重複ファイル', duplicatesSub:'完全一致を確認', largeFiles:'大きなファイル', largeFilesSub:'容量順に確認', olderFiles:'古いファイル', olderFilesSub:'更新日で確認', fileHealth:'ファイルヘルス', fileHealthSub:'最新のチェック結果がここに表示されます', editorialQuote:'端末が整うと、デジタル生活も軽くなる。',
+      scanKicker:'ファイルをスキャン中', scanIdleTitle:'チェックの準備完了', scanIdleSub:'スキャンモードを選択してください。実際に完了した処理だけを表示します。', scanRunningTitle:'詳しく確認しています', scanRunningSub:'下の各段階は実際のネイティブ処理です。', scanDoneTitle:'チェック完了', scanDoneSub:'アクセス可能なストレージを端末内で確認しました。', scanCancelledTitle:'チェックを中止しました', scanCancelledSub:'ファイルは削除されていません。', scanErrorTitle:'チェックを完了できませんでした', scanErrorSub:'未完了の処理を完了扱いにはしません。',
+      stagePreparing:'準備', stagePreparingSub:'ファイル検出', stageDetails:'ファイル情報', stageDetailsSub:'情報を読取', stageSizes:'ファイルサイズ', stageSizesSub:'分析中', stageDuplicates:'重複', stageDuplicatesSub:'一致確認', stageDates:'更新日時', stageDatesSub:'日時確認', stageFinalizing:'最終処理', stageFinalizingSub:'まもなく完了',
+      ready:'準備完了', scanning:'スキャン中', verifying:'検証中', filesReviewed:'確認済みファイル', duplicateCandidates:'重複候補', exactDuplicates:'確認済み重複コピー', largeNoted:'大きなファイル', olderFound:'古いファイル', quoteIdle:'あなたのファイル。選ぶのもあなた。', quoteRunning:'丁寧に確認中。診断は急ぎません。', quoteDone:'完了しました。数値は実際のスキャン結果です。', quoteCancelled:'安全に停止しました。削除はありません。', quoteError:'推測はしません。未完了は未完了のまま表示します。',
+      tipTitle:'ご存じですか？', tipBody:'Bearagnosticはアクセス可能なファイルを端末内で分析します。', chooseMode:'スキャンモードを選択', scanDepth:'スキャン深度', chooseHow:'スキャンの深さを選択', recommended:'おすすめ', smartDesc:'全体のメタデータを確認し、重要な場所で重複を検証します。', quickDesc:'重要な共有フォルダをすばやく確認します。', deepDesc:'アクセス可能な領域を複数工程で確認し、内容を読み取り、重複を完全検証します。', customDesc:'場所と重複検証を選択します。', customTitle:'スキャン対象を選択', downloads:'ダウンロード', photos:'写真', videos:'動画', documents:'書類', music:'音楽', verifyExact:'完全一致の重複を検証', useCustom:'Custom Scanを使用',
+      toolsTitle:'目的別ファイル確認', toolsBody:'同じネイティブスキャンの証拠を利用します。', insightsTitle:'実データのみ', insightsBody:'実際のスキャン結果ができるまで表示しません。', privacyBody:'Benedict Interactiveによるローカル優先のFile Health', preferences:'設定', back:'戻る', navHome:'ホーム', navCheckup:'チェック', navTools:'ツール', navInsights:'分析', navMore:'その他', allowAccess:'ストレージへのアクセスを許可', cancelScan:'スキャンを中止', runAgain:'もう一度チェック', comingSoon:'この機能はまだ接続されていないため、仮の結果は表示しません。', selectOne:'1つ以上選択してください'
     }
   };
 
-  const $ = (id) => document.getElementById(id);
-  const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
-  const STORAGE = 'bearagnostic.android.';
-  const BUILD_LAUNCH_KEY = `${STORAGE}launch.seen.b8`;
-  const LANG_KEY = `${STORAGE}language`;
-  const MOTION_KEY = `${STORAGE}motion`;
-  const RING_LENGTH = 289.03;
+  const $ = id => document.getElementById(id);
+  const $$ = (sel, root=document) => [...root.querySelectorAll(sel)];
+  const STORAGE='bearagnostic.android.';
+  const LAUNCH_KEY=`${STORAGE}launch.seen.b9`;
+  const LANG_KEY=`${STORAGE}language`;
+  const RING=289.03;
+  const STAGES=['preparing','file_details','file_sizes','duplicates','modified_dates','finalizing'];
+  const MODE_LABELS={smart:'Smart',quick:'Quick',deep:'Deep',custom:'Custom'};
 
-  const launch = $('launch'), appRoot = $('appRoot');
-  const studioStage = document.querySelector('[data-launch-stage="studio"]');
-  const productStage = document.querySelector('[data-launch-stage="product"]');
-  const modalScrim = $('modalScrim'), modeSheet = $('modeSheet'), customSheet = $('customSheet'), infoSheet = $('infoSheet'), toast = $('toast');
-  const modeChip = $('modeChip'), modeChipTitle = $('modeChipTitle'), modeChipSub = $('modeChipSub'), verifyDuplicates = $('verifyDuplicates');
-  const scanScreen = $('checkupScreen'), scanAction = $('scanAction'), scanActionLabel = $('scanActionLabel'), scanTitleText = $('scanTitleText'), scanSubtitle = $('scanSubtitle'), scanKicker = $('scanKicker');
-  const scanRing = $('scanRing'), scanRingValue = $('scanRingValue'), scanRingValueText = $('scanRingValueText'), scanRingLabel = $('scanRingLabel'), scanRailProgress = $('scanRailProgress');
-  const scanReviewed = $('scanReviewed'), scanDuplicates = $('scanDuplicates'), scanDuplicatesLabel = $('scanDuplicatesLabel'), scanLarge = $('scanLarge'), scanOlder = $('scanOlder'), scanQuote = $('scanQuote');
-  const scanTipTitle = $('scanTipTitle'), scanTipBody = $('scanTipBody'), scanTipBadge = $('scanTipBadge'), duplicateStageSub = $('duplicateStageSub');
-  const healthSummary = $('healthSummary'), footerBuild = $('footerBuild'), aboutBuild = $('aboutBuild');
+  let language='en', selectedMode='smart', scanState='idle', currentScreen='home', lastResult=null;
+  let nativeState={broadStorageAccess:false,scannerReady:false,scannerRunning:false};
+  let pendingStart=null;
 
-  let language = 'en';
-  let currentScreen = 'home';
-  let selectedMode = 'smart';
-  let nativeState = { broadStorageAccess:false, scannerReady:false, scannerRunning:false };
-  let lastResult = null;
-  let pendingSmartStart = false;
-  let scanState = 'idle';
-  let streamTimer = null;
-  let launchFinished = false;
+  const launch=$('launch'), appRoot=$('appRoot'), studioStage=document.querySelector('[data-launch-stage="studio"]'), productStage=document.querySelector('[data-launch-stage="product"]');
+  const modeSheet=$('modeSheet'), customSheet=$('customSheet'), modalScrim=$('modalScrim');
+  const scanRing=$('scanRing'), scanRingValue=$('scanRingValue'), scanPercent=$('scanPercent'), scanRingLabel=$('scanRingLabel'), scanRailProgress=$('scanRailProgress');
+  const scanTitleText=$('scanTitleText'), scanSubtitle=$('scanSubtitle'), scanReviewed=$('scanReviewed'), scanDuplicates=$('scanDuplicates'), scanDuplicatesLabel=$('scanDuplicatesLabel'), scanLarge=$('scanLarge'), scanOlder=$('scanOlder'), scanQuote=$('scanQuote'), scanTipTitle=$('scanTipTitle'), scanTipBody=$('scanTipBody'), scanAction=$('scanAction'), scanActionLabel=$('scanActionLabel'), healthSummary=$('healthSummary');
 
-  function storageGet(key, fallback = null) { try { const v = localStorage.getItem(key); return v == null ? fallback : v; } catch (_) { return fallback; } }
-  function storageSet(key, value) { try { localStorage.setItem(key, String(value)); } catch (_) {} }
-  function detectLanguage() {
-    const saved = storageGet(LANG_KEY); if (saved && COPY[saved]) return saved;
-    const raw = (navigator.languages?.[0] || navigator.language || 'en').toLowerCase();
-    if (raw.startsWith('th')) return 'th'; if (raw.startsWith('ja')) return 'ja'; return 'en';
-  }
-  const t = (key) => COPY[language]?.[key] ?? COPY.en[key] ?? key;
-  function applyLanguage(next, persist = true) {
-    if (!COPY[next]) next = 'en'; language = next; document.documentElement.lang = next;
-    $$('[data-i18n]').forEach((el) => { const key = el.dataset.i18n; if (COPY[next][key] != null) el.textContent = COPY[next][key]; });
-    $$('[data-i18n-html]').forEach((el) => { const key = el.dataset.i18nHtml; if (COPY[next][key] != null) el.innerHTML = COPY[next][key]; });
-    $$('[data-i18n-aria]').forEach((el) => { const key = el.dataset.i18nAria; if (COPY[next][key] != null) el.setAttribute('aria-label', COPY[next][key]); });
-    $$('[data-language-group] [data-lang]').forEach((button) => button.classList.toggle('is-active', button.dataset.lang === next));
-    if (persist) storageSet(LANG_KEY, next);
-    renderModeChip(); renderScanCopy(); renderScanAction(); renderResultTip();
-  }
-  function formatNumber(value) { return new Intl.NumberFormat(language === 'th' ? 'th-TH' : language === 'ja' ? 'ja-JP' : 'en-US').format(Number(value || 0)); }
-  function formatBytes(value) { let bytes = Number(value || 0); if (!Number.isFinite(bytes) || bytes <= 0) return '0 B'; const units=['B','KB','MB','GB','TB']; let u=0; while(bytes>=1024&&u<units.length-1){bytes/=1024;u++;} return `${bytes.toFixed(u>=3?2:u>=2?1:0)} ${units[u]}`; }
-  function showToast(message) { if (!toast) return; toast.textContent = message; toast.hidden = false; requestAnimationFrame(() => toast.classList.add('is-visible')); clearTimeout(showToast.timer); showToast.timer = setTimeout(() => { toast.classList.remove('is-visible'); setTimeout(() => { toast.hidden = true; }, 180); }, 2400); }
+  function storageGet(k,f=null){try{const v=localStorage.getItem(k);return v==null?f:v}catch(_){return f}}
+  function storageSet(k,v){try{localStorage.setItem(k,String(v))}catch(_){}}
+  function detectLanguage(){const saved=storageGet(LANG_KEY);if(COPY[saved])return saved;const raw=(navigator.languages?.[0]||navigator.language||'en').toLowerCase();return raw.startsWith('th')?'th':raw.startsWith('ja')?'ja':'en'}
+  const t=k=>COPY[language]?.[k]??COPY.en[k]??k;
+  function applyLanguage(next,persist=true){if(!COPY[next])next='en';language=next;document.documentElement.lang=next;$$('[data-i18n]').forEach(el=>{const v=COPY[next][el.dataset.i18n];if(v!=null)el.textContent=v});$$('[data-i18n-html]').forEach(el=>{const v=COPY[next][el.dataset.i18nHtml];if(v!=null)el.innerHTML=v});if(persist)storageSet(LANG_KEY,next);renderScanCopy();renderScanAction();}
+  function formatNumber(v){return new Intl.NumberFormat(language==='th'?'th-TH':language==='ja'?'ja-JP':'en-US').format(Number(v||0))}
+  function formatBytes(v){let n=Number(v||0);if(!Number.isFinite(n)||n<=0)return'0 B';const u=['B','KB','MB','GB','TB'];let i=0;while(n>=1024&&i<u.length-1){n/=1024;i++}return`${n.toFixed(i>=3?2:i>=2?1:0)} ${u[i]}`}
+  function showToast(msg){const toast=$('toast');if(!toast)return;toast.textContent=msg;toast.hidden=false;requestAnimationFrame(()=>toast.classList.add('is-visible'));clearTimeout(showToast.timer);showToast.timer=setTimeout(()=>{toast.classList.remove('is-visible');setTimeout(()=>toast.hidden=true,180)},2200)}
+  function wait(ms){return new Promise(r=>setTimeout(r,ms))}
 
-  function wait(ms){return new Promise((resolve)=>setTimeout(resolve,ms));}
-  async function runOpening() {
-    let done = false;
-    const first = storageGet(BUILD_LAUNCH_KEY) !== '1';
-    const timings = first ? { studio:3000, product:3000, fade:360 } : { studio:1800, product:1800, fade:240 };
-    const finish = () => {
-      if (done) return; done = true; launchFinished = true;
-      if (appRoot) appRoot.hidden = false; launch?.classList.add('is-leaving');
-      setTimeout(() => { if (launch) launch.hidden = true; storageSet(BUILD_LAUNCH_KEY,'1'); readNativeState(); }, timings.fade);
-    };
-    const fail = setTimeout(finish, first ? 7600 : 5000);
-    try {
-      if (appRoot) appRoot.hidden = true; if (launch) launch.hidden = false;
-      studioStage?.classList.add('is-active'); productStage?.classList.remove('is-active');
-      await wait(timings.studio); studioStage?.classList.remove('is-active'); productStage?.classList.add('is-active');
-      await wait(timings.product); clearTimeout(fail); finish();
-    } catch (_) { clearTimeout(fail); finish(); }
+  async function runOpening(){
+    let done=false;const first=storageGet(LAUNCH_KEY)!=='1';const timings=first?{studio:2400,product:2600,fade:300}:{studio:1100,product:1300,fade:220};
+    const finish=()=>{if(done)return;done=true;if(appRoot)appRoot.hidden=false;if(launch)launch.classList.add('is-leaving');setTimeout(()=>{if(launch)launch.hidden=true;storageSet(LAUNCH_KEY,'1');readNativeState()},timings.fade)};
+    const watchdog=setTimeout(finish,first?6200:3400);
+    try{if(appRoot)appRoot.hidden=true;if(launch)launch.hidden=false;studioStage?.classList.add('is-active');productStage?.classList.remove('is-active');await wait(timings.studio);studioStage?.classList.remove('is-active');productStage?.classList.add('is-active');await wait(timings.product);clearTimeout(watchdog);finish()}catch(_){clearTimeout(watchdog);finish()}
   }
 
-  function switchScreen(name) {
-    const target = document.querySelector(`[data-screen="${name}"]`); if (!target) return;
-    $$('.screen').forEach((screen) => { const active = screen === target; screen.hidden = !active; screen.classList.toggle('is-active', active); });
-    currentScreen = name;
-    appRoot.classList.toggle('is-checkup', name === 'checkup');
-    $$('.nav-button[data-nav]').forEach((button) => { const active = button.dataset.nav === name; button.classList.toggle('is-active', active); active ? button.setAttribute('aria-current','page') : button.removeAttribute('aria-current'); });
-    if (name === 'checkup') renderScanAction();
-  }
+  function switchScreen(name){const target=document.querySelector(`[data-screen="${name}"]`);if(!target)return;$$('.screen').forEach(s=>{const a=s===target;s.hidden=!a;s.classList.toggle('is-active',a)});currentScreen=name;appRoot?.classList.toggle('is-checkup',name==='checkup');$$('.nav-button').forEach(b=>b.classList.toggle('is-active',b.dataset.nav===name));if(name==='checkup')renderScanAction()}
+  function openSheet(sheet){[modeSheet,customSheet].forEach(s=>{if(s)s.hidden=true});if(modalScrim)modalScrim.hidden=false;if(sheet)sheet.hidden=false}
+  function closeSheets(){[modeSheet,customSheet].forEach(s=>{if(s)s.hidden=true});if(modalScrim)modalScrim.hidden=true}
+  function customScopes(){return $$('.scope-grid input[type="checkbox"]:checked').map(i=>i.value)}
 
-  function openSheet(sheet) { [modeSheet,customSheet,infoSheet].forEach((s)=>{if(s)s.hidden=true;}); if (modalScrim) modalScrim.hidden=false; sheet.hidden=false; }
-  function closeSheets() { [modeSheet,customSheet,infoSheet].forEach((s)=>{if(s)s.hidden=true;}); if (modalScrim) modalScrim.hidden=true; }
-  function openInfo(kind) {
-    if (kind === 'privacy') { $('infoKicker').textContent=t('privacyKicker'); $('infoTitle').textContent=t('privacyTitle'); $('infoContent').innerHTML=`<p>${escapeHtml(t('privacyBody'))}</p>`; }
-    else { $('infoKicker').textContent=t('aboutKicker'); $('infoTitle').textContent='Bearagnostic'; $('infoContent').innerHTML=`<div class="info-hero"><img src="../media/bearagnostic-master-logo.webp" alt=""><div><strong>Bearagnostic</strong><span>${escapeHtml(nativeState.versionName || '0.8.0-alpha08-debug')} · Benedict Interactive</span></div></div><p>${escapeHtml(t('aboutBody'))}</p>`; }
-    openSheet(infoSheet);
+  function resetProgress(){
+    scanState='idle';lastResult=null;scanReviewed.textContent='0';scanDuplicates.textContent='0';scanDuplicatesLabel.textContent=t('duplicateCandidates');scanLarge.textContent='0';scanOlder.textContent='0';scanPercent.textContent='0';scanRingLabel.textContent=t('ready');scanRing?.classList.remove('is-indeterminate');if(scanRingValue)scanRingValue.style.strokeDashoffset=String(RING);if(scanRailProgress)scanRailProgress.style.width='0%';$$('.scan-stage').forEach(s=>s.classList.remove('is-done','is-active','is-skipped'));renderScanCopy();renderScanAction();renderTip(null)
   }
-  function escapeHtml(v){return String(v).replace(/[&<>"']/g,(c)=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+  function setScanState(s){scanState=s;$('checkupScreen')?.setAttribute('data-state',s);renderScanCopy();renderScanAction()}
+  function renderScanCopy(){if(!scanTitleText)return;if(scanState==='running'){scanTitleText.textContent=t('scanRunningTitle');scanSubtitle.textContent=t('scanRunningSub');scanQuote.textContent=t('quoteRunning')}else if(scanState==='complete'){scanTitleText.textContent=t('scanDoneTitle');scanSubtitle.textContent=t('scanDoneSub');scanQuote.textContent=t('quoteDone')}else if(scanState==='cancelled'){scanTitleText.textContent=t('scanCancelledTitle');scanSubtitle.textContent=t('scanCancelledSub');scanQuote.textContent=t('quoteCancelled')}else if(scanState==='error'){scanTitleText.textContent=t('scanErrorTitle');scanSubtitle.textContent=t('scanErrorSub');scanQuote.textContent=t('quoteError')}else{scanTitleText.textContent=t('scanIdleTitle');scanSubtitle.textContent=t('scanIdleSub');scanQuote.textContent=t('quoteIdle')}}
+  function renderScanAction(){if(!scanActionLabel)return;if(scanState==='running'){scanActionLabel.textContent=t('cancelScan');scanAction.disabled=false;return}if(!nativeState.broadStorageAccess){scanActionLabel.textContent=t('allowAccess');scanAction.disabled=false;return}if(scanState==='complete'||scanState==='cancelled'||scanState==='error'){scanActionLabel.textContent=t('runAgain');scanAction.disabled=false;return}scanActionLabel.textContent=t('chooseMode');scanAction.disabled=false}
+  function setStage(phase){const idx=Math.max(0,STAGES.indexOf(phase));$$('.scan-stage').forEach((s,i)=>{s.classList.toggle('is-done',i<idx);s.classList.toggle('is-active',i===idx);if(s.dataset.stage==='duplicates')s.classList.toggle('is-skipped',selectedMode==='quick'&&i<=idx)});if(scanRailProgress)scanRailProgress.style.width=`${(idx/(STAGES.length-1))*100}%`}
+  function renderMeasuredProgress(p){
+    const phase=p.phase||'preparing',idx=Math.max(0,STAGES.indexOf(phase));let local=null;
+    if(phase==='duplicates'&&Number(p.duplicateCandidateBytes)>0){local=Math.min(1,Number(p.hashedBytes||0)/Number(p.duplicateCandidateBytes));scanRingLabel.textContent=t('verifying')}
+    else if(Number(p.phaseTotalFiles)>0){local=Math.min(1,Number(p.phaseProcessedFiles||0)/Number(p.phaseTotalFiles));scanRingLabel.textContent=t('scanning')}
+    if(local==null){scanRing?.classList.add('is-indeterminate');scanPercent.textContent='—';return}
+    scanRing?.classList.remove('is-indeterminate');const overall=Math.min(.999,(idx+local)/STAGES.length);scanPercent.textContent=String(Math.round(overall*100));if(scanRingValue)scanRingValue.style.strokeDashoffset=String(RING*(1-overall))
+  }
+  function renderProgress(p){if(currentScreen!=='checkup')switchScreen('checkup');if(scanState!=='running')setScanState('running');setStage(p.phase||'preparing');renderMeasuredProgress(p);scanReviewed.textContent=formatNumber(p.reviewedFiles||p.discoveredFiles||0);scanLarge.textContent=formatNumber(p.largeFiles||0);scanOlder.textContent=formatNumber(p.olderFiles||0);if(p.phase==='duplicates'){scanDuplicates.textContent=formatNumber(p.duplicateCandidateFiles||0);scanDuplicatesLabel.textContent=t('duplicateCandidates')}renderTip(p)}
+  function renderComplete(p){lastResult=p;selectedMode=p.scanMode||selectedMode;setScanState('complete');scanReviewed.textContent=formatNumber(p.reviewedFiles||0);scanLarge.textContent=formatNumber(p.largeFiles||0);scanOlder.textContent=formatNumber(p.olderFiles||0);scanDuplicates.textContent=p.duplicateVerificationPerformed?formatNumber(p.duplicateCopies||0):'—';scanDuplicatesLabel.textContent=p.duplicateVerificationPerformed?t('exactDuplicates'):t('duplicateCandidates');scanPercent.textContent='100';scanRingLabel.textContent='COMPLETE';scanRing?.classList.remove('is-indeterminate');if(scanRingValue)scanRingValue.style.strokeDashoffset='0';if(scanRailProgress)scanRailProgress.style.width='100%';$$('.scan-stage').forEach(s=>{s.classList.remove('is-active');s.classList.add('is-done')});healthSummary.textContent=`${formatNumber(p.reviewedFiles)} ${t('filesReviewed')} · ${formatBytes(p.duplicateReclaimableBytes)} verified`;renderTip(p)}
+  function renderTip(p){if(!scanTipTitle||!scanTipBody)return;if(p&&p.state==='complete'){if(p.scanMode==='deep'){scanTipTitle.textContent='Deep Scan';scanTipBody.textContent=`${formatNumber(p.directoriesVisited)} dirs · ${formatNumber(p.contentProbedFiles)} content probes · ${formatBytes(p.contentProbeBytes)} read · ${p.coverageStatus||''}`}else{scanTipTitle.textContent=t('tipTitle');scanTipBody.textContent=`${formatNumber(p.directoriesVisited||0)} dirs · ${formatNumber(p.reviewedFiles||0)} ${t('filesReviewed')}`}}else if(p&&p.scanMode==='deep'){scanTipTitle.textContent='Deep Scan';scanTipBody.textContent=`${formatNumber(p.directoriesVisited||0)} dirs · ${formatNumber(p.contentProbedFiles||0)} content probes`}else{scanTipTitle.textContent=t('tipTitle');scanTipBody.textContent=t('tipBody')}}
+  function renderTerminal(kind){setScanState(kind);scanRing?.classList.remove('is-indeterminate');scanPercent.textContent=kind==='cancelled'?'×':'!';scanRingLabel.textContent=kind.toUpperCase()}
 
-  const MODE_LABELS = { smart:'Smart', quick:'Quick', deep:'Deep', custom:'Custom' };
-  function renderModeChip() {
-    modeChipTitle.textContent = `${MODE_LABELS[selectedMode]} Scan`;
-    const subKey = selectedMode === 'smart' ? 'recommendedBalance' : selectedMode === 'quick' ? 'quickDesc' : selectedMode === 'deep' ? 'deepDesc' : 'customDesc';
-    modeChipSub.textContent = t(subKey);
-    $$('.mode-option').forEach((button)=>button.classList.toggle('is-selected',button.dataset.mode===selectedMode));
-    if (scanState === 'idle') scanRingValueText.textContent = MODE_LABELS[selectedMode].toUpperCase();
-    duplicateStageSub.textContent = selectedMode === 'quick' ? t('stageDuplicatesSkipped') : t('stageDuplicatesSub');
-  }
-  function customScopes(){ return $$('.scope-grid input[type="checkbox"]:checked').map((input)=>input.value); }
+  function parseNative(raw){if(!raw)return null;if(typeof raw==='object')return raw;try{return JSON.parse(raw)}catch(_){return null}}
+  function readNativeState(){try{const p=parseNative(window.BearagnosticNative?.getNativeState?.());if(p)applyNativeState(p)}catch(_){}}
+  function applyNativeState(s){nativeState={...nativeState,...(s||{})};if(nativeState.versionName)$('footerBuild').textContent=nativeState.versionName;if(pendingStart&&nativeState.broadStorageAccess&&!nativeState.scannerRunning){const p=pendingStart;pendingStart=null;setTimeout(()=>startNativeScan(p.mode,p.scopes,p.verify),120)}renderScanAction()}
+  function startNativeScan(mode=selectedMode,scopes=[],verify=true){if(!nativeState.broadStorageAccess){pendingStart={mode,scopes,verify};try{window.BearagnosticNative?.requestBroadStorageAccess?.()}catch(_){}return}let response=null;try{response=parseNative(window.BearagnosticNative?.startScan?.(mode,JSON.stringify(scopes),verify))}catch(_){}if(response?.accepted){selectedMode=mode;setScanState('running');renderProgress({phase:'preparing',scanMode:mode,discoveredFiles:0,reviewedFiles:0})}else if(response?.reason==='storage_access_required'){nativeState.broadStorageAccess=false;pendingStart={mode,scopes,verify};renderScanAction();try{window.BearagnosticNative?.requestBroadStorageAccess?.()}catch(_){}}else if(response?.reason==='scan_already_running'){setScanState('running')}else{renderTerminal('error')}}
+  function beginMode(mode){selectedMode=mode;switchScreen('checkup');resetProgress();closeSheets();if(mode==='custom'){openSheet(customSheet);return}startNativeScan(mode,[],mode!=='quick')}
 
-  function setScanState(next) { scanState = next; scanScreen.dataset.state = next; nativeState.scannerRunning = next === 'running'; renderScanCopy(); renderScanAction(); }
-  function renderScanCopy() {
-    if (!scanTitleText) return;
-    if (scanState === 'running') { scanKicker.textContent=t('scanKicker'); scanTitleText.textContent=t('scanRunningTitle'); scanSubtitle.textContent=t('scanRunningSub'); scanQuote.textContent=t('quoteRunning'); }
-    else if (scanState === 'complete') { scanKicker.textContent=t('scanKicker'); scanTitleText.textContent=t('scanDoneTitle'); scanSubtitle.textContent=t('scanDoneSub'); scanQuote.textContent=t('quoteDone'); }
-    else if (scanState === 'cancelled') { scanKicker.textContent=t('scanKicker'); scanTitleText.textContent=t('scanCancelledTitle'); scanSubtitle.textContent=t('scanCancelledSub'); scanQuote.textContent=t('quoteCancelled'); }
-    else if (scanState === 'error') { scanKicker.textContent=t('scanKicker'); scanTitleText.textContent=t('scanErrorTitle'); scanSubtitle.textContent=t('scanErrorSub'); scanQuote.textContent=t('quoteError'); }
-    else { scanKicker.textContent=t('scanKicker'); scanTitleText.textContent=t('scanIdleTitle'); scanSubtitle.textContent=t('scanIdleSub'); scanQuote.textContent=t('quoteIdle'); }
-  }
-  function renderScanAction() {
-    if (!scanActionLabel) return;
-    if (scanState === 'running') { scanActionLabel.textContent=t('cancelScan'); scanAction.disabled=false; return; }
-    if (!nativeState.broadStorageAccess) { scanActionLabel.textContent=t('allowAccess'); scanAction.disabled=false; return; }
-    if (scanState === 'complete' || scanState === 'cancelled' || scanState === 'error') { scanActionLabel.textContent=t('runAgain'); scanAction.disabled=false; return; }
-    scanActionLabel.textContent=t(`start${selectedMode[0].toUpperCase()}${selectedMode.slice(1)}`); scanAction.disabled=false;
-  }
-  function renderResultTip() {
-    if (lastResult && scanState === 'complete') {
-      if ((lastResult.scanMode || selectedMode) === 'deep') {
-        scanTipTitle.textContent=t('deepAnalysis');
-        scanTipBody.textContent=`${formatNumber(lastResult.temporaryArtifactFiles||0)} ${t('tempFiles')} · ${formatNumber(lastResult.apkInstallerFiles||0)} ${t('apkFiles')} · ${formatNumber(lastResult.archiveFiles||0)} ${t('archiveFiles')}`;
-        scanTipBadge.textContent=`${formatNumber(lastResult.directoriesVisited||0)} DIR`;
-      } else if (lastResult.duplicateVerificationPerformed) {
-        scanTipTitle.textContent=t('verifiedSpace');
-        scanTipBody.textContent=`${formatBytes(lastResult.duplicateReclaimableBytes)} · ${formatNumber(lastResult.duplicateCopies)} ${t('duplicateCopies')}`;
-        scanTipBadge.textContent='SHA-256';
-      } else {
-        scanTipTitle.textContent='Quick Scan'; scanTipBody.textContent=t('noDuplicateCheck'); scanTipBadge.textContent=t('local');
-      }
-    } else { scanTipTitle.textContent=t('tipTitle'); scanTipBody.textContent=t('tipBody'); scanTipBadge.textContent=t('local'); }
-  }
-
-  function resetProgressUI() {
-    scanReviewed.textContent='0'; scanDuplicates.textContent='—'; scanLarge.textContent='0'; scanOlder.textContent='0';
-    scanDuplicatesLabel.textContent=t('duplicateCopies'); scanRailProgress.style.width='0%';
-    scanRing.classList.remove('is-indeterminate'); scanRingValue.style.strokeDashoffset=String(RING_LENGTH); scanRingValueText.textContent=MODE_LABELS[selectedMode].toUpperCase(); scanRingLabel.textContent=t('ready');
-    $$('.scan-stage').forEach((stage)=>stage.classList.remove('is-done','is-active','is-skipped'));
-    if (selectedMode === 'quick') document.querySelector('[data-stage="duplicates"]')?.classList.add('is-skipped');
-    renderResultTip();
-  }
-  function setStage(phase) {
-    const order=['preparing','files','duplicates','finalizing']; const index=Math.max(0,order.indexOf(phase));
-    $$('.scan-stage').forEach((stage,i)=>{ stage.classList.toggle('is-done',i<index); stage.classList.toggle('is-active',i===index); if(stage.dataset.stage==='duplicates') stage.classList.toggle('is-skipped',selectedMode==='quick'); });
-    scanRailProgress.style.width=`${index/(order.length-1)*100}%`;
-  }
-  function renderProgress(payload) {
-    if (currentScreen !== 'checkup') switchScreen('checkup');
-    if (scanState !== 'running') setScanState('running');
-    const phase=payload.phase||'preparing'; setStage(phase);
-    scanReviewed.textContent=formatNumber(payload.reviewedFiles); scanLarge.textContent=formatNumber(payload.largeFiles); scanOlder.textContent=formatNumber(payload.olderFiles);
-    if (phase === 'duplicates' && Number(payload.duplicateCandidateBytes) > 0) {
-      const total=Number(payload.duplicateCandidateBytes||0), done=Math.min(total,Number(payload.hashedBytes||0)), pct=total>0?Math.max(0,Math.min(100,done/total*100)):0;
-      scanRing.classList.remove('is-indeterminate'); scanRingValue.style.strokeDashoffset=String(RING_LENGTH*(1-pct/100)); scanRingValueText.textContent=`${Math.round(pct)}%`; scanRingLabel.textContent=t('hashing');
-      scanDuplicates.textContent=formatNumber(payload.duplicateCandidateFiles); scanDuplicatesLabel.textContent=language==='th'?'ไฟล์ที่กำลังยืนยัน':language==='ja'?'検証候補':'candidates being verified';
-    } else {
-      scanRing.classList.add('is-indeterminate'); scanRingValueText.textContent=MODE_LABELS[selectedMode].toUpperCase(); scanRingLabel.textContent=t('scanning');
-      if (selectedMode==='quick') { scanDuplicates.textContent='—'; scanDuplicatesLabel.textContent=t('duplicatesNotChecked'); }
-    }
-  }
-  function renderComplete(payload) {
-    lastResult=payload; selectedMode=payload.scanMode||selectedMode; setScanState('complete'); stopFileStream();
-    scanReviewed.textContent=formatNumber(payload.reviewedFiles); scanLarge.textContent=formatNumber(payload.largeFiles); scanOlder.textContent=formatNumber(payload.olderFiles);
-    scanDuplicates.textContent=payload.duplicateVerificationPerformed?formatNumber(payload.duplicateCopies):'—'; scanDuplicatesLabel.textContent=payload.duplicateVerificationPerformed?t('duplicateCopies'):t('duplicatesNotChecked');
-    scanRing.classList.remove('is-indeterminate'); scanRingValue.style.strokeDashoffset='0'; scanRingValueText.textContent='✓'; scanRingLabel.textContent=t('complete'); scanRailProgress.style.width='100%';
-    $$('.scan-stage').forEach((stage)=>{ stage.classList.remove('is-active'); stage.classList.add('is-done'); if(stage.dataset.stage==='duplicates' && !payload.duplicateVerificationPerformed){stage.classList.remove('is-done');stage.classList.add('is-skipped');} });
-    healthSummary.textContent=`${formatNumber(payload.reviewedFiles)} ${t('filesReviewed')} · ${formatBytes(payload.duplicateReclaimableBytes)} ${t('verifiedSpace').toLowerCase()}`;
-    renderModeChip(); renderResultTip();
-  }
-  function renderTerminal(kind) {
-    stopFileStream(); setScanState(kind); scanRing.classList.remove('is-indeterminate'); scanRingValue.style.strokeDashoffset=String(RING_LENGTH); scanRingValueText.textContent=kind==='cancelled'?'×':'!'; scanRingLabel.textContent=t(kind==='cancelled'?'cancelled':'error'); renderResultTip();
-  }
-
-  function startFileStream(){ stopFileStream(); if(document.documentElement.dataset.motion==='reduced')return; const stream=$('scanFileStream'); const spawn=()=>{if(scanState!=='running')return; const tile=document.createElement('span'); tile.className=`scan-file-tile${Math.random()>.76?' folder':''}`; tile.style.setProperty('--lane',String(Math.floor(Math.random()*3))); stream.appendChild(tile); setTimeout(()=>tile.remove(),1900);}; spawn(); streamTimer=setInterval(spawn,460); }
-  function stopFileStream(){ if(streamTimer){clearInterval(streamTimer);streamTimer=null;} $('scanFileStream')?.replaceChildren(); }
-
-  function parseNative(raw){ if(!raw)return null;if(typeof raw==='object')return raw;try{return JSON.parse(raw);}catch(_){return null;} }
-  function readNativeState(){ try{const parsed=parseNative(window.BearagnosticNative?.getNativeState?.());if(parsed)applyNativeState(parsed);}catch(_){applyNativeState({broadStorageAccess:false,scannerReady:false,scannerRunning:false});} }
-  function applyNativeState(state){ nativeState={...nativeState,...(state||{})}; if(nativeState.versionName){footerBuild.textContent=`${nativeState.versionName}`;aboutBuild.textContent=`Benedict Interactive · ${nativeState.versionName}`;} if(nativeState.scannerRunning && scanState!=='running')setScanState('running'); else if(!nativeState.scannerRunning && scanState==='running'&&!lastResult)renderScanAction(); if(pendingSmartStart&&nativeState.broadStorageAccess&&!nativeState.scannerRunning){pendingSmartStart=false;setTimeout(()=>startNativeScan('smart'),120);} else renderScanAction(); }
-
-  function startNativeScan(mode=selectedMode){
-    selectedMode=mode; renderModeChip(); lastResult=null; resetProgressUI();
-    if(!nativeState.broadStorageAccess){pendingSmartStart=mode==='smart'; try{window.BearagnosticNative?.requestBroadStorageAccess?.();}catch(_){} renderScanAction(); return;}
-    const scopes=selectedMode==='custom'?customScopes():[]; const verify=selectedMode==='quick'?false:(selectedMode==='custom'?Boolean(verifyDuplicates.checked):true);
-    let response=null; try{response=parseNative(window.BearagnosticNative?.startScan?.(selectedMode,JSON.stringify(scopes),verify));}catch(_){}
-    if(response?.accepted){setScanState('running');startFileStream();renderProgress({phase:'preparing',reviewedFiles:0,largeFiles:0,olderFiles:0,duplicateCandidateFiles:0,duplicateCandidateBytes:0,hashedBytes:0});}
-    else if(response?.reason==='storage_access_required'){nativeState.broadStorageAccess=false;pendingSmartStart=selectedMode==='smart';renderScanAction();try{window.BearagnosticNative?.requestBroadStorageAccess?.();}catch(_){} }
-    else if(response?.reason==='scan_already_running'){setScanState('running');}
-    else {setScanState('error');}
-  }
-  function cancelScan(){ try{window.BearagnosticNative?.cancelOneTapScan?.();}catch(_){} scanAction.disabled=true; }
-
-  window.BearagnosticAndroid = Object.freeze({
-    onNativeStateChanged(state){const parsed=parseNative(state);if(parsed)applyNativeState(parsed);},
-    onScanProgress(payload){const parsed=parseNative(payload);if(parsed)renderProgress(parsed);},
-    onScanComplete(payload){const parsed=parseNative(payload);if(parsed)renderComplete(parsed);},
-    onScanCancelled(){renderTerminal('cancelled');},
-    onScanError(){renderTerminal('error');}
+  window.BearagnosticAndroid=Object.freeze({
+    onNativeStateChanged(state){const p=parseNative(state);if(p)applyNativeState(p)},
+    onScanProgress(payload){const p=parseNative(payload);if(p)renderProgress(p)},
+    onScanComplete(payload){const p=parseNative(payload);if(p)renderComplete(p)},
+    onScanCancelled(){renderTerminal('cancelled')},
+    onScanError(){renderTerminal('error')},
+    forceOpen(){if(appRoot)appRoot.hidden=false;if(launch)launch.hidden=true;readNativeState()}
   });
 
-  function bindEvents(){
-    const on=(target,event,handler)=>{if(target)target.addEventListener(event,handler);};
-    on($('homeBrandButton'),'click',()=>switchScreen('home'));
-    on($('settingsButton'),'click',()=>switchScreen('preferences'));
-    on($('preferencesBack'),'click',()=>switchScreen('home'));
-    $$('.nav-button[data-nav]').forEach((button)=>on(button,'click',()=>switchScreen(button.dataset.nav)));
-    on($('startCheckup'),'click',()=>{selectedMode='smart';pendingSmartStart=true;switchScreen('checkup');resetProgressUI();renderModeChip();if(nativeState.broadStorageAccess){pendingSmartStart=false;setTimeout(()=>startNativeScan('smart'),120);}else{try{window.BearagnosticNative?.requestBroadStorageAccess?.();}catch(_){}}});
-    on($('healthCard'),'click',()=>switchScreen('checkup'));
-    on(scanAction,'click',()=>{if(scanState==='running'){cancelScan();return;}if(!nativeState.broadStorageAccess){try{window.BearagnosticNative?.requestBroadStorageAccess?.();}catch(_){}return;}startNativeScan(selectedMode);});
-    on(modeChip,'click',()=>{if(scanState!=='running')openSheet(modeSheet);});
-    on($('modeClose'),'click',closeSheets);on($('customClose'),'click',closeSheets);on($('infoClose'),'click',closeSheets);on(modalScrim,'click',closeSheets);
-    $$('.mode-option').forEach((button)=>on(button,'click',()=>{const mode=button.dataset.mode;if(mode==='custom'){selectedMode='custom';renderModeChip();openSheet(customSheet);}else{selectedMode=mode;renderModeChip();resetProgressUI();closeSheets();}}));
-    on($('customSave'),'click',()=>{if(customScopes().length===0){showToast(language==='th'?'เลือกอย่างน้อย 1 ตำแหน่ง':language==='ja'?'1つ以上選択してください':'Choose at least one location');return;}selectedMode='custom';renderModeChip();resetProgressUI();closeSheets();});
-    on($('privacyRow'),'click',()=>openInfo('privacy'));on($('aboutRow'),'click',()=>openInfo('about'));
-    $$('.tool-card,.utility-list button[data-tool]').forEach((button)=>on(button,'click',()=>showToast(t('comingSoon'))));
-    $$('[data-language-group] [data-lang]').forEach((button)=>on(button,'click',()=>applyLanguage(button.dataset.lang,true)));
-    on($('motionSelect'),'change',(event)=>{const mode=event.target.value;document.documentElement.dataset.motion=mode;storageSet(MOTION_KEY,mode);});
-    document.addEventListener('visibilitychange',()=>{if(!document.hidden&&launchFinished)readNativeState();});
+  function bind(){
+    $('homeBrandButton')?.addEventListener('click',()=>switchScreen('home'));
+    $('settingsButton')?.addEventListener('click',()=>switchScreen('preferences'));
+    $('preferencesBack')?.addEventListener('click',()=>switchScreen('home'));
+    $$('.nav-button').forEach(b=>b.addEventListener('click',()=>switchScreen(b.dataset.nav)));
+    $('startCheckup')?.addEventListener('click',()=>{switchScreen('checkup');resetProgress();openSheet(modeSheet)});
+    $('healthCard')?.addEventListener('click',()=>switchScreen('checkup'));
+    scanAction?.addEventListener('click',()=>{if(scanState==='running'){try{window.BearagnosticNative?.cancelOneTapScan?.()}catch(_){}scanAction.disabled=true;return}if(!nativeState.broadStorageAccess){try{window.BearagnosticNative?.requestBroadStorageAccess?.()}catch(_){}return}if(scanState==='complete'||scanState==='cancelled'||scanState==='error'){resetProgress();startNativeScan(selectedMode,selectedMode==='custom'?customScopes():[],selectedMode!=='quick');return}openSheet(modeSheet)});
+    $('modeClose')?.addEventListener('click',closeSheets);$('customClose')?.addEventListener('click',closeSheets);modalScrim?.addEventListener('click',closeSheets);
+    $$('.mode-option').forEach(b=>b.addEventListener('click',()=>beginMode(b.dataset.mode)));
+    $('customSave')?.addEventListener('click',()=>{const scopes=customScopes();if(!scopes.length){showToast(t('selectOne'));return}closeSheets();selectedMode='custom';startNativeScan('custom',scopes,$('verifyDuplicates')?.checked!==false)});
+    $$('.tool-card').forEach(b=>b.addEventListener('click',()=>showToast(t('comingSoon'))));
+    $$('[data-lang]').forEach(b=>b.addEventListener('click',()=>applyLanguage(b.dataset.lang,true)));
+    document.addEventListener('visibilitychange',()=>{if(!document.hidden)readNativeState()});
   }
 
-  function revealAppFallback(){
-    launchFinished=true;
-    if(appRoot)appRoot.hidden=false;
-    if(launch)launch.hidden=true;
-    try{switchScreen('home');}catch(_){}
-    try{readNativeState();}catch(_){}
-  }
-
-  function boot(){
-    // Start the legacy opening before optional UI wiring so a secondary control can
-    // never prevent Benedict Interactive -> Bearagnostic -> Home from completing.
-    const rescue=setTimeout(revealAppFallback,8_000);
-    try{
-      language=detectLanguage();
-      const motion=storageGet(MOTION_KEY,'system');
-      document.documentElement.dataset.motion=motion;
-      const motionSelect=$('motionSelect');if(motionSelect)motionSelect.value=motion;
-      switchScreen('home');
-      runOpening().finally(()=>clearTimeout(rescue));
-      applyLanguage(language,false);
-      bindEvents();
-      renderModeChip();
-      resetProgressUI();
-    }catch(_){
-      clearTimeout(rescue);
-      revealAppFallback();
-    }
-  }
+  function boot(){language=detectLanguage();applyLanguage(language,false);bind();resetProgress();switchScreen('home');runOpening();setTimeout(()=>{if(appRoot?.hidden){appRoot.hidden=false;if(launch)launch.hidden=true;readNativeState()}},7000)}
   boot();
 })();
