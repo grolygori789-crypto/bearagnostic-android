@@ -46,6 +46,9 @@ class NativeBridge(private val activity: MainActivity) {
     fun openExternalUrl(url: String): String = activity.openExternalUrl(url)
 
     @JavascriptInterface
+    fun saveSupportQr(): String = activity.saveSupportQr()
+
+    @JavascriptInterface
     fun shareText(title: String, body: String): String = activity.shareText(title, body)
 
     fun statusJson(): String = JSONObject().apply {
@@ -61,12 +64,13 @@ class NativeBridge(private val activity: MainActivity) {
         put("scanModes", "smart,quick,deep,custom")
         put("analysisRulesVersion", FileHealthScanner.ANALYSIS_RULES_VERSION)
         put("supportNetwork", "user_initiated_only")
+        put("supportQrSave", "native_download_manager")
         put("shareAvailable", true)
         put("scannerCapabilities", "multi_pass,metadata,content_probe,categories,old,large,temp,apk,archives,zero_byte,empty_folders,screenshots,media,downloads,sha256_duplicates,review_candidates,verified_delete")
     }.toString()
 
     companion object {
         const val JS_INTERFACE_NAME = "BearagnosticNative"
-        const val BRIDGE_VERSION = 7
+        const val BRIDGE_VERSION = 8
     }
 }

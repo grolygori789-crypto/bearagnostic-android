@@ -1,9 +1,13 @@
 package com.benedictinteractive.bearagnostic
 
+import android.Manifest
 import android.app.Activity
+import android.app.DownloadManager
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Color
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.os.StatFs
@@ -11,6 +15,7 @@ import android.view.View
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.Toast
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -18,6 +23,7 @@ class MainActivity : Activity() {
     private lateinit var webView: WebView
     private lateinit var nativeBridge: NativeBridge
     private lateinit var scanner: FileHealthScanner
+    private var pendingSupportQrSave = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -100,6 +106,23 @@ class MainActivity : Activity() {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == StorageAccessController.LEGACY_READ_REQUEST_CODE) pushNativeStateToWeb()
+
+        if (requestCode == SUPPORT_QR_WRITE_REQUEST_CODE) {
+            val granted = grantResults.firstOrNull() == PackageManager.PERMISSION_GRANTED
+            val shouldSave = pendingSupportQrSave
+            pendingSupportQrSave = false
+            if (granted && shouldSave) {
+                val result = enqueueSupportQrDownload()
+                val ok = JSONObject(result).optBoolean("accepted", false)
+                Toast.makeText(
+                    this,
+                    if (ok) "Bearagnostic PromptPay QR is saving to Downloads." else "Could not save the PromptPay QR.",
+                    Toast.LENGTH_LONG,
+                ).show()
+            } else if (shouldSave) {
+                Toast.makeText(this, "File access is required to save the PromptPay QR on this Android version.", Toast.LENGTH_LONG).show()
+            }
+        }
     }
 
     fun pushNativeStateToWeb() {
@@ -213,8 +236,12 @@ class MainActivity : Activity() {
 
     fun openExternalUrl(rawUrl: String): String {
         val uri = try { Uri.parse(rawUrl.trim()) } catch (_: Exception) { null }
-        val host = uri?.host?.lowercase().orEmpty()
-        val allowed = uri?.scheme == "https" && host in ALLOWED_EXTERNAL_HOSTS
+            ?: return JSONObject().apply {
+                put("accepted", false)
+                put("reason", "invalid_url")
+            }.toString()
+        val host = uri.host?.lowercase().orEmpty()
+        val allowed = uri.scheme == "https" && host in ALLOWED_EXTERNAL_HOSTS
         if (!allowed) {
             return JSONObject().apply {
                 put("accepted", false)
@@ -222,19 +249,73 @@ class MainActivity : Activity() {
             }.toString()
         }
         val intent = Intent(Intent.ACTION_VIEW, uri)
-        if (intent.resolveActivity(packageManager) == null) {
-            return JSONObject().apply {
-                put("accepted", false)
-                put("reason", "no_handler")
-            }.toString()
-        }
         runOnUiThread {
-            if (!isFinishing && !isDestroyed) startActivity(intent)
+            if (!isFinishing && !isDestroyed) {
+                try {
+                    startActivity(intent)
+                } catch (_: Exception) {
+                    Toast.makeText(this, "No compatible browser is available for this link.", Toast.LENGTH_LONG).show()
+                }
+            }
         }
         return JSONObject().apply {
             put("accepted", true)
             put("queued", true)
         }.toString()
+    }
+
+    fun saveSupportQr(): String {
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P &&
+            checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
+        ) {
+            pendingSupportQrSave = true
+            runOnUiThread {
+                if (!isFinishing && !isDestroyed) {
+                    requestPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), SUPPORT_QR_WRITE_REQUEST_CODE)
+                }
+            }
+            return JSONObject().apply {
+                put("accepted", true)
+                put("permissionRequested", true)
+            }.toString()
+        }
+        return enqueueSupportQrDownload()
+    }
+
+    private fun enqueueSupportQrDownload(): String {
+        return try {
+            val manager = getSystemService(DOWNLOAD_SERVICE) as? DownloadManager
+                ?: return JSONObject().apply {
+                    put("accepted", false)
+                    put("reason", "download_manager_unavailable")
+                }.toString()
+
+            val fileName = "Bearagnostic-PromptPay-QR-${System.currentTimeMillis()}.png"
+            val request = DownloadManager.Request(Uri.parse(PROMPTPAY_QR_URL)).apply {
+                setTitle("Bearagnostic PromptPay QR")
+                setDescription("Verified PromptPay QR for Bearagnostic support")
+                setMimeType("image/png")
+                setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+                setAllowedOverMetered(true)
+                setAllowedOverRoaming(true)
+                @Suppress("DEPRECATION")
+                setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName)
+            }
+            val downloadId = manager.enqueue(request)
+            JSONObject().apply {
+                put("accepted", true)
+                put("queued", true)
+                put("downloadId", downloadId)
+                put("fileName", fileName)
+                put("destination", "Downloads")
+            }.toString()
+        } catch (error: Exception) {
+            JSONObject().apply {
+                put("accepted", false)
+                put("reason", "download_failed")
+                put("error", error.javaClass.simpleName)
+            }.toString()
+        }
     }
 
     fun shareText(title: String, body: String): String {
@@ -250,14 +331,14 @@ class MainActivity : Activity() {
             putExtra(Intent.EXTRA_TEXT, body.take(8_000))
         }
         val chooser = Intent.createChooser(send, title.take(120))
-        if (send.resolveActivity(packageManager) == null) {
-            return JSONObject().apply {
-                put("accepted", false)
-                put("reason", "share_unavailable")
-            }.toString()
-        }
         runOnUiThread {
-            if (!isFinishing && !isDestroyed) startActivity(chooser)
+            if (!isFinishing && !isDestroyed) {
+                try {
+                    startActivity(chooser)
+                } catch (_: Exception) {
+                    Toast.makeText(this, "Android could not open the share sheet.", Toast.LENGTH_LONG).show()
+                }
+            }
         }
         return JSONObject().apply {
             put("accepted", true)
@@ -311,6 +392,10 @@ class MainActivity : Activity() {
     }
 
     companion object {
+        private const val SUPPORT_QR_WRITE_REQUEST_CODE = 9418
+        private const val PROMPTPAY_QR_URL =
+            "https://raw.githubusercontent.com/grolygori789-crypto/little-ganesha-tarot/f21e6a4c81812276d661d6ebb0a3e6c86c6cf48b/assets/support/promptpay-qr.png"
+
         private val ALLOWED_EXTERNAL_HOSTS = setOf(
             "ko-fi.com",
             "www.ko-fi.com",
