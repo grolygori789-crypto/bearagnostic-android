@@ -1,8 +1,12 @@
 package com.benedictinteractive.bearagnostic
 
 import android.app.Activity
+import android.content.Intent
 import android.graphics.Color
+import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
+import android.os.StatFs
 import android.view.View
 import android.webkit.WebSettings
 import android.webkit.WebView
@@ -28,7 +32,9 @@ class MainActivity : Activity() {
         webView.setBackgroundColor(Color.rgb(246, 249, 253))
         webView.webViewClient = object : WebViewClient() {
             override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
-                return url?.startsWith("file:///android_asset/") != true
+                if (url?.startsWith("file:///android_asset/") == true) return false
+                if (!url.isNullOrBlank()) openExternalUrl(url)
+                return true
             }
 
             override fun onPageFinished(view: WebView?, url: String?) {
@@ -182,6 +188,83 @@ class MainActivity : Activity() {
         JSONObject().apply { put("accepted", false); put("reason", "no_review_snapshot") }.toString()
     }
 
+    fun storageSnapshotJson(): String = try {
+        @Suppress("DEPRECATION")
+        val root = Environment.getExternalStorageDirectory()
+        val stat = StatFs(root.absolutePath)
+        val total = stat.totalBytes.coerceAtLeast(0L)
+        val available = stat.availableBytes.coerceAtLeast(0L)
+        val used = (total - available).coerceAtLeast(0L)
+        val freePercent = if (total > 0L) (available.toDouble() / total.toDouble()) * 100.0 else 0.0
+        JSONObject().apply {
+            put("available", true)
+            put("scope", "primary_shared_storage")
+            put("totalBytes", total)
+            put("availableBytes", available)
+            put("usedBytes", used)
+            put("freePercent", freePercent)
+        }.toString()
+    } catch (_: Exception) {
+        JSONObject().apply {
+            put("available", false)
+            put("scope", "primary_shared_storage")
+        }.toString()
+    }
+
+    fun openExternalUrl(rawUrl: String): String {
+        val uri = try { Uri.parse(rawUrl.trim()) } catch (_: Exception) { null }
+        val host = uri?.host?.lowercase().orEmpty()
+        val allowed = uri?.scheme == "https" && host in ALLOWED_EXTERNAL_HOSTS
+        if (!allowed) {
+            return JSONObject().apply {
+                put("accepted", false)
+                put("reason", "url_not_allowed")
+            }.toString()
+        }
+        val intent = Intent(Intent.ACTION_VIEW, uri)
+        if (intent.resolveActivity(packageManager) == null) {
+            return JSONObject().apply {
+                put("accepted", false)
+                put("reason", "no_handler")
+            }.toString()
+        }
+        runOnUiThread {
+            if (!isFinishing && !isDestroyed) startActivity(intent)
+        }
+        return JSONObject().apply {
+            put("accepted", true)
+            put("queued", true)
+        }.toString()
+    }
+
+    fun shareText(title: String, body: String): String {
+        if (body.isBlank()) {
+            return JSONObject().apply {
+                put("accepted", false)
+                put("reason", "empty_share")
+            }.toString()
+        }
+        val send = Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            putExtra(Intent.EXTRA_SUBJECT, title.take(120))
+            putExtra(Intent.EXTRA_TEXT, body.take(8_000))
+        }
+        val chooser = Intent.createChooser(send, title.take(120))
+        if (send.resolveActivity(packageManager) == null) {
+            return JSONObject().apply {
+                put("accepted", false)
+                put("reason", "share_unavailable")
+            }.toString()
+        }
+        runOnUiThread {
+            if (!isFinishing && !isDestroyed) startActivity(chooser)
+        }
+        return JSONObject().apply {
+            put("accepted", true)
+            put("queued", true)
+        }.toString()
+    }
+
     private fun ensureScanner() {
         if (!::scanner.isInitialized) scanner = FileHealthScanner(applicationContext)
     }
@@ -225,5 +308,13 @@ class MainActivity : Activity() {
             webView.destroy()
         }
         super.onDestroy()
+    }
+
+    companion object {
+        private val ALLOWED_EXTERNAL_HOSTS = setOf(
+            "ko-fi.com",
+            "www.ko-fi.com",
+            "raw.githubusercontent.com",
+        )
     }
 }

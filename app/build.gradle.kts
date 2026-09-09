@@ -13,6 +13,7 @@ val generatedLegacyResDir = layout.buildDirectory.dir("generated/legacyRes").get
 val legacyArchive = layout.buildDirectory.file("legacy-cache/bearagnostic-$legacyCommit.zip").get().asFile
 val legacyExtractDir = layout.buildDirectory.dir("legacy-cache/extracted-$legacyCommit").get().asFile
 val androidAdapter = layout.projectDirectory.file("src/main/legacy-adapter/android-native.js").asFile
+val nativeAssetsDir = layout.projectDirectory.dir("src/main/native-assets").asFile
 
 fun gitBlobSha1(file: File): String {
     val bytes = file.readBytes()
@@ -51,6 +52,7 @@ val prepareLegacyFrontend by tasks.registering {
     group = "bearagnostic"
     description = "Imports the approved Bearagnostic PWA byte-for-byte, then overlays the Android bridge adapter."
     inputs.file(androidAdapter)
+    inputs.dir(nativeAssetsDir)
     inputs.property("legacyCommit", legacyCommit)
     outputs.dir(generatedLegacyAssetsDir)
     outputs.dir(generatedLegacyResDir)
@@ -98,13 +100,20 @@ val prepareLegacyFrontend by tasks.registering {
 
         val generatedIndex = File(uiRoot, "index.html")
         val originalHtml = generatedIndex.readText(StandardCharsets.UTF_8)
-        val adapterTag = "  <script src=\"./js/android-native.js?v=17\"></script>\n"
+        val adapterTag = "  <script src=\"./js/android-native.js?v=18\"></script>\n"
         check(originalHtml.contains("</body>")) { "Legacy index.html is missing </body>" }
         generatedIndex.writeText(originalHtml.replace("</body>", adapterTag + "</body>"), StandardCharsets.UTF_8)
 
         val adapterTarget = File(uiRoot, "js/android-native.js")
         adapterTarget.parentFile.mkdirs()
         androidAdapter.copyTo(adapterTarget, overwrite = true)
+
+        if (nativeAssetsDir.isDirectory) {
+            copy {
+                from(nativeAssetsDir)
+                into(File(uiRoot, "assets/native"))
+            }
+        }
 
         val launcherDir = File(generatedLegacyResDir, "drawable-nodpi")
         launcherDir.mkdirs()
@@ -121,8 +130,8 @@ android {
         applicationId = "com.benedictinteractive.bearagnostic"
         minSdk = 26
         targetSdk = 36
-        versionCode = 17
-        versionName = "0.17.0-alpha17"
+        versionCode = 18
+        versionName = "0.18.0-alpha18"
     }
 
     sourceSets {
