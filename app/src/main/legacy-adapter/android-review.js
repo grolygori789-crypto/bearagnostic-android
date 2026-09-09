@@ -47,6 +47,29 @@
       align-items:center !important;
       border-bottom:1px solid rgba(91,120,149,.06) !important;
     }
+    .native-review-panel .native-review-summary{gap:8px !important;justify-content:flex-start !important;}
+    .native-review-panel .native-review-summary #nativeReviewBytes{white-space:nowrap;}
+    .native-review-panel .native-select-all{
+      margin-left:auto !important;
+      min-width:92px !important;
+      height:31px !important;
+      padding:0 11px !important;
+      border-radius:11px !important;
+      border:1px solid rgba(30,135,195,.11) !important;
+      background:linear-gradient(145deg,#edf8fe,#f4fbff) !important;
+      color:#167db7 !important;
+      font-size:10.5px !important;
+      line-height:1 !important;
+      font-weight:780 !important;
+      white-space:nowrap !important;
+      box-shadow:0 4px 12px rgba(41,98,137,.06),inset 0 1px 0 rgba(255,255,255,.95) !important;
+    }
+    .native-review-panel .native-select-all[aria-pressed="true"]{
+      background:linear-gradient(145deg,#e8f8f2,#f3fbf8) !important;
+      border-color:rgba(30,145,116,.12) !important;
+      color:#197e69 !important;
+    }
+    .native-review-panel .native-select-all:disabled{opacity:.42 !important;}
     .native-review-panel .native-review-list{
       min-height:0 !important;
       overflow:auto !important;
@@ -93,6 +116,8 @@
       font-size:12.5px !important;
     }
     @media(max-width:360px){
+      .native-review-panel .native-review-summary{padding-left:12px !important;padding-right:12px !important;gap:6px !important;}
+      .native-review-panel .native-select-all{min-width:82px !important;padding:0 8px !important;font-size:9.8px !important;}
       .native-review-panel .native-file-row{min-height:66px !important;padding:10px !important;}
       .native-review-panel .native-delete-button{min-width:132px !important;}
     }
@@ -101,19 +126,19 @@
 
 
   function syncBuildLabels() {
-    const version = '0.20.0-alpha21';
+    const version = '0.20.1-alpha22';
     const footer = document.querySelector('.app-footer__build');
-    const footerValue = 'v0.20 · B21';
+    const footerValue = 'v0.20.1 · B22';
     if (footer && footer.textContent !== footerValue) footer.textContent = footerValue;
 
     const about = document.querySelector('.more-screen [data-open="about"] small');
-    const aboutValue = `Benedict Interactive · ${version} · B21`;
+    const aboutValue = `Benedict Interactive · ${version} · B22`;
     if (about && about.textContent !== aboutValue) about.textContent = aboutValue;
 
     const pref = document.getElementById('nativePreferencesExtension');
     if (pref) {
       pref.querySelectorAll('b').forEach((node) => {
-        if (/B(?:18|19|20)\b/.test(node.textContent || '')) node.textContent = `${version} · B21`;
+        if (/B(?:18|19|20|21)\b/.test(node.textContent || '')) node.textContent = `${version} · B22`;
       });
     }
   }

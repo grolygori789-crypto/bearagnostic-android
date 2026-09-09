@@ -4,7 +4,7 @@
   const NATIVE = window.BearagnosticNative;
   if (!NATIVE) return;
 
-  const BUILD = 21;
+  const BUILD = 22;
   let lastComplete = null;
 
   const byId = (id) => document.getElementById(id);
@@ -261,9 +261,9 @@
 
   function patchBuildLabels() {
     const state = parseJson(NATIVE.getNativeState?.(), {});
-    const version = String(state.versionName || '0.20.0-alpha21').replace('-debug', '');
+    const version = String(state.versionName || '0.20.1-alpha22').replace('-debug', '');
     const footer = document.querySelector('.app-footer__build');
-    if (footer) footer.textContent = `v0.20 · B${BUILD}`;
+    if (footer) footer.textContent = `v0.20.1 · B${BUILD}`;
 
     document.querySelectorAll('.native-pref-row b.slate,[data-open="about"] small').forEach((el) => {
       const value = String(el.textContent || '');

@@ -359,7 +359,7 @@
   }
 
   document.addEventListener('click', (event) => {
-    const button = event.target?.closest?.('[data-media-view]');
+    const button = event.target?.closest?.('button[data-media-view]');
     if (!button) return;
     event.preventDefault();
     setViewMode(button.dataset.mediaView);

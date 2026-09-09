@@ -6,6 +6,7 @@
 
   const BUILD = 18;
   const RING_LENGTH = 289.03;
+  const REVIEW_SELECTION_LIMIT = 500;
   const PHASES = ['preparing','file_details','file_sizes','duplicates','modified_dates','finalizing'];
   const PHASE_RANGES = {
     preparing:[0,8], file_details:[8,28], file_sizes:[28,45],
@@ -75,7 +76,7 @@
       reviewClean:'Review & Clean', reviewCleanSub:'Low-risk cleanup candidates only', noLowRisk:'No low-risk automatic cleanup was found. Review the categories below instead.',
       duplicatesAction:'Exact duplicates', largeAction:'Large files', oldAction:'Older files', tempAction:'Temporary files', installersAction:'APK installers', archivesAction:'Archives',
       review:'Review', scanAgain:'Scan again', close:'Close', viewResults:'View recommendations',
-      reviewTitle:'Review files', selected:'selected', deleteSelected:'Delete selected', deleteTitle:'Delete selected files?', deleteBody:'Bearagnostic will permanently delete only the files you selected. This cannot be undone.', deleteNow:'Delete files',
+      reviewTitle:'Review files', selected:'selected', selectAll:'Select all', clearSelection:'Clear selection', selectUpTo:'Select up to', deleteSelected:'Delete selected', deleteTitle:'Delete selected files?', deleteBody:'Bearagnostic will permanently delete only the files you selected. This cannot be undone.', deleteNow:'Delete files',
       keep:'Keep', lowRisk:'Low risk', needsReview:'Review', protectedCopy:'Keep one copy', loadMore:'Load more', resultsUpdated:'Cleanup finished', reclaimed:'reclaimed', deleted:'files deleted', rescanNote:'Results are updated now. Scan again only when you want a fresh whole-device check.', backResults:'Back to results',
       resultHeroTitle:'Your storage, clarified.', resultHeroLow:'Low-risk items are ready for review. Bearagnostic still asks before anything is deleted.', resultHeroReview:'There is no one-tap cleanup here—and that is intentional. Review only the categories that matter to you.', resultHeroClear:'Nothing in this scan currently needs cleanup review.', overviewTitle:'At a glance', readyNow:'Ready to clean', reviewItems:'Items to review', categoriesFound:'Categories', items:'items', sessionTitle:'This session', sessionEmpty:'Nothing removed yet', safetyTitle:'Protected by design', safetyBody:'Large, old, APK and archive files stay review-only. Exact duplicates always keep at least one copy.', zeroAction:'Zero-byte files', resultKicker:'SCAN COMPLETE', reviewByCategory:'Review by category', scanFacts:'Scan facts', filesReviewedLabel:'Files reviewed', localLabel:'On device', modeLabel:'Mode', recommendFirst:'RECOMMENDED FIRST', startHere:'Start here', spaceReclaimed:'Space reclaimed',
       reason_stale_incomplete_download:'Stale incomplete download', reason_temporary_artifact:'Temporary artifact — review first', reason_verified_duplicate:'Identical copy confirmed', reason_large_file:'Large file — size alone is not junk', reason_old_file:'Older file — age alone is not junk', reason_apk_installer:'Downloaded APK installer', reason_archive_file:'Archive — may be the only copy', reason_zero_byte:'Zero-byte file — review context'
@@ -95,7 +96,7 @@
       reviewClean:'ตรวจและทำความสะอาด', reviewCleanSub:'เฉพาะรายการความเสี่ยงต่ำที่ตรวจพบจริง', noLowRisk:'ไม่พบรายการที่เหมาะกับการลบอัตโนมัติแบบความเสี่ยงต่ำ ให้ตรวจหมวดด้านล่างแทน',
       duplicatesAction:'ไฟล์ซ้ำตรงกัน', largeAction:'ไฟล์ขนาดใหญ่', oldAction:'ไฟล์เก่า', tempAction:'ไฟล์ชั่วคราว', installersAction:'ไฟล์ติดตั้ง APK', archivesAction:'ไฟล์บีบอัด',
       review:'ตรวจรายการ', scanAgain:'สแกนอีกครั้ง', close:'ปิด', viewResults:'ดูคำแนะนำ',
-      reviewTitle:'ตรวจรายการไฟล์', selected:'เลือกแล้ว', deleteSelected:'ลบที่เลือก', deleteTitle:'ลบไฟล์ที่เลือก?', deleteBody:'Bearagnostic จะลบถาวรเฉพาะไฟล์ที่คุณเลือก การลบนี้ย้อนกลับไม่ได้', deleteNow:'ลบไฟล์',
+      reviewTitle:'ตรวจรายการไฟล์', selected:'เลือกแล้ว', selectAll:'เลือกทั้งหมด', clearSelection:'ล้างที่เลือก', selectUpTo:'เลือกได้สูงสุด', deleteSelected:'ลบที่เลือก', deleteTitle:'ลบไฟล์ที่เลือก?', deleteBody:'Bearagnostic จะลบถาวรเฉพาะไฟล์ที่คุณเลือก การลบนี้ย้อนกลับไม่ได้', deleteNow:'ลบไฟล์',
       keep:'เก็บไว้', lowRisk:'ความเสี่ยงต่ำ', needsReview:'ต้องตรวจ', protectedCopy:'เก็บอย่างน้อยหนึ่งสำเนา', loadMore:'โหลดเพิ่ม', resultsUpdated:'ทำความสะอาดเรียบร้อย', reclaimed:'คืนพื้นที่', deleted:'ไฟล์ที่ลบ', rescanNote:'ผลลัพธ์อัปเดตแล้ว สแกนใหม่เฉพาะเมื่ออยากตรวจทั้งเครื่องอีกครั้ง', backResults:'กลับผลลัพธ์',
       resultHeroTitle:'เห็นภาพพื้นที่ชัดขึ้นแล้ว', resultHeroLow:'พบรายการความเสี่ยงต่ำที่พร้อมให้ตรวจ และ Bearagnostic จะถามยืนยันก่อนลบเสมอ', resultHeroReview:'รอบนี้ไม่มีรายการที่ควรลบแบบคลิกเดียว ซึ่งเป็นสิ่งที่ตั้งใจไว้ เลือกตรวจเฉพาะหมวดที่คุณต้องการได้', resultHeroClear:'ผลสแกนนี้ยังไม่มีรายการที่ต้องตรวจเพื่อทำความสะอาด', overviewTitle:'ภาพรวม', readyNow:'พร้อมทำความสะอาด', reviewItems:'รายการให้ตรวจ', categoriesFound:'หมวดที่พบ', items:'รายการ', sessionTitle:'รอบนี้', sessionEmpty:'ยังไม่ได้ลบไฟล์', safetyTitle:'ปกป้องข้อมูลเป็นหลัก', safetyBody:'ไฟล์ใหญ่ ไฟล์เก่า APK และไฟล์บีบอัดจะไม่ถูกเลือกลบอัตโนมัติ ส่วนไฟล์ซ้ำจะเก็บไว้อย่างน้อยหนึ่งสำเนา', zeroAction:'ไฟล์ขนาด 0 ไบต์', resultKicker:'สแกนเสร็จแล้ว', reviewByCategory:'ตรวจตามหมวด', scanFacts:'ข้อมูลการสแกน', filesReviewedLabel:'ไฟล์ที่ตรวจแล้ว', localLabel:'ทำงานบนเครื่อง', modeLabel:'โหมด', recommendFirst:'แนะนำให้เริ่มตรงนี้', startHere:'เริ่มตรวจ', spaceReclaimed:'พื้นที่ที่คืนได้',
       reason_stale_incomplete_download:'ไฟล์ดาวน์โหลดไม่สมบูรณ์ที่ค้างมานาน', reason_temporary_artifact:'ไฟล์ชั่วคราว — ควรตรวจก่อน', reason_verified_duplicate:'ยืนยันแล้วว่าเป็นสำเนาที่ตรงกัน', reason_large_file:'ไฟล์ใหญ่ — ขนาดไม่ได้แปลว่าเป็นขยะ', reason_old_file:'ไฟล์เก่า — อายุไฟล์ไม่ได้แปลว่าเป็นขยะ', reason_apk_installer:'ไฟล์ติดตั้ง APK ที่ดาวน์โหลดไว้', reason_archive_file:'ไฟล์บีบอัด — อาจเป็นสำเนาเดียว', reason_zero_byte:'ไฟล์ขนาด 0 ไบต์ — ควรดูบริบท'
@@ -115,7 +116,7 @@
       reviewClean:'確認してクリーンアップ', reviewCleanSub:'実際に見つかった低リスク候補のみ', noLowRisk:'自動クリーンアップ向けの低リスク候補はありません。下のカテゴリを確認してください。',
       duplicatesAction:'完全一致の重複', largeAction:'大きいファイル', oldAction:'古いファイル', tempAction:'一時ファイル', installersAction:'APK インストーラー', archivesAction:'アーカイブ',
       review:'確認', scanAgain:'再スキャン', close:'閉じる', viewResults:'おすすめを見る',
-      reviewTitle:'ファイルを確認', selected:'選択済み', deleteSelected:'選択項目を削除', deleteTitle:'選択したファイルを削除しますか？', deleteBody:'選択したファイルだけを完全に削除します。この操作は元に戻せません。', deleteNow:'削除',
+      reviewTitle:'ファイルを確認', selected:'選択済み', selectAll:'すべて選択', clearSelection:'選択解除', selectUpTo:'最大選択', deleteSelected:'選択項目を削除', deleteTitle:'選択したファイルを削除しますか？', deleteBody:'選択したファイルだけを完全に削除します。この操作は元に戻せません。', deleteNow:'削除',
       keep:'保持', lowRisk:'低リスク', needsReview:'要確認', protectedCopy:'1つは保持', loadMore:'さらに表示', resultsUpdated:'クリーンアップ完了', reclaimed:'解放', deleted:'削除したファイル', rescanNote:'結果は更新済みです。端末全体を改めて確認したい場合のみ再スキャンしてください。', backResults:'結果へ戻る',
       resultHeroTitle:'ストレージの状況が見えました', resultHeroLow:'低リスク項目を確認できます。削除前には Bearagnostic が必ず確認します。', resultHeroReview:'今回はワンタップ削除に適した項目はありません。必要なカテゴリだけ確認できます。', resultHeroClear:'このスキャンには現在クリーンアップ確認が必要な項目はありません。', overviewTitle:'概要', readyNow:'クリーンアップ候補', reviewItems:'確認項目', categoriesFound:'カテゴリ', items:'項目', sessionTitle:'今回', sessionEmpty:'まだ削除していません', safetyTitle:'保護を優先した設計', safetyBody:'大容量・古い・APK・アーカイブは自動選択しません。重複ファイルも必ず1つ以上残します。', zeroAction:'0 バイトファイル', resultKicker:'スキャン完了', reviewByCategory:'カテゴリ別に確認', scanFacts:'スキャン情報', filesReviewedLabel:'確認済みファイル', localLabel:'端末内処理', modeLabel:'モード', recommendFirst:'最初におすすめ', startHere:'ここから確認', spaceReclaimed:'解放した容量',
       reason_stale_incomplete_download:'古い未完了ダウンロード', reason_temporary_artifact:'一時ファイル — 要確認', reason_verified_duplicate:'同一コピーを確認済み', reason_large_file:'大きいファイル — サイズだけでは不要とは限りません', reason_old_file:'古いファイル — 日付だけでは不要とは限りません', reason_apk_installer:'ダウンロード済み APK', reason_archive_file:'アーカイブ — 唯一のコピーかもしれません', reason_zero_byte:'0 バイトファイル — 状況を確認'
@@ -575,7 +576,7 @@
   function ensureActionSurfaces() {
     ensureStyle(); ensureTrustStyle(); ensureNavigationButton();
     if(!byId('nativeResultsSheet')) document.body.insertAdjacentHTML('beforeend',`<section class="native-results-sheet" id="nativeResultsSheet" hidden><div class="native-results-panel"><header class="native-results-header"><div><span class="native-results-eyebrow" id="nativeResultsKicker"></span><h2 id="nativeResultsTitle"></h2><p id="nativeResultsLead"></p></div><button class="native-icon-button" id="nativeResultsClose" type="button">×</button></header><div class="native-results-scroll"><section class="native-result-hero"><span class="native-result-kicker" id="nativeResultKicker"></span><strong id="nativeRecommendationTitle"></strong><p id="nativeRecommendationBody"></p><div class="native-hero-metrics"><div class="native-hero-metric"><b id="nativeReadyMetric"></b><span id="nativeReadyLabel"></span></div><div class="native-hero-metric"><b id="nativeReviewMetric"></b><span id="nativeReviewLabel"></span></div></div></section><button class="native-primary-action" id="nativeLowRiskAction" type="button"><span class="native-primary-orb"><svg viewBox="0 0 24 24"><path d="M5 12h14M14 7l5 5-5 5"/></svg></span><span><strong id="nativeLowRiskTitle"></strong><small id="nativeLowRiskSub"></small></span><b>›</b></button><div class="native-results-section-head"><strong id="nativeCategoriesLabel"></strong><small id="nativeCategoryMeta"></small></div><div class="native-action-grid" id="nativeActionGrid"></div><section class="native-facts-card"><strong class="native-facts-title" id="nativeFactsTitle"></strong><div class="native-facts-grid"><div class="native-fact"><b id="nativeFilesFact"></b><span id="nativeFilesFactLabel"></span></div><div class="native-fact"><b id="nativeModeFact"></b><span id="nativeModeFactLabel"></span></div><div class="native-fact"><b id="nativeDurationFact"></b><span id="nativeDurationFactLabel"></span></div><div class="native-fact"><b id="nativeCoverageFact"></b><span id="nativeCoverageFactLabel"></span></div></div></section><div class="native-bottom-grid"><section class="native-session-card"><span class="native-mini-symbol">✓</span><strong id="nativeSessionTitle"></strong><small id="nativeSessionBody"></small></section><section class="native-safety-card"><span class="native-mini-symbol">◇</span><strong id="nativeSafetyTitle"></strong><small id="nativeSafetyBody"></small></section></div></div><footer class="native-results-footer"><button class="native-secondary" id="nativeResultsHome" type="button"></button><button class="native-secondary native-secondary--blue" id="nativeResultsRescan" type="button"></button></footer></div></section>`);
-    if(!byId('nativeReviewSheet')) document.body.insertAdjacentHTML('beforeend',`<section class="native-review-sheet" id="nativeReviewSheet" hidden><div class="native-review-panel"><div class="native-sheet-head"><button class="native-icon-button" id="nativeReviewBack" type="button">‹</button><div style="min-width:0;flex:1"><h2 id="nativeReviewTitle"></h2><p id="nativeReviewSubtitle"></p></div><button class="native-icon-button" id="nativeReviewHome" type="button">⌂</button></div><div class="native-review-summary"><span id="nativeReviewCount"></span><span id="nativeReviewBytes"></span></div><div class="native-review-list" id="nativeReviewList"></div><div class="native-review-footer"><div class="native-selection-copy"><strong id="nativeSelectedCount"></strong><small id="nativeSelectedBytes"></small></div><button class="native-delete-button" id="nativeDeleteSelected" type="button"></button></div></div></section>`);
+    if(!byId('nativeReviewSheet')) document.body.insertAdjacentHTML('beforeend',`<section class="native-review-sheet" id="nativeReviewSheet" hidden><div class="native-review-panel"><div class="native-sheet-head"><button class="native-icon-button" id="nativeReviewBack" type="button">‹</button><div style="min-width:0;flex:1"><h2 id="nativeReviewTitle"></h2><p id="nativeReviewSubtitle"></p></div><button class="native-icon-button" id="nativeReviewHome" type="button">⌂</button></div><div class="native-review-summary"><span id="nativeReviewCount"></span><span id="nativeReviewBytes"></span><button class="native-select-all" id="nativeSelectAll" type="button"></button></div><div class="native-review-list" id="nativeReviewList"></div><div class="native-review-footer"><div class="native-selection-copy"><strong id="nativeSelectedCount"></strong><small id="nativeSelectedBytes"></small></div><button class="native-delete-button" id="nativeDeleteSelected" type="button"></button></div></div></section>`);
     if(!byId('nativeConfirmSheet')) document.body.insertAdjacentHTML('beforeend',`<section class="native-confirm-sheet" id="nativeConfirmSheet" hidden><div class="native-confirm-panel"><h3 id="nativeConfirmTitle"></h3><p id="nativeConfirmBody"></p><div class="native-confirm-actions"><button class="native-secondary" id="nativeConfirmCancel" type="button"></button><button class="native-danger" id="nativeConfirmDelete" type="button"></button></div></div></section>`);
     if(!byId('nativeCleanSummary')) document.body.insertAdjacentHTML('beforeend',`<section class="native-clean-summary" id="nativeCleanSummary" hidden><div class="native-clean-panel"><div class="native-clean-card"><div class="native-clean-check">✓</div><h2 id="nativeCleanTitle"></h2><div class="native-clean-metric" id="nativeCleanBytes"></div><p id="nativeCleanDetails"></p><div class="native-clean-actions"><button class="native-secondary" id="nativeCleanBack" type="button"></button><button class="native-secondary native-secondary--blue" id="nativeCleanHome" type="button"></button></div></div></div></section>`);
     ensureTrustSurfaces();
@@ -743,14 +744,75 @@
     reviewOffset+=items.length; renderReviewList(page.hasMore);
   }
 
+  function selectableReviewItems() {
+    return [...reviewItems.values()].filter(item=>!item.duplicateKeepSuggested);
+  }
+
+  function updateReviewSelectionUi() {
+    const bytes=[...selectedReviewIds].reduce((sum,id)=>sum+(Number(reviewItems.get(id)?.sizeBytes)||0),0);
+    const selectedCount=selectedReviewIds.size;
+    const selectable=selectableReviewItems();
+    const scopeLoaded=reviewOffset>=reviewTotal || reviewItems.size>=REVIEW_SELECTION_LIMIT;
+    const allSelected=scopeLoaded && selectable.length>0 && selectable.every(item=>selectedReviewIds.has(item.id));
+    const selectAll=byId('nativeSelectAll');
+    if(byId('nativeSelectedCount')) byId('nativeSelectedCount').textContent=`${selectedCount} ${text('selected')}`;
+    if(byId('nativeSelectedBytes')) byId('nativeSelectedBytes').textContent=formatBytes(bytes);
+    if(byId('nativeDeleteSelected')) byId('nativeDeleteSelected').disabled=selectedCount===0;
+    if(selectAll){
+      const capped=reviewTotal>REVIEW_SELECTION_LIMIT;
+      selectAll.textContent=allSelected?text('clearSelection'):(capped?`${text('selectUpTo')} ${REVIEW_SELECTION_LIMIT}`:text('selectAll'));
+      selectAll.disabled=selectable.length===0 && reviewTotal===0;
+      selectAll.setAttribute('aria-pressed',allSelected?'true':'false');
+    }
+  }
+
+  function syncReviewCheckboxes() {
+    qsa('[data-review-id]',byId('nativeReviewList')).forEach(box=>{
+      const item=reviewItems.get(box.dataset.reviewId);
+      const protectedCopy=Boolean(item?.duplicateKeepSuggested);
+      box.disabled=protectedCopy;
+      box.checked=!protectedCopy && selectedReviewIds.has(box.dataset.reviewId);
+    });
+  }
+
+  function loadReviewItemsForBulkSelection() {
+    let guard=0;
+    while(reviewCategory && reviewOffset<reviewTotal && reviewItems.size<REVIEW_SELECTION_LIMIT && guard<8){
+      guard++;
+      const remaining=REVIEW_SELECTION_LIMIT-reviewItems.size;
+      const page=parseJson(NATIVE.getReviewCandidates?.(reviewCategory,reviewOffset,Math.min(250,remaining)),{});
+      const items=Array.isArray(page.items)?page.items:[];
+      if(!items.length)break;
+      for(const item of items)reviewItems.set(item.id,item);
+      reviewOffset+=items.length;
+      reviewTotal=Number(page.totalCount)||reviewTotal;
+      if(!page.hasMore)break;
+    }
+  }
+
+  function toggleSelectAllReview() {
+    const before=selectableReviewItems();
+    const scopeLoaded=reviewOffset>=reviewTotal || reviewItems.size>=REVIEW_SELECTION_LIMIT;
+    const allSelected=scopeLoaded && before.length>0 && before.every(item=>selectedReviewIds.has(item.id));
+    if(allSelected){
+      selectedReviewIds.clear();
+      syncReviewCheckboxes();
+      updateReviewSelectionUi();
+      return;
+    }
+    loadReviewItemsForBulkSelection();
+    for(const item of selectableReviewItems()) selectedReviewIds.add(item.id);
+    renderReviewList(reviewOffset<reviewTotal);
+  }
+
   function renderReviewList(hasMore=false) {
     const list=byId('nativeReviewList'); if(!list)return;
     if(!reviewItems.size){list.innerHTML=`<div class="native-empty">${text('noLowRisk')}</div>`;}else{
-      list.innerHTML=[...reviewItems.values()].map(item=>{const checked=selectedReviewIds.has(item.id)?'checked':'';const disabled=item.duplicateKeepSuggested?'':'';const risk=item.autoCleanEligible?`<span class="native-risk low">${text('lowRisk')}</span>`:item.duplicateKeepSuggested?`<span class="native-risk keep">${text('protectedCopy')}</span>`:`<span class="native-risk">${text('needsReview')}</span>`;return `<label class="native-file-row"><input type="checkbox" data-review-id="${item.id}" ${checked} ${disabled}><span class="native-file-copy"><strong>${escapeHtml(item.name)}</strong><small>${escapeHtml(item.location||'')} · ${escapeHtml(reasonText(item.reasonCode))}${item.modifiedMs?` · ${escapeHtml(formatDate(item.modifiedMs))}`:''}</small></span><span class="native-file-meta"><b>${formatBytes(item.sizeBytes)}</b>${risk}</span></label>`;}).join('')+(hasMore?`<button class="native-load-more" id="nativeLoadMore" type="button">${text('loadMore')}</button>`:'');
+      list.innerHTML=[...reviewItems.values()].map(item=>{const checked=selectedReviewIds.has(item.id)&&!item.duplicateKeepSuggested?'checked':'';const disabled=item.duplicateKeepSuggested?'disabled':'';const risk=item.autoCleanEligible?`<span class="native-risk low">${text('lowRisk')}</span>`:item.duplicateKeepSuggested?`<span class="native-risk keep">${text('protectedCopy')}</span>`:`<span class="native-risk">${text('needsReview')}</span>`;return `<label class="native-file-row"><input type="checkbox" data-review-id="${item.id}" ${checked} ${disabled}><span class="native-file-copy"><strong>${escapeHtml(item.name)}</strong><small>${escapeHtml(item.location||'')} · ${escapeHtml(reasonText(item.reasonCode))}${item.modifiedMs?` · ${escapeHtml(formatDate(item.modifiedMs))}`:''}</small></span><span class="native-file-meta"><b>${formatBytes(item.sizeBytes)}</b>${risk}</span></label>`;}).join('')+(hasMore?`<button class="native-load-more" id="nativeLoadMore" type="button">${text('loadMore')}</button>`:'');
     }
-    const bytes=[...selectedReviewIds].reduce((sum,id)=>sum+(Number(reviewItems.get(id)?.sizeBytes)||0),0);
     byId('nativeReviewCount').textContent=`${reviewTotal} ${text('review')}`; byId('nativeReviewBytes').textContent=formatBytes([...reviewItems.values()].reduce((sum,item)=>sum+(Number(item.sizeBytes)||0),0));
-    byId('nativeSelectedCount').textContent=`${selectedReviewIds.size} ${text('selected')}`; byId('nativeSelectedBytes').textContent=formatBytes(bytes); byId('nativeDeleteSelected').disabled=selectedReviewIds.size===0;
+    syncReviewCheckboxes();
+    updateReviewSelectionUi();
   }
 
   function escapeHtml(value){return String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
@@ -836,6 +898,7 @@
     if(target.id==='nativeLowRiskAction'||target.matches?.('[data-review-category]')){event.preventDefault();event.stopImmediatePropagation();const category=target.dataset.reviewCategory||target.closest?.('[data-review-category]')?.dataset.reviewCategory;if(category){closeResults();openReview(category);}return;}
     if(target.id==='nativeReviewBack'){event.preventDefault();event.stopImmediatePropagation();closeReview();openResults();return;}
     if(target.id==='nativeLoadMore'){event.preventDefault();event.stopImmediatePropagation();loadReviewPage(false);return;}
+    if(target.id==='nativeSelectAll'){event.preventDefault();event.stopImmediatePropagation();toggleSelectAllReview();return;}
     if(target.id==='nativeDeleteSelected'){event.preventDefault();event.stopImmediatePropagation();openDeleteConfirm();return;}
     if(target.id==='nativeConfirmCancel'){event.preventDefault();event.stopImmediatePropagation();closeConfirm();return;}
     if(target.id==='nativeConfirmDelete'){event.preventDefault();event.stopImmediatePropagation();performDelete();return;}
@@ -854,7 +917,12 @@
 
   document.addEventListener('change',(event)=>{
     const box=event.target?.closest?.('[data-review-id]'); if(!box)return;
-    const id=box.dataset.reviewId; if(box.checked)selectedReviewIds.add(id);else selectedReviewIds.delete(id); renderReviewList(reviewOffset<reviewTotal);
+    const id=box.dataset.reviewId; const item=reviewItems.get(id);
+    if(item?.duplicateKeepSuggested){box.checked=false;selectedReviewIds.delete(id);updateReviewSelectionUi();return;}
+    if(box.checked)selectedReviewIds.add(id);else selectedReviewIds.delete(id);
+    // Keep a checkbox toggle local. Rebuilding the whole list here would discard
+    // lazy media nodes and restart thumbnail work for an unchanged selection.
+    updateReviewSelectionUi();
   },true);
 
   window.addEventListener('bearagnostic:screenchange',(event)=>{const screen=event.detail?.screen||'home';syncHomeButton(screen);if(screen==='preferences')ensureNativePreferences();if(screen==='more')polishMoreScreen();});
