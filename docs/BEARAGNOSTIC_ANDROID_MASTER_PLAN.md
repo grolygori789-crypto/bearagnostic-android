@@ -2,8 +2,8 @@
 
 **Repository:** `grolygori789-crypto/bearagnostic-android`  
 **Canonical file:** `docs/BEARAGNOSTIC_ANDROID_MASTER_PLAN.md`  
-**Revision:** 1.0  
-**Initial issue date:** 8 September 2026  
+**Revision:** 2.0  
+**Revision date:** 9 September 2026  
 **Owner / Product Authority:** P’Benz  
 **Studio / Publisher:** Benedict Interactive  
 **Product & Development Lead:** Biu  
@@ -12,21 +12,21 @@
 
 ## 0. PURPOSE OF THIS DOCUMENT
 
-This document is the primary operating contract for the Android edition of Bearagnostic.
+This document is the primary operating contract for Bearagnostic for Android.
 
-It exists to keep the product, design, engineering, safety, localization, repository structure, QA, packaging, and release workflow aligned as the project grows.
-
-The Android edition must become a **premium, privacy-first, all-in-one junk file cleaner and file-health utility** that feels exceptionally expensive, refined, trustworthy, and effortless to use while remaining realistically buildable with an overall implementation complexity of **Medium or lower**.
+It exists to keep product direction, visual quality, Android engineering, cleanup safety, privacy, scan truthfulness, localization, monetization architecture, repository state, QA, packaging, and release work aligned as the product grows.
 
 The permanent engineering North Star is:
 
 > **Simple architecture. Exceptional execution. Zero unnecessary complexity.**
 
-The permanent product quality target is:
+The permanent product-quality target is:
 
-> **10/10 perceived quality, 10/10 clarity, 10/10 practical usefulness — without exceeding Medium implementation complexity.**
+> **10/10 perceived quality, 10/10 clarity, 10/10 practical usefulness.**
 
 Premium does not mean complicated. Every feature must earn its complexity.
+
+Bearagnostic must feel calm, intelligent, expensive, trustworthy, clinically clear, useful, and intentionally designed. It must never become a noisy “phone booster” that relies on fear, fake scores, or impossible performance claims.
 
 ---
 
@@ -34,129 +34,87 @@ Premium does not mean complicated. Every feature must earn its complexity.
 
 ## 1.1 GitHub-first rule
 
-Before proposing, designing, modifying, packaging, or evaluating any production change, the current repository on GitHub must be inspected first.
-
-The authoritative project memory is the production repository:
+Before proposing, designing, modifying, packaging, bug-fixing, or evaluating a substantive production change, inspect the current production repository first:
 
 `grolygori789-crypto/bearagnostic-android`
 
-Implementation must not be based on a stale local ZIP, an old attachment, an old code sample, or remembered chat history when the current GitHub repository can be inspected.
+At minimum, inspect:
 
-The current production repository is always the baseline for regression analysis.
+1. default branch and latest `main` commit;
+2. current tree;
+3. the current canonical Master Plan from GitHub;
+4. the actual files affected by the requested change;
+5. the latest relevant CI state;
+6. the known-good baseline and regression risk.
+
+Do not base implementation on a stale local ZIP, an old screenshot, an old attachment, remembered chat history, or a superseded build when current GitHub production is available.
+
+If the current canonical Master Plan cannot be retrieved, **stop substantive implementation** rather than silently using a stale copy.
 
 ## 1.2 Authority order
 
-When instructions or artifacts conflict, resolve them in this order:
+Resolve conflicts in this order:
 
-1. Latest explicit instruction from P’Benz.
-2. Current production repository on GitHub.
-3. This Master Plan.
-4. Current approved production assets and visual references.
-5. Older project discussions, historical packages, or superseded documentation.
+1. latest explicit instruction from P’Benz;
+2. current GitHub production;
+3. this current canonical Master Plan;
+4. current approved assets and references;
+5. older chat/history/packages.
 
-A new explicit instruction from P’Benz may override this Master Plan. When that happens, the Master Plan should be updated at the next appropriate opportunity so the repository becomes aligned again.
+When a new explicit instruction overrides this plan, update this same canonical file at the next appropriate opportunity.
 
-## 1.3 Repository-only continuity
+## 1.3 Remote-write rule
 
-Once this Master Plan is committed, future development must treat the repository itself as the durable source of project state.
+GitHub connector permissions never imply authorization to mutate the repository.
 
-Chat history may help explain a current instruction, but it must not silently override the repository.
+Default workflow:
 
-When the repository does not contain enough information for a materially important decision:
+`Inspect GitHub → modify locally → QA → package repo-relative changed files → P’Benz uploads manually → inspect uploaded commit → inspect CI`
 
-- inspect related production files first;
-- choose the most conservative non-regressive interpretation when safe;
-- ask P’Benz only when the missing decision materially changes product behavior, safety, architecture, or visual direction.
+Do not create, update, delete, push, merge, or otherwise mutate GitHub remotely unless P’Benz explicitly authorizes remote writes **in that same turn**.
 
 ---
 
-# 2. MASTER PLAN FILE GOVERNANCE
+# 2. CANONICAL FILE GOVERNANCE
 
-## 2.1 Permanent canonical filename
-
-The Master Plan must always remain at exactly:
+The Master Plan must remain at exactly:
 
 `docs/BEARAGNOSTIC_ANDROID_MASTER_PLAN.md`
 
-Every future Master Plan update must **overwrite this exact file**.
+Future updates must overwrite this file. Never create `v2`, `final`, `new`, `backup`, `copy`, dated variants, or other competing Master Plan files.
 
-Never create:
+The same canonical-path principle applies to production files generally. Update an existing canonical path instead of creating `new`, `new2`, `final`, `backup`, `old`, or similar duplicates.
 
-- `BEARAGNOSTIC_ANDROID_MASTER_PLAN_v2.md`
-- `BEARAGNOSTIC_ANDROID_MASTER_PLAN_FINAL.md`
-- `BEARAGNOSTIC_ANDROID_MASTER_PLAN_NEW.md`
-- dated duplicate copies;
-- backup copies in production;
-- revision-suffixed Master Plan files.
-
-Revision history belongs inside this canonical file, not in duplicate files.
-
-## 2.2 Revision policy
-
-When this Master Plan changes:
-
-- keep the same filename and path;
-- increment the internal revision number;
-- update the revision date;
-- summarize the meaningful governance change in the revision history;
-- overwrite the prior file.
-
-The repository should contain one current Master Plan, not a pile of historical variants.
-
-## 2.3 Canonical-path principle for all project files
-
-The same rule applies across the project:
-
-> If an existing production file can be updated in place, update the existing canonical path instead of creating a replacement file.
-
-Never use names such as:
-
-- `new`
-- `new2`
-- `v2`
-- `final`
-- `final-final`
-- `backup`
-- `old`
-- `copy`
-- temporary implementation suffixes
-
-unless the suffix is part of a deliberate permanent product architecture.
-
-Create a new file only when it has a genuinely distinct, durable responsibility.
-
-If a refactor makes a previous production file obsolete, the obsolete file must be explicitly removed rather than silently abandoned.
+Create a new file only when it has a durable and genuinely distinct responsibility.
 
 ---
 
-# 3. CURRENT PRODUCTION BASELINE AT REVISION 1.0
+# 3. CURRENT VERIFIED PRODUCTION SNAPSHOT — BATCH 19
 
-This section is a snapshot only. It must never override newer production.
+This section is a snapshot and must never override newer GitHub production.
 
-At the time this Master Plan was created, the verified GitHub production baseline was:
+As of 9 September 2026:
 
-- branch: `main`;
-- latest production commit: `4f3f867aac6ff36585bc413b716e939906d766dc`;
-- commit name: `Stabilize Android debug signing`;
-- Android version: `0.3.0-alpha03`;
-- `versionCode`: `3`;
-- application ID: `com.benedictinteractive.bearagnostic`;
-- debug package: `com.benedictinteractive.bearagnostic.debug`;
-- `compileSdk`: 36;
-- `targetSdk`: 36;
-- `minSdk`: 26;
-- Java compatibility: 17;
-- Android Gradle Plugin: 9.4.0;
-- CI Gradle: 9.6.0;
-- local packaged Web UI;
-- Kotlin native bridge;
-- broad-storage permission handoff;
-- real native `FileHealthScanner`;
-- stable development-only debug signing identity;
-- GitHub Actions debug APK pipeline;
-- latest inspected debug APK workflow completed successfully.
+- branch: `main`
+- latest commit: `6e3a24afea3153e4d8458c81ad659dd8b6f27f02`
+- commit message: `Fix review layout and support actions`
+- parent: `57a9a60f1c36592613b6841e4be587fd2575aa66`
+- Android version: `0.19.0-alpha19`
+- `versionCode`: `19`
+- application ID: `com.benedictinteractive.bearagnostic`
+- debug application ID: `com.benedictinteractive.bearagnostic.debug`
+- compileSdk: `36`
+- targetSdk: `36`
+- minSdk: `26`
+- Java compatibility: `17`
+- Native Bridge version: `8`
+- latest GitHub Actions debug APK run for B19: **SUCCESS**
+- B19 physical-device QA: **PENDING**
+- P’Benz has downloaded B19 and is about to test it.
 
-Future work must re-inspect GitHub rather than assuming this snapshot is still current.
+The latest B19 CI-success workflow is run #22, associated with commit `6e3a24a…`.
+
+Never call B19 physically verified until P’Benz supplies real device evidence.
 
 ---
 
@@ -166,316 +124,308 @@ Bearagnostic for Android is:
 
 > **A premium, privacy-first, all-in-one junk file cleaner and file-health assistant for Android.**
 
-It is not merely a scanner.
-
-It must help users:
-
-- understand what is consuming storage;
-- automatically identify cleanable clutter;
-- distinguish genuinely safe cleanup from risky deletion;
-- clean low-risk junk efficiently;
-- review ambiguous files intelligently;
-- manually inspect and remove files when desired;
-- understand exactly why Bearagnostic recommends keeping or deleting something.
-
-The product should feel like a high-end diagnostic and maintenance utility rather than a noisy “phone booster”.
-
-The emotional experience should be:
-
-- calm;
-- intelligent;
-- expensive;
-- trustworthy;
-- clinically clear;
-- fast;
-- reassuring without being childish;
-- useful without being intimidating.
-
----
-
-# 5. PRODUCT PROMISE
-
-Bearagnostic should make this promise truthfully:
+Product promise:
 
 > **Find clutter. Explain the risk. Clean with confidence.**
 
-The app must never use fear, fake urgency, fabricated junk totals, fake health scores, fake virus warnings, or fake system optimization claims to push cleanup.
+It must help users:
 
-The app should earn trust through evidence.
+- understand what consumes storage;
+- scan accessible shared storage honestly;
+- identify low-risk cleanup candidates;
+- verify exact duplicates using evidence;
+- distinguish junk confidence from deletion risk;
+- review ambiguous files intelligently;
+- clean selected files safely;
+- verify actual deletion;
+- see truthful before/after cleanup impact;
+- understand why an item should be kept, reviewed, or removed;
+- retain control at every destructive step.
 
----
-
-# 6. CORE OPERATING MODES
-
-## 6.1 One-Tap Smart Checkup
-
-The primary experience.
-
-User action:
-
-`Start Checkup`
-
-The app then:
-
-1. verifies required storage permission;
-2. discovers accessible user/shared storage;
-3. scans real files;
-4. analyzes metadata;
-5. identifies duplicate candidates;
-6. verifies duplicates when appropriate;
-7. classifies cleanup candidates;
-8. evaluates deletion risk;
-9. calculates truthful reclaimable space;
-10. presents a premium results screen;
-11. recommends next actions.
-
-The scan should require as little user effort as Android permits.
-
-## 6.2 Manual Clean
-
-Users must also be able to work manually without running a complete checkup.
-
-Manual mode should support:
-
-- category-based review;
-- folder browsing;
-- search;
-- sort;
-- filter;
-- multi-select;
-- manual delete;
-- targeted scan of a category or location when practical.
-
-Automatic intelligence must never remove user control.
+The app should feel like a high-end diagnostic and maintenance utility, not a commodity booster.
 
 ---
 
-# 7. PERFECT V1 — ALL-IN-ONE CAPABILITY SET
+# 5. EXPLICITLY REJECTED PRODUCT BEHAVIOR
 
-The target V1 capability set is deliberately broad enough to feel complete, while remaining within Medium complexity.
+Do not implement or market Bearagnostic as:
 
-## 7.1 One-Tap Smart Checkup
+- RAM booster;
+- memory cleaner;
+- CPU cooler;
+- fake speed booster;
+- battery booster;
+- kill-all background app tool;
+- fake antivirus;
+- root cleaner;
+- private-app-cache cleaner outside legitimate Android access;
+- registry cleaner;
+- fear-based “your phone is in danger” utility.
 
-Automatic scan of all user-accessible storage within Android’s legitimate permission boundaries.
+Do not display fabricated values such as:
 
-## 7.2 Quick Clean
+- “Phone speed +37%”;
+- fake health score;
+- fake junk totals;
+- fake scan percentages;
+- fake virus counts;
+- fake optimization success;
+- fake undo.
 
-A review-first cleanup experience that preselects only items meeting strict low-risk rules.
+Performance benefits may be described only when evidence supports them, for example reclaiming storage headroom or resolving storage pressure. Never imply CPU/RAM acceleration from file deletion without a measured, defensible basis.
 
-Quick Clean must never mean “delete anything Bearagnostic found”.
+---
 
-## 7.3 Duplicate Cleaner
+# 6. LEGACY HTML/PWA FRONTEND AS VISUAL SOURCE OF TRUTH
 
-Must use evidence, not filenames.
+## 6.1 Approved legacy repository
 
-Recommended detection pipeline:
+Legacy/PWA repository:
+
+`grolygori789-crypto/bearagnostic`
+
+Pinned approved commit:
+
+`78a31c7752e171c0eafb63c0d0859f4072a193d6`
+
+The Android build imports this legacy PWA and verifies critical Git blob SHA-1 values before packaging it.
+
+Android-specific behavior must be layered on through focused adapters/modules. Do not casually rewrite the approved visual shell.
+
+## 6.2 Critical visual/source contracts
+
+The approved experience includes:
+
+- Benedict Interactive opening;
+- Bearagnostic product opening;
+- original PWA app icon;
+- Bearagnostic wordmark and tagline;
+- original Home composition;
+- silver header gear;
+- Dr. Bear approved artwork;
+- Start Checkup hero;
+- quick tools:
+  - Cleanup
+  - Duplicates
+  - Large Files
+  - Older Files
+- File Health;
+- editorial still-life;
+- bottom navigation:
+  - Home
+  - Checkup
+  - Tools
+  - Insights
+  - More
+- Checkup visual scene;
+- six scan stages:
+  - Preparing
+  - File Details
+  - File Sizes
+  - Duplicates
+  - Modified Dates
+  - Finalizing
+- animated file tiles flying toward the tablet;
+- file-tile symbols for:
+  - document
+  - image
+  - video
+  - audio
+  - folder
+- original glass icons;
+- premium clinical/editorial styling.
+
+Do not redesign these simply because Android features are being added.
+
+## 6.3 App icon contract
+
+The launcher icon must come directly from the approved PWA source:
+
+`assets/icons/app-icon-192.png`
+
+Approved Git blob SHA-1:
+
+`f9cff58fc54e6b0525c7f74922b0588aca6a9a9d`
+
+Do not:
+
+- redraw;
+- regenerate;
+- crop differently;
+- zoom into the bear;
+- cut off the body/tablet/thumb;
+- replace with another Dr. Bear illustration;
+- use a screenshot crop.
+
+If adaptive masking is required, preserve the original composition inside the safe zone.
+
+---
+
+# 7. CURRENT ANDROID FRONTEND ASSEMBLY
+
+At B19, `app/build.gradle.kts`:
+
+- downloads the pinned legacy archive if not cached;
+- verifies critical legacy files/assets by Git blob SHA-1;
+- copies the approved PWA into generated Android assets;
+- injects focused Android scripts:
+  - `android-native.js?v=19`
+  - `android-review.js?v=19`
+  - `android-support.js?v=19`
+- copies native assets under generated `assets/native`;
+- creates the launcher resource directly from the approved PWA icon.
+
+This architecture exists specifically to prevent visual drift that occurred in earlier Android reimplementations.
+
+Do not replace it with a hand-rebuilt frontend without explicit approval and a strong architectural reason.
+
+---
+
+# 8. SCAN-MODE ARCHITECTURE
+
+Scope and depth are distinct concepts.
+
+## 8.1 Quick Scan
+
+Quick must scan **all accessible shared storage** within Android’s legitimate access boundary.
+
+Quick depth:
+
+- metadata;
+- lightweight deterministic rules;
+- no content read;
+- no duplicate hashing.
+
+Quick may legitimately finish fast, but it must never scan only a hidden subset while claiming whole accessible storage.
+
+## 8.2 Smart Scan
+
+Smart is the recommended default.
+
+Smart performs:
+
+- all accessible shared storage;
+- metadata/rule analysis;
+- bounded real content sampling on readable non-empty files;
+- focused exact duplicate verification in high-value locations where appropriate.
+
+## 8.3 Deep Scan
+
+Deep performs the deepest legitimate analysis supported by current architecture:
+
+- all accessible shared storage;
+- metadata/rules;
+- full streaming content read of every readable non-empty file;
+- exact duplicate verification across the accessible scope.
+
+No fake duration may be added. If Deep is fast, evidence must explain why.
+
+## 8.4 Custom Scan
+
+Custom lets the user choose shared-storage categories/locations and whether exact duplicate verification is needed.
+
+Current supported custom scopes include:
+
+- Downloads;
+- Photos;
+- Videos;
+- Documents;
+- Music.
+
+Future Custom evolution may allow explicit depth selection, provided complexity remains controlled.
+
+---
+
+# 9. SCAN TRUTH, EVIDENCE, AND PROGRESS
+
+No artificial `sleep`, minimum-duration trick, or animation pacing may be used to make a scan “look real.”
+
+Progress must derive from actual work.
+
+Useful evidence includes:
+
+- roots scanned;
+- directories visited;
+- files discovered;
+- files reviewed;
+- total bytes;
+- inaccessible folders;
+- unreadable files;
+- missing-during-scan files;
+- expected content bytes;
+- content bytes actually read;
+- content files probed;
+- fully read files;
+- partial reads;
+- read failures;
+- hashed files;
+- hashed bytes;
+- hash failures;
+- duplicate groups;
+- verified duplicate copies;
+- scan duration;
+- actual coverage status.
+
+Deep must not report complete/full coverage when actual full-read coverage is partial.
+
+When total work is unknown, use an honest indeterminate state rather than inventing a whole-device percentage.
+
+---
+
+# 10. FILE CLASSIFICATION AND CLEANUP CAPABILITY
+
+Perfect V1 must ultimately include first-class user experiences for:
+
+1. One-Tap Smart Checkup
+2. Quick Clean
+3. Exact Duplicate Cleaner
+4. Large Files
+5. Older Files
+6. Downloads
+7. Temporary / incomplete downloads
+8. APK installers
+9. Archives
+10. Empty folders
+11. Zero-byte files
+12. Screenshot/media review
+13. Manual file browser
+14. Storage overview
+15. Cleanup history
+16. Privacy dashboard
+
+The scanner currently recognizes many of these categories, but **scanner recognition does not automatically mean the dedicated UI/workflow is complete**. Do not overstate V1 completeness.
+
+---
+
+# 11. EXACT DUPLICATE RULE
+
+Duplicate detection must use evidence:
 
 `exact size → candidate group → streaming SHA-256 → verified duplicate`
 
 Rules:
 
-- exact duplicates must be byte-for-byte verified;
-- always retain at least one copy by default;
+- same size alone is not a duplicate;
+- filenames are not proof;
+- exact duplicate must be byte-for-byte verified;
+- keep at least one copy;
 - never auto-select every copy in a duplicate group;
-- do not call same-size files “duplicates” until verified.
-
-## 7.4 Large Files
-
-Surface files by configurable or sensible thresholds such as:
-
-- 100 MB+;
-- 500 MB+;
-- 1 GB+.
-
-Large does not mean junk.
-
-Large files are normally review candidates, not automatic cleanup.
-
-## 7.5 Old Files
-
-Surface files based on real modification timestamps.
-
-Useful filters may include:
-
-- 30 days;
-- 90 days;
-- 180 days;
-- 365 days+.
-
-Old does not automatically mean junk.
-
-## 7.6 Downloads Cleaner
-
-Downloads deserves a first-class cleanup experience.
-
-Useful categories:
-
-- old downloads;
-- APK installers;
-- archives;
-- documents;
-- images;
-- videos;
-- incomplete downloads;
-- other files.
-
-## 7.7 Temporary File Cleaner
-
-Rule-based detection of temporary or interrupted-download artifacts when evidence is strong.
-
-Examples may include carefully validated patterns such as:
-
-- `.tmp`
-- `.temp`
-- `.part`
-- `.partial`
-- `.crdownload`
-- known incomplete-download artifacts
-
-Do not use filename extensions alone when a rule could create meaningful false positives.
-
-## 7.8 APK Installer Cleaner
-
-Surface downloaded APK installation files.
-
-Explain clearly:
-
-- deleting an APK does not uninstall an already installed app;
-- deleting it removes the local installer copy;
-- keep it if the user may need the installer again.
-
-## 7.9 Archive Cleaner
-
-Surface archives such as ZIP and other supported archive formats.
-
-Archives should normally be review candidates because they may contain the only copy of important files.
-
-## 7.10 Empty Folder Cleaner
-
-Detect truly empty folders where Android access permits.
-
-Never mislabel inaccessible folders as empty.
-
-## 7.11 Zero-Byte File Cleaner
-
-Detect genuine zero-byte files.
-
-Classification must consider location and naming context before calling them safe.
-
-## 7.12 Screenshot and Media Review
-
-Provide a useful review surface for:
-
-- screenshots;
-- large photos;
-- large videos;
-- older media.
-
-This is a review tool, not a claim that media is junk.
-
-## 7.13 Manual File Browser
-
-Professional file review features:
-
-- browse;
-- search filename;
-- sort by size;
-- sort by date;
-- sort by type;
-- filter;
-- folder context;
-- multi-select;
-- delete;
-- clear selection;
-- inspect file details.
-
-## 7.14 Storage Overview
-
-Provide truthful storage information that can be derived reliably.
-
-Examples:
-
-- used space;
-- available space;
-- reviewed file totals;
-- broad user-file categories where classification is reliable.
-
-Avoid fake precision when Android cannot provide exact ownership/category information.
-
-## 7.15 Cleanup History and Privacy Dashboard
-
-Keep only useful aggregate history.
-
-Possible history:
-
-- cleanup date;
-- files successfully removed;
-- bytes actually reclaimed;
-- category totals.
-
-Do not persist:
-
-- file contents;
-- complete file trees;
-- unnecessary full paths;
-- hashes;
-- sensitive filenames;
-- behavioral tracking profiles.
-
-Privacy Dashboard should make the local-first model obvious.
+- verified duplicate reclaimable space equals only extra copies that can be safely removed while preserving at least one.
 
 ---
 
-# 8. JUNK CLASSIFICATION ENGINE
+# 12. JUNK CONFIDENCE AND DELETION RISK
 
-A cleaner becomes trustworthy only when it distinguishes evidence from guesswork.
+These are separate concepts.
 
-Bearagnostic must not treat every old, large, or unfamiliar file as junk.
+## 12.1 Junk-confidence concepts
 
-## 8.1 Junk confidence
+- Verified / Safe Candidate
+- Likely Junk
+- Review Candidate
+- Not Junk / Keep
 
-Recommended logical confidence levels:
-
-### VERIFIED / SAFE CANDIDATE
-
-Strong deterministic evidence supports cleanup.
-
-Examples may include:
-
-- verified duplicate extra copy;
-- truly empty folder under an approved safe rule;
-- validated stale temporary artifact.
-
-### LIKELY JUNK
-
-Evidence is strong but not absolute.
-
-User review may still be appropriate depending on risk.
-
-### REVIEW CANDIDATE
-
-The item may be unnecessary, but Bearagnostic does not have enough evidence to call it junk.
-
-Examples:
-
-- old archive;
-- old download;
-- very large personal video;
-- backup-like file.
-
-### NOT JUNK / KEEP
-
-The app has no cleanup justification.
-
----
-
-# 9. DELETION RISK ENGINE
-
-Junk confidence and deletion risk are different concepts and must remain separate.
-
-A file can look unnecessary while still being risky to delete.
-
-Recommended risk levels:
+## 12.2 Deletion-risk levels
 
 - `0 — Safe`
 - `1 — Low Risk`
@@ -483,1017 +433,682 @@ Recommended risk levels:
 - `3 — High Risk`
 - `4 — Protected / Never Auto-Select`
 
-## 9.1 Recommendation policy
-
-### Safe
-
-- may be auto-selected by Quick Clean when the cleanup rule explicitly allows it;
-- clear explanation still available.
-
-### Low Risk
-
-- may be auto-selected only when the rule is mature and evidence is strong;
-- should show a short consequence explanation.
-
-### Review
-
-- never auto-select by default;
-- user must deliberately choose it.
-
-### High Risk
-
-- never auto-select;
-- show warning icon;
-- explain likely consequence;
-- require stronger confirmation if the user chooses deletion.
-
-### Protected
-
-- do not recommend deletion;
-- do not auto-select;
-- normally disable deletion from cleanup recommendation surfaces.
-
-## 9.2 Risk explanation UX
-
-Risk must be communicated in plain language.
-
-Example:
-
-> **Deletion risk**  
-> This archive may contain files that are not stored anywhere else.  
-> If deleted, you may lose the only packaged copy.  
-> **Recommendation: Review before deleting.**
-
-Another example:
-
-> **Verified duplicate**  
-> This file is byte-for-byte identical to another copy.  
-> **Recommendation: Keep one copy and remove the extras.**
-
-Warnings must explain consequences, not merely display a scary icon.
+Large, old, APK, archive, media, and unfamiliar files are not junk merely because of size, age, extension, or location.
 
 ---
 
-# 10. RECOMMENDATION ENGINE
+# 13. TRUST AND ADVICE UX
 
-Final recommendation should derive from at least:
+Bearagnostic must actively help users understand decisions, especially beginners.
 
-`Junk Confidence + Deletion Risk + File Context`
+Every important cleanup category should explain:
 
-Optional additional inputs may include:
+1. what the category means;
+2. why Bearagnostic surfaced it;
+3. what can happen if it is deleted;
+4. the recommended action.
 
-- age;
-- file size;
-- location;
-- extension/type;
-- duplicate verification;
-- download state;
-- whether another safe copy exists;
-- whether the user explicitly selected the item.
+Primary UX language:
 
-Recommendation must remain rule-based and explainable in V1.
+- **Safe to clean**
+- **Review first**
+- **Protected**
 
-An AI backend is not required.
+Examples:
 
-Dr. Bear may present human-friendly summaries generated from deterministic results, for example:
+**Exact duplicates**  
+Verified identical copies. Keep at least one copy.
 
-> “Most of the reclaimable space is coming from verified duplicate videos and old installers.”
+**Large files**  
+Large does not mean junk. Review videos, work files, backups, and other context first.
 
-The sentence must be supported by actual scan results.
+**Older files**  
+Age alone is not a reason to delete.
 
----
+**APK installers**  
+Deleting a downloaded APK does not uninstall an already installed app; it removes the installer copy.
 
-# 11. RECLAIMABLE SPACE TRUTH
+**Archives**  
+An archive may be the only packaged copy of important files.
 
-Never exaggerate reclaimable storage.
+**Zero-byte files**  
+Some apps use empty marker/placeholder files; review location/context.
 
-Bearagnostic should distinguish concepts such as:
-
-- **Ready to clean** — low-risk selected/eligible items;
-- **Potential cleanup** — review candidates;
-- **Large files found** — not inherently reclaimable;
-- **Verified duplicate space** — space represented by extra verified copies.
-
-Example:
-
-If Large Files totals 8 GB but none are classified as junk, Bearagnostic must not claim “8 GB can be cleaned”.
-
-Actual reclaimed space after deletion must be calculated from successful deletions, not intended deletions.
+Safety explanations and warnings are a fundamental protection layer and must **never be paywalled**.
 
 ---
 
-# 12. CLEANUP SAFETY FLOW
+# 14. DESTRUCTIVE FLOW
 
-The default destructive flow is:
+Default destructive flow:
 
 `Select → Review → Confirm → Delete → Verify → Summary`
 
-## 12.1 Quick Clean
+Rules:
 
-Quick Clean may preselect low-risk items, but the user still receives a final confirmation before destructive deletion.
-
-## 12.2 Manual deletion
-
-Manual selection is allowed, including higher-risk items, but appropriate warnings must be shown.
-
-## 12.3 Deletion verification
-
-After deletion:
-
-- verify actual success;
-- report partial failures truthfully;
-- count reclaimed bytes only for files confirmed removed;
-- never show a fake success state.
-
-## 12.4 Undo / trash claims
-
-Do not promise undo unless Bearagnostic is actually using an OS-backed trash mechanism for that exact item.
-
-If deletion is permanent, say so clearly before confirmation.
+- no silent destructive deletion;
+- low-risk preselection is allowed only under mature, explicit rules;
+- final confirmation remains required;
+- high-risk items need stronger warning;
+- protected items are not recommended for deletion;
+- native deletion accepts only IDs from the current in-memory review snapshot;
+- duplicate-group safeguard must retain at least one existing copy;
+- reclaimed bytes count only successful, verified deletion;
+- partial failures must be reported;
+- no fake undo claim.
 
 ---
 
-# 13. ANDROID PLATFORM TRUTH
+# 15. LIVE RESULT STATE
 
-Bearagnostic must operate strictly within legitimate Android capabilities.
+Results must be live, not a frozen snapshot after deletion.
 
-The app may scan and manage user-accessible/shared storage after appropriate user permission.
+After verified deletion:
 
-It must never claim universal access to:
-
-- private internal data of other apps;
-- protected system storage;
-- every Android cache;
-- every app’s private cache;
-- root-only files;
-- system registry-like data.
-
-Protected locations must remain protected.
-
-Policy-sensitive permissions, storage behavior, Play Store requirements, SDK requirements, and restricted APIs must be re-verified against current official Android / Google Play documentation when implementation or release decisions depend on them.
-
-Do not freeze changing platform-policy details into product claims.
+- category counts must decrease;
+- category byte totals must decrease;
+- zero-count categories may disappear;
+- Checkup/result counters should synchronize where appropriate;
+- reclaimed space must reflect actual verified deletion;
+- “scan again” is only needed for a fresh whole-device rescan, not to correct stale UI values that could have been updated directly.
 
 ---
 
-# 14. FUNCTIONS DELIBERATELY OUT OF SCOPE FOR V1
+# 16. POST-CLEANUP IMPACT
 
-To preserve truth, quality, and Medium complexity, do not turn Bearagnostic into a collection of fake “optimizer” features.
+Bearagnostic may present a premium before/after “Cleanup Impact” experience using measurable values only.
 
-Do not implement V1 features such as:
+Allowed examples:
 
-- RAM booster;
-- memory cleaner;
-- CPU cooler;
-- fake battery booster;
-- kill-all-background-apps;
-- antivirus claims without a real security engine;
-- root cleaner;
-- private-app cache cleaner claims;
-- registry cleaner terminology;
-- cloud scanning backend;
-- behavioral advertising;
-- account system;
-- social features;
-- always-on background surveillance;
-- heavy machine-learning infrastructure.
+- verified bytes reclaimed;
+- free storage before/after;
+- files removed;
+- verified duplicate copies resolved;
+- protected copies kept;
+- percentage of known low-risk cleanup resolved, where the denominator is explicit and factual.
 
-Possible future features must be evaluated against the same product-value / complexity test.
+Disallowed:
 
----
+- fabricated “speed improved %”;
+- fabricated device-health score;
+- unsupported CPU/RAM performance claims.
 
-# 15. COMPLEXITY CEILING
+Share Result is encouraged as a privacy-safe free feature. Shared data should be aggregate only, for example:
 
-## 15.1 Hard rule
+- space reclaimed;
+- files removed;
+- duplicate copies resolved;
+- storage headroom before/after.
 
-The project must remain at **Medium implementation complexity or lower** unless P’Benz explicitly changes this constraint.
+Never share:
 
-## 15.2 Preferred architecture
-
-Favor the current hybrid architecture:
-
-- Kotlin for Android-only capabilities;
-- local packaged HTML/CSS/JavaScript for premium interface work where appropriate;
-- narrow native ↔ Web bridge;
-- small cohesive native classes;
-- deterministic local rules;
-- local storage only when needed;
-- GitHub Actions for repeatable APK builds.
-
-## 15.3 Avoid architecture inflation
-
-Do not add complexity merely because a pattern is fashionable.
-
-Avoid unless demonstrably necessary:
-
-- unnecessary multi-module architecture;
-- excessive abstraction layers;
-- dependency-injection frameworks for a small codebase;
-- complex reactive architecture without product need;
-- backend services;
-- microservices;
-- NDK/C++;
-- large external SDKs;
-- persistent databases where simple aggregate storage is sufficient;
-- redundant manager/service/repository classes that merely forward calls.
-
-A small number of strong, clearly owned components is preferred.
-
-## 15.4 Native responsibility boundaries
-
-A clean V1 structure may reasonably center on responsibilities such as:
-
-- `MainActivity`
-- `NativeBridge`
-- `StorageAccessController`
-- `FileHealthScanner`
-- `JunkClassifier`
-- `CleanupEngine`
-
-New classes should be added only when they carry a distinct responsibility that would otherwise make an existing file unsafe or unmaintainable.
+- filenames;
+- paths;
+- hashes;
+- private file metadata.
 
 ---
 
-# 16. PERFORMANCE REQUIREMENTS
+# 17. DR. BEAR FUNCTIONAL ILLUSTRATION SYSTEM
 
-The app must feel fast even when scanning large storage.
+Dr. Bear is a trust/guidance system, not random decoration.
+
+Approved mapping:
+
+- `drbear-inspect` → scan mode, analysis, diagnostic/insight contexts;
+- `drbear-review` → uncertainty, review-needed, empty/incomplete/permission contexts;
+- `drbear-success` → successful cleanup, all-good, completion, thank-you;
+- `drbear-caution` → destructive confirmation, warning, protected/high-risk action;
+- full Bearagnostic brand illustration/logo → launch, About, brand/promo/share surfaces only.
+
+Rules:
+
+- use illustrations sparingly;
+- never make an action workspace less usable just to show mascot art;
+- do not place mascot art in a file-review list if it steals space from the actual task;
+- preserve approved artwork; do not casually redraw/crop/reinterpret it.
+
+B19 intentionally removes the mascot/advice block from the file-review workspace to maximize useful file-list area.
+
+---
+
+# 18. RESULTS AND REVIEW SURFACES
+
+Results should answer immediately:
+
+1. What did Bearagnostic find?
+2. What should I do first?
+3. What needs caution?
+
+Results should be a premium decision dashboard, not merely totals.
+
+File Review is an action workspace:
+
+- compact title/summary;
+- large scrollable file-list area;
+- clear selection state;
+- clear risk language;
+- fixed action footer;
+- no visual clutter or unrelated marketing art;
+- no underlying Checkup scene bleeding through.
+
+B19 introduces a dedicated `android-review.js` to enforce this workspace behavior.
+
+---
+
+# 19. HOME EVOLUTION
+
+The original Home remains the approved visual baseline, but Android capabilities have grown and Home should evolve carefully.
+
+Future Home may surface:
+
+- Storage Headroom;
+- Last Checkup;
+- Space Reclaimed;
+- Recommended Next Action;
+- Since Last Checkup;
+- concise cleanable-item summary.
+
+Do not put every tool on Home.
+
+Maintain disciplined hierarchy:
+
+- primary Checkup action;
+- four high-value quick tools;
+- File Health / Storage Overview;
+- contextual recommendation;
+- bottom navigation.
+
+The full catalog belongs under Tools.
+
+---
+
+# 20. INSIGHTS EVOLUTION
+
+Insights must never invent data.
+
+Once real local history exists, useful Insights may include:
+
+- cleanup-history aggregates;
+- reclaimed-space trend;
+- free-storage trend;
+- category growth;
+- comparison with last checkup;
+- evidence-based recommendations.
+
+Future Pro features may include:
+
+- Space Guard;
+- scheduled checkup/monitoring consistent with Android restrictions and policy.
+
+No filename/path history should be stored merely for analytics.
+
+---
+
+# 21. MORE / PREFERENCES / NAVIGATION
+
+## 21.1 More
+
+Native Android should use a purposeful title such as:
+
+`Settings & Support`
+
+Do not repeat the word “Bearagnostic” as a redundant second-level heading directly beneath the main Bearagnostic header.
+
+`Close Bearagnostic` is not a useful native-Android product action and should remain hidden/removed.
+
+Version/build labels must come from current runtime/build state and never display stale legacy PWA versions.
+
+## 21.2 Preferences
+
+Preferences should use available space meaningfully without padding it with decorative clutter.
+
+Native-relevant groups include:
+
+- Language;
+- Motion;
+- Scan & Analysis;
+- Cleanup Safety;
+- Privacy & Access;
+- storage permission status;
+- app/version information;
+- future Plan & Subscription.
+
+Legacy browser-only settings such as “Browser Full Screen” do not belong in the native app.
+
+## 21.3 Header actions
+
+When Checkup hides bottom navigation, Home and Settings/Gear should form one balanced action cluster with professional spacing and optical weight.
+
+Do not show redundant Home shortcuts on every screen when bottom navigation/back navigation already solves the task.
+
+---
+
+# 22. SUPPORT AND EXTERNAL ACTIONS
+
+Support is voluntary and must never change analysis quality, limits, safety, or cleanup recommendations unless the commercial model is explicitly redesigned later.
+
+Current B19 support architecture:
+
+- `android-support.js` captures legacy PWA support actions;
+- Ko-fi opens via native `ACTION_VIEW` through an allow-list;
+- PromptPay “Open QR” opens an allow-listed HTTPS URL externally;
+- PromptPay “Save QR” uses native Android `DownloadManager`;
+- Android <= P requests legacy write permission before saving;
+- saved QR goes to public Downloads.
+
+Current pinned PromptPay QR source:
+
+`https://raw.githubusercontent.com/grolygori789-crypto/little-ganesha-tarot/f21e6a4c81812276d661d6ebb0a3e6c86c6cf48b/assets/support/promptpay-qr.png`
+
+Important: as of B19, the QR is **not** bundled fully local inside the APK. Do not claim otherwise.
+
+Future release hardening may replace this with a verified local-bundled QR if that improves reliability and privacy without unnecessary complexity.
+
+External URL opening must remain allow-listed.
+
+---
+
+# 23. PRIVACY MODEL
+
+Default posture:
+
+- local-first;
+- file analysis stays on device;
+- no upload of file contents;
+- no remote filename inventory;
+- no behavioral ad SDK;
+- no hidden telemetry;
+- no account requirement for core cleaning;
+- no persistent complete file tree;
+- no unnecessary persistent hashes;
+- no sensitive filename/path analytics.
+
+Minimal aggregate history is acceptable when it improves the product.
+
+Network use must be explicit and narrow, for example:
+
+- user-initiated support links;
+- future Google Play Billing;
+- other clearly disclosed user-requested functions.
+
+---
+
+# 24. FREE / PRO ARCHITECTURE
+
+The product is planned to support Free and Pro.
+
+Do not bolt monetization onto the UI at the end. Use a centralized entitlement layer before Billing.
+
+Never scatter ad-hoc `if (pro)` checks throughout unrelated code.
+
+## 24.1 Planned Free tier
+
+Free should deliver real value, potentially including:
+
+- Quick;
+- basic/reasonably limited Smart;
+- basic cleanup;
+- safety advice;
+- risk warnings;
+- confirmation;
+- Share Result;
+- basic history/insights.
+
+## 24.2 Planned Pro tier
+
+Pro may include:
+
+- unlimited Smart;
+- Deep;
+- Custom;
+- advanced review/filter;
+- richer history;
+- richer Insights;
+- Space Guard;
+- scheduled checkups;
+- complete advanced toolset.
+
+## 24.3 Never paywall safety
+
+Never paywall:
+
+- deletion-risk explanations;
+- protected-item logic;
+- confirmation;
+- duplicate keep-one-copy safeguard;
+- consequence warnings;
+- truthful scan/coverage status.
+
+Pricing, billing period, trial/offer structure, and final entitlement boundaries are not yet locked and must not be invented.
+
+---
+
+# 25. GOOGLE PLAY AND RELEASE TRUTH
+
+Bearagnostic is intended for Google Play.
+
+Before release:
+
+- verify current Google Play policy using current official sources;
+- pay particular attention to broad storage / `MANAGE_EXTERNAL_STORAGE`;
+- verify whether the app’s core file-management purpose satisfies current policy;
+- ensure Data Safety answers match actual behavior;
+- use a proper production release signing identity;
+- do not ship the public development debug keystore as the Play release identity;
+- test release/AAB behavior separately from debug APK;
+- verify Billing using current Google Play Billing guidance before monetization.
+
+Current stable debug signing exists only for development continuity.
+
+---
+
+# 26. PERFORMANCE ENGINEERING
 
 Requirements:
 
-- no heavy filesystem work on the UI thread;
-- avoid Android ANRs;
-- iterative directory traversal where appropriate;
-- streaming file hashing;
-- never load a huge file fully into memory merely to hash it;
-- hash duplicate candidates only after cheap filtering such as exact size;
-- cooperative cancellation;
-- throttled progress updates;
-- bounded memory behavior;
-- graceful handling of unreadable files;
-- graceful handling of disappearing files during scan;
-- no crash when media/storage changes while scanning.
+- filesystem work off the UI thread;
+- iterative traversal;
+- streaming reads/hashing;
+- bounded memory;
+- cancellation;
+- progress throttling;
+- graceful inaccessible-file handling;
+- temporary inventory cleanup;
+- no whole-file in-memory hashing for large files;
+- no fake waiting.
 
-Performance optimizations must remain understandable and maintainable.
+A scan completing quickly is not itself a defect if the work/evidence proves it is real. A scan completing quickly while silently skipping intended scope is a defect.
 
 ---
 
-# 17. PROGRESS TRUTH
+# 27. LOCALIZATION
 
-Never fabricate whole-device scan percentages.
-
-When total work is unknown:
-
-- use indeterminate progress;
-- show real counters;
-- show real current stage.
-
-When total work becomes measurable:
-
-- use progress derived from real work, such as bytes hashed or items processed.
-
-Completion must only be displayed after the corresponding native work has actually completed.
-
----
-
-# 18. LOCAL-FIRST PRIVACY
-
-The default architecture is local-first.
-
-Principles:
-
-- file analysis occurs on device;
-- no selected file contents uploaded;
-- no remote filename inventory;
-- no behavioral analytics;
-- no advertising SDK;
-- no account required for core cleaner functionality;
-- no hidden telemetry;
-- persist the minimum necessary information.
-
-The app should be able to say truthfully, in natural localized language, that files are analyzed locally and are not uploaded by the current app architecture.
-
-Any future network feature requires explicit product approval and a privacy review.
-
----
-
-# 19. VISUAL NORTH STAR
-
-Bearagnostic must look and feel significantly more premium than typical Android cleaner apps.
-
-The visual target is:
-
-> **Premium Clean Clinical Editorial**
-
-Desired qualities:
-
-- expensive;
-- calm;
-- editorial;
-- modern;
-- warm;
-- precise;
-- breathable;
-- clinical without looking sterile;
-- friendly without becoming childish.
-
-Preferred visual language:
-
-- warm/off-white surfaces;
-- deep navy / charcoal typography;
-- restrained cyan-to-blue accents;
-- selective mint, violet, or amber for semantic states;
-- soft high-quality shadows;
-- subtle borders;
-- disciplined corner radii;
-- generous negative space;
-- refined system typography with a tasteful editorial serif accent where appropriate.
-
-Avoid:
-
-- cheap neon;
-- gaming aesthetics;
-- exaggerated glass everywhere;
-- rainbow gradients;
-- random card styles;
-- sticker-like UI;
-- excessive glow;
-- crowded dashboards;
-- “booster app” visual clichés;
-- warning-red overload;
-- childish mascot treatment.
-
----
-
-# 20. DR. BEAR
-
-Dr. Bear is a trust and guidance character, not decoration that competes with usability.
-
-Possible states:
-
-- Master / Neutral;
-- Scanning;
-- Concerned;
-- Approved;
-- Deadpan Warning.
-
-Dr. Bear may:
-
-- explain results;
-- summarize the biggest cleanup opportunity;
-- clarify risk;
-- reassure when storage is healthy;
-- guide first-run permission.
-
-Dr. Bear must never:
-
-- cover essential controls;
-- create visual clutter;
-- make unsupported claims;
-- exaggerate danger;
-- pressure the user into deleting files.
-
----
-
-# 21. UX PRINCIPLES
-
-Every primary action should be understandable without interpretation.
-
-The user should not need to understand Android filesystem terminology to use the app safely.
-
-## 21.1 Home
-
-Home should remain visually disciplined.
-
-Recommended hierarchy:
-
-1. Bearagnostic identity / settings access.
-2. Primary `Start Checkup`.
-3. Compact quick access to the highest-value tools:
-   - Duplicates
-   - Large Files
-   - Old Files
-   - Downloads
-4. File Health / Storage Overview.
-5. Secondary navigation to the full tool set.
-
-Quick Clean remains a core capability but does not need to compete with Start Checkup as a second giant Home CTA.
-
-## 21.2 Tools
-
-Tools can expose the complete utility set without crowding Home.
-
-Recommended tool groups:
-
-- Quick Clean
-- Duplicates
-- Large Files
-- Old Files
-- Downloads
-- Temporary Files
-- APK Installers
-- Archives
-- Screenshots / Media Review
-- Empty Folders
-- Zero-Byte Files
-- File Browser
-
-## 21.3 Touch and layout
-
-- portrait-first;
-- safe-area aware;
-- no horizontal overflow;
-- comfortable one-hand interaction;
-- touch targets generally at least 44 dp equivalent;
-- no critical action placed too close to system navigation;
-- reduced-motion support;
-- excellent readability on common Android phone widths;
-- no essential information dependent only on color.
-
----
-
-# 22. LANGUAGE AND LOCALIZATION STANDARD
-
-Launch languages:
+Supported interface languages:
 
 - English
 - Japanese
 - Thai
 
-Every user-visible sentence must sound as if written by a highly fluent native product writer.
+Any visible copy addition/change must be reviewed in all three languages.
 
-Translation quality is a release-level quality requirement.
+Do not allow a new Android overlay/module to become English-only unless explicitly marked as a temporary development surface that will not be shipped.
 
-## 22.1 General rules
-
-All languages must be:
-
-- extremely natural;
-- concise;
-- immediately understandable;
-- culturally normal;
-- free from machine-translation structure;
-- free from technical ambiguity;
-- easy to understand without rereading.
-
-Do not translate word-for-word when native product language requires different phrasing.
-
-Do not force English terminology into Thai or Japanese when a natural local expression is clearer.
-
-Do not over-explain simple actions.
-
-## 22.2 English
-
-Use polished, idiomatic consumer software English.
-
-Avoid corporate jargon and unnatural technical phrasing.
-
-## 22.3 Japanese
-
-Use concise natural Japanese UI language.
-
-Avoid literal English syntax and unnecessarily formal or robotic wording.
-
-## 22.4 Thai
-
-Use fluent contemporary Thai that is immediately understandable.
-
-Avoid awkward calques, excessive formality, and ambiguous technical wording.
-
-## 22.5 Localization QA
-
-A production batch touching visible text must review all affected EN / JA / TH strings together.
-
-Missing or obviously machine-like localization is a release blocker for that surface.
+Thai text should be natural, not literal machine-style translation.
 
 ---
 
-# 23. ACCESSIBILITY AND CLARITY
-
-Premium quality includes accessibility.
+# 28. ACCESSIBILITY AND RESPONSIVE QUALITY
 
 Requirements:
 
-- strong readable contrast;
-- semantic warning states;
-- large enough type;
-- clear button labels;
-- visible focus/accessibility semantics where supported;
-- meaningful screen-reader labels for key actions;
-- reduced motion;
-- no important distinction conveyed by color alone;
-- confirmations that name the actual destructive action.
+- portrait-first;
+- no horizontal overflow;
+- safe areas respected;
+- touch targets comfortable;
+- readable text on common Android phone widths;
+- reduced-motion support;
+- no meaning conveyed by color alone;
+- critical actions not too close to system navigation;
+- high enough contrast for practical use;
+- screens should use available space intentionally;
+- no large dead zones that make a production surface look unfinished;
+- no excessive scrolling where a carefully composed single-screen view is expected.
+
+Premium means hierarchy and restraint, not density for its own sake.
 
 ---
 
-# 24. ERROR HANDLING
+# 29. REGRESSION-PROTECTION POLICY
 
-The app must fail gracefully.
+Any change with meaningful regression risk needs a fallback/rollback plan before implementation.
 
-Examples:
+Before editing:
 
-- permission not granted;
-- file becomes unavailable during scan;
-- folder cannot be read;
-- hash read fails;
-- deletion fails;
-- removable storage disappears;
-- scan is cancelled;
-- activity resumes after permission screen;
-- WebView bridge is temporarily unavailable.
+1. identify the known-good baseline;
+2. inspect the actual affected files;
+3. define a changed-file allowlist;
+4. state LOW / MEDIUM / HIGH risk;
+5. identify stable behavior that must not change;
+6. prefer isolated, minimally invasive modifications.
 
-Errors should be:
+Do not “fix” a local issue by rebuilding unrelated stable systems.
 
-- clear;
-- non-technical unless details are requested;
-- recoverable when possible;
-- honest.
+Critical protected areas include:
 
-Do not show success when only part of an operation succeeded.
+- app launch;
+- Benedict Interactive opening;
+- product opening;
+- original app icon;
+- Home composition;
+- core PWA visual language;
+- scanner scope/evidence;
+- destructive safeguards;
+- support actions;
+- working CI/build pipeline.
 
----
-
-# 25. NO-REGRESSION RULE
-
-Regression prevention is mandatory.
-
-A new feature is not successful if it breaks a known-good existing flow.
-
-Before modifying production:
-
-1. inspect current GitHub `main`;
-2. identify the current app/build version;
-3. inspect affected runtime files;
-4. understand existing behavior;
-5. define a changed-file allowlist;
-6. classify regression risk;
-7. preserve known-good behavior outside the scope;
-8. test the affected flows;
-9. review the diff for accidental unrelated changes.
-
-Never refactor a stable system merely to make code “cleaner” unless the refactor provides a clear product, safety, or maintainability benefit.
-
-When a feature can be added without disturbing a stable subsystem, prefer that approach.
+If risk cannot be controlled, redesign or split the batch.
 
 ---
 
-# 26. BATCH RISK LEVELS
-
-Use:
-
-- `LOW`
-- `MEDIUM`
-- `HIGH`
-
-Examples:
-
-### LOW
-
-- copy refinement;
-- isolated CSS correction;
-- documentation;
-- non-runtime visual polish.
-
-### MEDIUM
-
-- scanner logic;
-- classification;
-- new read-only file analysis;
-- native bridge expansion;
-- new results UI.
-
-### HIGH
-
-- destructive cleanup;
-- permission model changes;
-- signing changes;
-- large architecture replacement;
-- release signing;
-- data migration.
-
-HIGH-risk batches must include an explicit rollback plan and stronger QA.
-
----
-
-# 27. BUILD AND VERSION GOVERNANCE
-
-Runtime changes must maintain coherent app versioning.
-
-Requirements:
-
-- increment `versionCode` for a new installable Android build;
-- increment `versionName` consistently;
-- visible build/version information must match actual packaged production;
-- CI and source must not disagree about build identity.
-
-Documentation-only updates do not require an Android runtime version bump unless they also change production runtime.
-
-Build mismatch is a blocker.
-
----
-
-# 28. DEVELOPMENT SIGNING
-
-The debug package is development-only:
-
-`com.benedictinteractive.bearagnostic.debug`
-
-The repository currently uses a stable development signing identity so CI-built debug APKs can update previous debug APKs during development.
-
-Rules:
-
-- development signing may remain stable;
-- development signing must never be treated as release signing;
-- production / Play release signing must use a separate protected identity;
-- never commit the future production signing key to the public repository;
-- never reuse development credentials for release.
-
----
-
-# 29. CI / APK WORKFLOW
-
-The expected development loop is:
-
-`GitHub source → GitHub Actions → Debug APK artifact → Install/Update → Physical test`
-
-After stable debug signing:
-
-`new build → install as update over existing debug app`
-
-Routine development should not require uninstalling the app every batch.
-
-If Android refuses an update, investigate:
-
-- package identity;
-- signing identity;
-- version code;
-- corrupted artifact;
-- incompatible installed build.
-
-Do not normalize uninstall/reinstall as the permanent development workflow.
-
----
-
-# 30. QA STANDARD
-
-Never claim a type of QA that was not actually performed.
-
-## 30.1 Static / local validation
-
-Examples:
-
-- Kotlin syntax/type checks where practical;
-- JavaScript syntax;
-- HTML structure;
-- XML parsing;
-- duplicate ID checks;
-- package path checks;
-- no obvious destructive code in read-only batches.
-
-## 30.2 CI validation
-
-GitHub Actions must be green before calling a new Android source batch compile-verified.
-
-## 30.3 Physical-device validation
-
-Only claim physical-device PASS after actual device testing.
-
-Relevant device checks include:
-
-- APK installation/update;
-- launch;
-- permission handoff;
-- resume after settings;
-- storage traversal;
-- cancellation;
-- duplicate verification;
-- large-file handling;
-- cleanup confirmation;
-- real deletion;
-- partial deletion failure;
-- UI on real Android;
-- EN / JA / TH;
-- OEM-specific behavior when relevant.
-
-## 30.4 Truthful QA wording
-
-Use precise labels such as:
-
-- `Static QA: PASS`
-- `CI compile: PASS`
-- `Physical Android test: NOT YET TESTED`
-
-Never collapse these into a vague “fully tested”.
-
----
-
-# 31. PACKAGING CONTRACT
-
-This contract applies every time files are delivered to P’Benz for manual GitHub upload.
-
-## 31.1 Repository-relative ZIP
-
-The ZIP root must represent the repository root.
-
-Never add an unnecessary wrapper folder such as:
-
-`bearagnostic-update-05/app/...`
-
-Instead the ZIP must contain:
-
-`app/...`
-`docs/...`
-
-directly as repository-relative paths.
-
-## 31.2 Changed files only
-
-Prefer packaging only:
-
-- changed canonical files;
-- genuinely new durable files.
-
-Do not resend the entire repository unless there is a concrete reason.
-
-## 31.3 Overwrite existing files
-
-When an update modifies an existing file:
-
-- package it under the exact existing path;
-- instruct P’Benz to Replace / Overwrite;
-- do not create a parallel version.
-
-## 31.4 Master Plan updates
-
-Every Master Plan package must contain:
-
-`docs/BEARAGNOSTIC_ANDROID_MASTER_PLAN.md`
-
-with the same name every time.
-
-The new copy overwrites the old copy.
-
-## 31.5 No transient repository clutter
-
-Do not create permanent production files solely to communicate one-time upload instructions, checksums, or packaging notes unless they have durable project value.
-
-One-time packaging information belongs in the delivery message, not as production repository clutter.
-
-Existing transient files should not be duplicated further.
-
-## 31.6 Hidden files
-
-If a canonical hidden file such as `.github/...` or `.gitignore` must be changed, do not create a non-hidden duplicate as a workaround.
-
-Use the canonical path and provide the correct upload/edit method.
-
-## 31.7 Deletions
-
-If an old production file genuinely becomes obsolete:
-
-- explicitly identify it for removal;
-- do not leave two active implementations;
-- do not rename the old file to “backup”;
-- preserve a clean canonical structure.
-
-Where possible, design updates to reuse existing paths so manual deletion is rarely required.
-
----
-
-# 32. DELIVERY CONTRACT
-
-Every implementation batch delivered to P’Benz must include:
-
-- a downloadable file in the same response;
-- exact purpose / scope;
-- changed/new file summary;
-- overwrite instructions;
-- QA status;
-- regression risk;
-- rollback note when appropriate;
-- ZIP SHA-256 when a ZIP is supplied;
-- a recommended commit name.
-
-The commit name must be **50 characters or fewer**.
-
-It must always be presented in a Markdown code block, for example:
+# 30. DELIVERY CONTRACT
+
+This is a hard operating requirement.
+
+When P’Benz requests implementation/package work:
+
+- **Do not make P’Benz wait a long time and end the turn without a downloadable file.**
+- Prefer a smaller complete safe batch over a broad unfinished batch.
+- Do not finish with only “I am checking”, “almost done”, or a status report.
+- If a requested batch is being built, produce the actual package in the same turn whenever tooling permits.
+- Never invent a download link, checksum, QA result, or file.
+- If an unavoidable tooling failure prevents packaging, say exactly what failed and do not claim completion.
+
+Every normal implementation batch delivery must include:
+
+1. downloadable repo-relative ZIP;
+2. changed-file allowlist;
+3. versionCode/versionName for runtime changes;
+4. risk level;
+5. QA performed;
+6. clear statement of what was not tested;
+7. rollback baseline when relevant;
+8. SHA-256;
+9. commit name in a Markdown code block;
+10. commit name **50 characters or fewer**.
+
+Example:
 
 ```text
-Add cleanup risk classification
+Improve cleanup trust and review
 ```
 
-Do not send a commit name longer than 50 characters.
+Default ZIP rules:
 
-If file creation fails, state the failure immediately rather than implying the package is complete.
-
----
-
-# 33. IMPLEMENTATION WORKFLOW FOR EVERY BATCH
-
-Mandatory sequence:
-
-1. Inspect current GitHub production.
-2. Read this Master Plan from the repository.
-3. Confirm current baseline and build identity.
-4. Define the exact product objective.
-5. Define changed-file allowlist.
-6. Assign LOW / MEDIUM / HIGH risk.
-7. Design the smallest architecture that can deliver 10/10 execution.
-8. Preserve known-good production outside scope.
-9. Implement using canonical paths.
-10. Run available static QA.
-11. Review for regression.
-12. Package repository-relative changed files.
-13. Supply commit name ≤ 50 characters.
-14. User uploads / commits.
-15. Verify GitHub Actions.
-16. Perform physical Android QA when relevant.
-17. Only then call the corresponding milestone verified.
+- changed files only;
+- repository-relative paths;
+- no wrapper folder;
+- no duplicate `v2/final/backup` files.
 
 ---
 
-# 34. DECISION FILTER FOR NEW FEATURES
+# 31. QA TRUTH
 
-Before accepting a feature, ask:
+Possible QA layers:
 
-1. Does it materially improve the junk-cleaning / file-health mission?
-2. Can it be implemented truthfully on normal Android?
-3. Can it remain Medium complexity or lower?
-4. Can it be explained simply?
-5. Can it be tested reliably?
-6. Does it preserve privacy-first design?
-7. Does it avoid regression?
-8. Does it look and feel premium?
-9. Does it avoid turning the product into a generic “booster” app?
+### Static QA
+Syntax, structure, IDs, paths, asset references, version coherence, localization keys.
 
-If a feature fails several of these tests, do not add it merely to make the feature list longer.
+### Compile / CI QA
+Android build success in GitHub Actions.
 
----
+### Runtime simulation
+Useful where available, but not equivalent to a physical Android device.
 
-# 35. PREMIUM EXECUTION TEST
+### Physical Android QA
+Only PASS when tested on an actual Android device with real evidence.
 
-Every production surface should pass these questions:
+Never claim physical PASS based on CI/static checks.
 
-### Visual
-
-- Does this look like an expensive commercial product?
-- Is the hierarchy calm and obvious?
-- Is anything visually cheap, noisy, or generic?
-- Is negative space used deliberately?
-
-### Usability
-
-- Can a normal user understand the next action instantly?
-- Can the action be completed with minimal thought?
-- Are risk and consequence clear before deletion?
-
-### Truth
-
-- Is every number real?
-- Is every recommendation explainable?
-- Is every capability within Android’s actual access?
-
-### Performance
-
-- Is expensive work off the UI thread?
-- Does the interface stay responsive?
-- Is memory use reasonable?
-
-### Safety
-
-- Could a default action cause avoidable data loss?
-- Are ambiguous files left unselected?
-- Does deletion require appropriate confirmation?
-
-### Language
-
-- Does every sentence sound native in EN / JA / TH?
-- Is anything awkward, literal, technical, or ambiguous?
-
-A feature is not “10/10” merely because it looks attractive.
+Destructive tests must use expendable test files.
 
 ---
 
-# 36. FUTURE-PROOFING WITHOUT OVERENGINEERING
+# 32. CURRENT B19 PHYSICAL TEST CHECKLIST
 
-The Master Plan should allow growth without prebuilding speculative systems.
+P’Benz is about to test B19. The next development room should expect feedback against this list.
 
-Future additions may be considered when the product is stable, but only if they preserve the complexity ceiling.
+1. Cold-start launch works reliably.
+2. Benedict Interactive opening appears correctly.
+3. Bearagnostic product opening appears correctly.
+4. Launcher icon matches original PWA icon exactly, with no bad crop.
+5. Home retains approved legacy visual quality.
+6. Checkup Home + Gear spacing/weight looks intentional.
+7. Quick uses all accessible shared storage and reports honest evidence.
+8. Smart performs real bounded sampling and appropriate duplicate verification.
+9. Deep performs full streaming reads and exact duplicate verification where accessible.
+10. Deep reports FULL/PARTIAL truthfully.
+11. Flying file tiles display document/image/video/audio/folder symbols.
+12. Results are actionable, not totals-only.
+13. Review workspace uses most of the screen for the file list.
+14. No mascot/advice block steals file-list space in B19.
+15. Review list scrolls correctly.
+16. Selection/footer/delete controls remain visible and unclipped.
+17. Duplicate deletion retains at least one copy.
+18. Actual deleted count and reclaimed bytes update after deletion.
+19. Post-clean impact shows measured values only.
+20. Share sheet opens correctly.
+21. More title is `Settings & Support` (localized).
+22. No stale `v0.2.0 · Build 11` remains.
+23. Preferences contain useful native groups and no Browser Full Screen.
+24. PromptPay support hub works online.
+25. Open QR works.
+26. Save QR uses native Android flow and reaches Downloads.
+27. Ko-fi opens externally.
+28. EN / JA / TH remain usable.
+29. No horizontal overflow, clipped buttons, or broken insets.
+30. No crash or blank screen.
 
-Examples of reasonable future directions:
-
-- richer aggregate cleanup history;
-- smarter deterministic classification rules;
-- better file-type grouping;
-- improved storage insights;
-- improved removable-storage support;
-- refined OS-backed trash behavior where reliable;
-- better recommendation explanations.
-
-Do not build empty abstractions today for hypothetical future features.
-
-Build the smallest durable structure that makes the current roadmap clean.
-
----
-
-# 37. RELEASE READINESS PRINCIPLES
-
-Before public release:
-
-- all core claims must match actual Android behavior;
-- permission use must be reviewed against current official policy;
-- release signing must be protected and separate from debug;
-- release build must be tested on physical devices;
-- cleanup must be destructive only after appropriate user confirmation;
-- partial failures must be handled;
-- privacy copy must match real implementation;
-- EN / JA / TH must receive native-level review;
-- no fake optimizer features;
-- no development-only credentials in release signing;
-- no obvious dead files or duplicated implementations in repository;
-- CI must be green.
+Until this device test is completed, B19 remains **CI PASS / Physical QA PENDING**.
 
 ---
 
-# 38. DEFINITION OF SUCCESS
+# 33. CURRENT ROADMAP AFTER B19
 
-Bearagnostic succeeds when a user can:
+## Immediate priority
 
-1. install the app;
-2. understand its purpose immediately;
-3. grant storage access with clear explanation;
-4. tap Start Checkup;
-5. receive truthful results from accessible storage;
-6. immediately see what is genuinely safe to clean;
-7. understand which items require review and why;
-8. clean selected files confidently;
-9. know exactly how much space was truly reclaimed;
-10. manually inspect files whenever desired;
-11. trust that Bearagnostic does not upload their files or fabricate problems.
+First, complete B19 physical QA.
 
-At the same time, the codebase should remain small enough that future batches can be implemented, reviewed, tested, and rolled back without unnecessary complexity.
+If defects are found:
 
-That combination is the product:
+- inspect current `main`;
+- reproduce against B19 code;
+- patch the smallest affected area;
+- preserve all B19 behavior that already works;
+- do not leap ahead to monetization while correctness is broken.
 
-> **All-in-one capability. Premium execution. Conservative engineering.**
+## Next planned major batch
+
+### Batch 20 — Home / Insights / Entitlement Foundation
+
+Planned scope:
+
+- evolve Home with measured dynamic storage/checkup information;
+- build useful Insights foundation from real local aggregates;
+- introduce centralized FREE/PRO entitlement architecture;
+- keep safety universally available;
+- avoid Billing until entitlement behavior is stable.
+
+### Batch 21 — Play Billing / Pro Gating
+
+Only after entitlement architecture and core device behavior are stable:
+
+- current Google Play Billing integration;
+- Pro entitlement restore;
+- plan screen;
+- subscription management;
+- feature gates;
+- lifecycle/error handling;
+- current policy verification.
+
+### Release hardening
+
+Then:
+
+- remaining Perfect V1 tool UX;
+- policy review;
+- AAB/release signing;
+- Data Safety;
+- physical-device matrix;
+- destructive-flow test matrix;
+- performance/large-storage QA;
+- accessibility/localization QA;
+- store-ready assets/copy.
 
 ---
 
-# 39. NON-NEGOTIABLE RULES — QUICK REFERENCE
+# 34. KNOWN PROJECT LESSONS THAT MUST NOT BE REPEATED
 
-1. GitHub production first.
-2. Latest explicit P’Benz instruction wins.
-3. Read this Master Plan before implementation.
-4. Master Plan filename never changes.
-5. Overwrite canonical files instead of accumulating duplicates.
-6. New files require distinct durable responsibility.
-7. Medium complexity ceiling.
-8. Maximum perceived quality within that ceiling.
-9. No regressions to known-good systems.
-10. No fake scanning, junk totals, health metrics, or optimization.
-11. Junk confidence and deletion risk remain separate.
-12. Review and confirm destructive actions.
-13. Do not auto-select risky files.
-14. Duplicate claims require real verification.
-15. Large/old does not mean junk.
-16. Privacy-first and local-first.
-17. Native-quality EN / JA / TH.
-18. No unnecessary repository clutter.
-19. Repository-relative update ZIPs.
-20. Commit name ≤ 50 characters in a code block.
-21. Never claim QA that was not performed.
-22. Current Android / Play policy must be re-verified when policy-sensitive.
-23. Release signing is never the development signing key.
-24. Simple architecture. Exceptional execution.
+Earlier Android iterations failed because they treated the HTML/PWA as visual inspiration instead of source of truth. This caused:
+
+- wrong launcher icon;
+- wrong mascot crop;
+- launch regressions;
+- missing Benedict Interactive/product opening details;
+- Home mismatches;
+- scroll-heavy layouts;
+- poor white-space usage;
+- blank flying-file tiles;
+- scanner modes that were too shallow;
+- results that only reported totals without useful next actions.
+
+The corrective architectural lesson is permanent:
+
+> **Preserve the approved PWA literally first. Add Android capabilities as isolated layers.**
+
+Do not regress to “recreate it by eye.”
 
 ---
 
-# 40. REVISION HISTORY
+# 35. REVISION HISTORY
+
+## Revision 2.0 — 9 September 2026
+
+Major alignment update after B17–B19:
+
+- records B19 production/CI state;
+- locks literal PWA frontend source-of-truth;
+- formalizes Quick / Smart / Deep / Custom;
+- formalizes scan evidence and coverage truth;
+- formalizes Trust & Advice UX;
+- formalizes live result state and verified deletion;
+- formalizes Cleanup Impact and privacy-safe sharing;
+- formalizes functional Dr. Bear illustration mapping;
+- records native Support behavior;
+- formalizes Free/Pro entitlement principles;
+- adds strict regression-protection rules;
+- adds strict same-turn delivery/package contract;
+- records B19 physical-test checklist;
+- updates roadmap to B20 Home/Insights/Entitlement foundation, then Billing.
 
 ## Revision 1.0 — 8 September 2026
 
-Initial Android Master Plan.
+Initial Android project operating contract.
 
-Locked:
+---
 
-- GitHub-first governance;
-- canonical overwrite policy;
-- permanent Master Plan filename;
-- premium All-in-One junk cleaner positioning;
-- One-Tap + Manual operation;
-- complete V1 capability target;
-- Junk Confidence system;
-- Deletion Risk system;
-- truthful reclaimable-space policy;
-- cleanup safety model;
-- Android capability boundaries;
-- Medium complexity ceiling;
-- premium clinical-editorial visual direction;
-- Dr. Bear role;
-- native EN / JA / TH standard;
-- no-regression rules;
-- version/build discipline;
-- stable debug signing boundary;
-- CI and physical QA distinctions;
-- repository-relative drag-and-drop packaging;
-- no transient file clutter;
-- commit-name ≤ 50 character requirement.
+# 36. FINAL NORTH STAR
+
+Every meaningful decision should answer:
+
+- Is it truthful?
+- Is it useful?
+- Is it safe?
+- Is it visually 10/10?
+- Does it preserve what already works?
+- Is it simpler than the alternative?
+- Can a normal user understand what happens next?
+- Can we prove the numbers shown?
+- Does it move Bearagnostic toward a premium daily-use maintenance product rather than a gimmicky cleaner?
+
+When uncertain, protect user data, preserve stable production, and prefer evidence over spectacle.
