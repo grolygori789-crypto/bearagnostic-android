@@ -9,10 +9,10 @@
     <application
         android:allowBackup="false"
         android:fullBackupContent="false"
-        android:icon="@drawable/bearagnostic_legacy_app_icon"
+        android:icon="@drawable/bearagnostic_pwa_app_icon"
         android:label="@string/app_name"
         android:requestLegacyExternalStorage="true"
-        android:roundIcon="@drawable/bearagnostic_legacy_app_icon"
+        android:roundIcon="@drawable/bearagnostic_pwa_app_icon"
         android:supportsRtl="true"
         android:theme="@style/Theme.Bearagnostic"
         android:usesCleartextTraffic="false">
@@ -27,5 +27,4 @@
             </intent-filter>
         </activity>
     </application>
-
 </manifest>
