@@ -29,6 +29,16 @@ class NativeBridge(private val activity: MainActivity) {
     @JavascriptInterface
     fun cancelOneTapScan(): String = activity.cancelOneTapScan()
 
+    @JavascriptInterface
+    fun getReviewSummary(): String = activity.reviewSummaryJson()
+
+    @JavascriptInterface
+    fun getReviewCandidates(category: String, offset: Int, limit: Int): String =
+        activity.reviewCandidatesJson(category, offset, limit)
+
+    @JavascriptInterface
+    fun deleteReviewCandidates(idsJson: String): String = activity.deleteReviewCandidates(idsJson)
+
     fun statusJson(): String = JSONObject().apply {
         put("platform", "android")
         put("bridgeVersion", BRIDGE_VERSION)
@@ -41,11 +51,11 @@ class NativeBridge(private val activity: MainActivity) {
         put("scanScope", "accessible_shared_storage")
         put("scanModes", "smart,quick,deep,custom")
         put("analysisRulesVersion", FileHealthScanner.ANALYSIS_RULES_VERSION)
-        put("scannerCapabilities", "multi_pass,metadata,content_probe,categories,old,large,temp,apk,archives,zero_byte,empty_folders,screenshots,media,downloads,sha256_duplicates")
+        put("scannerCapabilities", "multi_pass,metadata,content_probe,categories,old,large,temp,apk,archives,zero_byte,empty_folders,screenshots,media,downloads,sha256_duplicates,review_candidates,verified_delete")
     }.toString()
 
     companion object {
         const val JS_INTERFACE_NAME = "BearagnosticNative"
-        const val BRIDGE_VERSION = 5
+        const val BRIDGE_VERSION = 6
     }
 }

@@ -18,8 +18,6 @@ class MainActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Enter immersive mode before attaching the WebView so the Benedict Interactive
-        // opening and every subsequent app surface own the complete display from frame one.
         applyImmersiveMode()
         window.statusBarColor = Color.TRANSPARENT
         window.navigationBarColor = Color.TRANSPARENT
@@ -35,8 +33,6 @@ class MainActivity : Activity() {
 
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
-                // Runtime safety net: the HTML opening remains authoritative, but a
-                // JavaScript regression must never strand the user behind the launch layer.
                 webView.postDelayed({ forceAppVisibleIfLaunchStalled() }, 6_500L)
             }
         }
@@ -63,9 +59,7 @@ class MainActivity : Activity() {
     override fun onResume() {
         super.onResume()
         applyImmersiveMode()
-        if (::webView.isInitialized) {
-            webView.post { pushNativeStateToWeb() }
-        }
+        if (::webView.isInitialized) webView.post { pushNativeStateToWeb() }
     }
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
@@ -75,7 +69,6 @@ class MainActivity : Activity() {
 
     @Suppress("DEPRECATION")
     private fun applyImmersiveMode() {
-        // Conservative path already proven to launch on the physical development device.
         window.decorView.systemUiVisibility =
             View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or
                 View.SYSTEM_UI_FLAG_FULLSCREEN or
@@ -100,9 +93,7 @@ class MainActivity : Activity() {
         grantResults: IntArray,
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == StorageAccessController.LEGACY_READ_REQUEST_CODE) {
-            pushNativeStateToWeb()
-        }
+        if (requestCode == StorageAccessController.LEGACY_READ_REQUEST_CODE) pushNativeStateToWeb()
     }
 
     fun pushNativeStateToWeb() {
@@ -134,20 +125,15 @@ class MainActivity : Activity() {
         )
 
         val accepted = scanner.start(request, object : FileHealthScanner.Listener {
-            override fun onProgress(json: String) {
-                pushScanEvent("onScanProgress", json)
-            }
-
+            override fun onProgress(json: String) { pushScanEvent("onScanProgress", json) }
             override fun onComplete(json: String) {
                 pushScanEvent("onScanComplete", json)
                 pushNativeStateToWebOnUiThread()
             }
-
             override fun onCancelled(json: String) {
                 pushScanEvent("onScanCancelled", json)
                 pushNativeStateToWebOnUiThread()
             }
-
             override fun onError(json: String) {
                 pushScanEvent("onScanError", json)
                 pushNativeStateToWebOnUiThread()
@@ -178,10 +164,26 @@ class MainActivity : Activity() {
         }.toString()
     }
 
+    fun reviewSummaryJson(): String = if (::scanner.isInitialized) {
+        scanner.reviewSummaryJson()
+    } else {
+        JSONObject().apply { put("available", false); put("candidateCount", 0) }.toString()
+    }
+
+    fun reviewCandidatesJson(category: String, offset: Int, limit: Int): String = if (::scanner.isInitialized) {
+        scanner.reviewCandidatesJson(category, offset, limit)
+    } else {
+        JSONObject().apply { put("available", false); put("items", JSONArray()); put("totalCount", 0) }.toString()
+    }
+
+    fun deleteReviewCandidates(idsJson: String): String = if (::scanner.isInitialized) {
+        scanner.deleteReviewCandidates(idsJson)
+    } else {
+        JSONObject().apply { put("accepted", false); put("reason", "no_review_snapshot") }.toString()
+    }
+
     private fun ensureScanner() {
-        if (!::scanner.isInitialized) {
-            scanner = FileHealthScanner(applicationContext)
-        }
+        if (!::scanner.isInitialized) scanner = FileHealthScanner(applicationContext)
     }
 
     private fun parseCustomScopes(raw: String): Set<String> {

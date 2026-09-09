@@ -5,6 +5,7 @@ import android.os.Build
 import android.os.Environment
 import android.os.SystemClock
 import android.os.storage.StorageManager
+import org.json.JSONArray
 import org.json.JSONObject
 import java.io.BufferedInputStream
 import java.io.BufferedOutputStream
@@ -17,12 +18,15 @@ import java.io.FileOutputStream
 import java.nio.file.Files
 import java.security.MessageDigest
 import java.util.ArrayDeque
+import java.util.LinkedHashMap
 import java.util.Locale
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**
- * Truth-first, read-only shared-storage scanner.
+ * Truth-first shared-storage scanner and review-driven cleanup engine.
+ * Scanning is read-only. Deletion is exposed only for IDs issued by the most recent
+ * in-memory review snapshot and requires explicit user selection/confirmation in the UI.
  *
  * QUICK  = priority shared folders; metadata/rule analysis; no content reads or duplicate hashing.
  * SMART  = all accessible shared storage; metadata/rules; bounded real content sampling on every
@@ -112,12 +116,112 @@ class FileHealthScanner(private val context: Context) {
         var hiddenBytes: Long = 0,
     )
 
+    private data class CandidateBuilder(
+        val path: String,
+        val name: String,
+        val location: String,
+        var sizeBytes: Long,
+        var modifiedMs: Long,
+        val categories: LinkedHashSet<String> = linkedSetOf(),
+        var riskLevel: Int = 0,
+        var junkConfidence: Int = 0,
+        var suggestedSelected: Boolean = false,
+        var autoCleanEligible: Boolean = false,
+        var reasonCode: String = "review",
+        var duplicateGroupId: String? = null,
+        var duplicateKeepSuggested: Boolean = false,
+    )
+
+    private data class ReviewCandidate(
+        val id: String,
+        val path: String,
+        val name: String,
+        val location: String,
+        val sizeBytes: Long,
+        val modifiedMs: Long,
+        val categories: Set<String>,
+        val riskLevel: Int,
+        val junkConfidence: Int,
+        val suggestedSelected: Boolean,
+        val autoCleanEligible: Boolean,
+        val reasonCode: String,
+        val duplicateGroupId: String?,
+        val duplicateKeepSuggested: Boolean,
+    )
+
+    private data class ReviewSnapshot(
+        val generatedAtMs: Long,
+        val scanMode: String,
+        val items: LinkedHashMap<String, ReviewCandidate>,
+        val detailsTruncated: Boolean,
+    )
+
+    private class CandidateAccumulator {
+        val items = LinkedHashMap<String, CandidateBuilder>()
+        var truncated = false
+
+        fun add(
+            path: String,
+            name: String,
+            location: String,
+            sizeBytes: Long,
+            modifiedMs: Long,
+            category: String,
+            riskLevel: Int,
+            junkConfidence: Int,
+            suggestedSelected: Boolean,
+            autoCleanEligible: Boolean,
+            reasonCode: String,
+            duplicateGroupId: String? = null,
+            duplicateKeepSuggested: Boolean = false,
+        ) {
+            val existing = items[path]
+            if (existing == null && items.size >= MAX_REVIEW_CANDIDATES) {
+                truncated = true
+                return
+            }
+            val item = existing ?: CandidateBuilder(
+                path = path, name = name, location = location,
+                sizeBytes = sizeBytes, modifiedMs = modifiedMs,
+            ).also { items[path] = it }
+            item.sizeBytes = maxOf(item.sizeBytes, sizeBytes)
+            if (modifiedMs > 0L) item.modifiedMs = modifiedMs
+            item.categories += category
+            item.riskLevel = maxOf(item.riskLevel, riskLevel)
+            item.junkConfidence = maxOf(item.junkConfidence, junkConfidence)
+            item.suggestedSelected = item.suggestedSelected || suggestedSelected
+            item.autoCleanEligible = item.autoCleanEligible || autoCleanEligible
+            if (junkConfidence >= item.junkConfidence || item.reasonCode == "review") item.reasonCode = reasonCode
+            if (duplicateGroupId != null) item.duplicateGroupId = duplicateGroupId
+            if (duplicateKeepSuggested) item.duplicateKeepSuggested = true
+        }
+
+        fun snapshot(mode: ScanMode): ReviewSnapshot {
+            val out = LinkedHashMap<String, ReviewCandidate>(items.size)
+            var index = 1
+            for (builder in items.values) {
+                val id = "r${index++}"
+                out[id] = ReviewCandidate(
+                    id = id, path = builder.path, name = builder.name, location = builder.location,
+                    sizeBytes = builder.sizeBytes, modifiedMs = builder.modifiedMs,
+                    categories = builder.categories.toSet(), riskLevel = builder.riskLevel,
+                    junkConfidence = builder.junkConfidence, suggestedSelected = builder.suggestedSelected,
+                    autoCleanEligible = builder.autoCleanEligible, reasonCode = builder.reasonCode,
+                    duplicateGroupId = builder.duplicateGroupId,
+                    duplicateKeepSuggested = builder.duplicateKeepSuggested,
+                )
+            }
+            return ReviewSnapshot(System.currentTimeMillis(), mode.wireName, out, truncated)
+        }
+    }
+
     private val executor = Executors.newSingleThreadExecutor { runnable ->
         Thread(runnable, "BearagnosticFileScanner").apply { priority = Thread.NORM_PRIORITY - 1 }
     }
     private val cancelRequested = AtomicBoolean(false)
 
     @Volatile private var running = false
+    @Volatile private var reviewSnapshot: ReviewSnapshot? = null
 
     fun isRunning(): Boolean = running
 
@@ -130,12 +234,107 @@ class FileHealthScanner(private val context: Context) {
         return true
     }
 
+    fun reviewSummaryJson(): String = reviewSummaryObject(reviewSnapshot).toString()
+
+    fun reviewCandidatesJson(category: String, offset: Int, limit: Int): String {
+        val snapshot = reviewSnapshot
+        if (snapshot == null) return JSONObject().apply {
+            put("available", false); put("items", JSONArray()); put("totalCount", 0)
+        }.toString()
+        val normalized = category.trim().lowercase(Locale.ROOT)
+        val filtered = snapshot.items.values.filter { candidateMatchesCategory(it, normalized) }.let { list ->
+            when (normalized) {
+                "large" -> list.sortedByDescending { it.sizeBytes }
+                "old" -> list.sortedWith(compareBy<ReviewCandidate> { if (it.modifiedMs <= 0L) Long.MAX_VALUE else it.modifiedMs }.thenByDescending { it.sizeBytes })
+                "duplicates" -> list.sortedWith(compareBy<ReviewCandidate> { it.duplicateGroupId ?: "" }.thenBy { it.duplicateKeepSuggested }.thenByDescending { it.sizeBytes })
+                else -> list.sortedByDescending { it.sizeBytes }
+            }
+        }
+        val safeOffset = offset.coerceAtLeast(0).coerceAtMost(filtered.size)
+        val safeLimit = limit.coerceIn(1, MAX_REVIEW_PAGE_SIZE)
+        val end = (safeOffset + safeLimit).coerceAtMost(filtered.size)
+        val array = JSONArray()
+        for (i in safeOffset until end) array.put(candidateJson(filtered[i]))
+        return JSONObject().apply {
+            put("available", true)
+            put("category", normalized)
+            put("offset", safeOffset)
+            put("returnedCount", array.length())
+            put("totalCount", filtered.size)
+            put("hasMore", end < filtered.size)
+            put("detailsTruncated", snapshot.detailsTruncated)
+            put("items", array)
+        }.toString()
+    }
+
+    @Synchronized
+    fun deleteReviewCandidates(idsJson: String): String {
+        if (running) return JSONObject().apply { put("accepted", false); put("reason", "scan_running") }.toString()
+        val snapshot = reviewSnapshot ?: return JSONObject().apply { put("accepted", false); put("reason", "no_review_snapshot") }.toString()
+        val ids = LinkedHashSet<String>()
+        try {
+            val array = JSONArray(idsJson)
+            for (i in 0 until array.length()) {
+                val id = array.optString(i).trim()
+                if (id.isNotEmpty() && snapshot.items.containsKey(id)) ids += id
+                if (ids.size >= MAX_DELETE_SELECTION) break
+            }
+        } catch (_: Exception) {
+            return JSONObject().apply { put("accepted", false); put("reason", "invalid_selection") }.toString()
+        }
+        if (ids.isEmpty()) return JSONObject().apply { put("accepted", false); put("reason", "empty_selection") }.toString()
+
+        val protectedIds = LinkedHashSet<String>()
+        val groups = snapshot.items.values.filter { it.duplicateGroupId != null }.groupBy { it.duplicateGroupId!! }
+        for ((_, members) in groups) {
+            val existing = members.filter { File(it.path).exists() }
+            if (existing.isNotEmpty() && existing.all { it.id in ids }) {
+                val keep = existing.firstOrNull { it.duplicateKeepSuggested } ?: existing.first()
+                ids.remove(keep.id)
+                protectedIds += keep.id
+            }
+        }
+
+        var deletedCount = 0
+        var reclaimedBytes = 0L
+        val deletedIds = JSONArray()
+        val failed = JSONArray()
+        val remaining = LinkedHashMap(snapshot.items)
+        for (id in ids) {
+            val candidate = snapshot.items[id] ?: continue
+            val file = File(candidate.path)
+            val before = safeLength(file) ?: candidate.sizeBytes
+            val deleted = try { file.exists() && file.isFile && file.delete() && !file.exists() } catch (_: Exception) { false }
+            if (deleted) {
+                deletedCount++
+                reclaimedBytes = safeAdd(reclaimedBytes, before)
+                deletedIds.put(id)
+                remaining.remove(id)
+            } else {
+                failed.put(JSONObject().apply { put("id", id); put("name", candidate.name); put("reason", "delete_failed") })
+            }
+        }
+        reviewSnapshot = snapshot.copy(items = remaining)
+        return JSONObject().apply {
+            put("accepted", true)
+            put("deletionPerformed", deletedCount > 0)
+            put("deletedCount", deletedCount)
+            put("reclaimedBytes", reclaimedBytes)
+            put("deletedIds", deletedIds)
+            put("protectedIds", JSONArray(protectedIds.toList()))
+            put("failed", failed)
+            put("reviewSummary", reviewSummaryObject(reviewSnapshot))
+        }.toString()
+    }
+
     fun cancel() { cancelRequested.set(true) }
     fun shutdown() { cancelRequested.set(true); executor.shutdownNow() }
 
     private fun runScan(request: ScanRequest, listener: Listener) {
         val startedAt = SystemClock.elapsedRealtime()
         val counters = Counters()
+        val reviewCandidates = CandidateAccumulator()
+        reviewSnapshot = null
         var inventory: File? = null
 
         try {
@@ -157,6 +356,7 @@ class FileHealthScanner(private val context: Context) {
 
             if (counters.discoveredFiles == 0L) {
                 emit(listener, request, plan, "finalizing", counters)
+                reviewSnapshot = reviewCandidates.snapshot(request.mode)
                 listener.onComplete(
                     buildResult(
                         request, plan, counters, startedAt,
@@ -186,6 +386,7 @@ class FileHealthScanner(private val context: Context) {
                     } else {
                         counters.reviewedFiles++
                         classifyDetails(file, size, counters)
+                        recordDetailCandidates(file, size, reviewCandidates)
                         if (plan.contentReadMode != ContentReadMode.NONE && size > 0L) {
                             val bytesRead = readContent(file, plan.contentReadLimitBytes) { delta ->
                                 counters.contentProbeBytes = safeAdd(counters.contentProbeBytes, delta)
@@ -236,10 +437,14 @@ class FileHealthScanner(private val context: Context) {
                     val size = safeLength(file)
                     if (size != null) {
                         counters.totalBytes = safeAdd(counters.totalBytes, size)
-                        if (size == 0L) counters.zeroByteFiles++
+                        if (size == 0L) {
+                            counters.zeroByteFiles++
+                            addReviewCandidate(reviewCandidates, file, size, "zero", 2, 45, false, false, "zero_byte")
+                        }
                         if (size >= LARGE_FILE_BYTES) {
                             counters.largeFiles++
                             counters.largeFileBytes = safeAdd(counters.largeFileBytes, size)
+                            addReviewCandidate(reviewCandidates, file, size, "large", 2, 0, false, false, "large_file")
                         }
                         if (plan.verifyDuplicates && size > 0L && isDuplicateEligible(file, plan.duplicateEligibleRoots)) {
                             val existingGroup = sameSizeGroups[size]
@@ -280,7 +485,7 @@ class FileHealthScanner(private val context: Context) {
                 lastProgressAt = 0L
                 for ((size, files) in sameSizeGroups) {
                     ensureNotCancelled()
-                    val byHash = HashMap<String, Int>()
+                    val byHash = HashMap<String, MutableList<File>>()
                     for (file in files) {
                         ensureNotCancelled()
                         val digest = hashFile(file) { delta ->
@@ -295,15 +500,25 @@ class FileHealthScanner(private val context: Context) {
                             hashReadFailures++
                         } else {
                             hashedFiles++
-                            byHash[digest] = (byHash[digest] ?: 0) + 1
+                            byHash.getOrPut(digest) { mutableListOf() }.add(file)
                         }
                     }
-                    for (count in byHash.values) {
-                        if (count > 1) {
+                    for ((digest, members) in byHash) {
+                        if (members.size > 1) {
                             duplicateGroups++
-                            val copies = count - 1L
+                            val copies = members.size - 1L
                             duplicateCopies = safeAdd(duplicateCopies, copies)
                             duplicateReclaimableBytes = safeAdd(duplicateReclaimableBytes, safeMultiply(size, copies))
+                            val keep = members.maxWithOrNull(compareBy<File> { safeModified(it) }.thenBy { it.absolutePath.length }) ?: members.first()
+                            val groupId = "${size}_${digest.take(16)}"
+                            for (member in members) {
+                                addReviewCandidate(
+                                    reviewCandidates, member, size, "duplicates", 2, 100,
+                                    suggestedSelected = member != keep, autoCleanEligible = false,
+                                    reasonCode = "verified_duplicate", duplicateGroupId = groupId,
+                                    duplicateKeepSuggested = member == keep,
+                                )
+                            }
                         }
                     }
                 }
@@ -325,6 +540,7 @@ class FileHealthScanner(private val context: Context) {
                     if (modified in 1 until olderThan) {
                         counters.olderFiles++
                         counters.olderFileBytes = safeAdd(counters.olderFileBytes, size)
+                        addReviewCandidate(reviewCandidates, file, size, "old", 2, 0, false, false, "old_file", modifiedMs = modified)
                     }
                 }
                 val now = SystemClock.elapsedRealtime()
@@ -336,6 +552,7 @@ class FileHealthScanner(private val context: Context) {
             emit(listener, request, plan, "modified_dates", counters, phaseProcessed = processed, phaseTotal = counters.discoveredFiles)
 
             emit(listener, request, plan, "finalizing", counters, candidateFiles, candidateBytes, hashedFiles, hashedBytes)
+            reviewSnapshot = reviewCandidates.snapshot(request.mode)
             listener.onComplete(
                 buildResult(
                     request, plan, counters, startedAt,
@@ -470,6 +687,112 @@ class FileHealthScanner(private val context: Context) {
         }
     }
 
+    private fun recordDetailCandidates(file: File, size: Long, review: CandidateAccumulator) {
+        val name = file.name.lowercase(Locale.ROOT)
+        val ext = file.extension.lowercase(Locale.ROOT)
+        val path = normalizedPath(file)
+        val modified = safeModified(file)
+        if (isTemporaryArtifact(name, ext, path)) {
+            val strong = ext in STRONG_TEMP_EXTENSIONS || name.endsWith(".download") || name.endsWith(".opdownload")
+            val oldEnough = modified > 0L && System.currentTimeMillis() - modified >= AUTO_CLEAN_TEMP_MIN_AGE_MS
+            val auto = strong && isDownloadPath(path) && oldEnough
+            addReviewCandidate(review, file, size, "temporary", if (auto) 1 else 2, if (auto) 95 else 72, auto, auto, if (auto) "stale_incomplete_download" else "temporary_artifact", modifiedMs = modified)
+        }
+        if (ext == "apk") addReviewCandidate(review, file, size, "installers", 2, 62, false, false, "apk_installer", modifiedMs = modified)
+        if (ext in ARCHIVE_EXTENSIONS) addReviewCandidate(review, file, size, "archives", 2, 20, false, false, "archive_file", modifiedMs = modified)
+    }
+
+    private fun addReviewCandidate(
+        review: CandidateAccumulator,
+        file: File,
+        size: Long,
+        category: String,
+        riskLevel: Int,
+        junkConfidence: Int,
+        suggestedSelected: Boolean,
+        autoCleanEligible: Boolean,
+        reasonCode: String,
+        duplicateGroupId: String? = null,
+        duplicateKeepSuggested: Boolean = false,
+        modifiedMs: Long = safeModified(file),
+    ) {
+        val canonical = canonicalFile(file)
+        review.add(
+            path = canonical.absolutePath,
+            name = canonical.name.ifBlank { "(unnamed)" },
+            location = displayLocation(canonical),
+            sizeBytes = size.coerceAtLeast(0L),
+            modifiedMs = modifiedMs,
+            category = category, riskLevel = riskLevel.coerceIn(0, 4),
+            junkConfidence = junkConfidence.coerceIn(0, 100),
+            suggestedSelected = suggestedSelected, autoCleanEligible = autoCleanEligible,
+            reasonCode = reasonCode, duplicateGroupId = duplicateGroupId,
+            duplicateKeepSuggested = duplicateKeepSuggested,
+        )
+    }
+
+    private fun candidateMatchesCategory(candidate: ReviewCandidate, category: String): Boolean = when (category) {
+        "lowrisk" -> candidate.autoCleanEligible
+        "duplicates" -> "duplicates" in candidate.categories
+        "large" -> "large" in candidate.categories
+        "old" -> "old" in candidate.categories
+        "temporary" -> "temporary" in candidate.categories
+        "installers" -> "installers" in candidate.categories
+        "archives" -> "archives" in candidate.categories
+        "zero" -> "zero" in candidate.categories
+        "all" -> true
+        else -> false
+    }
+
+    private fun candidateJson(candidate: ReviewCandidate): JSONObject = JSONObject().apply {
+        put("id", candidate.id)
+        put("name", candidate.name)
+        put("location", candidate.location)
+        put("sizeBytes", candidate.sizeBytes)
+        put("modifiedMs", candidate.modifiedMs)
+        put("categories", JSONArray(candidate.categories.toList()))
+        put("riskLevel", candidate.riskLevel)
+        put("junkConfidence", candidate.junkConfidence)
+        put("suggestedSelected", candidate.suggestedSelected)
+        put("autoCleanEligible", candidate.autoCleanEligible)
+        put("reasonCode", candidate.reasonCode)
+        put("duplicateGroupId", candidate.duplicateGroupId)
+        put("duplicateKeepSuggested", candidate.duplicateKeepSuggested)
+    }
+
+    private fun reviewSummaryObject(snapshot: ReviewSnapshot?): JSONObject = JSONObject().apply {
+        if (snapshot == null) {
+            put("available", false)
+            put("candidateCount", 0)
+            return@apply
+        }
+        val values = snapshot.items.values
+        fun count(category: String) = values.count { candidateMatchesCategory(it, category) }
+        fun bytes(category: String) = values.filter { candidateMatchesCategory(it, category) }.fold(0L) { total, item -> safeAdd(total, item.sizeBytes) }
+        put("available", true)
+        put("generatedAtMs", snapshot.generatedAtMs)
+        put("scanMode", snapshot.scanMode)
+        put("candidateCount", values.size)
+        put("detailsTruncated", snapshot.detailsTruncated)
+        for (category in listOf("lowrisk", "duplicates", "large", "old", "temporary", "installers", "archives", "zero")) {
+            put("${category}Count", count(category))
+            put("${category}Bytes", bytes(category))
+        }
+    }
+
+    private fun displayLocation(file: File): String {
+        val parent = file.parentFile ?: return "Shared storage"
+        val grand = parent.parentFile
+        return when {
+            grand == null -> parent.name.ifBlank { "Shared storage" }
+            parent.name.isBlank() -> grand.name.ifBlank { "Shared storage" }
+            grand.name.isBlank() -> parent.name
+            else -> "${grand.name}/${parent.name}"
+        }
+    }
+
+    private fun safeModified(file: File): Long = try { file.lastModified().coerceAtLeast(0L) } catch (_: Exception) { 0L }
+
     private fun buildResult(
         request: ScanRequest,
         plan: ScanPlan,
@@ -516,6 +839,12 @@ class FileHealthScanner(private val context: Context) {
                 "partial_accessible_scope"
             },
         )
+        val review = reviewSnapshot
+        put("reviewAvailable", review != null)
+        put("reviewCandidateCount", review?.items?.size ?: 0)
+        put("autoCleanCandidateCount", review?.items?.values?.count { it.autoCleanEligible } ?: 0)
+        put("autoCleanCandidateBytes", review?.items?.values?.filter { it.autoCleanEligible }?.fold(0L) { total, item -> safeAdd(total, item.sizeBytes) } ?: 0L)
+        put("reviewDetailsTruncated", review?.detailsTruncated ?: false)
         put("deletionPerformed", false)
     }.toString()
 
@@ -775,7 +1104,7 @@ class FileHealthScanner(private val context: Context) {
     private class ScanCancelledException : RuntimeException()
 
     companion object {
-        const val ANALYSIS_RULES_VERSION = 4
+        const val ANALYSIS_RULES_VERSION = 5
         const val LARGE_FILE_BYTES = 100L * 1024L * 1024L
         const val OLDER_THAN_DAYS = 365L
         const val OLDER_THAN_MS = OLDER_THAN_DAYS * 24L * 60L * 60L * 1000L
@@ -784,6 +1113,10 @@ class FileHealthScanner(private val context: Context) {
         const val CONTENT_BUFFER_BYTES = 256 * 1024
         const val INVENTORY_BUFFER_BYTES = 64 * 1024
         const val PROGRESS_INTERVAL_MS = 160L
+        const val MAX_REVIEW_CANDIDATES = 10_000
+        const val MAX_REVIEW_PAGE_SIZE = 250
+        const val MAX_DELETE_SELECTION = 500
+        const val AUTO_CLEAN_TEMP_MIN_AGE_MS = 7L * 24L * 60L * 60L * 1000L
 
         val DEFAULT_CUSTOM_SCOPES = setOf("downloads", "photos", "videos", "documents")
         val STRONG_TEMP_EXTENSIONS = setOf("part", "partial", "crdownload")
