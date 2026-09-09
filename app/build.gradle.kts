@@ -98,7 +98,7 @@ val prepareLegacyFrontend by tasks.registering {
 
         val generatedIndex = File(uiRoot, "index.html")
         val originalHtml = generatedIndex.readText(StandardCharsets.UTF_8)
-        val adapterTag = "  <script src=\"./js/android-native.js?v=15\"></script>\n"
+        val adapterTag = "  <script src=\"./js/android-native.js?v=16\"></script>\n"
         check(originalHtml.contains("</body>")) { "Legacy index.html is missing </body>" }
         generatedIndex.writeText(originalHtml.replace("</body>", adapterTag + "</body>"), StandardCharsets.UTF_8)
 
@@ -121,8 +121,8 @@ android {
         applicationId = "com.benedictinteractive.bearagnostic"
         minSdk = 26
         targetSdk = 36
-        versionCode = 15
-        versionName = "0.15.0-alpha15"
+        versionCode = 16
+        versionName = "0.16.0-alpha16"
     }
 
     sourceSets {
