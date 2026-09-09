@@ -28,7 +28,7 @@ import java.util.concurrent.atomic.AtomicBoolean
  * Scanning is read-only. Deletion is exposed only for IDs issued by the most recent
  * in-memory review snapshot and requires explicit user selection/confirmation in the UI.
  *
- * QUICK  = priority shared folders; metadata/rule analysis; no content reads or duplicate hashing.
+ * QUICK  = all accessible shared storage; metadata/rule analysis only; no content reads or duplicate hashing.
  * SMART  = all accessible shared storage; metadata/rules; bounded real content sampling on every
  *          readable non-empty file; focused exact duplicate verification in high-value folders.
  * DEEP   = all accessible shared storage; metadata/rules; full streaming content read of every
@@ -89,6 +89,9 @@ class FileHealthScanner(private val context: Context) {
         var contentProbedFiles: Long = 0,
         var contentProbeBytes: Long = 0,
         var contentProbeFailures: Long = 0,
+        var contentExpectedBytes: Long = 0,
+        var contentFullyReadFiles: Long = 0,
+        var contentPartialReadFiles: Long = 0,
         var largeFiles: Long = 0,
         var largeFileBytes: Long = 0,
         var olderFiles: Long = 0,
@@ -388,6 +391,8 @@ class FileHealthScanner(private val context: Context) {
                         classifyDetails(file, size, counters)
                         recordDetailCandidates(file, size, reviewCandidates)
                         if (plan.contentReadMode != ContentReadMode.NONE && size > 0L) {
+                            val expectedForFile = if (plan.contentReadMode == ContentReadMode.FULL) size else minOf(size, plan.contentReadLimitBytes)
+                            counters.contentExpectedBytes = safeAdd(counters.contentExpectedBytes, expectedForFile)
                             val bytesRead = readContent(file, plan.contentReadLimitBytes) { delta ->
                                 counters.contentProbeBytes = safeAdd(counters.contentProbeBytes, delta)
                                 val now = SystemClock.elapsedRealtime()
@@ -405,6 +410,10 @@ class FileHealthScanner(private val context: Context) {
                                 counters.contentProbeFailures++
                             } else {
                                 counters.contentProbedFiles++
+                                if (plan.contentReadMode == ContentReadMode.FULL) {
+                                    if (bytesRead == expectedForFile) counters.contentFullyReadFiles++
+                                    else counters.contentPartialReadFiles++
+                                }
                             }
                         }
                     }
@@ -828,12 +837,30 @@ class FileHealthScanner(private val context: Context) {
         put("hashedBytes", hashedBytes)
         put("hashReadFailures", hashReadFailures)
         put("rootsScanned", rootsScanned)
-        put("durationMs", SystemClock.elapsedRealtime() - startedAt)
+        val durationMs = SystemClock.elapsedRealtime() - startedAt
+        put("durationMs", durationMs)
         put("largeFileThresholdBytes", LARGE_FILE_BYTES)
         put("olderThanDays", OLDER_THAN_DAYS)
+        put("scanEvidenceVersion", 1)
+        put("contentExpectedBytes", c.contentExpectedBytes)
+        put("contentFullyReadFiles", c.contentFullyReadFiles)
+        put("contentPartialReadFiles", c.contentPartialReadFiles)
+        val deepCoverageVerified = request.mode != ScanMode.DEEP || (
+            c.contentProbeFailures == 0L &&
+            c.contentPartialReadFiles == 0L &&
+            c.contentProbeBytes == c.contentExpectedBytes &&
+            c.contentFullyReadFiles == c.contentProbedFiles
+        )
+        put("deepCoverageVerified", deepCoverageVerified)
         put(
             "coverageStatus",
-            if (c.inaccessibleFolders == 0L && c.missingDuringScan == 0L && c.contentProbeFailures == 0L && hashReadFailures == 0L) {
+            if (
+                c.inaccessibleFolders == 0L &&
+                c.missingDuringScan == 0L &&
+                c.contentProbeFailures == 0L &&
+                hashReadFailures == 0L &&
+                deepCoverageVerified
+            ) {
                 "complete_accessible_scope"
             } else {
                 "partial_accessible_scope"
@@ -852,14 +879,14 @@ class FileHealthScanner(private val context: Context) {
         val priority = uniqueDirectories(storageRoots.flatMap(::priorityDirectories))
         return when (request.mode) {
             ScanMode.QUICK -> ScanPlan(
-                targets = priority.ifEmpty { storageRoots },
+                targets = storageRoots,
                 duplicateEligibleRoots = emptyList(),
                 verifyDuplicates = false,
                 contentReadMode = ContentReadMode.NONE,
                 contentReadLimitBytes = 0L,
-                scope = if (priority.isNotEmpty()) "priority_shared_locations" else "accessible_shared_storage",
+                scope = "accessible_shared_storage",
                 duplicateCoverage = "none",
-                analysisDepth = "quick_multi_pass_metadata",
+                analysisDepth = "quick_full_scope_multi_pass_metadata",
             )
             ScanMode.SMART -> ScanPlan(
                 targets = storageRoots,
@@ -1074,6 +1101,9 @@ class FileHealthScanner(private val context: Context) {
         json.put("contentProbedFiles", c.contentProbedFiles)
         json.put("contentProbeBytes", c.contentProbeBytes)
         json.put("contentProbeFailures", c.contentProbeFailures)
+        json.put("contentExpectedBytes", c.contentExpectedBytes)
+        json.put("contentFullyReadFiles", c.contentFullyReadFiles)
+        json.put("contentPartialReadFiles", c.contentPartialReadFiles)
     }
 
     private fun cancelJson(startedAt: Long, reviewed: Long, mode: ScanMode): String = JSONObject().apply {
@@ -1104,7 +1134,7 @@ class FileHealthScanner(private val context: Context) {
     private class ScanCancelledException : RuntimeException()
 
     companion object {
-        const val ANALYSIS_RULES_VERSION = 5
+        const val ANALYSIS_RULES_VERSION = 6
         const val LARGE_FILE_BYTES = 100L * 1024L * 1024L
         const val OLDER_THAN_DAYS = 365L
         const val OLDER_THAN_MS = OLDER_THAN_DAYS * 24L * 60L * 60L * 1000L
