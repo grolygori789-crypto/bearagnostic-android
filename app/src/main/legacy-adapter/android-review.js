@@ -33,9 +33,9 @@
       color:#172b43 !important;
     }
     .native-review-panel .native-sheet-head p{
-      font-size:10px !important;
-      line-height:1.25 !important;
-      color:#8795a3 !important;
+      font-size:12px !important;
+      line-height:1.35 !important;
+      color:#586f84 !important;
       margin-top:4px !important;
     }
     .native-review-panel .native-review-summary{
@@ -43,7 +43,7 @@
       padding:0 17px 7px !important;
       background:rgba(252,254,255,.98) !important;
       color:#7b8c9c !important;
-      font-size:10px !important;
+      font-size:11.5px !important;
       align-items:center !important;
       border-bottom:1px solid rgba(91,120,149,.06) !important;
     }
@@ -64,17 +64,17 @@
       box-shadow:0 6px 18px rgba(50,83,116,.055) !important;
     }
     .native-review-panel .native-file-copy strong{
-      font-size:12px !important;
-      line-height:1.2 !important;
+      font-size:13.5px !important;
+      line-height:1.25 !important;
       color:#1c3047 !important;
     }
     .native-review-panel .native-file-copy small{
-      font-size:8.5px !important;
-      line-height:1.25 !important;
-      color:#8a98a6 !important;
+      font-size:11px !important;
+      line-height:1.35 !important;
+      color:#5c7185 !important;
     }
-    .native-review-panel .native-file-meta b{font-size:10px !important;color:#1d3046 !important;}
-    .native-review-panel .native-risk{font-size:7.5px !important;padding:3px 7px !important;}
+    .native-review-panel .native-file-meta b{font-size:12px !important;color:#1d3046 !important;}
+    .native-review-panel .native-risk{font-size:9.5px !important;padding:3px 7px !important;}
     .native-review-panel .native-review-footer{
       min-height:74px !important;
       padding:9px 13px 13px !important;
@@ -90,7 +90,7 @@
       border-radius:18px !important;
       background:#162d48 !important;
       box-shadow:0 8px 18px rgba(22,45,72,.12) !important;
-      font-size:11px !important;
+      font-size:12.5px !important;
     }
     @media(max-width:360px){
       .native-review-panel .native-file-row{min-height:66px !important;padding:10px !important;}
@@ -101,19 +101,19 @@
 
 
   function syncBuildLabels() {
-    const version = '0.19.0-alpha19';
+    const version = '0.20.0-alpha21';
     const footer = document.querySelector('.app-footer__build');
-    const footerValue = 'v0.19 · B19';
+    const footerValue = 'v0.20 · B21';
     if (footer && footer.textContent !== footerValue) footer.textContent = footerValue;
 
     const about = document.querySelector('.more-screen [data-open="about"] small');
-    const aboutValue = `Benedict Interactive · ${version} · B19`;
+    const aboutValue = `Benedict Interactive · ${version} · B21`;
     if (about && about.textContent !== aboutValue) about.textContent = aboutValue;
 
     const pref = document.getElementById('nativePreferencesExtension');
     if (pref) {
       pref.querySelectorAll('b').forEach((node) => {
-        if (node.textContent?.includes('B18')) node.textContent = node.textContent.replace('B18','B19');
+        if (/B(?:18|19|20)\b/.test(node.textContent || '')) node.textContent = `${version} · B21`;
       });
     }
   }

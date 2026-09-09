@@ -37,6 +37,10 @@ class NativeBridge(private val activity: MainActivity) {
         activity.reviewCandidatesJson(category, offset, limit)
 
     @JavascriptInterface
+    fun requestReviewMedia(id: String, variant: String, requestId: String): String =
+        activity.requestReviewMedia(id, variant, requestId)
+
+    @JavascriptInterface
     fun deleteReviewCandidates(idsJson: String): String = activity.deleteReviewCandidates(idsJson)
 
     @JavascriptInterface
@@ -66,11 +70,11 @@ class NativeBridge(private val activity: MainActivity) {
         put("supportNetwork", "user_initiated_only")
         put("supportQrSave", "native_download_manager")
         put("shareAvailable", true)
-        put("scannerCapabilities", "multi_pass,metadata,content_probe,categories,old,large,temp,apk,archives,zero_byte,empty_folders,screenshots,media,downloads,sha256_duplicates,review_candidates,verified_delete")
+        put("scannerCapabilities", "multi_pass,metadata,content_probe,categories,old,large,temp,apk,archives,zero_byte,empty_folders,screenshots,media,downloads,sha256_duplicates,review_candidates,live_activity,local_review_previews,verified_delete")
     }.toString()
 
     companion object {
         const val JS_INTERFACE_NAME = "BearagnosticNative"
-        const val BRIDGE_VERSION = 8
+        const val BRIDGE_VERSION = 9
     }
 }

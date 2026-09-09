@@ -4,7 +4,7 @@
   const NATIVE = window.BearagnosticNative;
   if (!NATIVE) return;
 
-  const BUILD = 20;
+  const BUILD = 21;
   let lastComplete = null;
 
   const byId = (id) => document.getElementById(id);
@@ -24,6 +24,7 @@
       title: 'Scan evidence', files: 'Files reviewed', folders: 'Folders visited',
       data: 'Data read', duration: 'Duration', coverage: 'Coverage', hashed: 'Hashed',
       full: 'Verified', partial: 'Partial', metadata: 'Metadata only', issues: 'Access/read issues',
+      types: 'File types reviewed', photo: 'Photos', video: 'Videos', audio: 'Audio', document: 'Documents', apk: 'APK', archive: 'Archives',
       quick: 'Quick checks metadata across accessible shared storage. Bearagnostic never adds fake waiting.',
       smart: 'Smart samples up to 256 KB from each readable non-empty file and verifies focused duplicate candidates.',
       deep: 'Deep streams every readable non-empty file. FULL is shown only when the expected bytes match the bytes actually read.',
@@ -32,6 +33,7 @@
       title: 'หลักฐานการสแกน', files: 'ไฟล์ที่ตรวจ', folders: 'โฟลเดอร์ที่ตรวจ',
       data: 'ข้อมูลที่อ่าน', duration: 'ระยะเวลา', coverage: 'ความครอบคลุม', hashed: 'ข้อมูลที่แฮช',
       full: 'ยืนยันครบ', partial: 'ไม่ครบ', metadata: 'ตรวจ Metadata', issues: 'ปัญหาการเข้าถึง/อ่าน',
+      types: 'ประเภทไฟล์ที่ตรวจ', photo: 'รูปภาพ', video: 'วิดีโอ', audio: 'เสียง', document: 'เอกสาร', apk: 'APK', archive: 'ไฟล์บีบอัด',
       quick: 'Quick ตรวจ metadata ทั่ว shared storage ที่เข้าถึงได้ และไม่มีการหน่วงเวลาให้ดูนาน',
       smart: 'Smart อ่านตัวอย่างสูงสุด 256 KB ต่อไฟล์ที่อ่านได้ และยืนยันไฟล์ซ้ำในตำแหน่งสำคัญ',
       deep: 'Deep อ่านเนื้อหาไฟล์ที่เข้าถึงได้แบบ streaming จนครบ จะแสดงว่าครบเมื่อจำนวนไบต์ที่อ่านตรงกับที่คาดเท่านั้น',
@@ -40,6 +42,7 @@
       title: 'スキャンの証拠', files: '確認済みファイル', folders: '確認済みフォルダ',
       data: '読み取りデータ', duration: '所要時間', coverage: 'カバレッジ', hashed: 'ハッシュ対象',
       full: '検証済み', partial: '一部のみ', metadata: 'メタデータのみ', issues: 'アクセス/読み取り問題',
+      types: '確認したファイル種類', photo: '写真', video: '動画', audio: '音声', document: '書類', apk: 'APK', archive: 'アーカイブ',
       quick: 'Quick はアクセス可能な共有ストレージ全体のメタデータを確認し、見せかけの待ち時間は追加しません。',
       smart: 'Smart は読み取り可能な各ファイルから最大 256 KB をサンプルし、重要な重複候補を検証します。',
       deep: 'Deep は読み取り可能な非空ファイルを最後までストリーム読み取りし、想定バイト数と実読取数が一致した場合のみ FULL とします。',
@@ -173,6 +176,7 @@
         .native-scan-evidence__metric b{display:block;font-size:13px;line-height:1.15;color:#17334d;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.native-scan-evidence__metric span{display:block;font-size:10px;line-height:1.3;color:#5e7184;margin-top:4px}
         .native-scan-evidence__note{font-size:10.5px;line-height:1.48;color:#536a7f;margin:9px 1px 0}
         .native-scan-evidence__issues{font-size:10px;color:#667b8f;margin-top:6px}
+        .native-scan-evidence__types{margin-top:9px;padding-top:9px;border-top:1px solid rgba(76,113,146,.08)}.native-scan-evidence__types>strong{display:block;font-size:10.5px;color:#38536b;margin-bottom:6px}.native-scan-evidence__typechips{display:flex;flex-wrap:wrap;gap:5px}.native-scan-evidence__typechip{display:inline-flex;align-items:center;gap:4px;padding:4px 7px;border-radius:99px;background:rgba(255,255,255,.82);border:1px solid rgba(76,113,146,.08);font-size:9.5px;color:#526b80}.native-scan-evidence__typechip b{font-size:10px;color:#183a55;font-variant-numeric:tabular-nums}
         @media(max-width:360px){.native-scan-evidence__metric b{font-size:12px}.native-scan-evidence__metric span{font-size:9.5px}}
       `;
     }
@@ -196,7 +200,8 @@
           <div class="native-scan-evidence__metric"><b id="nativeEvidenceDuration"></b><span id="nativeEvidenceDurationLabel"></span></div>
         </div>
         <p class="native-scan-evidence__note" id="nativeEvidenceNote"></p>
-        <div class="native-scan-evidence__issues" id="nativeEvidenceIssues"></div>`;
+        <div class="native-scan-evidence__issues" id="nativeEvidenceIssues"></div>
+        <div class="native-scan-evidence__types" id="nativeEvidenceTypes"><strong id="nativeEvidenceTypesTitle"></strong><div class="native-scan-evidence__typechips" id="nativeEvidenceTypeChips"></div></div>`;
       hero.insertAdjacentElement('afterend', card);
     }
     return card;
@@ -236,6 +241,17 @@
     const issues = issueCount(result);
     setText('nativeEvidenceIssues', `${text('hashed')}: ${formatBytes(hashed)} · ${text('issues')}: ${issues}`);
 
+    const typeEntries = [
+      ['photo', number(result.imageFiles)], ['video', number(result.videoFiles)],
+      ['audio', number(result.audioFiles)], ['document', number(result.documentFiles)],
+      ['apk', number(result.apkInstallerFiles)], ['archive', number(result.archiveFiles)],
+    ].filter(([, count]) => count > 0);
+    const types = byId('nativeEvidenceTypes');
+    if (types) types.hidden = typeEntries.length === 0;
+    setText('nativeEvidenceTypesTitle', text('types'));
+    const chips = byId('nativeEvidenceTypeChips');
+    if (chips) chips.innerHTML = typeEntries.map(([key,count]) => `<span class="native-scan-evidence__typechip">${text(key)} <b>${count}</b></span>`).join('');
+
     const coverage = byId('nativeCoverageFact');
     if (coverage) {
       coverage.textContent = complete ? 'FULL' : 'PARTIAL';
@@ -245,13 +261,13 @@
 
   function patchBuildLabels() {
     const state = parseJson(NATIVE.getNativeState?.(), {});
-    const version = String(state.versionName || '0.19.1-alpha20').replace('-debug', '');
+    const version = String(state.versionName || '0.20.0-alpha21').replace('-debug', '');
     const footer = document.querySelector('.app-footer__build');
-    if (footer) footer.textContent = `v0.19.1 · B${BUILD}`;
+    if (footer) footer.textContent = `v0.20 · B${BUILD}`;
 
     document.querySelectorAll('.native-pref-row b.slate,[data-open="about"] small').forEach((el) => {
       const value = String(el.textContent || '');
-      if (/B1[89]\b/.test(value) || /0\.18\.0-alpha18/.test(value)) {
+      if (/B(?:18|19|20)\b/.test(value) || /0\.(?:18|19)\.[^ ]*/.test(value)) {
         if (el.matches('.native-pref-row b.slate')) el.textContent = `${version} · B${BUILD}`;
         else el.textContent = `Benedict Interactive · ${version} · B${BUILD}`;
       }

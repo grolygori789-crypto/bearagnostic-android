@@ -62,6 +62,22 @@ class FileHealthScanner(private val context: Context) {
         val verifyDuplicates: Boolean = true,
     )
 
+    /**
+     * Media lookups are resolved only from the current in-memory review snapshot.
+     * The absolute path never crosses the JavaScript bridge; it is used only by
+     * ReviewMediaProvider for an explicit, local preview request.
+     */
+    data class ReviewMediaSource(
+        val id: String,
+        val path: String,
+        val name: String,
+        val location: String,
+        val sizeBytes: Long,
+        val modifiedMs: Long,
+        val fileKind: String,
+        val extension: String,
+    )
+
     private enum class ContentReadMode(val wireName: String) {
         NONE("none"), SAMPLE("sample"), FULL("full")
     }
@@ -239,6 +255,23 @@ class FileHealthScanner(private val context: Context) {
 
     fun reviewSummaryJson(): String = reviewSummaryObject(reviewSnapshot).toString()
 
+    fun reviewMediaSource(id: String): ReviewMediaSource? {
+        val snapshot = reviewSnapshot ?: return null
+        val candidate = snapshot.items[id.trim()] ?: return null
+        val file = File(candidate.path)
+        if (!file.exists() || !file.isFile) return null
+        return ReviewMediaSource(
+            id = candidate.id,
+            path = candidate.path,
+            name = candidate.name,
+            location = candidate.location,
+            sizeBytes = candidate.sizeBytes,
+            modifiedMs = candidate.modifiedMs,
+            fileKind = fileKind(file),
+            extension = file.extension.lowercase(Locale.ROOT).take(16),
+        )
+    }
+
     fun reviewCandidatesJson(category: String, offset: Int, limit: Int): String {
         val snapshot = reviewSnapshot
         if (snapshot == null) return JSONObject().apply {
@@ -403,6 +436,7 @@ class FileHealthScanner(private val context: Context) {
                                         phaseProcessed = processed - 1L,
                                         phaseTotal = counters.discoveredFiles,
                                         activeFileBytesRead = counters.contentProbeBytes,
+                                        activeItem = file,
                                     )
                                 }
                             }
@@ -425,6 +459,7 @@ class FileHealthScanner(private val context: Context) {
                         listener, request, plan, "file_details", counters,
                         phaseProcessed = processed,
                         phaseTotal = counters.discoveredFiles,
+                        activeItem = file,
                     )
                 }
             }
@@ -469,7 +504,7 @@ class FileHealthScanner(private val context: Context) {
                 val now = SystemClock.elapsedRealtime()
                 if (processed % 96L == 0L || now - lastProgressAt >= PROGRESS_INTERVAL_MS) {
                     lastProgressAt = now
-                    emit(listener, request, plan, "file_sizes", counters, phaseProcessed = processed, phaseTotal = counters.discoveredFiles)
+                    emit(listener, request, plan, "file_sizes", counters, phaseProcessed = processed, phaseTotal = counters.discoveredFiles, activeItem = file)
                 }
             }
             firstBySize.clear()
@@ -502,7 +537,7 @@ class FileHealthScanner(private val context: Context) {
                             val now = SystemClock.elapsedRealtime()
                             if (now - lastProgressAt >= PROGRESS_INTERVAL_MS) {
                                 lastProgressAt = now
-                                emit(listener, request, plan, "duplicates", counters, candidateFiles, candidateBytes, hashedFiles, hashedBytes)
+                                emit(listener, request, plan, "duplicates", counters, candidateFiles, candidateBytes, hashedFiles, hashedBytes, activeItem = file)
                             }
                         }
                         if (digest == null) {
@@ -555,7 +590,7 @@ class FileHealthScanner(private val context: Context) {
                 val now = SystemClock.elapsedRealtime()
                 if (processed % 96L == 0L || now - lastProgressAt >= PROGRESS_INTERVAL_MS) {
                     lastProgressAt = now
-                    emit(listener, request, plan, "modified_dates", counters, phaseProcessed = processed, phaseTotal = counters.discoveredFiles)
+                    emit(listener, request, plan, "modified_dates", counters, phaseProcessed = processed, phaseTotal = counters.discoveredFiles, activeItem = file)
                 }
             }
             emit(listener, request, plan, "modified_dates", counters, phaseProcessed = processed, phaseTotal = counters.discoveredFiles)
@@ -618,7 +653,7 @@ class FileHealthScanner(private val context: Context) {
                 val now = SystemClock.elapsedRealtime()
                 if (counters.discoveredFiles % 96L == 0L || now - lastProgressAt >= 200L) {
                     lastProgressAt = now
-                    emit(listener, request, plan, "preparing", counters)
+                    emit(listener, request, plan, "preparing", counters, activeItem = current)
                 }
             }
             output.flush()
@@ -767,6 +802,9 @@ class FileHealthScanner(private val context: Context) {
         put("reasonCode", candidate.reasonCode)
         put("duplicateGroupId", candidate.duplicateGroupId)
         put("duplicateKeepSuggested", candidate.duplicateKeepSuggested)
+        val file = File(candidate.path)
+        put("fileKind", fileKind(file))
+        put("extension", file.extension.lowercase(Locale.ROOT).take(16))
     }
 
     private fun reviewSummaryObject(snapshot: ReviewSnapshot?): JSONObject = JSONObject().apply {
@@ -797,6 +835,23 @@ class FileHealthScanner(private val context: Context) {
             parent.name.isBlank() -> grand.name.ifBlank { "Shared storage" }
             grand.name.isBlank() -> parent.name
             else -> "${grand.name}/${parent.name}"
+        }
+    }
+
+    private fun activityLocation(file: File): String {
+        return try {
+            @Suppress("DEPRECATION")
+            val root = canonicalFile(Environment.getExternalStorageDirectory()).absolutePath.trimEnd(File.separatorChar)
+            val item = canonicalFile(file).absolutePath
+            if (item == root) return "Shared storage"
+            if (item.startsWith(root + File.separator)) {
+                val relative = item.removePrefix(root + File.separator)
+                val parentRelative = relative.substringBeforeLast(File.separator, "")
+                return parentRelative.ifBlank { "Shared storage" }
+            }
+            displayLocation(file)
+        } catch (_: Exception) {
+            displayLocation(file)
         }
     }
 
@@ -1001,6 +1056,18 @@ class FileHealthScanner(private val context: Context) {
     private fun isTemporaryArtifact(name: String, ext: String, path: String): Boolean =
         ext in STRONG_TEMP_EXTENSIONS || name.endsWith(".download") || name.endsWith(".opdownload") || (ext in WEAK_TEMP_EXTENSIONS && isDownloadPath(path))
     private fun isScreenshot(name: String, path: String): Boolean = path.contains("/screenshots/") || name.contains("screenshot") || name.contains("screen_shot")
+    private fun fileKind(file: File): String {
+        val ext = file.extension.lowercase(Locale.ROOT)
+        return when {
+            ext in IMAGE_EXTENSIONS -> "image"
+            ext in VIDEO_EXTENSIONS -> "video"
+            ext in AUDIO_EXTENSIONS -> "audio"
+            ext == "apk" -> "apk"
+            ext in ARCHIVE_EXTENSIONS -> "archive"
+            ext in DOCUMENT_EXTENSIONS -> "document"
+            else -> "other"
+        }
+    }
     private fun canonicalFile(file: File): File = try { file.canonicalFile } catch (_: Exception) { file.absoluteFile }
     private fun isSymbolicLink(file: File): Boolean = try { Files.isSymbolicLink(file.toPath()) } catch (_: Exception) { false }
 
@@ -1041,6 +1108,7 @@ class FileHealthScanner(private val context: Context) {
         phaseProcessed: Long = 0,
         phaseTotal: Long = 0,
         activeFileBytesRead: Long = 0,
+        activeItem: File? = null,
     ) {
         listener.onProgress(JSONObject().apply {
             put("state", "running")
@@ -1061,6 +1129,12 @@ class FileHealthScanner(private val context: Context) {
             put("phaseProcessedFiles", phaseProcessed)
             put("phaseTotalFiles", phaseTotal)
             put("activeFileBytesRead", activeFileBytesRead)
+            if (activeItem != null) {
+                val item = canonicalFile(activeItem)
+                put("activeItemName", item.name.take(MAX_ACTIVE_ITEM_CHARS))
+                put("activeItemLocation", activityLocation(item).take(MAX_ACTIVE_LOCATION_CHARS))
+                put("activeItemKind", if (item.isDirectory) "folder" else fileKind(item))
+            }
         }.toString())
     }
 
@@ -1134,7 +1208,7 @@ class FileHealthScanner(private val context: Context) {
     private class ScanCancelledException : RuntimeException()
 
     companion object {
-        const val ANALYSIS_RULES_VERSION = 6
+        const val ANALYSIS_RULES_VERSION = 7
         const val LARGE_FILE_BYTES = 100L * 1024L * 1024L
         const val OLDER_THAN_DAYS = 365L
         const val OLDER_THAN_MS = OLDER_THAN_DAYS * 24L * 60L * 60L * 1000L
@@ -1143,6 +1217,8 @@ class FileHealthScanner(private val context: Context) {
         const val CONTENT_BUFFER_BYTES = 256 * 1024
         const val INVENTORY_BUFFER_BYTES = 64 * 1024
         const val PROGRESS_INTERVAL_MS = 160L
+        const val MAX_ACTIVE_ITEM_CHARS = 96
+        const val MAX_ACTIVE_LOCATION_CHARS = 120
         const val MAX_REVIEW_CANDIDATES = 10_000
         const val MAX_REVIEW_PAGE_SIZE = 250
         const val MAX_DELETE_SELECTION = 500

@@ -18,11 +18,16 @@ import android.webkit.WebViewClient
 import android.widget.Toast
 import org.json.JSONArray
 import org.json.JSONObject
+import java.util.concurrent.Executors
 
 class MainActivity : Activity() {
     private lateinit var webView: WebView
     private lateinit var nativeBridge: NativeBridge
     private lateinit var scanner: FileHealthScanner
+    private lateinit var reviewMediaProvider: ReviewMediaProvider
+    private val reviewMediaExecutor = Executors.newSingleThreadExecutor { runnable ->
+        Thread(runnable, "BearagnosticReviewMedia").apply { priority = Thread.NORM_PRIORITY - 1 }
+    }
     private var pendingSupportQrSave = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -211,6 +216,33 @@ class MainActivity : Activity() {
         JSONObject().apply { put("accepted", false); put("reason", "no_review_snapshot") }.toString()
     }
 
+    fun requestReviewMedia(id: String, variant: String, requestId: String): String {
+        if (!::scanner.isInitialized) {
+            return JSONObject().apply { put("accepted", false); put("reason", "no_review_snapshot") }.toString()
+        }
+        val safeRequestId = requestId.trim().take(64)
+        if (!safeRequestId.matches(Regex("[A-Za-z0-9_-]{1,64}"))) {
+            return JSONObject().apply { put("accepted", false); put("reason", "invalid_request_id") }.toString()
+        }
+        val source = scanner.reviewMediaSource(id)
+            ?: return JSONObject().apply { put("accepted", false); put("reason", "review_item_unavailable") }.toString()
+        val safeVariant = when (variant.trim().lowercase()) {
+            "large" -> "large"
+            "preview" -> "preview"
+            else -> "compact"
+        }
+        reviewMediaExecutor.execute {
+            if (!::reviewMediaProvider.isInitialized) reviewMediaProvider = ReviewMediaProvider(applicationContext)
+            val result = reviewMediaProvider.describe(source, safeVariant)
+            pushReviewMediaEvent(safeRequestId, result)
+        }
+        return JSONObject().apply {
+            put("accepted", true)
+            put("queued", true)
+            put("requestId", safeRequestId)
+        }.toString()
+    }
+
     fun storageSnapshotJson(): String = try {
         @Suppress("DEPRECATION")
         val root = Environment.getExternalStorageDirectory()
@@ -377,12 +409,26 @@ class MainActivity : Activity() {
         }
     }
 
+    private fun pushReviewMediaEvent(requestId: String, json: String) {
+        if (!::webView.isInitialized) return
+        val requestIdJson = JSONObject.quote(requestId)
+        runOnUiThread {
+            if (!isFinishing && !isDestroyed) {
+                webView.evaluateJavascript(
+                    "window.BearagnosticReviewMedia && window.BearagnosticReviewMedia.onMediaReady($requestIdJson,$json);",
+                    null,
+                )
+            }
+        }
+    }
+
     private fun pushNativeStateToWebOnUiThread() {
         if (!::webView.isInitialized) return
         runOnUiThread { pushNativeStateToWeb() }
     }
 
     override fun onDestroy() {
+        reviewMediaExecutor.shutdownNow()
         if (::scanner.isInitialized) scanner.shutdown()
         if (::webView.isInitialized) {
             webView.removeJavascriptInterface(NativeBridge.JS_INTERFACE_NAME)
