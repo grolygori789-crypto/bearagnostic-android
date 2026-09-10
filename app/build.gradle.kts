@@ -113,7 +113,7 @@ val prepareLegacyFrontend by tasks.registering {
             append("  <script src=\"./js/android-scan-trust.js?v=24\"></script>\n")
             append("  <script src=\"./js/android-live-scan.js?v=24\"></script>\n")
             append("  <script src=\"./js/android-review-media.js?v=24\"></script>\n")
-            append("  <script src=\"./js/android-premium-color.js?v=24\"></script>\n")
+            append("  <script src=\"./js/android-premium-color.js?v=25\"></script>\n")
         }
         check(originalHtml.contains("</body>")) { "Legacy index.html is missing </body>" }
         generatedIndex.writeText(originalHtml.replace("</body>", androidTags + "</body>"), StandardCharsets.UTF_8)
@@ -150,8 +150,8 @@ android {
         applicationId = "com.benedictinteractive.bearagnostic"
         minSdk = 26
         targetSdk = 36
-        versionCode = 24
-        versionName = "0.20.3-alpha24"
+        versionCode = 25
+        versionName = "0.20.4-alpha25"
     }
 
     sourceSets {

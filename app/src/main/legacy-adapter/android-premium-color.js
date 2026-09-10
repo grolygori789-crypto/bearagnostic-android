@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const BUILD = 24;
+  const BUILD = 25;
   const byId = (id) => document.getElementById(id);
 
   const MODE_ICONS = Object.freeze({
@@ -139,8 +139,14 @@
       #moreScreen .panel-head>span{color:#527f9d!important}
       #moreScreen .setting-link{--tone:102,130,157;position:relative;overflow:hidden;background:linear-gradient(112deg,#fff 43%,rgba(var(--tone),.055) 100%)!important;border-color:rgba(var(--tone),.085)!important}
       #moreScreen .setting-link:after{content:'';position:absolute;right:-28px;top:-38px;width:98px;height:98px;border-radius:50%;background:radial-gradient(circle,rgba(var(--tone),.09),transparent 68%)}
-      #privacyHubRow{--tone:47,169,141!important}#helpFeedbackHub{--tone:126,99,216!important}#supportProjectRow{--tone:189,138,63!important}#moreScreen [data-open='about']{--tone:72,126,171!important}
-      #supportProjectRow .soft-icon{background:linear-gradient(145deg,#fff3d9,#f8ead0)!important;color:#aa792d!important;box-shadow:inset 0 1px 0 #fff}
+      #privacyHubRow{--tone:47,169,141!important}#helpFeedbackHub{--tone:126,99,216!important}#supportProjectRow{--tone:183,84,112!important}#moreScreen [data-open='about']{--tone:72,126,171!important}
+      #supportProjectRow{background:linear-gradient(112deg,#fff 34%,rgba(183,84,112,.088) 100%)!important;border-color:rgba(183,84,112,.12)!important;box-shadow:0 12px 28px rgba(115,65,93,.08),inset 0 1px 0 rgba(255,255,255,.97)!important}
+      #supportProjectRow:after{background:radial-gradient(circle,rgba(183,84,112,.145),transparent 68%)!important}
+      #supportProjectRow .soft-icon{background:linear-gradient(145deg,#f7c0cb,#d96a89)!important;color:#fff!important;box-shadow:0 10px 22px rgba(183,84,112,.16),inset 0 1px 0 rgba(255,255,255,.38)!important}
+      #supportProjectRow .soft-icon svg,#supportProjectRow .soft-icon i{filter:drop-shadow(0 1px 1px rgba(111,40,63,.18))}
+      #supportProjectRow h3,#supportProjectRow strong{color:#213248!important}
+      #supportProjectRow p,#supportProjectRow small{color:#8c7080!important}
+      #supportProjectRow .icon-button,#supportProjectRow .chevron,#supportProjectRow [aria-hidden='true']{color:#a05a74!important}
 
       .privacy-principle-card{background:linear-gradient(128deg,#edf9f5 0%,#f8fcff 58%,#eef8fb 100%)!important;border-color:rgba(47,169,141,.11)!important;box-shadow:0 10px 28px rgba(51,107,99,.065),inset 0 1px 0 #fff!important}
       .privacy-principle-card__icon{background:linear-gradient(145deg,#dff7f0,#edfafa)!important;color:#218f79!important;box-shadow:0 6px 16px rgba(47,169,141,.08),inset 0 1px 0 #fff}
