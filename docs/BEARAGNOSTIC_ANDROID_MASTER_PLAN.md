@@ -2,7 +2,7 @@
 
 **Repository:** `grolygori789-crypto/bearagnostic-android`  
 **Canonical file:** `docs/BEARAGNOSTIC_ANDROID_MASTER_PLAN.md`  
-**Revision:** 2.5  
+**Revision:** 2.6  
 **Revision date:** 10 September 2026  
 **Owner / Product Authority:** P’Benz  
 **Studio / Publisher:** Benedict Interactive  
@@ -89,18 +89,18 @@ Create a new file only when it has a durable and genuinely distinct responsibili
 
 ---
 
-# 3. CURRENT VERIFIED PRODUCTION SNAPSHOT — BATCH 29
+# 3. CURRENT VERIFIED PRODUCTION SNAPSHOT — BATCH 30
 
 This section is a snapshot and must never override newer GitHub production.
 
-As of 10 September 2026 before the B30 Exact Duplicates + plan-status package is uploaded:
+As of 10 September 2026 before the B31 Large Files completion + duplicate-polish package is uploaded:
 
 - branch: `main`
-- latest commit: `593e5f409da9edf809cb430185048c46440408bf`
-- commit message: `Polish Quick Clean trust and empty states`
-- parent: `bc2a3d04426619bc3b260e78aec614d7060576af`
-- Android version: `0.22.1-alpha29`
-- `versionCode`: `29`
+- latest commit: `c54bb215493b2a12ad7bebd97ff13bd45f414a01`
+- commit message: `Complete duplicates and plan status`
+- parent: `593e5f409da9edf809cb430185048c46440408bf`
+- Android version: `0.23.0-alpha30`
+- `versionCode`: `30`
 - application ID: `com.benedictinteractive.bearagnostic`
 - debug application ID: `com.benedictinteractive.bearagnostic.debug`
 - compileSdk: `36`
@@ -108,13 +108,14 @@ As of 10 September 2026 before the B30 Exact Duplicates + plan-status package is
 - minSdk: `26`
 - Java compatibility: `17`
 - Native Bridge version: `10`
-- latest GitHub Actions debug APK run for B29: **SUCCESS** (run #33)
-- B29 has physical-device evidence for the Quick Clean no-snapshot, live-evidence and zero-low-risk result states. The live view exposes real file/folder activity and review-first next steps; no artificial waiting is used.
-- the first B29 device review also identified one presentation correction: the live third metric must be phase-aware so File Details does not misleadingly show `Data seen 0 B` before the byte-total pass has run.
+- latest GitHub Actions debug APK run for B30: **SUCCESS** (run #34)
+- B30 has physical-device evidence for both Pro and Free Exact Duplicates presentation, verified group rendering, keep-one UI state, focused-vs-full coverage messaging, Pro bulk-action presentation, sticky review footer and scrolling behavior.
+- the B30 device review did not demonstrate a complete destructive duplicate deletion on-device in the supplied evidence, so physical-device deletion verification must not be claimed from screenshots alone.
+- the B30 device review identified small presentation refinements only: phase-aware duplicate verification metrics should avoid misleading zeroes before the hash pass begins, the scan-running action should say Close rather than Done, the focused-coverage Pro CTA should stack cleanly at phone widths, and the top selection prompt should not duplicate the sticky footer summary.
 
-B29 is the known-good rollback baseline for B30 Exact Duplicates completion and plan-status work.
+B30 is the known-good rollback baseline for B31 Large Files completion and duplicate presentation polish.
 
-Do not call B30 physically verified until P’Benz tests duplicate grouping, keep-one selection, deletion verification, plan indicators and the Quick Clean phase-aware evidence correction on a real Android device.
+Do not call B31 physically verified until P’Benz tests the Large Files browse/filter/sort/select/confirm/delete/verified-result flow and the revised duplicate presentation on a real Android device.
 
 ---
 
@@ -300,6 +301,12 @@ B30 adds two focused modules:
 - `android-plan-status.js` — presentation-only Free/Pro status surfaces, including a subtle global header badge for Pro only and current-plan status in More.
 
 `android-duplicates.js` must load after entitlement and Quick Clean but before generic Android tool handling so duplicate entry points are captured by the dedicated workflow. `android-plan-status.js` must load after Pro UI so it can reflect current entitlement without becoming an entitlement source of truth. Readability remains the final presentation layer.
+
+B31 adds one focused first-class feature module:
+
+- `android-large-files.js` — dedicated Large Files workspace using only the current native `large` review candidates, with review-first sorting/filtering, local preview support, explicit selection, final confirmation and the existing verified native deletion engine.
+
+`android-large-files.js` must load after the dedicated Cleanup/Duplicates capture modules and before generic Android tool handling so Large Files entry points are captured without changing the approved PWA shell. Large Files remains a Free capability; no size-based safety explanation or manual review may be paywalled.
 
 This architecture exists specifically to prevent visual drift, monetization logic sprawl and future typography fixes being scattered across unrelated feature modules. Do not replace it with a hand-rebuilt frontend or scattered purchase checks without explicit approval and a strong architectural reason.
 
@@ -503,6 +510,39 @@ The canonical duplicate-cleanup sequence is:
 `Verified duplicate snapshot → Group exact matches → Choose keeper → Select extras → Final Review → Native delete → Verify → Rebuild groups → Verified summary`
 
 B30 also corrects Quick Clean live evidence presentation so byte metrics describe the real current phase: content sample bytes during File Details, measured storage bytes during size/date/finalization work, and hash-read bytes during duplicate verification. Before the relevant byte pass begins, the UI should show an unavailable value rather than a misleading `0 B` label.
+
+B31 may refine Exact Duplicates presentation without changing duplicate evidence or deletion logic. The approved polish is limited to: showing unavailable verification metrics as `—` until the hash pass actually begins; using `Close` while a scan is still running; stacking focused-coverage Pro actions so explanatory text retains comfortable width on phones; and keeping the top selection prompt semantically distinct from the sticky selected-bytes footer.
+
+## 10.4 Large Files vertical-slice contract
+
+B31 makes Large Files a dedicated first-class workflow rather than a generic review shortcut.
+
+Large Files must:
+
+- consume only current native review candidates in category `large`; never invent size totals or estimate files that are not present in the current review snapshot;
+- remain a Free capability; large-file safety explanations and manual review must never require Pro;
+- use an existing current review snapshot when available and offer a real Quick Scan when no snapshot exists, because file-size review needs metadata/size evidence rather than content sampling or duplicate hashing;
+- represent scope honestly: Quick/Smart/Deep large-file metadata covers accessible shared storage, while Custom represents only the selected Custom Scan locations;
+- state prominently that **large does not mean junk** and never auto-select large files merely because of size;
+- provide clear file name, safe display location, size, date, file kind and local image/video preview when the existing native review-media bridge supports it;
+- provide useful review controls including Largest first, Oldest first, Newest first, Name A–Z and basic type filtering without turning the workspace into a noisy file manager;
+- require explicit per-file selection; no bulk “select all large files” action is allowed by default;
+- block destructive action when the review snapshot is older than 15 minutes and require a fresh size check;
+- preserve the native 500-item deletion ceiling;
+- require Final Review before permanent deletion;
+- delete only IDs issued by the current native review snapshot;
+- reuse the existing native verified deletion engine, including duplicate-group keep-one protection when a selected large file also belongs to a verified duplicate group;
+- count reclaimed bytes and removed files only when Android confirms the file is gone;
+- surface native-protected and failed items separately from successful cleanup;
+- refresh Home/Tools Large Files status and the current review workspace from the live in-memory snapshot after deletion;
+- support no-access, no-snapshot, scan-running, loading, empty, partial/truncated, stale, browsing, filter/sort, selection, confirmation, result and error states;
+- support EN / TH / JA and Reduced Motion while preserving premium amber/cyan/mint semantic color discipline.
+
+The canonical Large Files sequence is:
+
+`Current review snapshot / Quick size check → Review-first large-file workspace → Filter/sort → Explicit selection → Final Review → Native delete → Verify → Verified summary → Remaining files`
+
+B31 must not alter the scanner’s large-file classification threshold merely to make the feature appear more active, and it must not fork the native deletion engine.
 
 ---
 

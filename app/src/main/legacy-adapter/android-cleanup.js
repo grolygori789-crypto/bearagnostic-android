@@ -4,7 +4,7 @@
   const NATIVE = window.BearagnosticNative;
   if (!NATIVE) return;
 
-  const BUILD = 30;
+  const BUILD = 31;
   const MAX_BATCH = 500;
   const STALE_REVIEW_MS = 15 * 60 * 1000;
   const POLL_MS = 350;

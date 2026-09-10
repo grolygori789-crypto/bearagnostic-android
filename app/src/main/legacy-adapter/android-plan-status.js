@@ -3,7 +3,7 @@
 
   const ENT = window.BearagnosticEntitlement;
   if (!ENT) return;
-  const BUILD = 30;
+  const BUILD = 31;
   const byId = (id) => document.getElementById(id);
 
   const COPY = {
