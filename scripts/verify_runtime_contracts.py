@@ -30,20 +30,20 @@ def require(condition: bool, message: str) -> None:
 
 def check_build_contracts() -> None:
     gradle = read("app/build.gradle.kts")
-    require('versionCode = 35' in gradle, "B35 versionCode must be 35")
-    require('versionName = "0.26.0-alpha35"' in gradle, "B35 versionName mismatch")
+    require('versionCode = 36' in gradle, "B36 versionCode must be 36")
+    require('versionName = "0.26.1-alpha36"' in gradle, "B36 versionName mismatch")
 
     cache_versions = re.findall(r'android-[a-z-]+\.js\?v=(\d+)', gradle)
     require(cache_versions, "no Android adapter cache versions found")
-    require(set(cache_versions) == {"35"}, f"adapter cache versions are not coherent: {sorted(set(cache_versions))}")
+    require(set(cache_versions) == {"36"}, f"adapter cache versions are not coherent: {sorted(set(cache_versions))}")
 
     require("androidDownloads" in gradle, "Downloads Review adapter is not registered")
-    require('android-downloads.js?v=35' in gradle, "Downloads Review adapter is not loaded at B35")
-    require('android-build-truth.js?v=35' in gradle, "build-truth adapter is not loaded at B35")
+    require('android-downloads.js?v=36' in gradle, "Downloads Review adapter is not loaded at B36")
+    require('android-build-truth.js?v=36' in gradle, "build-truth adapter is not loaded at B36")
 
-    downloads_pos = gradle.find('android-downloads.js?v=35')
-    native_pos = gradle.find('android-native.js?v=35')
-    truth_pos = gradle.find('android-build-truth.js?v=35')
+    downloads_pos = gradle.find('android-downloads.js?v=36')
+    native_pos = gradle.find('android-native.js?v=36')
+    truth_pos = gradle.find('android-build-truth.js?v=36')
     require(0 <= downloads_pos < native_pos < truth_pos, "adapter ownership/load order is unsafe for Downloads Review")
 
 
@@ -59,7 +59,7 @@ def check_native_guard_contracts() -> None:
     require("JSONArray(scopeDecision.scopes.toList()).toString()" in bridge, "Custom scopes are not canonicalized before scanning")
     require("RuntimeContractGuard.isReviewSnapshotFresh(generatedAtMs)" in bridge, "native stale-review guard is missing")
     require('put("reason", "stale_review_snapshot")' in bridge, "native stale-review rejection reason is missing")
-    require("const val BRIDGE_VERSION = 11" in bridge, "B35 must preserve NativeBridge v11 contract")
+    require("const val BRIDGE_VERSION = 11" in bridge, "B36 must preserve NativeBridge v11 contract")
 
     require("const val REVIEW_SNAPSHOT_MAX_AGE_MS = 15L * 60L * 1000L" in guard, "15-minute native review age limit changed")
     for mode in ("smart", "quick", "deep", "custom"):
@@ -88,7 +88,7 @@ def check_downloads_review_contracts() -> None:
     require(0 <= old_pos < downloads_pos < snapshot_pos, "Downloads candidates must be appended after established review categories")
     require('emit(\n                        listener, request, plan, "finalizing", counters,' in scanner, "Downloads review pass must report real finalizing work")
 
-    require("const BUILD = 35;" in ui, "Downloads adapter build marker mismatch")
+    require("const BUILD = 36;" in ui, "Downloads adapter build marker mismatch")
     require("const CATEGORY = 'downloads';" in ui, "Downloads adapter category mismatch")
     require("const REVIEW_PAGE_SIZE = 250;" in ui, "Downloads review page size contract changed")
     require("const RENDER_BATCH = 80;" in ui, "Downloads DOM rendering must remain bounded")
@@ -99,6 +99,10 @@ def check_downloads_review_contracts() -> None:
     require("NATIVE.startScan?.('quick', '[]', false)" in ui, "Downloads refresh must use the Free metadata-only Quick Scan")
     require("NATIVE.deleteReviewCandidates" in ui, "Downloads deletion is not routed through native verified deletion")
     require("data-tool=\"downloads\"" in ui, "Downloads first-class Tools entry is missing")
+    require("downloadsBadge('tool')" in ui and "downloadsBadge('header')" in ui, "Downloads icon polish markup is missing")
+    require("ba-downloads-badge__plate" in ui and "ba-downloads-badge__glyph" in ui, "Downloads glass icon styling is missing")
+    require("function locationLabel(item)" in ui, "Downloads location-label normalizer is missing")
+    require("item?.location || ''" in ui and "return c().toolTitle;" in ui, "Downloads location normalization is incomplete")
     require("Nothing in Downloads is selected automatically." in ui, "English review-first disclosure is missing")
     require("จะไม่เลือกไฟล์ใน Downloads ให้ลบอัตโนมัติ" in ui, "Thai review-first disclosure is missing")
 

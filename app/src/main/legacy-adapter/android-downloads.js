@@ -5,7 +5,7 @@
   const HIDDEN = window.BearagnosticHiddenItems;
   if (!NATIVE) return;
 
-  const BUILD = 35;
+  const BUILD = 36;
   const CATEGORY = 'downloads';
   const REVIEW_PAGE_SIZE = 250;
   const RENDER_BATCH = 80;
@@ -311,7 +311,7 @@
   const c = () => COPY[language()] || COPY.en;
 
   const ICONS = Object.freeze({
-    downloads: '<path d="M12 3v11"/><path d="m8 10 4 4 4-4"/><path d="M5 18h14v3H5z"/>',
+    downloads: '<path d="M12 4.5v9.25"/><path d="m8.8 10.85 3.2 3.2 3.2-3.2"/><path d="M6 17.15h12"/><path d="M7.1 17.15v1.45h9.8v-1.45"/>',
     shield: '<path d="M12 3 5 6v5c0 4.7 2.8 8 7 10 4.2-2 7-5.3 7-10V6Z"/><path d="m9 12 2 2 4-4"/>',
     image: '<rect x="4" y="5" width="16" height="14" rx="2"/><circle cx="9" cy="10" r="1.3"/><path d="m6 17 4-4 3 3 2-2 3 3"/>',
     video: '<rect x="4" y="6" width="16" height="12" rx="2"/><path d="m10 9 5 3-5 3z"/>',
@@ -323,7 +323,12 @@
     warning: '<path d="M12 4 21 20H3Z"/><path d="M12 9v5M12 17h.01"/>',
     refresh: '<path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 5v6h-6"/>'
   });
-  const icon = (name) => `<svg viewBox="0 0 24 24" aria-hidden="true">${ICONS[name] || ICONS.other}</svg>`;
+  const svgIcon = (name, className = '') => `<svg${className ? ` class="${className}"` : ''} viewBox="0 0 24 24" aria-hidden="true">${ICONS[name] || ICONS.other}</svg>`;
+  const icon = (name) => svgIcon(name);
+  function downloadsBadge(variant = 'tool') {
+    const className = variant === 'header' ? 'ba-downloads-badge ba-downloads-badge--header' : 'ba-downloads-badge';
+    return `<span class="${className}" aria-hidden="true"><span class="ba-downloads-badge__shadow"></span><span class="ba-downloads-badge__plate"></span><span class="ba-downloads-badge__glow"></span><span class="ba-downloads-badge__shine"></span>${svgIcon('downloads', 'ba-downloads-badge__glyph')}</span>`;
+  }
 
   const state = {
     open: false,
@@ -372,6 +377,16 @@
     if (!value) return '—';
     const minutes = Math.max(0, Math.floor((Date.now() - value) / 60000));
     return minutes < 1 ? c().justNow : `${minutes} ${c().minAgo}`;
+  }
+
+  function locationLabel(item) {
+    const raw = String(item?.location || '').trim();
+    if (!raw) return c().toolTitle;
+    const normalized = raw.replace(/\\/g, '/').replace(/\/+/g, '/').replace(/\/$/, '');
+    if (/^(?:0\/)?downloads?$/i.test(normalized)) return c().toolTitle;
+    if (/^\/storage\/emulated\/0\/downloads?$/i.test(normalized)) return c().toolTitle;
+    if (/(?:^|\/)downloads?$/i.test(normalized)) return c().toolTitle;
+    return raw;
   }
 
   function kindFor(item) {
@@ -445,20 +460,31 @@
     style.textContent = `
       body.ba-downloads-open{overflow:hidden!important}
       .ba-downloads-entry{--tone:43,151,203!important}
-      .ba-downloads-entry .mini-icon{background:linear-gradient(145deg,#eef8ff,#e6f4fc)!important;color:#248cc7!important;border:1px solid rgba(48,145,199,.10);box-shadow:inset 0 1px rgba(255,255,255,.96)}
-      .ba-downloads-entry .mini-icon svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+      .ba-downloads-entry .mini-icon{background:transparent!important;border:0!important;box-shadow:none!important;padding:0;display:grid;place-items:center;overflow:visible}
+      .ba-downloads-entry .mini-icon svg{fill:none;stroke-linecap:round;stroke-linejoin:round}
+      .ba-downloads-tool-icon{width:40px;height:40px}
+      .ba-downloads-badge{position:relative;display:inline-grid;place-items:center;width:38px;height:38px;border-radius:13px;isolation:isolate}
+      .ba-downloads-badge--header{width:24px;height:24px;border-radius:9px}
+      .ba-downloads-badge__shadow,.ba-downloads-badge__plate,.ba-downloads-badge__glow,.ba-downloads-badge__shine{position:absolute;inset:0;border-radius:inherit}
+      .ba-downloads-badge__shadow{inset:1px;box-shadow:0 8px 18px rgba(50,112,171,.22),0 2px 5px rgba(43,98,151,.13)}
+      .ba-downloads-badge__plate{background:linear-gradient(180deg,#def5ff 0%,#bfe8ff 16%,#8fd0ff 46%,#53adef 76%,#338fdb 100%);border:1px solid rgba(150,213,248,.98);box-shadow:inset 0 1px 0 rgba(255,255,255,.95),inset 0 -8px 12px rgba(22,94,163,.16),inset 0 0 0 1px rgba(255,255,255,.12)}
+      .ba-downloads-badge__glow{inset:3px;background:radial-gradient(115% 90% at 22% 16%,rgba(255,255,255,.96) 0%,rgba(255,255,255,.48) 26%,rgba(255,255,255,0) 58%),linear-gradient(180deg,rgba(255,255,255,.28),rgba(255,255,255,0) 68%)}
+      .ba-downloads-badge__shine{inset:4px 5px auto 5px;height:12px;background:linear-gradient(180deg,rgba(255,255,255,.98),rgba(255,255,255,.18));opacity:.96;filter:blur(.15px)}
+      .ba-downloads-badge__glyph{position:relative;z-index:1;width:18px;height:18px;stroke:#2c84c4;stroke-width:1.95;filter:drop-shadow(0 1px 0 rgba(255,255,255,.35))}
+      .ba-downloads-badge--header .ba-downloads-badge__glyph{width:12px;height:12px;stroke-width:2.05}
       .ba-downloads-surface{position:fixed;z-index:120;inset:0;background:linear-gradient(180deg,#f8fbfd 0%,#f4f8fb 100%);color:#27394a;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom);font-family:inherit}
       .ba-downloads-surface[hidden]{display:none!important}
       .ba-downloads-head{min-height:60px;padding:10px 15px;display:grid;grid-template-columns:42px minmax(0,1fr) 42px;align-items:center;gap:8px;background:rgba(250,253,255,.96);border-bottom:1px solid rgba(70,105,130,.08);backdrop-filter:blur(16px)}
       .ba-downloads-head__icon,.ba-downloads-close{width:40px;height:40px;border-radius:14px;border:1px solid rgba(63,104,134,.09);background:#fff;display:grid;place-items:center;color:#278cc5;box-shadow:0 5px 16px rgba(54,83,108,.07)}
       .ba-downloads-head__icon svg,.ba-downloads-close svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+      .ba-downloads-head__icon{color:inherit}
       .ba-downloads-close{color:#5f7486;font-size:24px;line-height:1}
       .ba-downloads-head__copy{min-width:0;text-align:center}.ba-downloads-head__copy strong{display:block;font-size:14px;line-height:1.25;color:#2c4052}.ba-downloads-head__copy small{display:block;margin-top:2px;font-size:10.5px;line-height:1.2;color:#7b8b99;letter-spacing:.035em}
       .ba-downloads-scroll{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:18px 15px 110px}
       .ba-downloads-wrap{max-width:720px;margin:0 auto}
       .ba-downloads-kicker{font-size:10px;font-weight:820;letter-spacing:.14em;color:#348dbd;text-transform:uppercase}
       .ba-downloads-title{margin:6px 0 7px;font-size:24px;line-height:1.16;letter-spacing:-.025em;color:#243a4c;font-weight:760}.ba-downloads-lead{margin:0;color:#677d90;font-size:12.5px;line-height:1.55}
-      .ba-downloads-triad{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:15px 0 12px}.ba-downloads-chip{padding:9px 9px;border-radius:14px;background:#fff;border:1px solid rgba(70,113,145,.08);box-shadow:0 5px 16px rgba(57,90,116,.045)}.ba-downloads-chip small{display:block;font-size:8.5px;font-weight:820;letter-spacing:.10em;color:#8a9aa7}.ba-downloads-chip strong{display:block;margin-top:3px;font-size:10.8px;line-height:1.25;color:#445d70;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      .ba-downloads-triad{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:15px 0 12px}.ba-downloads-chip{padding:9px 9px;border-radius:14px;background:#fff;border:1px solid rgba(70,113,145,.08);box-shadow:0 5px 16px rgba(57,90,116,.045)}.ba-downloads-chip small{display:block;font-size:8.5px;font-weight:820;letter-spacing:.10em;color:#8a9aa7}.ba-downloads-chip strong{display:block;margin-top:3px;font-size:10.5px;line-height:1.24;color:#445d70;white-space:normal;overflow:visible;text-overflow:clip;min-height:2.48em}
       .ba-downloads-notice{display:grid;grid-template-columns:34px minmax(0,1fr);gap:10px;padding:11px 12px;margin:12px 0;border-radius:17px;background:linear-gradient(135deg,#fffaf0,#fffdf9);border:1px solid rgba(196,145,65,.12)}.ba-downloads-notice--info{background:linear-gradient(135deg,#f2f9fd,#f8fcfe);border-color:rgba(48,139,192,.10)}.ba-downloads-notice__icon{width:34px;height:34px;border-radius:12px;background:#fff7e6;color:#a87531;display:grid;place-items:center}.ba-downloads-notice--info .ba-downloads-notice__icon{background:#edf8fd;color:#2a8fc3}.ba-downloads-notice__icon svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}.ba-downloads-notice strong{display:block;font-size:11.8px;line-height:1.35;color:#4b5360}.ba-downloads-notice small{display:block;margin-top:3px;font-size:10.7px;line-height:1.48;color:#7a7f87}
       .ba-downloads-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin:13px 0}.ba-downloads-stat{padding:10px 8px;border-radius:15px;background:#fff;border:1px solid rgba(66,107,137,.07);min-width:0}.ba-downloads-stat b{display:block;font-size:13px;line-height:1.25;color:#2c526b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ba-downloads-stat span{display:block;margin-top:3px;font-size:9px;line-height:1.25;color:#8796a3}
       .ba-downloads-controls{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;margin:14px 0 10px}.ba-downloads-select{height:40px;border-radius:13px;border:1px solid rgba(69,111,143,.10);background:#fff;color:#465f73;padding:0 32px 0 11px;font:inherit;font-size:11px;font-weight:680;min-width:0;outline:none}
@@ -506,7 +532,7 @@
     const signature = `${language()}|${copy.toolTitle}|${status}`;
     if (entry.dataset.downloadsSignature !== signature) {
       entry.dataset.downloadsSignature = signature;
-      entry.innerHTML = `<span class="mini-icon">${icon('downloads')}</span><span><strong>${esc(copy.toolTitle)}</strong><small>${esc(status)}</small></span><b>›</b>`;
+      entry.innerHTML = `<span class="mini-icon ba-downloads-tool-icon">${downloadsBadge('tool')}</span><span><strong>${esc(copy.toolTitle)}</strong><small>${esc(status)}</small></span><b>›</b>`;
       entry.setAttribute('aria-label', `${copy.toolTitle}. ${status}`);
     }
   }
@@ -524,7 +550,7 @@
     surface.setAttribute('aria-labelledby', 'baDownloadsSurfaceTitle');
     surface.innerHTML = `
       <header class="ba-downloads-head">
-        <span class="ba-downloads-head__icon">${icon('downloads')}</span>
+        <span class="ba-downloads-head__icon">${downloadsBadge('header')}</span>
         <div class="ba-downloads-head__copy"><strong id="baDownloadsSurfaceTitle"></strong><small>BEARAGNOSTIC · LOCAL REVIEW</small></div>
         <button class="ba-downloads-close" type="button" data-download-action="close" aria-label="Close">×</button>
       </header>
@@ -613,7 +639,7 @@
       return `<label class="ba-downloads-file${checked ? ' is-selected' : ''}" data-kind="${esc(kind)}">
         <input type="checkbox" data-download-id="${esc(item.id)}"${checked ? ' checked' : ''}${state.scannerRunning ? ' disabled' : ''}>
         <span class="ba-downloads-file__icon">${icon(kind)}</span>
-        <span class="ba-downloads-file__copy"><span class="ba-downloads-file__type">${esc(kindLabel(kind))}</span><strong>${esc(item.name || '(unnamed)')}</strong><small>${esc(item.location || 'Downloads')}</small></span>
+        <span class="ba-downloads-file__copy"><span class="ba-downloads-file__type">${esc(kindLabel(kind))}</span><strong>${esc(item.name || '(unnamed)')}</strong><small>${esc(locationLabel(item))}</small></span>
         <span class="ba-downloads-file__meta"><b>${esc(formatBytes(item.sizeBytes))}</b><small>${esc(ageLabel(item.modifiedMs))}</small></span>
       </label>`;
     }).join('') : `<div class="ba-downloads-empty"><h3>${esc(copy.noFilter)}</h3></div>`;

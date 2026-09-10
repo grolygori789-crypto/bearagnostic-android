@@ -121,25 +121,25 @@ val prepareLegacyFrontend by tasks.registering {
         val androidTags = buildString {
             // Entitlement loads first so its capture guard can protect Pro-only actions
             // before the Android interaction adapter handles them. Hidden-item privacy loads before dedicated review tools; Quick Clean, Exact Duplicates, Large Files, Older Files and Downloads Review capture their dedicated entries before generic tool handling; Pro plan status loads after Pro UI; readability loads late; Custom Scan owns its responsive composition; build-truth loads last so visible version labels always resolve from native BuildConfig.
-            append("  <script src=\"./js/android-entitlement.js?v=35\"></script>\n")
-            append("  <script src=\"./js/android-hidden-items.js?v=35\"></script>\n")
-            append("  <script src=\"./js/android-cleanup.js?v=35\"></script>\n")
-            append("  <script src=\"./js/android-duplicates.js?v=35\"></script>\n")
-            append("  <script src=\"./js/android-large-files.js?v=35\"></script>\n")
-            append("  <script src=\"./js/android-older-files.js?v=35\"></script>\n")
-            append("  <script src=\"./js/android-downloads.js?v=35\"></script>\n")
-            append("  <script src=\"./js/android-native.js?v=35\"></script>\n")
-            append("  <script src=\"./js/android-review.js?v=35\"></script>\n")
-            append("  <script src=\"./js/android-support.js?v=35\"></script>\n")
-            append("  <script src=\"./js/android-scan-trust.js?v=35\"></script>\n")
-            append("  <script src=\"./js/android-live-scan.js?v=35\"></script>\n")
-            append("  <script src=\"./js/android-review-media.js?v=35\"></script>\n")
-            append("  <script src=\"./js/android-premium-color.js?v=35\"></script>\n")
-            append("  <script src=\"./js/android-pro-ui.js?v=35\"></script>\n")
-            append("  <script src=\"./js/android-plan-status.js?v=35\"></script>\n")
-            append("  <script src=\"./js/android-readability.js?v=35\"></script>\n")
-            append("  <script src=\"./js/android-custom-scan.js?v=35\"></script>\n")
-            append("  <script src=\"./js/android-build-truth.js?v=35\"></script>\n")
+            append("  <script src=\"./js/android-entitlement.js?v=36\"></script>\n")
+            append("  <script src=\"./js/android-hidden-items.js?v=36\"></script>\n")
+            append("  <script src=\"./js/android-cleanup.js?v=36\"></script>\n")
+            append("  <script src=\"./js/android-duplicates.js?v=36\"></script>\n")
+            append("  <script src=\"./js/android-large-files.js?v=36\"></script>\n")
+            append("  <script src=\"./js/android-older-files.js?v=36\"></script>\n")
+            append("  <script src=\"./js/android-downloads.js?v=36\"></script>\n")
+            append("  <script src=\"./js/android-native.js?v=36\"></script>\n")
+            append("  <script src=\"./js/android-review.js?v=36\"></script>\n")
+            append("  <script src=\"./js/android-support.js?v=36\"></script>\n")
+            append("  <script src=\"./js/android-scan-trust.js?v=36\"></script>\n")
+            append("  <script src=\"./js/android-live-scan.js?v=36\"></script>\n")
+            append("  <script src=\"./js/android-review-media.js?v=36\"></script>\n")
+            append("  <script src=\"./js/android-premium-color.js?v=36\"></script>\n")
+            append("  <script src=\"./js/android-pro-ui.js?v=36\"></script>\n")
+            append("  <script src=\"./js/android-plan-status.js?v=36\"></script>\n")
+            append("  <script src=\"./js/android-readability.js?v=36\"></script>\n")
+            append("  <script src=\"./js/android-custom-scan.js?v=36\"></script>\n")
+            append("  <script src=\"./js/android-build-truth.js?v=36\"></script>\n")
         }
         check(originalHtml.contains("</body>")) { "Legacy index.html is missing </body>" }
         generatedIndex.writeText(originalHtml.replace("</body>", androidTags + "</body>"), StandardCharsets.UTF_8)
@@ -188,8 +188,8 @@ android {
         applicationId = "com.benedictinteractive.bearagnostic"
         minSdk = 26
         targetSdk = 36
-        versionCode = 35
-        versionName = "0.26.0-alpha35"
+        versionCode = 36
+        versionName = "0.26.1-alpha36"
     }
 
     sourceSets {
