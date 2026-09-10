@@ -2,8 +2,8 @@
 
 **Repository:** `grolygori789-crypto/bearagnostic-android`  
 **Canonical file:** `docs/BEARAGNOSTIC_ANDROID_MASTER_PLAN.md`  
-**Revision:** 2.0  
-**Revision date:** 9 September 2026  
+**Revision:** 2.1  
+**Revision date:** 10 September 2026  
 **Owner / Product Authority:** P’Benz  
 **Studio / Publisher:** Benedict Interactive  
 **Product & Development Lead:** Biu  
@@ -89,32 +89,31 @@ Create a new file only when it has a durable and genuinely distinct responsibili
 
 ---
 
-# 3. CURRENT VERIFIED PRODUCTION SNAPSHOT — BATCH 19
+# 3. CURRENT VERIFIED PRODUCTION SNAPSHOT — BATCH 25
 
 This section is a snapshot and must never override newer GitHub production.
 
-As of 9 September 2026:
+As of 10 September 2026 before the B26 entitlement package is uploaded:
 
 - branch: `main`
-- latest commit: `6e3a24afea3153e4d8458c81ad659dd8b6f27f02`
-- commit message: `Fix review layout and support actions`
-- parent: `57a9a60f1c36592613b6841e4be587fd2575aa66`
-- Android version: `0.19.0-alpha19`
-- `versionCode`: `19`
+- latest commit: `c8890668674bb38fd5a6ab0b77610876646af31c`
+- commit message: `Polish support card color treatment`
+- parent: `431b5bf3a4f86cc67eb3bdc64666ab68472f8245`
+- Android version: `0.20.4-alpha25`
+- `versionCode`: `25`
 - application ID: `com.benedictinteractive.bearagnostic`
 - debug application ID: `com.benedictinteractive.bearagnostic.debug`
 - compileSdk: `36`
 - targetSdk: `36`
 - minSdk: `26`
 - Java compatibility: `17`
-- Native Bridge version: `8`
-- latest GitHub Actions debug APK run for B19: **SUCCESS**
-- B19 physical-device QA: **PENDING**
-- P’Benz has downloaded B19 and is about to test it.
+- Native Bridge version: `9`
+- latest GitHub Actions debug APK run for B25: **SUCCESS** (run #29)
+- B25 comprehensive physical-device QA: **NOT YET COMPLETE**
 
-The latest B19 CI-success workflow is run #22, associated with commit `6e3a24a…`.
+B25 is the known-good rollback baseline for B26 monetization-foundation work.
 
-Never call B19 physically verified until P’Benz supplies real device evidence.
+Do not call B25 or B26 fully physical-device verified without explicit device evidence covering the affected behavior.
 
 ---
 
@@ -263,21 +262,26 @@ If adaptive masking is required, preserve the original composition inside the sa
 
 # 7. CURRENT ANDROID FRONTEND ASSEMBLY
 
-At B19, `app/build.gradle.kts`:
+At B25 production, `app/build.gradle.kts`:
 
 - downloads the pinned legacy archive if not cached;
 - verifies critical legacy files/assets by Git blob SHA-1;
 - copies the approved PWA into generated Android assets;
-- injects focused Android scripts:
-  - `android-native.js?v=19`
-  - `android-review.js?v=19`
-  - `android-support.js?v=19`
+- overlays Android behavior through focused adapters rather than rebuilding the PWA;
+- injects the current Android modules for native behavior, review, support, scan trust, live scan, media review and premium color;
 - copies native assets under generated `assets/native`;
 - creates the launcher resource directly from the approved PWA icon.
 
-This architecture exists specifically to prevent visual drift that occurred in earlier Android reimplementations.
+B26 adds two isolated monetization modules:
 
-Do not replace it with a hand-rebuilt frontend without explicit approval and a strong architectural reason.
+- `android-entitlement.js` — early capture guard and frontend entitlement API;
+- `android-pro-ui.js` — Pro presentation, locked-state explanation and debug-only entitlement QA controls.
+
+B26 also introduces native `EntitlementManager.kt` as the single access-policy source of truth and exposes that state through `NativeBridge.kt`.
+
+The script-order contract is intentional: entitlement guard first, normal Android adapters next, Pro UI last. This lets Free-state Pro actions be intercepted before normal mode handling while keeping presentation isolated from scanner logic.
+
+This architecture exists specifically to prevent visual drift and monetization logic sprawl. Do not replace it with a hand-rebuilt frontend or scattered purchase checks without explicit approval and a strong architectural reason.
 
 ---
 
@@ -672,7 +676,7 @@ Native-relevant groups include:
 - Privacy & Access;
 - storage permission status;
 - app/version information;
-- future Plan & Subscription.
+- Plan / Free-Pro entitlement status.
 
 Legacy browser-only settings such as “Browser Full Screen” do not belong in the native app.
 
@@ -684,28 +688,22 @@ Do not show redundant Home shortcuts on every screen when bottom navigation/back
 
 ---
 
-# 22. SUPPORT AND EXTERNAL ACTIONS
+# 22. SUPPORT, PRO ENTRY, AND EXTERNAL ACTIONS
 
-Support is voluntary and must never change analysis quality, limits, safety, or cleanup recommendations unless the commercial model is explicitly redesigned later.
+The commercial direction is now Free + lifetime Pro for Google Play.
 
-Current B19 support architecture:
+For the Google Play distribution path:
 
-- `android-support.js` captures legacy PWA support actions;
-- Ko-fi opens via native `ACTION_VIEW` through an allow-list;
-- PromptPay “Open QR” opens an allow-listed HTTPS URL externally;
-- PromptPay “Save QR” uses native Android `DownloadManager`;
-- Android <= P requests legacy write permission before saving;
-- saved QR goes to public Downloads.
+- the primary commercial entry is **Bearagnostic Pro**;
+- Pro digital entitlement must be purchased through Google Play Billing when Billing is enabled;
+- Ko-fi and PromptPay must not be presented as an alternate path to unlock Pro;
+- the Play-facing product should not surface voluntary external-payment Support alongside the Pro purchase path unless a later current-policy review explicitly justifies it.
 
-Current pinned PromptPay QR source:
+The existing Ko-fi / PromptPay support implementation is preserved in source for future non-Play/direct distribution and historical continuity. It does not grant Pro entitlement and must never be interpreted as proof of purchase.
 
-`https://raw.githubusercontent.com/grolygori789-crypto/little-ganesha-tarot/f21e6a4c81812276d661d6ebb0a3e6c86c6cf48b/assets/support/promptpay-qr.png`
+B26 repurposes the visible `Support Bearagnostic` row in the current development UI into a `Bearagnostic Pro` entry while retaining the underlying support module untouched. This avoids destructive removal before a future distribution-channel split is finalized.
 
-Important: as of B19, the QR is **not** bundled fully local inside the APK. Do not claim otherwise.
-
-Future release hardening may replace this with a verified local-bundled QR if that improves reliability and privacy without unnecessary complexity.
-
-External URL opening must remain allow-listed.
+External URL opening must remain allow-listed. Support code must never affect analysis quality, cleanup recommendations, safety, scan depth entitlement, or purchase ownership.
 
 ---
 
@@ -719,57 +717,101 @@ Default posture:
 - no remote filename inventory;
 - no behavioral ad SDK;
 - no hidden telemetry;
-- no account requirement for core cleaning;
+- no Bearagnostic account requirement for Free or lifetime Pro;
+- no email/password requirement for core cleaning or Pro ownership;
 - no persistent complete file tree;
 - no unnecessary persistent hashes;
 - no sensitive filename/path analytics.
 
 Minimal aggregate history is acceptable when it improves the product.
 
+For Play purchases, Google Play owns the payment/account transaction. Bearagnostic should consume only the minimum purchase/entitlement data required to determine access and must not introduce an unnecessary parallel account system.
+
 Network use must be explicit and narrow, for example:
 
-- user-initiated support links;
-- future Google Play Billing;
+- future Google Play Billing and entitlement restoration;
+- non-Play/direct voluntary support actions where intentionally enabled;
 - other clearly disclosed user-requested functions.
 
 ---
 
-# 24. FREE / PRO ARCHITECTURE
+# 24. FREE / PRO ARCHITECTURE — LOCKED DIRECTION
 
-The product is planned to support Free and Pro.
+Bearagnostic uses one application with two entitlement states:
 
-Do not bolt monetization onto the UI at the end. Use a centralized entitlement layer before Billing.
+`FREE → PRO`
+
+There is no separate Pro APK and no user-facing “Pro Mode” toggle. Pro is an ownership entitlement.
+
+The permanent architecture rule is:
+
+> **Feature code asks one centralized entitlement layer. Payment providers only update ownership.**
 
 Never scatter ad-hoc `if (pro)` checks throughout unrelated code.
 
-## 24.1 Planned Free tier
+B26 establishes `EntitlementManager` as the native source of truth and `BearagnosticEntitlement` as its frontend access layer. Release builds default to Free until verified Play Billing ownership is integrated. Debug builds may locally emulate Free or Pro solely for QA; release builds must never expose that switch.
 
-Free should deliver real value, potentially including:
+## 24.1 Free tier — genuinely useful
 
-- Quick;
-- basic/reasonably limited Smart;
-- basic cleanup;
-- safety advice;
-- risk warnings;
-- confirmation;
-- Share Result;
-- basic history/insights.
+Free must support a complete trustworthy cleaning journey rather than functioning as a crippled demo.
 
-## 24.2 Planned Pro tier
+Free includes:
 
-Pro may include:
+- Quick Scan;
+- Smart Scan as the recommended default using the real Smart depth defined in this plan;
+- basic cleanup and current category review;
+- focused exact-duplicate verification performed by Smart where applicable;
+- normal local media thumbnails/review already available to the base workflow;
+- scan evidence and truthful FULL/PARTIAL/coverage reporting;
+- deletion-risk explanations;
+- Safe to clean / Review first / Protected guidance;
+- destructive confirmation;
+- duplicate keep-one-copy protection;
+- verified deletion and measured reclaimed space;
+- current-session Cleanup Impact;
+- privacy-safe aggregate Share Result;
+- basic storage/current-checkup information as implemented;
+- no ads.
 
-- unlimited Smart;
-- Deep;
-- Custom;
-- advanced review/filter;
-- richer history;
-- richer Insights;
-- Space Guard;
-- scheduled checkups;
-- complete advanced toolset.
+Free users must be able to scan, review, delete eligible selected files and see verified results without purchasing Pro.
 
-## 24.3 Never paywall safety
+## 24.2 Pro tier — deeper diagnostics and advanced control
+
+The first implemented Pro gates are:
+
+- **Deep Scan** — full streaming content read of every readable non-empty file within the accessible scope plus exact duplicate verification across that accessible scope;
+- **Custom Scan** — user-selected shared-storage categories/scopes with optional exact duplicate verification.
+
+Planned Pro capabilities, which must not be marketed as complete until implemented, are:
+
+- advanced exact-duplicate workflow;
+- advanced media review, filtering and sorting;
+- historical Insights;
+- What Changed between checkups;
+- full cleanup history;
+- custom exclusions / “never review here” controls;
+- scheduled checkup reminders consistent with Android restrictions and policy;
+- other genuinely advanced tools that earn their complexity.
+
+A locked Pro feature should remain visible when useful for product discovery, but tapping it must explain the value cleanly rather than using aggressive interruption or fear.
+
+## 24.3 Ownership and pricing model
+
+Launch direction:
+
+- **one-time lifetime Pro purchase**;
+- no subscription at launch;
+- no ads in Free or Pro;
+- no Bearagnostic account/login requirement;
+- Google Play Billing is the ownership/payment path for the Play-distributed app;
+- canonical planned product ID: `bearagnostic_pro_lifetime`;
+- target Thailand standard price: **฿249**;
+- target Thailand founding-launch promotional price: **฿149** when intentionally configured;
+- other markets should use deliberate local pricing/purchasing-power review rather than naïve currency conversion.
+
+The runtime UI must **not hard-code a selling price**. Once Billing is integrated, visible price and offer text must come from current Google Play `ProductDetails` / offer configuration so currency, taxation, localization and future price changes remain correct.
+
+## 24.4 Never paywall safety
 
 Never paywall:
 
@@ -778,9 +820,18 @@ Never paywall:
 - confirmation;
 - duplicate keep-one-copy safeguard;
 - consequence warnings;
-- truthful scan/coverage status.
+- truthful scan/coverage status;
+- privacy disclosure required to understand what the app does.
 
-Pricing, billing period, trial/offer structure, and final entitlement boundaries are not yet locked and must not be invented.
+Safety is a trust boundary, not a monetization lever.
+
+## 24.5 Entitlement enforcement
+
+For implemented Pro capabilities, entitlement must be enforced below presentation as well as communicated in UI.
+
+B26 native enforcement blocks Free users from starting Deep or Custom scans even if UI routing is bypassed. The frontend guard exists for good UX, not as the sole access-control layer.
+
+Future Play Billing must update this centralized ownership layer after verified purchase state rather than teaching scanner, review or Insights code about payment mechanics directly.
 
 ---
 
@@ -797,9 +848,15 @@ Before release:
 - use a proper production release signing identity;
 - do not ship the public development debug keystore as the Play release identity;
 - test release/AAB behavior separately from debug APK;
-- verify Billing using current Google Play Billing guidance before monetization.
+- integrate and verify the current Google Play Billing Library before accepting Pro purchases;
+- retrieve product/offer pricing from Play rather than hard-coding currency text;
+- handle purchase, pending state, acknowledgement, restoration, refund/revocation and lifecycle synchronization truthfully;
+- never grant Play Pro entitlement from Ko-fi, PromptPay, a screenshot, a manually typed license key, or an unverified local flag;
+- keep debug entitlement overrides impossible to expose in release builds.
 
 Current stable debug signing exists only for development continuity.
+
+B26 is an entitlement/UX foundation and **does not claim Google Play Billing is connected or that purchases can be accepted yet**.
 
 ---
 
@@ -954,92 +1011,88 @@ Destructive tests must use expendable test files.
 
 ---
 
-# 32. CURRENT B19 PHYSICAL TEST CHECKLIST
+# 32. CURRENT B26 ENTITLEMENT PHYSICAL TEST CHECKLIST
 
-P’Benz is about to test B19. The next development room should expect feedback against this list.
+After B26 is uploaded and CI succeeds, physical-device QA should verify:
 
-1. Cold-start launch works reliably.
-2. Benedict Interactive opening appears correctly.
-3. Bearagnostic product opening appears correctly.
-4. Launcher icon matches original PWA icon exactly, with no bad crop.
-5. Home retains approved legacy visual quality.
-6. Checkup Home + Gear spacing/weight looks intentional.
-7. Quick uses all accessible shared storage and reports honest evidence.
-8. Smart performs real bounded sampling and appropriate duplicate verification.
-9. Deep performs full streaming reads and exact duplicate verification where accessible.
-10. Deep reports FULL/PARTIAL truthfully.
-11. Flying file tiles display document/image/video/audio/folder symbols.
-12. Results are actionable, not totals-only.
-13. Review workspace uses most of the screen for the file list.
-14. No mascot/advice block steals file-list space in B19.
-15. Review list scrolls correctly.
-16. Selection/footer/delete controls remain visible and unclipped.
-17. Duplicate deletion retains at least one copy.
-18. Actual deleted count and reclaimed bytes update after deletion.
-19. Post-clean impact shows measured values only.
-20. Share sheet opens correctly.
-21. More title is `Settings & Support` (localized).
-22. No stale `v0.2.0 · Build 11` remains.
-23. Preferences contain useful native groups and no Browser Full Screen.
-24. PromptPay support hub works online.
-25. Open QR works.
-26. Save QR uses native Android flow and reaches Downloads.
-27. Ko-fi opens externally.
-28. EN / JA / TH remain usable.
-29. No horizontal overflow, clipped buttons, or broken insets.
-30. No crash or blank screen.
+1. Cold-start launch and both approved opening sequences remain unchanged.
+2. Home, Checkup, Results and Review retain B25 behavior and visual quality.
+3. Smart remains Recommended and starts normally in Free state.
+4. Quick starts normally in Free state.
+5. Deep shows a clear Pro marker and opens the Pro explanation instead of starting in Free state.
+6. Custom shows a clear Pro marker and opens the Pro explanation instead of starting in Free state.
+7. Native bridge independently rejects a Free Deep/Custom request with `pro_required`.
+8. More shows `Bearagnostic Pro` rather than voluntary Support in the development UI.
+9. Pro presentation distinguishes features available now from roadmap capabilities.
+10. No price is fabricated or hard-coded into the purchase CTA.
+11. Safety-free guarantee is visible and understandable.
+12. Preferences shows current plan status without crowding the screen.
+13. Debug build exposes Free/Pro test controls only inside the Pro development surface.
+14. Switching debug entitlement to Pro immediately unlocks Deep and Custom.
+15. Switching back to Free immediately restores both gates.
+16. Debug entitlement survives a normal app restart for repeatable QA.
+17. Release configuration contains no user-accessible entitlement test switch.
+18. EN / JA / TH Pro copy remains usable and does not overflow.
+19. Existing scanner evidence and destructive safeguards remain unchanged.
+20. No crash, blank screen, click-through into legacy Support, or modal stacking defect occurs.
 
-Until this device test is completed, B19 remains **CI PASS / Physical QA PENDING**.
+Until device testing covers these points, B26 must be described as **Static QA PASS / CI pending / Physical QA pending**.
 
 ---
 
-# 33. CURRENT ROADMAP AFTER B19
+# 33. CURRENT ROADMAP AFTER B25
 
-## Immediate priority
+## B26 — Monetization Foundation
 
-First, complete B19 physical QA.
+Approved scope:
 
-If defects are found:
+- lock the Free + lifetime Pro commercial direction;
+- introduce centralized native entitlement architecture;
+- expose a focused frontend entitlement API;
+- enforce current Pro gates for Deep and Custom below the UI;
+- add premium Pro discovery/explanation UX;
+- replace the visible voluntary Support entry with Bearagnostic Pro for the Play direction;
+- add debug-only Free/Pro QA controls;
+- keep Billing disconnected until entitlement behavior is stable;
+- preserve scanner/deletion/media/support internals that do not require change.
 
-- inspect current `main`;
-- reproduce against B19 code;
-- patch the smallest affected area;
-- preserve all B19 behavior that already works;
-- do not leap ahead to monetization while correctness is broken.
+## Next — Google Play Billing / Ownership Lifecycle
 
-## Next planned major batch
+Only after B26 behavior is stable on-device:
 
-### Batch 20 — Home / Insights / Entitlement Foundation
+- verify current Play Billing and payments policy again at implementation time;
+- add current Google Play Billing Library dependency;
+- configure/read `bearagnostic_pro_lifetime` ProductDetails;
+- render current localized Play price/offer;
+- launch Play purchase flow;
+- handle purchased and pending states;
+- acknowledge qualifying purchases correctly;
+- restore ownership on reinstall/new device using the purchasing Google account;
+- synchronize refund/revocation/ownership changes;
+- connect verified ownership to `EntitlementManager`;
+- ensure release builds have no debug entitlement path.
 
-Planned scope:
+## Then — Pro Value Expansion
 
-- evolve Home with measured dynamic storage/checkup information;
-- build useful Insights foundation from real local aggregates;
-- introduce centralized FREE/PRO entitlement architecture;
-- keep safety universally available;
-- avoid Billing until entitlement behavior is stable.
+Build advanced Pro capabilities only when each is truthful and complete:
 
-### Batch 21 — Play Billing / Pro Gating
+- advanced exact duplicates;
+- advanced media review/filtering;
+- historical Insights / What Changed;
+- full cleanup history;
+- custom exclusions;
+- scheduled checkup reminders.
 
-Only after entitlement architecture and core device behavior are stable:
-
-- current Google Play Billing integration;
-- Pro entitlement restore;
-- plan screen;
-- subscription management;
-- feature gates;
-- lifecycle/error handling;
-- current policy verification.
-
-### Release hardening
+## Release hardening
 
 Then:
 
 - remaining Perfect V1 tool UX;
-- policy review;
+- current Play policy review;
 - AAB/release signing;
 - Data Safety;
 - physical-device matrix;
+- purchase/restore/refund test matrix;
 - destructive-flow test matrix;
 - performance/large-storage QA;
 - accessibility/localization QA;
@@ -1071,6 +1124,23 @@ Do not regress to “recreate it by eye.”
 ---
 
 # 35. REVISION HISTORY
+
+## Revision 2.1 — 10 September 2026
+
+Commercial/entitlement alignment after B25:
+
+- records B25 as the known-good production baseline before B26;
+- locks one-app Free + lifetime Pro direction;
+- keeps Smart fully useful and Recommended in Free;
+- assigns Deep and Custom as the first implemented Pro capabilities;
+- locks no ads, no Bearagnostic account and no subscription at launch;
+- records target Thailand standard/founding prices while forbidding hard-coded runtime price text;
+- establishes `bearagnostic_pro_lifetime` as the planned Play product ID;
+- formalizes centralized native entitlement and debug-only QA override rules;
+- reserves safety, warnings, protected logic and truthful coverage for all users;
+- moves Play-facing commercial UX from voluntary Support toward Bearagnostic Pro;
+- preserves Ko-fi/PromptPay code for possible non-Play/direct distribution without granting entitlement;
+- updates the next milestone to Google Play Billing and ownership lifecycle after B26 device stability.
 
 ## Revision 2.0 — 9 September 2026
 

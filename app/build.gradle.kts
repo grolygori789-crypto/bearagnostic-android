@@ -19,6 +19,8 @@ val androidScanTrust = layout.projectDirectory.file("src/main/legacy-adapter/and
 val androidLiveScan = layout.projectDirectory.file("src/main/legacy-adapter/android-live-scan.js").asFile
 val androidReviewMedia = layout.projectDirectory.file("src/main/legacy-adapter/android-review-media.js").asFile
 val androidPremiumColor = layout.projectDirectory.file("src/main/legacy-adapter/android-premium-color.js").asFile
+val androidEntitlement = layout.projectDirectory.file("src/main/legacy-adapter/android-entitlement.js").asFile
+val androidProUi = layout.projectDirectory.file("src/main/legacy-adapter/android-pro-ui.js").asFile
 val nativeAssetsDir = layout.projectDirectory.dir("src/main/native-assets").asFile
 
 fun gitBlobSha1(file: File): String {
@@ -57,7 +59,7 @@ val legacyCriticalBlobs = mapOf(
 val prepareLegacyFrontend by tasks.registering {
     group = "bearagnostic"
     description = "Imports the approved Bearagnostic PWA byte-for-byte, then overlays Android integration modules."
-    inputs.files(androidAdapter, androidReview, androidSupport, androidScanTrust, androidLiveScan, androidReviewMedia, androidPremiumColor)
+    inputs.files(androidAdapter, androidReview, androidSupport, androidScanTrust, androidLiveScan, androidReviewMedia, androidPremiumColor, androidEntitlement, androidProUi)
     inputs.dir(nativeAssetsDir)
     inputs.property("legacyCommit", legacyCommit)
     outputs.dir(generatedLegacyAssetsDir)
@@ -107,13 +109,17 @@ val prepareLegacyFrontend by tasks.registering {
         val generatedIndex = File(uiRoot, "index.html")
         val originalHtml = generatedIndex.readText(StandardCharsets.UTF_8)
         val androidTags = buildString {
-            append("  <script src=\"./js/android-native.js?v=24\"></script>\n")
-            append("  <script src=\"./js/android-review.js?v=24\"></script>\n")
-            append("  <script src=\"./js/android-support.js?v=24\"></script>\n")
-            append("  <script src=\"./js/android-scan-trust.js?v=24\"></script>\n")
-            append("  <script src=\"./js/android-live-scan.js?v=24\"></script>\n")
-            append("  <script src=\"./js/android-review-media.js?v=24\"></script>\n")
-            append("  <script src=\"./js/android-premium-color.js?v=25\"></script>\n")
+            // Entitlement loads first so its capture guard can protect Pro-only actions
+            // before the Android interaction adapter handles them. Pro UI loads last.
+            append("  <script src=\"./js/android-entitlement.js?v=26\"></script>\n")
+            append("  <script src=\"./js/android-native.js?v=26\"></script>\n")
+            append("  <script src=\"./js/android-review.js?v=26\"></script>\n")
+            append("  <script src=\"./js/android-support.js?v=26\"></script>\n")
+            append("  <script src=\"./js/android-scan-trust.js?v=26\"></script>\n")
+            append("  <script src=\"./js/android-live-scan.js?v=26\"></script>\n")
+            append("  <script src=\"./js/android-review-media.js?v=26\"></script>\n")
+            append("  <script src=\"./js/android-premium-color.js?v=26\"></script>\n")
+            append("  <script src=\"./js/android-pro-ui.js?v=26\"></script>\n")
         }
         check(originalHtml.contains("</body>")) { "Legacy index.html is missing </body>" }
         generatedIndex.writeText(originalHtml.replace("</body>", androidTags + "</body>"), StandardCharsets.UTF_8)
@@ -127,6 +133,8 @@ val prepareLegacyFrontend by tasks.registering {
         androidLiveScan.copyTo(File(jsRoot, "android-live-scan.js"), overwrite = true)
         androidReviewMedia.copyTo(File(jsRoot, "android-review-media.js"), overwrite = true)
         androidPremiumColor.copyTo(File(jsRoot, "android-premium-color.js"), overwrite = true)
+        androidEntitlement.copyTo(File(jsRoot, "android-entitlement.js"), overwrite = true)
+        androidProUi.copyTo(File(jsRoot, "android-pro-ui.js"), overwrite = true)
 
         if (nativeAssetsDir.isDirectory) {
             copy {
@@ -150,8 +158,8 @@ android {
         applicationId = "com.benedictinteractive.bearagnostic"
         minSdk = 26
         targetSdk = 36
-        versionCode = 25
-        versionName = "0.20.4-alpha25"
+        versionCode = 26
+        versionName = "0.21.0-alpha26"
     }
 
     sourceSets {

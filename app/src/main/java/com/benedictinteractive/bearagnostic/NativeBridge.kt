@@ -5,9 +5,27 @@ import android.webkit.JavascriptInterface
 import org.json.JSONObject
 
 class NativeBridge(private val activity: MainActivity) {
+    private val entitlement = EntitlementManager(activity.applicationContext)
 
     @JavascriptInterface
     fun getNativeState(): String = statusJson()
+
+    @JavascriptInterface
+    fun getEntitlementState(): String = entitlement.stateJson()
+
+    @JavascriptInterface
+    fun setDebugEntitlement(tier: String): String {
+        val result = entitlement.setDebugTier(tier)
+        activity.runOnUiThread { activity.pushNativeStateToWeb() }
+        return result
+    }
+
+    @JavascriptInterface
+    fun clearDebugEntitlement(): String {
+        val result = entitlement.clearDebugTier()
+        activity.runOnUiThread { activity.pushNativeStateToWeb() }
+        return result
+    }
 
     @JavascriptInterface
     fun requestBroadStorageAccess() {
@@ -20,8 +38,23 @@ class NativeBridge(private val activity: MainActivity) {
     }
 
     @JavascriptInterface
-    fun startScan(mode: String, customScopesJson: String, verifyDuplicates: Boolean): String =
-        activity.startScan(mode, customScopesJson, verifyDuplicates)
+    fun startScan(mode: String, customScopesJson: String, verifyDuplicates: Boolean): String {
+        val normalizedMode = mode.trim().lowercase()
+        val requiredCapability = when (normalizedMode) {
+            "deep" -> EntitlementManager.Capability.DEEP_SCAN
+            "custom" -> EntitlementManager.Capability.CUSTOM_SCAN
+            else -> null
+        }
+        if (requiredCapability != null && !entitlement.has(requiredCapability)) {
+            return JSONObject().apply {
+                put("accepted", false)
+                put("reason", "pro_required")
+                put("capability", requiredCapability.wireName)
+                put("entitlement", entitlement.stateJsonObject())
+            }.toString()
+        }
+        return activity.startScan(mode, customScopesJson, verifyDuplicates)
+    }
 
     @JavascriptInterface
     fun startOneTapScan(): String = activity.startOneTapScan()
@@ -70,11 +103,14 @@ class NativeBridge(private val activity: MainActivity) {
         put("supportNetwork", "user_initiated_only")
         put("supportQrSave", "native_download_manager")
         put("shareAvailable", true)
+        put("entitlement", entitlement.stateJsonObject())
+        put("proProductId", EntitlementManager.PRO_PRODUCT_ID)
+        put("billingReady", false)
         put("scannerCapabilities", "multi_pass,metadata,content_probe,categories,old,large,temp,apk,archives,zero_byte,empty_folders,screenshots,media,downloads,sha256_duplicates,review_candidates,live_activity,local_review_previews,verified_delete")
     }.toString()
 
     companion object {
         const val JS_INTERFACE_NAME = "BearagnosticNative"
-        const val BRIDGE_VERSION = 9
+        const val BRIDGE_VERSION = 10
     }
 }

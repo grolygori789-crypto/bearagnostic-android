@@ -1,6 +1,8 @@
 (() => {
   'use strict';
 
+  const NATIVE = window.BearagnosticNative;
+
   // The review surface is an action workspace, not a mascot/marketing surface.
   // Keep the underlying checkup scene completely hidden and give the file list
   // the full remaining viewport after the compact title + summary.
@@ -125,20 +127,37 @@
   document.head.appendChild(style);
 
 
+  let cachedNativeBuild = null;
+  function nativeBuild() {
+    if (cachedNativeBuild) return cachedNativeBuild;
+    try {
+      const raw = NATIVE?.getNativeState?.();
+      const state = typeof raw === 'string' ? JSON.parse(raw) : (raw || {});
+      const versionName = String(state.versionName || '0.21.0-alpha26').replace('-debug','');
+      const versionCode = Number(state.versionCode) || 26;
+      cachedNativeBuild = { versionName, versionCode };
+    } catch (_) {
+      cachedNativeBuild = { versionName:'0.21.0-alpha26', versionCode:26 };
+    }
+    return cachedNativeBuild;
+  }
+
   function syncBuildLabels() {
-    const version = '0.20.3-alpha24';
+    const { versionName, versionCode } = nativeBuild();
+    const shortVersion = versionName.split('-')[0];
     const footer = document.querySelector('.app-footer__build');
-    const footerValue = 'v0.20.3 · B24';
+    const footerValue = `v${shortVersion} · B${versionCode}`;
     if (footer && footer.textContent !== footerValue) footer.textContent = footerValue;
 
     const about = document.querySelector('.more-screen [data-open="about"] small');
-    const aboutValue = `Benedict Interactive · ${version} · B24`;
+    const aboutValue = `Benedict Interactive · ${versionName} · B${versionCode}`;
     if (about && about.textContent !== aboutValue) about.textContent = aboutValue;
 
     const pref = document.getElementById('nativePreferencesExtension');
     if (pref) {
       pref.querySelectorAll('b').forEach((node) => {
-        if (/B(?:18|19|20|21|22|23)\b/.test(node.textContent || '')) node.textContent = `${version} · B24`;
+        const value = `${versionName} · B${versionCode}`;
+        if (/\bB\d+\b/.test(node.textContent || '') && node.textContent !== value) node.textContent = value;
       });
     }
   }

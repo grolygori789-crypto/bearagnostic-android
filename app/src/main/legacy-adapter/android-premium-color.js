@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const BUILD = 25;
+  const BUILD = 26;
   const byId = (id) => document.getElementById(id);
 
   const MODE_ICONS = Object.freeze({
@@ -236,21 +236,8 @@
     });
   }
 
-  function syncBuildLabels() {
-    const version = '0.20.3-alpha24';
-    const footer = document.querySelector('.app-footer__build');
-    const footerValue = 'v0.20.3 · B24';
-    if (footer && footer.textContent !== footerValue) footer.textContent = footerValue;
-    const about = document.querySelector('.more-screen [data-open="about"] small');
-    const aboutValue = `Benedict Interactive · ${version} · B24`;
-    if (about && about.textContent !== aboutValue) about.textContent = aboutValue;
-    document.querySelectorAll('.native-pref-row b.slate').forEach((node) => {
-      if (/0\.20\.[0-9]+-alpha(?:2[0-4])|B(?:18|19|20|21|22|23)\b/.test(node.textContent || '')) {
-        const value = `${version} · B24`;
-        if (node.textContent !== value) node.textContent = value;
-      }
-    });
-  }
+  // Runtime version labels are owned by android-review.js. This visual-only
+  // module must never write build metadata or fight the runtime label synchronizer.
 
   let scheduled = false;
   function scheduleRefresh() {
@@ -260,7 +247,6 @@
       scheduled = false;
       decorateModeSheet();
       syncReviewSelection();
-      syncBuildLabels();
     });
   }
 
