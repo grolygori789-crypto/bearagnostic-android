@@ -101,6 +101,7 @@
     const location = String(data.activeItemLocation || '').trim();
     const icon = kindIcon(String(data.activeItemKind || (phase === 'preparing' ? 'folder' : 'other')));
     const percentText = String(byId('scanPercent')?.textContent || '').trim();
+    activity.dataset.kind = icon.kind;
 
     byId('nativeLiveScanIcon').innerHTML = icon.svg;
     byId('nativeLiveScanVerb').textContent = text(phase);

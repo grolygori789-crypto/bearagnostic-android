@@ -18,6 +18,7 @@ val androidSupport = layout.projectDirectory.file("src/main/legacy-adapter/andro
 val androidScanTrust = layout.projectDirectory.file("src/main/legacy-adapter/android-scan-trust.js").asFile
 val androidLiveScan = layout.projectDirectory.file("src/main/legacy-adapter/android-live-scan.js").asFile
 val androidReviewMedia = layout.projectDirectory.file("src/main/legacy-adapter/android-review-media.js").asFile
+val androidPremiumColor = layout.projectDirectory.file("src/main/legacy-adapter/android-premium-color.js").asFile
 val nativeAssetsDir = layout.projectDirectory.dir("src/main/native-assets").asFile
 
 fun gitBlobSha1(file: File): String {
@@ -56,7 +57,7 @@ val legacyCriticalBlobs = mapOf(
 val prepareLegacyFrontend by tasks.registering {
     group = "bearagnostic"
     description = "Imports the approved Bearagnostic PWA byte-for-byte, then overlays Android integration modules."
-    inputs.files(androidAdapter, androidReview, androidSupport, androidScanTrust, androidLiveScan, androidReviewMedia)
+    inputs.files(androidAdapter, androidReview, androidSupport, androidScanTrust, androidLiveScan, androidReviewMedia, androidPremiumColor)
     inputs.dir(nativeAssetsDir)
     inputs.property("legacyCommit", legacyCommit)
     outputs.dir(generatedLegacyAssetsDir)
@@ -106,12 +107,13 @@ val prepareLegacyFrontend by tasks.registering {
         val generatedIndex = File(uiRoot, "index.html")
         val originalHtml = generatedIndex.readText(StandardCharsets.UTF_8)
         val androidTags = buildString {
-            append("  <script src=\"./js/android-native.js?v=23\"></script>\n")
-            append("  <script src=\"./js/android-review.js?v=23\"></script>\n")
-            append("  <script src=\"./js/android-support.js?v=23\"></script>\n")
-            append("  <script src=\"./js/android-scan-trust.js?v=23\"></script>\n")
-            append("  <script src=\"./js/android-live-scan.js?v=23\"></script>\n")
-            append("  <script src=\"./js/android-review-media.js?v=23\"></script>\n")
+            append("  <script src=\"./js/android-native.js?v=24\"></script>\n")
+            append("  <script src=\"./js/android-review.js?v=24\"></script>\n")
+            append("  <script src=\"./js/android-support.js?v=24\"></script>\n")
+            append("  <script src=\"./js/android-scan-trust.js?v=24\"></script>\n")
+            append("  <script src=\"./js/android-live-scan.js?v=24\"></script>\n")
+            append("  <script src=\"./js/android-review-media.js?v=24\"></script>\n")
+            append("  <script src=\"./js/android-premium-color.js?v=24\"></script>\n")
         }
         check(originalHtml.contains("</body>")) { "Legacy index.html is missing </body>" }
         generatedIndex.writeText(originalHtml.replace("</body>", androidTags + "</body>"), StandardCharsets.UTF_8)
@@ -124,6 +126,7 @@ val prepareLegacyFrontend by tasks.registering {
         androidScanTrust.copyTo(File(jsRoot, "android-scan-trust.js"), overwrite = true)
         androidLiveScan.copyTo(File(jsRoot, "android-live-scan.js"), overwrite = true)
         androidReviewMedia.copyTo(File(jsRoot, "android-review-media.js"), overwrite = true)
+        androidPremiumColor.copyTo(File(jsRoot, "android-premium-color.js"), overwrite = true)
 
         if (nativeAssetsDir.isDirectory) {
             copy {
@@ -147,8 +150,8 @@ android {
         applicationId = "com.benedictinteractive.bearagnostic"
         minSdk = 26
         targetSdk = 36
-        versionCode = 23
-        versionName = "0.20.2-alpha23"
+        versionCode = 24
+        versionName = "0.20.3-alpha24"
     }
 
     sourceSets {

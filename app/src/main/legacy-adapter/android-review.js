@@ -126,19 +126,19 @@
 
 
   function syncBuildLabels() {
-    const version = '0.20.2-alpha23';
+    const version = '0.20.3-alpha24';
     const footer = document.querySelector('.app-footer__build');
-    const footerValue = 'v0.20.2 · B23';
+    const footerValue = 'v0.20.3 · B24';
     if (footer && footer.textContent !== footerValue) footer.textContent = footerValue;
 
     const about = document.querySelector('.more-screen [data-open="about"] small');
-    const aboutValue = `Benedict Interactive · ${version} · B23`;
+    const aboutValue = `Benedict Interactive · ${version} · B24`;
     if (about && about.textContent !== aboutValue) about.textContent = aboutValue;
 
     const pref = document.getElementById('nativePreferencesExtension');
     if (pref) {
       pref.querySelectorAll('b').forEach((node) => {
-        if (/B(?:18|19|20|21|22)\b/.test(node.textContent || '')) node.textContent = `${version} · B23`;
+        if (/B(?:18|19|20|21|22|23)\b/.test(node.textContent || '')) node.textContent = `${version} · B24`;
       });
     }
   }
