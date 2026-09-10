@@ -2,19 +2,20 @@
 
 **Repository:** `grolygori789-crypto/bearagnostic-android`  
 **Canonical file:** `docs/BEARAGNOSTIC_ANDROID_MASTER_PLAN.md`  
-**Revision:** 2.8  
+**Revision:** 3.0  
 **Revision date:** 10 September 2026  
 **Owner / Product Authority:** P’Benz  
 **Studio / Publisher:** Benedict Interactive  
 **Product & Development Lead:** Biu  
+**Supersedes:** Revision 2.8  
 
 ---
 
-## 0. PURPOSE OF THIS DOCUMENT
+# 0. PURPOSE, STATUS, AND NORTH STAR
 
-This document is the primary operating contract for Bearagnostic for Android.
+This document is the canonical operating contract for **Bearagnostic for Android**. It consolidates the product vision, current production state, visual contracts, Android architecture, scan truthfulness, cleanup safety, privacy, Free/Pro model, monetization direction, support policy, QA rules, packaging workflow, Play Store requirements, known failure modes, and the forward roadmap.
 
-It exists to keep product direction, visual quality, Android engineering, cleanup safety, privacy, scan truthfulness, localization, monetization architecture, repository state, QA, packaging, and release work aligned as the product grows.
+It exists so future implementation work can continue without reinterpreting the product from screenshots, old ZIPs, old chat messages, or memory.
 
 The permanent engineering North Star is:
 
@@ -22,167 +23,184 @@ The permanent engineering North Star is:
 
 The permanent product-quality target is:
 
-> **10/10 perceived quality, 10/10 clarity, 10/10 practical usefulness.**
+> **10/10 perceived quality, 10/10 clarity, 10/10 practical usefulness, and zero deceptive behavior.**
 
-Premium does not mean complicated. Every feature must earn its complexity.
+The core promise is:
 
-Bearagnostic must feel calm, intelligent, expensive, trustworthy, clinically clear, useful, and intentionally designed. It must never become a noisy “phone booster” that relies on fear, fake scores, or impossible performance claims.
+> **Find clutter. Explain the risk. Clean with confidence.**
+
+Bearagnostic must feel calm, intelligent, expensive, trustworthy, clinically clear, and intentionally designed. Premium quality must come from execution, truthfulness, safety, information hierarchy, and restraint — never from visual noise, fake performance claims, or unnecessary complexity.
 
 ---
 
-# 1. SOURCE OF TRUTH AND AUTHORITY
+# 1. AUTHORITY, SOURCE OF TRUTH, AND DECISION ORDER
 
-## 1.1 GitHub-first rule
+## 1.1 Product authority
 
-Before proposing, designing, modifying, packaging, bug-fixing, or evaluating a substantive production change, inspect the current production repository first:
+P’Benz is the final Product Authority. Biu acts as Development/Product Lead with broad authority to make product, design, UX, architecture, implementation, QA, safety, monetization-architecture, and release recommendations inside the approved North Star and trust boundaries.
 
-`grolygori789-crypto/bearagnostic-android`
+When a decision is ambiguous, choose the option that best preserves:
 
-At minimum, inspect:
+1. user trust;
+2. data safety;
+3. honest behavior;
+4. premium usability;
+5. architectural simplicity;
+6. long-term maintainability;
+7. the approved visual identity.
 
-1. default branch and latest `main` commit;
-2. current tree;
-3. the current canonical Master Plan from GitHub;
-4. the actual files affected by the requested change;
-5. the latest relevant CI state;
-6. the known-good baseline and regression risk.
-
-Do not base implementation on a stale local ZIP, an old screenshot, an old attachment, remembered chat history, or a superseded build when current GitHub production is available.
-
-If the current canonical Master Plan cannot be retrieved, **stop substantive implementation** rather than silently using a stale copy.
-
-## 1.2 Authority order
+## 1.2 Conflict-resolution order
 
 Resolve conflicts in this order:
 
 1. latest explicit instruction from P’Benz;
-2. current GitHub production;
+2. current GitHub production on `main`;
 3. this current canonical Master Plan;
-4. current approved assets and references;
-5. older chat/history/packages.
+4. approved assets/references;
+5. repository history and verified prior packages;
+6. older chat context or remembered assumptions.
 
-When a new explicit instruction overrides this plan, update this same canonical file at the next appropriate opportunity.
+Never let an old screenshot or older package override current GitHub production.
 
-## 1.3 Remote-write rule
+## 1.3 Mandatory GitHub-first rule
 
-GitHub connector permissions never imply authorization to mutate the repository.
+Before any substantive production change, design change, implementation, bug fix, package, architecture change, monetization change, or QA claim:
+
+- inspect latest `main` commit;
+- inspect the current tree;
+- fetch this canonical Master Plan from GitHub;
+- inspect the actual files that will be affected;
+- inspect relevant CI status;
+- establish the known-good rollback baseline;
+- identify the changed-file allowlist;
+- assess regression risk.
+
+If the canonical Master Plan cannot be fetched from GitHub, **stop substantive implementation** instead of silently using a stale copy.
+
+## 1.4 Remote-write rule
+
+GitHub connector permission is not authorization to mutate the repository.
 
 Default workflow:
 
-`Inspect GitHub → modify locally → QA → package repo-relative changed files → P’Benz uploads manually → inspect uploaded commit → inspect CI`
+`Inspect GitHub → modify locally → QA → package repo-relative files → P’Benz uploads manually → inspect uploaded commit → inspect CI`
 
-Do not create, update, delete, push, merge, or otherwise mutate GitHub remotely unless P’Benz explicitly authorizes remote writes **in that same turn**.
+Do not create, update, delete, push, merge, or otherwise mutate GitHub remotely unless P’Benz explicitly authorizes remote writes in that same turn.
 
----
-
-# 2. CANONICAL FILE GOVERNANCE
-
-The Master Plan must remain at exactly:
-
-`docs/BEARAGNOSTIC_ANDROID_MASTER_PLAN.md`
-
-Future updates must overwrite this file. Never create `v2`, `final`, `new`, `backup`, `copy`, dated variants, or other competing Master Plan files.
-
-The same canonical-path principle applies to production files generally. Update an existing canonical path instead of creating `new`, `new2`, `final`, `backup`, `old`, or similar duplicates.
-
-Create a new file only when it has a durable and genuinely distinct responsibility.
+Phrases such as “ทำเลย”, “ส่งไฟล์”, “อัปโหลดไฟล์มาให้”, or “ดำเนินการได้” authorize implementation/package creation, **not remote GitHub writes**.
 
 ---
 
-# 3. CURRENT VERIFIED PRODUCTION SNAPSHOT — BATCH 32
+# 2. CURRENT VERIFIED PRODUCTION SNAPSHOT — B33
 
-This section is a snapshot and must never override newer GitHub production.
+This section is a snapshot. Newer GitHub production always wins.
 
-As of 10 September 2026 before the B33 Custom Scan presentation package is uploaded:
+As of 10 September 2026 after B33 was uploaded:
 
 - branch: `main`
-- latest commit: `53e141e2ce791db5bad64f16bce2e3c3ac75a410`
-- commit message: `Complete Older Files and hidden item controls`
-- parent: `6708fc355c99a8af7adf12db0f7c913ef9dd6dbd`
-- Android version: `0.25.0-alpha32`
-- `versionCode`: `32`
+- latest commit: `4321369aa830894c82b0a84a9ab8aaabfc3681d7`
+- commit message: `Polish Custom Scan mobile layout`
+- parent: `53e141e2ce791db5bad64f16bce2e3c3ac75a410`
+- tree: `48ef1beffebc915acfe9ff3622a4207a1410c7c5`
+- Android version: `0.25.1-alpha33`
+- `versionCode`: `33`
 - application ID: `com.benedictinteractive.bearagnostic`
 - debug application ID: `com.benedictinteractive.bearagnostic.debug`
 - compileSdk: `36`
 - targetSdk: `36`
 - minSdk: `26`
 - Java compatibility: `17`
-- Native Bridge version: `10`
-- latest GitHub Actions debug APK run for B32: **SUCCESS** (run #36)
-- B32 has physical-device evidence for the Older Files entry state, live Quick Scan presentation and populated Older Files workspace. Supplied device evidence shows 14 older files, 79.1 MB total and an oldest-modified date of 18 September 2024 on the tested device.
-- B32 also has physical-device evidence that the Hidden Items preference can be enabled and that the Large Files workspace then reveals accessible hidden/private-labelled items with explicit `HIDDEN` markers while retaining review-first selection behavior.
-- supplied B32 screenshots do not demonstrate a complete destructive Older Files/Hidden Items deletion, so physical-device deletion verification must not be claimed from screenshots alone.
-- a B32 physical review exposed one presentation regression in Custom Scan: the native mode grid still remained a two-column container while the custom scope list and Start button were inserted as sibling children, compressing the scope list into one half of the sheet. This is a responsive composition defect, not a scanner or entitlement defect.
+- pinned approved legacy/PWA commit: `78a31c7752e171c0eafb63c0d0859f4072a193d6`
+- approved launcher-icon Git blob SHA-1: `f9cff58fc54e6b0525c7f74922b0588aca6a9a9d`
+- latest GitHub Actions workflow: `Build Android Debug APK`
+- latest run at B33: run #37
+- B33 CI conclusion: **SUCCESS**
 
-B32 is the known-good rollback baseline for B33 Custom Scan presentation work.
+### Current physical-device evidence
 
-Do not call B33 physically verified until P’Benz tests Custom Scan scope selection, duplicate-verification selection, Start/Cancel actions and EN/TH/JA layout on a real Android device.
+Physical screenshots supplied by P’Benz establish meaningful on-device evidence for:
+
+- Home B27 premium/readability presentation;
+- Quick Clean live-evidence and empty-result UX;
+- Exact Duplicates populated workspaces in both Pro and Free debug-entitlement states;
+- Large Files pre-scan, live Quick Scan, populated result workspace, local thumbnails, filtering/sorting presentation;
+- Older Files pre-scan/live/result workspace;
+- Hidden Items OFF/ON presentation, including hidden/private-labelled items in Large Files when opted in;
+- Custom Scan B33 responsive redesign, location selection, duplicate-check selection, summary, full-width Start/Cancel presentation.
+
+P’Benz reported the B33 Custom Scan redesign looks good and passed a brief device test.
+
+### Physical-device claims that must NOT be overstated
+
+The supplied screenshots do **not** prove complete destructive deletion verification for every Quick Clean, Duplicate, Large Files, Older Files, and hidden-item scenario. Until explicitly tested, do not call those full destructive matrices physically verified.
+
+B33 visual/interaction evidence does not automatically prove every Custom Scan scope combination, language, cancellation case, or full scan completion path.
 
 ---
 
-# 4. PRODUCT POSITIONING
+# 3. PRODUCT POSITIONING
 
 Bearagnostic for Android is:
 
-> **A premium, privacy-first, all-in-one junk file cleaner and file-health assistant for Android.**
+> **A premium, privacy-first file cleaner and file-health assistant for Android.**
 
-Product promise:
-
-> **Find clutter. Explain the risk. Clean with confidence.**
-
-It must help users:
+It helps users:
 
 - understand what consumes storage;
 - scan accessible shared storage honestly;
 - identify low-risk cleanup candidates;
-- verify exact duplicates using evidence;
-- distinguish junk confidence from deletion risk;
-- review ambiguous files intelligently;
-- clean selected files safely;
-- verify actual deletion;
-- see truthful before/after cleanup impact;
-- understand why an item should be kept, reviewed, or removed;
+- verify exact duplicate files using real evidence;
+- inspect large and older files without calling them junk;
+- distinguish safe-to-clean, review-first, and protected situations;
+- make deletion decisions with context;
+- clean only explicitly chosen or strongly justified candidates;
+- verify that deletion actually occurred;
+- see truthful reclaimed-space results;
 - retain control at every destructive step.
 
-The app should feel like a high-end diagnostic and maintenance utility, not a commodity booster.
+It is not a generic “phone booster.”
 
 ---
 
-# 5. EXPLICITLY REJECTED PRODUCT BEHAVIOR
+# 4. EXPLICITLY REJECTED PRODUCT BEHAVIOR
 
-Do not implement or market Bearagnostic as:
+Never implement or market Bearagnostic as:
 
 - RAM booster;
 - memory cleaner;
 - CPU cooler;
 - fake speed booster;
-- battery booster;
-- kill-all background app tool;
+- battery optimizer that claims unsupported gains;
+- kill-all background-app tool;
 - fake antivirus;
+- registry cleaner;
 - root cleaner;
 - private-app-cache cleaner outside legitimate Android access;
-- registry cleaner;
-- fear-based “your phone is in danger” utility.
+- fear-based utility that pressures users into deleting files.
 
-Do not display fabricated values such as:
+Never fabricate:
 
-- “Phone speed +37%”;
-- fake health score;
-- fake junk totals;
-- fake scan percentages;
-- fake virus counts;
-- fake optimization success;
-- fake undo.
+- junk totals;
+- scan percentages;
+- health scores;
+- virus counts;
+- optimization success;
+- “phone speed +XX%” claims;
+- reclaimed bytes not verified by deletion;
+- fake undo;
+- fake scan delays;
+- fake progress;
+- fake “deep” coverage.
 
-Performance benefits may be described only when evidence supports them, for example reclaiming storage headroom or resolving storage pressure. Never imply CPU/RAM acceleration from file deletion without a measured, defensible basis.
+Performance benefits may be described only when supported by evidence, such as reclaiming storage headroom or resolving storage pressure. File deletion must never be presented as proof of CPU/RAM acceleration without measured evidence.
 
 ---
 
-# 6. LEGACY HTML/PWA FRONTEND AS VISUAL SOURCE OF TRUTH
+# 5. VISUAL SOURCE OF TRUTH
 
-## 6.1 Approved legacy repository
+## 5.1 Preserve the approved PWA literally first
 
-Legacy/PWA repository:
+Approved legacy repository:
 
 `grolygori789-crypto/bearagnostic`
 
@@ -190,58 +208,37 @@ Pinned approved commit:
 
 `78a31c7752e171c0eafb63c0d0859f4072a193d6`
 
-The Android build imports this legacy PWA and verifies critical Git blob SHA-1 values before packaging it.
+Permanent principle:
 
-Android-specific behavior must be layered on through focused adapters/modules. Do not casually rewrite the approved visual shell.
+> **Preserve the PWA literally first. Layer Android capability on top.**
 
-## 6.2 Critical visual/source contracts
+Do not recreate the approved interface “by eye” when the approved source exists.
 
-The approved experience includes:
+## 5.2 Protected visual assets and composition
+
+Preserve unless P’Benz explicitly approves a change:
 
 - Benedict Interactive opening;
 - Bearagnostic product opening;
-- original PWA app icon;
-- Bearagnostic wordmark and tagline;
+- Bearagnostic wordmark/tagline;
 - original Home composition;
 - silver header gear;
-- Dr. Bear approved artwork;
+- Dr. Bear approved visual identity;
 - Start Checkup hero;
-- quick tools:
-  - Cleanup
-  - Duplicates
-  - Large Files
-  - Older Files
-- File Health;
+- quick-tool tiles: Cleanup, Duplicates, Large Files, Older Files;
+- File Health card;
 - editorial still-life;
-- bottom navigation:
-  - Home
-  - Checkup
-  - Tools
-  - Insights
-  - More
-- Checkup visual scene;
-- six scan stages:
-  - Preparing
-  - File Details
-  - File Sizes
-  - Duplicates
-  - Modified Dates
-  - Finalizing
-- animated file tiles flying toward the tablet;
-- file-tile symbols for:
-  - document
-  - image
-  - video
-  - audio
-  - folder
-- original glass icons;
-- premium clinical/editorial styling.
+- bottom navigation: Home, Checkup, Tools, Insights, More;
+- Checkup clinical scene;
+- six scan stages;
+- animated file tiles;
+- original glass-icon language;
+- premium off-white/cyan/blue/mint/violet/amber visual system;
+- intentional negative space.
 
-Do not redesign these simply because Android features are being added.
+## 5.3 Launcher icon — non-negotiable
 
-## 6.3 App icon contract
-
-The launcher icon must come directly from the approved PWA source:
+Launcher icon source:
 
 `assets/icons/app-icon-192.png`
 
@@ -249,127 +246,214 @@ Approved Git blob SHA-1:
 
 `f9cff58fc54e6b0525c7f74922b0588aca6a9a9d`
 
-Do not:
+Never:
 
-- redraw;
-- regenerate;
-- crop differently;
-- zoom into the bear;
+- redraw it;
+- regenerate it;
+- substitute another Dr. Bear image;
+- crop/zoom differently;
 - cut off the body/tablet/thumb;
-- replace with another Dr. Bear illustration;
-- use a screenshot crop.
+- use a screenshot crop;
+- replace it with a newly generated mascot.
 
-If adaptive masking is required, preserve the original composition inside the safe zone.
-
----
-
-# 7. CURRENT ANDROID FRONTEND ASSEMBLY
-
-At B27 production, `app/build.gradle.kts`:
-
-- downloads the pinned legacy archive if not cached;
-- verifies critical legacy files/assets by Git blob SHA-1;
-- copies the approved PWA into generated Android assets;
-- overlays Android behavior through focused adapters rather than rebuilding the PWA;
-- injects the current Android modules for native behavior, review, support, scan trust, live scan, media review and premium color;
-- copies native assets under generated `assets/native`;
-- creates the launcher resource directly from the approved PWA icon.
-
-B26 adds two isolated monetization modules:
-
-- `android-entitlement.js` — early capture guard and frontend entitlement API;
-- `android-pro-ui.js` — Pro presentation, locked-state explanation and debug-only entitlement QA controls.
-
-B26 also introduces native `EntitlementManager.kt` as the single access-policy source of truth and exposes that state through `NativeBridge.kt`.
-
-The B26 script-order contract is intentional: entitlement guard first, normal Android adapters next, Pro UI after them. This lets Free-state Pro actions be intercepted before normal mode handling while keeping presentation isolated from scanner logic.
-
-B27 adds one final presentation-only module:
-
-- `android-readability.js` — centralized typography, contrast, leading and spacing overrides across Android surfaces.
-
-The B27 readability module is the final general-purpose typography layer. It may improve legibility and spacing, but it must not own scan behavior, entitlement decisions, deletion behavior, support actions or business logic. A later narrowly scoped presentation module may load after it only when that module must own one specific surface without weakening this centralized readability contract.
-
-B28 adds one isolated first-class feature module:
-
-- `android-cleanup.js` — the complete Quick Clean vertical slice for the Home/Tools Cleanup entry points.
-
-Quick Clean must load after the entitlement guard and before generic Android tool handling so its dedicated Cleanup entry points are captured without rewriting the approved PWA shell. It may call the existing native scan/review/delete bridge, but it must not duplicate scanner rules or create a second deletion engine.
-
-B30 adds two focused modules:
-
-- `android-duplicates.js` — dedicated Exact Duplicates workspace using only current native verified-duplicate evidence and the existing native deletion engine;
-- `android-plan-status.js` — presentation-only Free/Pro status surfaces, including a subtle global header badge for Pro only and current-plan status in More.
-
-`android-duplicates.js` must load after entitlement and Quick Clean but before generic Android tool handling so duplicate entry points are captured by the dedicated workflow. `android-plan-status.js` must load after Pro UI so it can reflect current entitlement without becoming an entitlement source of truth. Readability remains the final presentation layer.
-
-B31 adds one focused first-class feature module:
-
-- `android-large-files.js` — dedicated Large Files workspace using only the current native `large` review candidates, with review-first sorting/filtering, local preview support, explicit selection, final confirmation and the existing verified native deletion engine.
-
-`android-large-files.js` must load after the dedicated Cleanup/Duplicates capture modules and before generic Android tool handling so Large Files entry points are captured without changing the approved PWA shell. Large Files remains a Free capability; no size-based safety explanation or manual review may be paywalled.
-
-B32 adds two focused modules:
-
-- `android-hidden-items.js` — a local-only, default-OFF privacy preference for revealing accessible filesystem-hidden or clearly private-labelled review items; it never expands Android permissions, bypasses protected app storage, opens vaults, or changes scanner access boundaries;
-- `android-older-files.js` — dedicated Older Files workspace using only current native `old` review candidates, with age-first review, local previews, filtering/sorting, explicit selection, final confirmation and the existing verified native deletion engine.
-
-`android-hidden-items.js` loads before dedicated review tools so Cleanup, Duplicates, Large Files and Older Files can share one privacy preference. Hidden items remain concealed from dedicated review lists and preview requests until the user explicitly opts in. Quick Clean never promotes a hidden item into its one-tap safe-clean list. `android-older-files.js` loads before generic Android tool handling and remains a Free capability.
-
-B33 adds one isolated presentation module:
-
-- `android-custom-scan.js` — a Custom Scan-only responsive composition layer. It converts the custom mode grid into one full-width vertical flow, restores a balanced two-column location grid, gives Music and exact-duplicate verification deliberate full-width treatment, adds compact selection-state context, and prevents the Start action from being presented as available when no locations are selected.
-
-`android-custom-scan.js` loads after the general readability layer because it owns only the final Custom Scan geometry seen on-device. It must not change scanner depth, entitlement decisions, Custom scope definitions, duplicate algorithms, hidden-item policy, deletion behavior, or the approved PWA shell.
-
-This architecture exists specifically to prevent visual drift, monetization logic sprawl and future typography fixes being scattered across unrelated feature modules. Do not replace it with a hand-rebuilt frontend or scattered purchase checks without explicit approval and a strong architectural reason.
+If adaptive masking is needed, preserve the original composition inside Android’s safe zone.
 
 ---
 
-# 8. SCAN-MODE ARCHITECTURE
+# 6. PREMIUM DESIGN SYSTEM
 
-Scope and depth are distinct concepts.
+## 6.1 Visual character
 
-## 8.1 Quick Scan
+The app should feel:
 
-Quick must scan **all accessible shared storage** within Android’s legitimate access boundary.
+- refined;
+- calm;
+- bright;
+- clinically trustworthy;
+- editorial rather than game-like;
+- premium without looking flashy;
+- spacious without looking unfinished.
 
-Quick depth:
+Avoid neon saturation, rainbow UI, excessive glass effects, crowded dashboards, or overly dark “tech” aesthetics.
+
+## 6.2 Semantic color language
+
+Use restrained semantic color rather than decoration:
+
+- Cyan/Azure — brand, scan, information, primary action;
+- Indigo/Violet — deeper analysis, duplicates, intelligence;
+- Mint/Teal — safe, verified, privacy, success;
+- Amber/Champagne — review-first, large/old context, caution;
+- Slate Blue — documents, system, protected, neutral;
+- Coral/Red — destructive/error states only;
+- Rose Ruby / Warm Raspberry — voluntary support/care, with white heart treatment where used.
+
+Normal screens should feel mostly light/neutral. Color coverage should remain restrained, roughly 10–20% rather than flooding every surface.
+
+## 6.3 Negative space versus dead space
+
+Premium negative space is intentional and supports hierarchy. Dead space is unused area created because information architecture is incomplete.
+
+When a task surface looks empty:
+
+- do not fill it with decoration for decoration’s sake;
+- use meaningful evidence, summaries, next steps, or state explanation when they add value;
+- never add fake scan time merely to occupy space.
+
+## 6.4 Readability contract
+
+The app-wide readability pass established these principles:
+
+- essential body text should generally live around 12.5–14 px in the current WebView visual scale;
+- secondary information should generally remain around 11–12 px;
+- readable metadata should generally remain around 10–11 px;
+- badges may be smaller only when clearly non-essential;
+- important text must not be made tiny merely to preserve a no-scroll layout;
+- body leading should normally remain comfortable, approximately 1.45–1.55 where space permits;
+- Thai and Japanese require sufficient vertical breathing room;
+- contrast must be high enough to read comfortably on a real phone, not only in a desktop screenshot.
+
+`android-readability.js` is the centralized general-purpose typography layer. Do not scatter random font-size fixes across unrelated modules unless a narrowly scoped surface truly needs final geometry ownership.
+
+## 6.5 Zero-scroll versus scrollable surfaces
+
+Keep the approved Home and Checkup composition as close to intentional zero-scroll/full-screen behavior as practical.
+
+Content-heavy workspaces such as Pro, Preferences, Privacy, Duplicates, Large Files, Older Files, and Custom Scan may scroll naturally. Never shrink text, crop controls, or compress cards merely to force everything onto one screen.
+
+---
+
+# 7. DR. BEAR USAGE CONTRACT
+
+Dr. Bear is a trust/brand character, not decoration to place everywhere.
+
+Preferred mapping:
+
+- **inspect** — scan, analysis, Insights;
+- **review** — uncertainty, review-first, empty state, permissions;
+- **success** — cleanup completed, all-good, support thanks;
+- **caution** — destructive confirmation, protected situations;
+- **full logo/hero** — About, brand, launch, share.
+
+Use Dr. Bear sparingly.
+
+The file-review workspace intentionally removed a large mascot/advice card in B19 to maximize task space. Do not re-add a large mascot there unless P’Benz explicitly asks.
+
+Custom Scan may use a compact Dr. Bear guidance strip because it supports choice and does not compete with the task.
+
+---
+
+# 8. CURRENT ANDROID FRONTEND ASSEMBLY
+
+The Android app intentionally imports the pinned verified PWA, then overlays focused Android modules.
+
+Current B33 adapter order in `app/build.gradle.kts` is intentionally structured around capture priority and presentation ownership:
+
+1. `android-entitlement.js`
+2. `android-hidden-items.js`
+3. `android-cleanup.js`
+4. `android-duplicates.js`
+5. `android-large-files.js`
+6. `android-older-files.js`
+7. `android-native.js`
+8. `android-review.js`
+9. `android-support.js`
+10. `android-scan-trust.js`
+11. `android-live-scan.js`
+12. `android-review-media.js`
+13. `android-premium-color.js`
+14. `android-pro-ui.js`
+15. `android-plan-status.js`
+16. `android-readability.js`
+17. `android-custom-scan.js`
+
+The order is not arbitrary.
+
+- entitlement loads early so locked actions can be intercepted before normal handling;
+- hidden-item preference loads before review tools;
+- dedicated quick-tool modules capture their own entry points before generic Android routing;
+- Pro UI is presentation layered over entitlement state;
+- plan status follows Pro UI;
+- readability is late general typography ownership;
+- Custom Scan loads last because it narrowly owns final Custom Scan geometry.
+
+Do not casually reorder these modules.
+
+## 8.1 Architectural rule
+
+If a focused adapter/module can solve a feature safely, prefer that over rewriting the PWA or duplicating scanner/deletion logic.
+
+Do not create parallel sources of truth for:
+
+- entitlement;
+- scan rules;
+- deletion;
+- duplicate identity;
+- hidden-item preference;
+- version labels;
+- localized price.
+
+---
+
+# 9. SCAN-MODE CONTRACT
+
+Scope and depth are separate concepts.
+
+## 9.1 Quick Scan
+
+Quick Scan must inspect **all accessible shared storage** within legitimate Android access boundaries.
+
+Depth:
 
 - metadata;
 - lightweight deterministic rules;
+- file sizes/dates where available;
 - no content read;
 - no duplicate hashing.
 
-Quick may legitimately finish fast, but it must never scan only a hidden subset while claiming whole accessible storage.
+Quick may legitimately finish extremely fast.
 
-## 8.2 Smart Scan
+## 9.2 Smart Scan
 
-Smart is the recommended default.
+Smart Scan is the recommended default.
 
-Smart performs:
+It performs:
 
 - all accessible shared storage;
 - metadata/rule analysis;
-- bounded real content sampling on readable non-empty files;
-- focused exact duplicate verification in high-value locations where appropriate.
+- bounded real content sampling on every readable non-empty file;
+- focused exact-duplicate verification in high-value locations.
 
-## 8.3 Deep Scan
+Current important implementation constant:
 
-Deep performs the deepest legitimate analysis supported by current architecture:
+`SMART_SAMPLE_BYTES = 256 KiB per readable non-empty file`
+
+Current hashing/content buffers are also 256 KiB.
+
+Do not reduce Smart into a disguised metadata-only Quick scan.
+
+## 9.3 Deep Scan
+
+Deep Scan performs the deepest legitimate work supported by current architecture:
 
 - all accessible shared storage;
 - metadata/rules;
 - full streaming content read of every readable non-empty file;
-- exact duplicate verification across the accessible scope.
+- exact duplicate verification across accessible scope.
 
-No fake duration may be added. If Deep is fast, evidence must explain why.
+Deep coverage is FULL only when intended reads complete truthfully. A Deep result must remain PARTIAL if intended coverage is not actually achieved.
 
-## 8.4 Custom Scan
+Important evidence conditions include:
 
-Custom lets the user choose shared-storage categories/locations and whether exact duplicate verification is needed.
+- no content probe failures;
+- no partial content reads;
+- expected content bytes equal actual content bytes;
+- fully read files correspond to successfully probed files;
+- inaccessible/missing/probe/hash failures are represented honestly.
 
-Current supported custom scopes include:
+## 9.4 Custom Scan
+
+Current selectable scopes:
 
 - Downloads;
 - Photos;
@@ -377,1099 +461,952 @@ Current supported custom scopes include:
 - Documents;
 - Music.
 
-Custom Scan presentation must preserve the following mobile contract:
+Current content-read depth is none; the user can optionally request exact duplicate verification inside selected scopes.
 
-- the scope list receives the full available sheet width and must never be compressed beside the Start button;
-- Downloads/Photos and Videos/Documents may use a balanced two-column grid when width permits;
-- Music may occupy a deliberate full-width row so an odd number of scopes does not leave an accidental visual hole;
-- exact duplicate verification is a separate full-width setting rather than another indistinguishable location tile;
-- Start Custom Scan is a full-width primary action below the selected options;
-- Cancel remains a clear secondary action;
-- content may scroll naturally on short displays instead of shrinking text or clipping controls;
-- the UI must not present Start as available with zero selected locations, because a Custom Scan should reflect explicit user scope rather than silently imply a default selection;
-- EN/TH/JA must retain readable line wrapping and touch targets.
+B33 presentation contract:
 
-These are presentation/interaction safeguards. They do not redefine scanner depth or Android access boundaries.
+- full-width Custom Scan flow;
+- Downloads/Photos and Videos/Documents may use balanced two-column rows;
+- Music uses deliberate full width;
+- exact duplicate verification is a separate full-width setting;
+- Start Custom Scan is full-width below options;
+- Cancel is a clear secondary action;
+- zero selected locations must disable the Start action;
+- short screens scroll naturally;
+- EN/TH/JA must preserve readable line wrapping and touch targets.
 
-Future Custom evolution may allow explicit depth selection, provided complexity remains controlled.
+Custom Scan must not silently substitute default scopes when the UI communicates zero selections.
+
+Future Custom evolution may add explicit depth selection only if it remains understandable.
 
 ---
 
-# 9. SCAN TRUTH, EVIDENCE, AND PROGRESS
+# 10. SCAN SPEED, TRUTH, EVIDENCE, AND PROGRESS
 
-No artificial `sleep`, minimum-duration trick, or animation pacing may be used to make a scan “look real.”
+## 10.1 Never fake slowness
 
-Progress must derive from actual work.
+Permanent rule:
 
-Useful evidence includes:
+> **Fast because the real work finished — never slow because the UI pretended to work.**
 
+No artificial `sleep`, minimum scan duration, staged fake percentages, or cosmetic delays.
+
+If a scan completes in a fraction of a second, let it complete. Explain speed with real evidence instead of slowing it down.
+
+## 10.2 Progress must come from real work
+
+Useful real evidence includes:
+
+- current phase;
 - roots scanned;
 - directories visited;
 - files discovered;
 - files reviewed;
-- total bytes;
-- inaccessible folders;
-- unreadable files;
-- missing-during-scan files;
-- expected content bytes;
-- content bytes actually read;
-- content files probed;
-- fully read files;
-- partial reads;
+- bytes discovered/measured;
+- expected/actual content bytes;
+- fully/partially read files;
 - read failures;
-- hashed files;
-- hashed bytes;
-- hash failures;
-- duplicate groups;
-- verified duplicate copies;
-- scan duration;
-- actual coverage status.
+- duplicate/hash work;
+- active item name;
+- active item location;
+- duration;
+- inaccessible roots/folders;
+- final coverage state.
 
-Deep must not report complete/full coverage when actual full-read coverage is partial.
+Current progress emission interval is approximately 160 ms. Fast scans may therefore transition before a user can capture every phase, and that is acceptable.
 
-When total work is unknown, use an honest indeterminate state rather than inventing a whole-device percentage.
+## 10.3 Phase-aware metrics
 
----
+Never show a metric as `0` when that phase has not begun if zero would imply failed work.
 
-# 10. FILE CLASSIFICATION AND CLEANUP CAPABILITY
-
-Perfect V1 must ultimately include first-class user experiences for:
-
-1. One-Tap Smart Checkup
-2. Quick Clean
-3. Exact Duplicate Cleaner
-4. Large Files
-5. Older Files
-6. Downloads
-7. Temporary / incomplete downloads
-8. APK installers
-9. Archives
-10. Empty folders
-11. Zero-byte files
-12. Screenshot/media review
-13. Manual file browser
-14. Storage overview
-15. Cleanup history
-16. Privacy dashboard
-
-The scanner currently recognizes many of these categories, but **scanner recognition does not automatically mean the dedicated UI/workflow is complete**. Do not overstate V1 completeness.
-
-## 10.1 Quick Clean vertical-slice contract
-
-B28 makes Quick Clean the first Home quick tool that must operate as a complete production workflow rather than a placeholder.
-
-Quick Clean must:
-
-- use the latest in-memory native review snapshot when one exists;
-- offer a real Smart Checkup when no review snapshot exists;
-- never create fake cleanup candidates or estimated reclaim totals;
-- request only the native `lowrisk` review category, which maps to `autoCleanEligible` candidates;
-- keep large files, older files, APKs, archives and verified duplicates out of the Quick Clean one-tap list because those categories require separate review workflows;
-- allow explicit selection, select-all for the currently shown safe batch, and clearing selections;
-- block destructive action when the review snapshot is older than 15 minutes and require a fresh Smart Checkup first;
-- preserve the native per-batch deletion limit of 500 items;
-- require a final confirmation before deletion;
-- delete only IDs issued by the current native review snapshot;
-- rely on native verified deletion and count only successfully removed bytes as reclaimed space;
-- report deletion failures and native protection events without counting them as cleanup success;
-- refresh the remaining low-risk list and Home/Tools Cleanup status from the live native review snapshot after deletion;
-- remain free; no safety or Quick Clean protection may be gated by Pro.
-
-The canonical destructive sequence for Quick Clean is:
-
-`Smart Checkup / current snapshot → Safe-candidate review → Select → Final confirmation → Native delete → Verify → Verified summary → Remaining candidates`
-
-B28 must not rewrite `FileHealthScanner` classification logic or fork the native deletion engine merely to implement this UI. Future cleanup categories should reuse the proven review/confirm/delete/verify interaction pattern while keeping their own risk-specific rules.
-
-## 10.2 Quick Clean premium trust/UX contract
-
-B29 closes the perceptual-quality gap found during the first physical-device B28 review without changing scanner rules or adding artificial time.
-
-Quick Clean live and resolved states must:
-
-- never add fake delay, minimum duration, fake progress or fabricated scan evidence;
-- show whether Quick Clean is following a live Smart Checkup/active checkup or resolving an already available review snapshot;
-- expose real live evidence when a scan is running, using native progress fields such as phase, reviewed files, visited folders, bytes seen and the current item/location when available;
-- explain the actual scan scope and keep the low-risk-only safety boundary visible;
-- use the available viewport for meaningful trust information rather than leaving large visually empty regions;
-- treat a zero-low-risk result as a useful verified outcome, not a dead end;
-- show the actual snapshot age and scan mode on the zero-low-risk result;
-- query the current review snapshot for duplicate, large-file and older-file counts and surface only categories that actually contain review items;
-- route those next steps into the existing review surfaces without claiming those dedicated workflows are already complete;
-- keep review-first categories separate from Quick Clean deletion;
-- use immediate, subtle resolved-state motion only as presentation; animation must never hold back a result that is already available;
-- preserve reduced-motion behavior;
-- keep Quick Clean free and preserve all deletion, entitlement and privacy contracts.
-
-The preferred trust model is:
-
-`Fast because the real work finished` — never `Slow because the UI pretended to work`.
-
-B29 is a presentation/integration refinement of the B28 vertical slice. It must not modify `FileHealthScanner.kt`, the native deletion engine, duplicate verification rules or entitlement decisions merely to make the screen feel busier.
-
-## 10.3 Exact Duplicate Cleaner vertical-slice contract
-
-B30 makes Exact Duplicates a dedicated first-class workflow while preserving the same evidence and deletion engines already used by the scanner/review system.
-
-Exact Duplicates must:
-
-- consume only current review candidates carrying a verified `duplicateGroupId`; never infer duplicates from filenames, visual similarity or size alone;
-- group candidates by native duplicate group and suppress any post-deletion singleton from duplicate-group presentation;
-- expose the scan coverage honestly: Smart is focused/priority-location verification, Deep is all accessible shared-storage verification, and Custom is only the selected Custom scope when duplicate verification was actually represented by the current result;
-- never claim a trustworthy zero-duplicate result from Quick Scan because Quick intentionally performs no duplicate hashing;
-- keep at least one member of every displayed group unselected at all times;
-- let the user change which copy is marked Keep before deletion;
-- keep the existing native keep-one-copy safeguard as a second independent protection layer even when the UI already protects a keeper;
-- allow Free users to inspect all verified groups and manually select extras group by group;
-- treat bulk recommended selection across groups as an advanced Pro control while never paywalling keep-one protection, risk explanation or manual review;
-- use Deep Scan as the Pro path for full accessible-scope duplicate verification rather than pretending Smart’s focused coverage is full coverage;
-- block deletion when the current review snapshot is older than 15 minutes;
-- preserve the 500-item native deletion batch ceiling;
-- show local thumbnails/previews only through the existing native review-media bridge and never expose absolute file paths to JavaScript;
-- require Final Review before destructive action;
-- delete only IDs issued by the current review snapshot;
-- report reclaimed bytes and removed copies only from native verified deletion results;
-- refresh/rebuild groups after deletion so resolved groups and remaining duplicates reflect the current in-memory snapshot;
-- support no-access, no-snapshot, scan-running, empty, partial/truncated, stale, selection, confirmation, result and error states;
-- support EN / TH / JA and Reduced Motion without compromising the approved premium visual language.
-
-The canonical duplicate-cleanup sequence is:
-
-`Verified duplicate snapshot → Group exact matches → Choose keeper → Select extras → Final Review → Native delete → Verify → Rebuild groups → Verified summary`
-
-B30 also corrects Quick Clean live evidence presentation so byte metrics describe the real current phase: content sample bytes during File Details, measured storage bytes during size/date/finalization work, and hash-read bytes during duplicate verification. Before the relevant byte pass begins, the UI should show an unavailable value rather than a misleading `0 B` label.
-
-B31 may refine Exact Duplicates presentation without changing duplicate evidence or deletion logic. The approved polish is limited to: showing unavailable verification metrics as `—` until the hash pass actually begins; using `Close` while a scan is still running; stacking focused-coverage Pro actions so explanatory text retains comfortable width on phones; and keeping the top selection prompt semantically distinct from the sticky selected-bytes footer.
-
-## 10.4 Large Files vertical-slice contract
-
-B31 makes Large Files a dedicated first-class workflow rather than a generic review shortcut.
-
-Large Files must:
-
-- consume only current native review candidates in category `large`; never invent size totals or estimate files that are not present in the current review snapshot;
-- remain a Free capability; large-file safety explanations and manual review must never require Pro;
-- use an existing current review snapshot when available and offer a real Quick Scan when no snapshot exists, because file-size review needs metadata/size evidence rather than content sampling or duplicate hashing;
-- represent scope honestly: Quick/Smart/Deep large-file metadata covers accessible shared storage, while Custom represents only the selected Custom Scan locations;
-- state prominently that **large does not mean junk** and never auto-select large files merely because of size;
-- provide clear file name, safe display location, size, date, file kind and local image/video preview when the existing native review-media bridge supports it;
-- provide useful review controls including Largest first, Oldest first, Newest first, Name A–Z and basic type filtering without turning the workspace into a noisy file manager;
-- require explicit per-file selection; no bulk “select all large files” action is allowed by default;
-- block destructive action when the review snapshot is older than 15 minutes and require a fresh size check;
-- preserve the native 500-item deletion ceiling;
-- require Final Review before permanent deletion;
-- delete only IDs issued by the current native review snapshot;
-- reuse the existing native verified deletion engine, including duplicate-group keep-one protection when a selected large file also belongs to a verified duplicate group;
-- count reclaimed bytes and removed files only when Android confirms the file is gone;
-- surface native-protected and failed items separately from successful cleanup;
-- refresh Home/Tools Large Files status and the current review workspace from the live in-memory snapshot after deletion;
-- support no-access, no-snapshot, scan-running, loading, empty, partial/truncated, stale, browsing, filter/sort, selection, confirmation, result and error states;
-- support EN / TH / JA and Reduced Motion while preserving premium amber/cyan/mint semantic color discipline.
-
-The canonical Large Files sequence is:
-
-`Current review snapshot / Quick size check → Review-first large-file workspace → Filter/sort → Explicit selection → Final Review → Native delete → Verify → Verified summary → Remaining files`
-
-B31 must not alter the scanner’s large-file classification threshold merely to make the feature appear more active, and it must not fork the native deletion engine.
-
----
-
-
-## 10.5 Older Files vertical-slice contract
-
-B32 makes Older Files the fourth complete Home quick-tool workflow.
-
-Older Files must:
-
-- consume only current native review candidates in category `old`; never infer age from filenames or create synthetic candidates;
-- use the scanner’s current older-file rule of files last modified more than 365 days ago unless that rule is intentionally revised in the scanner and Master Plan together;
-- remain a Free capability; age-based safety explanations and manual review must never require Pro;
-- use an existing current review snapshot when available and offer a real Quick Scan when none exists, because the classification depends on metadata and modification dates rather than content reading;
-- represent scope honestly: full accessible shared-storage scans represent that accessible scope, while Custom represents only its selected locations;
-- state prominently that **age alone is not a reason to delete** and never auto-select older files merely because of age;
-- show file name, safe display location, size, modification date, file kind and local image/video preview when supported;
-- default to Oldest first and also allow Newest first, Largest first and Name A–Z, plus basic type filtering;
-- require explicit per-file selection and Final Review before permanent deletion;
-- block destructive action when the current review snapshot is older than 15 minutes;
-- preserve the native 500-item deletion ceiling and duplicate keep-one protection;
-- count removed files and reclaimed bytes only after native deletion verification;
-- refresh the current in-memory review state after deletion;
-- support no-access, no-snapshot, live scan, loading, empty, partial/truncated, stale, browsing, filter/sort, selection, confirmation, result and error states;
-- support EN / TH / JA and Reduced Motion while preserving the premium mint/cyan visual language.
-
-The canonical Older Files sequence is:
-
-`Current review snapshot / Quick modified-date check → Review-first older-file workspace → Filter/sort → Explicit selection → Final Review → Native delete → Verify → Verified summary → Remaining files`
-
-## 10.6 Hidden Items privacy contract
-
-Hidden Items is a user-control and privacy feature, not a junk-confidence signal.
-
-Rules:
-
-- default is **OFF**;
-- the preference is local to the device and stores only the boolean choice, never filenames or paths;
-- when OFF, dedicated review workspaces must conceal items identified from available review metadata as filesystem-hidden or clearly private-labelled and must not request their image/video previews;
-- when ON, those already-accessible items may be shown in Duplicates, Large Files and Older Files with an explicit hidden indicator;
-- changing the preference must clear any now-concealed selection so a hidden item cannot remain queued invisibly for deletion;
-- Quick Clean must exclude hidden/private-looking candidates from one-tap safe cleanup regardless of the reveal preference; hidden does not mean junk;
-- duplicate grouping must be rebuilt from currently visible members so the UI always keeps at least one visible copy, while native keep-one protection remains a second independent safeguard;
-- the control does not broaden filesystem access and never attempts to bypass Android restrictions, encryption, secure vaults, `Android/data`, `Android/obb`, or another app’s protected storage;
-- the current B32 presentation detector is deliberately conservative and operates only on review metadata already exposed to the WebView: dot-prefixed names/path segments and a small exact set of common private-folder labels. It must not claim universal detection of every vendor-specific hidden album;
-- Hidden Items remains Free because privacy control and deletion safety must not be paywalled.
-
----
-# 11. EXACT DUPLICATE RULE
-
-Duplicate detection must use evidence:
-
-`exact size → candidate group → streaming SHA-256 → verified duplicate`
-
-Rules:
-
-- same size alone is not a duplicate;
-- filenames are not proof;
-- exact duplicate must be byte-for-byte verified;
-- keep at least one copy;
-- never auto-select every copy in a duplicate group;
-- verified duplicate reclaimable space equals only extra copies that can be safely removed while preserving at least one.
-
----
-
-# 12. JUNK CONFIDENCE AND DELETION RISK
-
-These are separate concepts.
-
-## 12.1 Junk-confidence concepts
-
-- Verified / Safe Candidate
-- Likely Junk
-- Review Candidate
-- Not Junk / Keep
-
-## 12.2 Deletion-risk levels
-
-- `0 — Safe`
-- `1 — Low Risk`
-- `2 — Review`
-- `3 — High Risk`
-- `4 — Protected / Never Auto-Select`
-
-Large, old, APK, archive, media, and unfamiliar files are not junk merely because of size, age, extension, or location.
-
----
-
-# 13. TRUST AND ADVICE UX
-
-Bearagnostic must actively help users understand decisions, especially beginners.
-
-Every important cleanup category should explain:
-
-1. what the category means;
-2. why Bearagnostic surfaced it;
-3. what can happen if it is deleted;
-4. the recommended action.
-
-Primary UX language:
-
-- **Safe to clean**
-- **Review first**
-- **Protected**
+Use `—` or a phase-appropriate metric before measurement exists.
 
 Examples:
 
-**Exact duplicates**  
-Verified identical copies. Keep at least one copy.
+- File Details → files reviewed/current file/folders;
+- File Sizes → storage measured;
+- Duplicate Verification → candidates/files verified/verification bytes;
+- Modified Dates → date-review progress.
 
-**Large files**  
-Large does not mean junk. Review videos, work files, backups, and other context first.
+## 10.4 Post-scan proof
 
-**Older files**  
-Age alone is not a reason to delete.
+Because Quick/Smart may be very fast, important evidence may be carried into the final result as compact proof, for example:
 
-**APK installers**  
-Deleting a downloaded APK does not uninstall an already installed app; it removes the installer copy.
+- scan mode;
+- files discovered/reviewed;
+- coverage;
+- duration;
+- local-only processing.
 
-**Archives**  
-An archive may be the only packaged copy of important files.
-
-**Zero-byte files**  
-Some apps use empty marker/placeholder files; review location/context.
-
-Safety explanations and warnings are a fundamental protection layer and must **never be paywalled**.
+Only show metrics actually produced by the scan.
 
 ---
 
-# 14. DESTRUCTIVE FLOW
+# 11. ANDROID STORAGE BOUNDARIES
 
-Default destructive flow:
+Bearagnostic operates only inside legitimate Android access.
+
+Current root discovery uses accessible/readable shared-storage roots and StorageManager volume directories where supported.
+
+Known protected/skipped areas include:
+
+- `Android/data`;
+- `Android/obb`;
+- inaccessible app-private storage;
+- encrypted/protected vault content that Android does not expose.
+
+Do not bypass platform restrictions, encryption, vault protection, or permission boundaries.
+
+Before Play Store release, re-check the current Google Play policy for broad/all-files storage access and determine whether the cleaner’s core functionality remains eligible. If not, redesign access using compliant alternatives rather than misrepresenting coverage.
+
+---
+
+# 12. REVIEW AND DELETION SAFETY CONTRACT
+
+## 12.1 Scanner is read-only
+
+Scanning must never delete files.
+
+## 12.2 Default destructive flow
+
+The default permanent-deletion experience is:
 
 `Select → Review → Confirm → Delete → Verify → Summary`
 
-Rules:
+No destructive workflow should skip verification merely to look fast.
 
-- no silent destructive deletion;
-- low-risk preselection is allowed only under mature, explicit rules;
-- final confirmation remains required;
-- high-risk items need stronger warning;
-- protected items are not recommended for deletion;
-- native deletion accepts only IDs from the current in-memory review snapshot;
-- duplicate-group safeguard must retain at least one existing copy;
-- reclaimed bytes count only successful, verified deletion;
-- partial failures must be reported;
-- no fake undo claim.
+## 12.3 Current review snapshot rule
 
----
+Deletion IDs must come from the **current in-memory review snapshot**.
 
-# 15. LIVE RESULT STATE
+Dedicated review workflows currently treat snapshots older than approximately **15 minutes** as stale and require a refresh before deletion.
 
-Results must be live, not a frozen snapshot after deletion.
+## 12.4 Batch limit
 
-After verified deletion:
+Maximum selected deletion batch:
 
-- category counts must decrease;
-- category byte totals must decrease;
-- zero-count categories may disappear;
-- Checkup/result counters should synchronize where appropriate;
-- reclaimed space must reflect actual verified deletion;
-- “scan again” is only needed for a fresh whole-device rescan, not to correct stale UI values that could have been updated directly.
+`500 files`
 
----
+Do not silently exceed the native safety limit.
 
-# 16. POST-CLEANUP IMPACT
+## 12.5 Verified reclaimed bytes
 
-Bearagnostic may present a premium before/after “Cleanup Impact” experience using measurable values only.
+Reclaimed storage must count only files whose removal was actually verified.
 
-Allowed examples:
+Do not estimate reclaimed space from selected items and call it completed cleanup.
 
-- verified bytes reclaimed;
-- free storage before/after;
-- files removed;
-- verified duplicate copies resolved;
-- protected copies kept;
-- percentage of known low-risk cleanup resolved, where the denominator is explicit and factual.
+## 12.6 Exact duplicate protection
 
-Disallowed:
+Exact duplicates require:
 
-- fabricated “speed improved %”;
-- fabricated device-health score;
-- unsupported CPU/RAM performance claims.
+1. exact size prefilter;
+2. streaming SHA-256 verification;
+3. group-level keep-one-copy protection.
 
-Share Result is encouraged as a privacy-safe free feature. Shared data should be aggregate only, for example:
+At least one copy must remain.
 
-- space reclaimed;
-- files removed;
-- duplicate copies resolved;
-- storage headroom before/after.
+UI protection and Native protection should both exist. A UI mistake must not be able to delete every copy.
 
-Never share:
+## 12.7 Trust classifications
 
-- filenames;
-- paths;
-- hashes;
-- private file metadata.
+Use these user-facing meanings consistently:
+
+- **Safe to clean** — strong low-risk evidence;
+- **Review first** — user judgment required;
+- **Protected** — deletion prevented or intentionally excluded.
+
+Safety explanations are always free.
 
 ---
 
-# 17. DR. BEAR FUNCTIONAL ILLUSTRATION SYSTEM
+# 13. CLASSIFICATION PRINCIPLES
 
-Dr. Bear is a trust/guidance system, not random decoration.
+File category is evidence, not permission to delete.
 
-Approved mapping:
+Permanent principles:
 
-- `drbear-inspect` → scan mode, analysis, diagnostic/insight contexts;
-- `drbear-review` → uncertainty, review-needed, empty/incomplete/permission contexts;
-- `drbear-success` → successful cleanup, all-good, completion, thank-you;
-- `drbear-caution` → destructive confirmation, warning, protected/high-risk action;
-- full Bearagnostic brand illustration/logo → launch, About, brand/promo/share surfaces only.
+- Large ≠ Junk;
+- Old ≠ Junk;
+- Hidden ≠ Junk;
+- Archive ≠ Junk;
+- APK ≠ Junk;
+- Duplicate identity ≠ permission to remove the last copy.
 
-Rules:
+Current important thresholds/behaviors:
 
-- use illustrations sparingly;
-- never make an action workspace less usable just to show mascot art;
-- do not place mascot art in a file-review list if it steals space from the actual task;
-- preserve approved artwork; do not casually redraw/crop/reinterpret it.
+- Older Files: last modified more than approximately 365 days ago;
+- auto-clean stale incomplete-download candidate requires strong low-risk rules and age safeguards;
+- current minimum age for auto-clean temporary candidate logic includes a 7-day protection window where applicable.
 
-B19 intentionally removes the mascot/advice block from the file-review workspace to maximize useful file-list area.
-
----
-
-# 18. RESULTS AND REVIEW SURFACES
-
-Results should answer immediately:
-
-1. What did Bearagnostic find?
-2. What should I do first?
-3. What needs caution?
-
-Results should be a premium decision dashboard, not merely totals.
-
-File Review is an action workspace:
-
-- compact title/summary;
-- large scrollable file-list area;
-- clear selection state;
-- clear risk language;
-- fixed action footer;
-- no visual clutter or unrelated marketing art;
-- no underlying Checkup scene bleeding through.
-
-B19 introduces a dedicated `android-review.js` to enforce this workspace behavior.
+Do not broaden auto-clean eligibility casually.
 
 ---
 
-# 19. HOME EVOLUTION
+# 14. QUICK CLEAN — CURRENT PRODUCTION CONTRACT
 
-The original Home remains the approved visual baseline, but Android capabilities have grown and Home should evolve carefully.
+Quick Clean is a Free first-class feature.
 
-Future Home may surface:
+It may show only candidates that already satisfy current low-risk/auto-clean-eligible rules.
 
-- Storage Headroom;
-- Last Checkup;
-- Space Reclaimed;
-- Recommended Next Action;
-- Since Last Checkup;
-- concise cleanable-item summary.
+It must not silently include:
 
-Do not put every tool on Home.
+- generic large files;
+- generic older files;
+- APK installers;
+- archives;
+- exact duplicates merely because they are duplicates;
+- hidden/private items when Hidden Items is OFF;
+- ambiguous temporary artifacts.
 
-Maintain disciplined hierarchy:
+Quick Clean uses the latest valid review snapshot or runs the necessary real checkup.
 
-- primary Checkup action;
-- four high-value quick tools;
-- File Health / Storage Overview;
-- contextual recommendation;
-- bottom navigation.
+If nothing qualifies, the empty state should communicate that this is a positive safety result and may show real review-first opportunities such as Duplicates, Large Files, and Older Files.
 
-The full catalog belongs under Tools.
+No fake candidates, fake reclaimed space, or fake waiting.
 
 ---
 
-# 20. INSIGHTS EVOLUTION
+# 15. EXACT DUPLICATES — CURRENT PRODUCTION CONTRACT
 
-Insights must never invent data.
+Exact Duplicates is a dedicated first-class workspace.
 
-Once real local history exists, useful Insights may include:
+It must:
 
-- cleanup-history aggregates;
-- reclaimed-space trend;
-- free-storage trend;
-- category growth;
-- comparison with last checkup;
-- evidence-based recommendations.
+- use only current verified duplicate evidence;
+- group identical copies clearly;
+- show group count/removable copies/reclaimable bytes;
+- allow the user to decide which copy stays;
+- clearly mark the protected keeper;
+- support local thumbnail/preview when legitimate and visible;
+- use current review-snapshot IDs;
+- enforce keep-one-copy at UI and Native levels;
+- go through final review and verified deletion;
+- rebuild the remaining duplicate state after deletion.
 
-Future Pro features may include:
+### Free versus Pro duplicates
 
-- Space Guard;
-- scheduled checkup/monitoring consistent with Android restrictions and policy.
+Free must remain useful and safe:
 
-No filename/path history should be stored merely for analytics.
+- view verified groups from supported Free scan coverage;
+- manually select extra copies by group;
+- change the keeper;
+- receive safety explanation and verified deletion.
 
----
+Current Pro enhancements include:
 
-# 21. MORE / PREFERENCES / NAVIGATION
+- cross-group `Select recommended` convenience;
+- deeper whole-accessible-storage verification through Deep Scan where available.
 
-## 21.1 More
-
-Native Android should use a purposeful title such as:
-
-`Settings & Support`
-
-Do not repeat the word “Bearagnostic” as a redundant second-level heading directly beneath the main Bearagnostic header.
-
-`Close Bearagnostic` is not a useful native-Android product action and should remain hidden/removed.
-
-Version/build labels must come from current runtime/build state and never display stale legacy PWA versions.
-
-## 21.2 Preferences
-
-Preferences should use available space meaningfully without padding it with decorative clutter.
-
-Native-relevant groups include:
-
-- Language;
-- Motion;
-- Scan & Analysis;
-- Cleanup Safety;
-- Privacy & Access;
-- storage permission status;
-- app/version information;
-- Plan / Free-Pro entitlement status.
-
-Legacy browser-only settings such as “Browser Full Screen” do not belong in the native app.
-
-## 21.3 Header actions
-
-When Checkup hides bottom navigation, Home and Settings/Gear should form one balanced action cluster with professional spacing and optical weight.
-
-Do not show redundant Home shortcuts on every screen when bottom navigation/back navigation already solves the task.
-
-Plan status must remain understated:
-
-- do **not** place a persistent global `FREE` badge in the main header;
-- when Pro is active, a small premium `PRO` indicator may appear near the Settings/Gear control without competing with the Bearagnostic wordmark;
-- More and the Pro surface must show the current plan clearly for both Free and Pro;
-- the plan indicator is presentation only; entitlement still comes exclusively from the centralized entitlement layer.
+Do not present cryptographic jargon such as SHA-256 as the primary user-facing message. User-facing language should explain that files were verified byte-for-byte.
 
 ---
 
-# 22. SUPPORT, PRO ENTRY, AND EXTERNAL ACTIONS
+# 16. LARGE FILES — CURRENT PRODUCTION CONTRACT
 
-The commercial direction is now Free + lifetime Pro for Google Play.
+Large Files is a Free first-class workflow.
 
-For the Google Play distribution path:
+It uses actual size evidence from accessible shared storage.
 
-- the primary commercial entry is **Bearagnostic Pro**;
-- Pro digital entitlement must be purchased through Google Play Billing when Billing is enabled;
-- Ko-fi and PromptPay must not be presented as an alternate path to unlock Pro;
-- the Play-facing product should not surface voluntary external-payment Support alongside the Pro purchase path unless a later current-policy review explicitly justifies it.
+It must:
 
-The existing Ko-fi / PromptPay support implementation is preserved in source for future non-Play/direct distribution and historical continuity. It does not grant Pro entitlement and must never be interpreted as proof of purchase.
+- never call size alone junk;
+- never auto-select files merely because they are large;
+- show size, location, type/date context where available;
+- offer useful filters and sorting;
+- support local visual preview when legitimate;
+- use explicit selection;
+- preserve final review/confirm/delete/verify/summary;
+- preserve hidden-item privacy policy;
+- show truthful snapshot/coverage context.
 
-B26 repurposes the visible `Support Bearagnostic` row in the current development UI into a `Bearagnostic Pro` entry while retaining the underlying support module untouched. This avoids destructive removal before a future distribution-channel split is finalized.
-
-External URL opening must remain allow-listed. Support code must never affect analysis quality, cleanup recommendations, safety, scan depth entitlement, or purchase ownership.
-
----
-
-# 23. PRIVACY MODEL
-
-Default posture:
-
-- local-first;
-- file analysis stays on device;
-- no upload of file contents;
-- no remote filename inventory;
-- no behavioral ad SDK;
-- no hidden telemetry;
-- no Bearagnostic account requirement for Free or lifetime Pro;
-- no email/password requirement for core cleaning or Pro ownership;
-- no persistent complete file tree;
-- no unnecessary persistent hashes;
-- no sensitive filename/path analytics.
-
-Minimal aggregate history is acceptable when it improves the product.
-
-For Play purchases, Google Play owns the payment/account transaction. Bearagnostic should consume only the minimum purchase/entitlement data required to determine access and must not introduce an unnecessary parallel account system.
-
-Network use must be explicit and narrow, for example:
-
-- future Google Play Billing and entitlement restoration;
-- non-Play/direct voluntary support actions where intentionally enabled;
-- other clearly disclosed user-requested functions.
+Current UI includes sorting such as Largest/Oldest/Newest/Name and category filters such as All/Videos/Photos/Documents/Other.
 
 ---
 
-# 24. FREE / PRO ARCHITECTURE — LOCKED DIRECTION
+# 17. OLDER FILES — CURRENT PRODUCTION CONTRACT
 
-Bearagnostic uses one application with two entitlement states:
+Older Files is a Free first-class workflow.
 
-`FREE → PRO`
+Current rule uses files last modified more than approximately one year ago.
 
-There is no separate Pro APK and no user-facing “Pro Mode” toggle. Pro is an ownership entitlement.
+It must:
 
-The permanent architecture rule is:
+- never equate age with junk;
+- never auto-select merely because a file is old;
+- show age/date, size, location, and type where available;
+- support filters and sorting;
+- support local preview when legitimate;
+- require explicit selection;
+- preserve final review/confirm/delete/verify/summary;
+- respect Hidden Items OFF/ON.
 
-> **Feature code asks one centralized entitlement layer. Payment providers only update ownership.**
+Current sorting includes Oldest/Newest/Largest/Name.
 
-Never scatter ad-hoc `if (pro)` checks throughout unrelated code.
+---
 
-B26 establishes `EntitlementManager` as the native source of truth and `BearagnosticEntitlement` as its frontend access layer. Release builds default to Free until verified Play Billing ownership is integrated. Debug builds may locally emulate Free or Pro solely for QA; release builds must never expose that switch.
+# 18. HIDDEN ITEMS PRIVACY CONTROL
 
-## 24.1 Free tier — genuinely useful
+Hidden Items is a **privacy control**, not a “find secret porn” gimmick and not a Pro paywall.
 
-Free must support a complete trustworthy cleaning journey rather than functioning as a crippled demo.
+It is Free and default-OFF.
 
-Free includes:
+When OFF:
 
+- dedicated review lists should conceal accessible filesystem-hidden/private-labelled items;
+- hidden media preview should not be loaded for those concealed items;
+- hidden items should not be promoted into Quick Clean one-tap candidates;
+- the app may show aggregate hidden count/bytes without revealing names or thumbnails when useful.
+
+When ON:
+
+- accessible hidden/private-labelled items may appear in Duplicates, Large Files, Older Files, and relevant review surfaces;
+- they remain Review First unless another independent safety rule says otherwise;
+- user selection remains explicit;
+- deletion safeguards remain unchanged.
+
+Turning Hidden Items OFF again should prune selected hidden items from active selections so concealed content cannot remain queued accidentally.
+
+### Hidden detection is not privilege escalation
+
+The control reveals only items already accessible to the app. It must never:
+
+- unlock encrypted vaults;
+- bypass app security;
+- request secret passwords;
+- bypass Android restrictions;
+- imply access to content the OS did not expose.
+
+Private-folder naming heuristics such as `.hidden`, `secretAlbum`, `private`, or vault-like path labels may inform presentation, but do not claim cryptographic/private-app access that does not exist.
+
+---
+
+# 19. CUSTOM SCAN — B33 PRESENTATION CONTRACT
+
+B33 fixed a responsive defect where the custom scope list and Start button were sibling children inside a two-column mode grid, compressing the scope list to half width.
+
+The B33 Custom Scan surface is now deliberately task-oriented:
+
+- clear Scan Locations section;
+- two-column location layout where space permits;
+- full-width Music row;
+- separate full-width Duplicate Check section;
+- compact state summary (`N locations selected`, duplicate verification on/off);
+- full-width Start Custom Scan;
+- full-width Cancel;
+- natural vertical scrolling on short devices;
+- no tiny text to force fit;
+- no Start when zero locations are selected.
+
+Do not regress this into side-by-side CTA/content geometry.
+
+---
+
+# 20. FILE REVIEW AND MEDIA PREVIEW
+
+The review workspace is an action workspace, not a marketing surface.
+
+Keep it dense enough to be efficient, but still readable.
+
+Media preview/thumbnail rules:
+
+- local only;
+- request only when the item is visible/eligible;
+- do not expose hidden media while Hidden Items is OFF;
+- gracefully fall back to file-type icon when preview is unsupported;
+- never upload the file to generate a preview.
+
+Do not reintroduce a large mascot card that steals review space.
+
+---
+
+# 21. FREE / PRO PRODUCT MODEL
+
+## 21.1 Commercial direction
+
+The approved direction is:
+
+> **Free + one-time lifetime Bearagnostic Pro**
+
+No subscription is currently intended.
+
+No ads are intended as part of the premium brand direction.
+
+No Bearagnostic account is required for normal use.
+
+## 21.2 Canonical planned Play product
+
+Planned product ID:
+
+`bearagnostic_pro_lifetime`
+
+Target Thailand standard price:
+
+**฿249**
+
+Potential founding-launch promotional target:
+
+**฿149** when intentionally configured.
+
+The actual in-app purchase price must come from Google Play Billing’s localized product details. Do not hard-code a selling price into purchase UI once Billing is live.
+
+## 21.3 Free must remain genuinely useful
+
+Free should include the essential trustworthy maintenance experience, including:
+
+- Home and File Health basics;
 - Quick Scan;
-- Smart Scan as the recommended default using the real Smart depth defined in this plan;
-- basic cleanup and current category review;
-- focused exact-duplicate verification performed by Smart where applicable;
-- normal local media thumbnails/review already available to the base workflow;
-- scan evidence and truthful FULL/PARTIAL/coverage reporting;
-- deletion-risk explanations;
-- Safe to clean / Review first / Protected guidance;
-- destructive confirmation;
-- duplicate keep-one-copy protection;
-- verified deletion and measured reclaimed space;
-- current-session Cleanup Impact;
-- privacy-safe aggregate Share Result;
-- basic storage/current-checkup information as implemented;
-- no ads.
+- Smart Scan;
+- Quick Clean safety-first workflow;
+- basic/manual Exact Duplicates workflow within supported Free coverage;
+- Large Files review;
+- Older Files review;
+- Hidden Items privacy control;
+- safety explanations;
+- confirmation before destructive actions;
+- keep-one-copy protection;
+- scan evidence/truthfulness;
+- local-only privacy behavior.
 
-Free users must be able to scan, review, delete eligible selected files and see verified results without purchasing Pro.
+Do not paywall essential safety.
 
-## 24.2 Pro tier — deeper diagnostics and advanced control
+## 21.4 Current Pro capability direction
 
-The implemented Pro capabilities are:
+Current implemented/partially implemented Pro-facing capabilities include:
 
-- **Deep Scan** — full streaming content read of every readable non-empty file within the accessible scope plus exact duplicate verification across that accessible scope;
-- **Custom Scan** — user-selected shared-storage categories/scopes with optional exact duplicate verification;
-- **Advanced Exact Duplicates controls** — full accessible-scope verification through Deep Scan plus bulk recommended extra-copy selection across verified duplicate groups. Basic focused verification, manual group review and keep-one-copy safety remain available to Free users.
+- Deep Scan;
+- Custom Scan;
+- deeper duplicate coverage through Deep Scan;
+- cross-group recommended duplicate selection convenience;
+- Pro status/presentation.
 
-Planned Pro capabilities, which must not be marketed as complete until implemented, are:
+Planned Pro toolkit may include, once actually implemented:
 
-- advanced media review, filtering and sorting;
-- historical Insights;
-- What Changed between checkups;
+- advanced media review and filters;
+- Historical Insights / What Changed;
 - full cleanup history;
-- custom exclusions / “never review here” controls;
-- scheduled checkup reminders consistent with Android restrictions and policy;
-- other genuinely advanced tools that earn their complexity.
+- custom exclusions;
+- scheduled checkup reminders;
+- other genuinely deeper diagnostic/control capabilities that clearly justify Pro.
 
-A locked Pro feature should remain visible when useful for product discovery, but tapping it must explain the value cleanly rather than using aggressive interruption or fear.
+Never advertise a planned feature as already finished.
 
-## 24.3 Ownership and pricing model
+## 21.5 Entitlement architecture
 
-Launch direction:
+Entitlement decisions must have a single source of truth.
 
-- **one-time lifetime Pro purchase**;
-- no subscription at launch;
-- no ads in Free or Pro;
-- no Bearagnostic account/login requirement;
-- Google Play Billing is the ownership/payment path for the Play-distributed app;
-- canonical planned product ID: `bearagnostic_pro_lifetime`;
-- target Thailand standard price: **฿249**;
-- target Thailand founding-launch promotional price: **฿149** when intentionally configured;
-- other markets should use deliberate local pricing/purchasing-power review rather than naïve currency conversion.
+`EntitlementManager.kt` is the native access-policy foundation.
 
-The runtime UI must **not hard-code a selling price**. Once Billing is integrated, visible price and offer text must come from current Google Play `ProductDetails` / offer configuration so currency, taxation, localization and future price changes remain correct.
+The frontend guard improves UX but is not the sole security boundary.
 
-## 24.4 Never paywall safety
+Free users must not be able to bypass UI and start Pro-only Deep/Custom actions through direct frontend calls.
 
-Never paywall:
+## 21.6 No required login
 
-- deletion-risk explanations;
-- protected-item logic;
-- confirmation;
-- duplicate keep-one-copy safeguard;
-- consequence warnings;
-- truthful scan/coverage status;
-- privacy disclosure required to understand what the app does.
+A separate Bearagnostic email/Gmail account is not required for Pro ownership.
 
-Safety is a trust boundary, not a monetization lever.
+When Play Billing is enabled, ownership should follow the Google Play purchase/account lifecycle. Restore/query purchase behavior should re-establish entitlement without requiring P’Benz to manually activate users one by one.
 
-## 24.5 Entitlement enforcement
-
-For implemented Pro capabilities, entitlement must be enforced below presentation as well as communicated in UI.
-
-B26 native enforcement blocks Free users from starting Deep or Custom scans even if UI routing is bypassed. The frontend guard exists for good UX, not as the sole access-control layer.
-
-Future Play Billing must update this centralized ownership layer after verified purchase state rather than teaching scanner, review or Insights code about payment mechanics directly.
+Server-side verification may be added later if justified, but should not be introduced merely for complexity’s sake.
 
 ---
 
-# 25. GOOGLE PLAY AND RELEASE TRUTH
+# 22. GOOGLE PLAY BILLING — REQUIRED FUTURE PRODUCTION WORK
 
-Bearagnostic is intended for Google Play.
+Current builds have entitlement architecture and Pro presentation, but production Google Play Billing must not be considered complete until the real purchase lifecycle is implemented and tested.
 
-Before release:
+Required production lifecycle includes:
 
-- verify current Google Play policy using current official sources;
-- pay particular attention to broad storage / `MANAGE_EXTERNAL_STORAGE`;
-- verify whether the app’s core file-management purpose satisfies current policy;
-- ensure Data Safety answers match actual behavior;
-- use a proper production release signing identity;
-- do not ship the public development debug keystore as the Play release identity;
-- test release/AAB behavior separately from debug APK;
-- integrate and verify the current Google Play Billing Library before accepting Pro purchases;
-- retrieve product/offer pricing from Play rather than hard-coding currency text;
-- handle purchase, pending state, acknowledgement, restoration, refund/revocation and lifecycle synchronization truthfully;
-- never grant Play Pro entitlement from Ko-fi, PromptPay, a screenshot, a manually typed license key, or an unverified local flag;
-- keep debug entitlement overrides impossible to expose in release builds.
+- query product details/localized price;
+- purchase launch;
+- purchase acknowledgement/consumption behavior appropriate to a non-consumable lifetime product;
+- grant entitlement only after valid purchase state;
+- restore ownership on reinstall/device/account-supported scenarios;
+- handle pending purchases appropriately;
+- respond to refund/revocation/lost entitlement appropriately;
+- surface useful purchase errors without exposing raw billing jargon;
+- debug/test controls never appear in release builds;
+- release does not rely on manual activation by P’Benz.
 
-Current stable debug signing exists only for development continuity.
-
-B26 is an entitlement/UX foundation and **does not claim Google Play Billing is connected or that purchases can be accepted yet**.
+Do not invent subscription terms, trials, discounts, or renewal behavior without explicit approval.
 
 ---
 
-# 26. PERFORMANCE ENGINEERING
+# 23. PLAN INDICATOR POLICY
 
-Requirements:
+Plan status should be clear without making Free users feel second-class.
 
-- filesystem work off the UI thread;
-- iterative traversal;
-- streaming reads/hashing;
-- bounded memory;
-- cancellation;
-- progress throttling;
-- graceful inaccessible-file handling;
-- temporary inventory cleanup;
-- no whole-file in-memory hashing for large files;
-- no fake waiting.
+Approved behavior:
 
-A scan completing quickly is not itself a defect if the work/evidence proves it is real. A scan completing quickly while silently skipping intended scope is a defect.
+- do **not** plaster a global FREE badge across every screen;
+- Pro users may receive a subtle, premium `PRO` header pill;
+- More should show the current plan clearly;
+- Pro page should show current ownership/active state clearly;
+- Pro-gated capabilities may show compact PRO labels where useful.
+
+The visual goal is clarity and prestige, not pressure.
 
 ---
 
-# 27. LOCALIZATION
+# 24. VOLUNTARY SUPPORT: KO-FI / PROMPTPAY
 
-Supported interface languages:
+Support and Pro purchase are different concepts.
 
-- English
-- Japanese
-- Thai
+Current intent:
 
-Any visible copy addition/change must be reviewed in all three languages.
+- Support may remain as a voluntary contribution surface while appropriate;
+- Ko-fi and PromptPay must **never** be presented as an alternate way to unlock Pro;
+- P’Benz must not manually activate Pro based on transfers;
+- Pro digital entitlement must use Google Play Billing when Billing is enabled for Play distribution;
+- support messaging must not confuse donation with purchase, entitlement, warranty, or priority service.
 
-Do not allow a new Android overlay/module to become English-only unless explicitly marked as a temporary development surface that will not be shipped.
+Current PromptPay QR is remote and pinned to:
 
-Thai text should be natural, not literal machine-style translation.
+`https://raw.githubusercontent.com/grolygori789-crypto/little-ganesha-tarot/f21e6a4c81812276d661d6ebb0a3e6c86c6cf48b/assets/support/promptpay-qr.png`
 
----
+Current support presentation uses the approved Rose Ruby / Warm Raspberry treatment with a white-heart concept rather than destructive-alert red.
 
-# 28. ACCESSIBILITY AND RESPONSIVE QUALITY
+### Play Store policy caution
 
-Requirements:
-
-- portrait-first;
-- no horizontal overflow;
-- safe areas respected;
-- touch targets comfortable;
-- readable text on common Android phone widths;
-- reduced-motion support;
-- no meaning conveyed by color alone;
-- critical actions not too close to system navigation;
-- high enough contrast for practical use;
-- screens should use available space intentionally;
-- no large dead zones that make a production surface look unfinished;
-- no excessive scrolling where a carefully composed single-screen view is expected.
-
-Readability rules:
-
-- essential body copy and explanatory text must be readable without deliberate squinting on common Android phone widths;
-- do not use ultra-light gray text merely to create a premium look; hierarchy must come from spacing, weight and restrained contrast;
-- functional body copy should normally sit in the approximately 11.5–14 px range, with comfortable leading around 1.4–1.6 depending on script and density;
-- essential explanatory text should not be compressed into sub-9 px micro-type just to preserve a layout;
-- decorative brand microtext, nonessential footer/build metadata and highly constrained progress labels may be smaller when their role is genuinely secondary;
-- Thai and Japanese require enough line height and vertical breathing room for comfortable reading;
-- content-heavy surfaces such as Pro, Preferences, Privacy, About and detailed evidence should prefer scrolling over shrinking important text;
-- Home and active Checkup may preserve approved zero-scroll compositions, but should reclaim decorative/padding space before shrinking functional copy below a comfortable reading size;
-- typography QA must review font size, weight, contrast, leading, wrapping, truncation and section spacing together rather than changing font size alone.
-
-Premium means hierarchy and restraint, not density for its own sake.
+Before public Play release, verify the **current** Google Play payment/external-link/donation policies. If voluntary support links or QR behavior create policy risk for the Play-distributed build, remove or relocate them from that build rather than risking review rejection. Do not assume an older policy interpretation remains valid.
 
 ---
 
-# 29. REGRESSION-PROTECTION POLICY
+# 25. PRIVACY CONTRACT
 
-Any change with meaningful regression risk needs a fallback/rollback plan before implementation.
+Bearagnostic is local-first.
 
-Before editing:
+Do not add:
 
-1. identify the known-good baseline;
-2. inspect the actual affected files;
-3. define a changed-file allowlist;
-4. state LOW / MEDIUM / HIGH risk;
-5. identify stable behavior that must not change;
-6. prefer isolated, minimally invasive modifications.
+- file-content uploads;
+- remote filename inventory;
+- hidden behavioral telemetry;
+- behavioral advertising;
+- unnecessary accounts;
+- persistent full file trees;
+- unnecessary long-term file hashes/history.
 
-Do not “fix” a local issue by rebuilding unrelated stable systems.
+Allowed when disclosed and justified:
 
-Critical protected areas include:
+- aggregate local history;
+- local cleanup totals;
+- local trend summaries;
+- Google Play Billing metadata required for purchase lifecycle;
+- network access for intentionally user-requested support links/QR or other clearly disclosed functions.
 
-- app launch;
-- Benedict Interactive opening;
-- product opening;
-- original app icon;
-- Home composition;
-- core PWA visual language;
-- scanner scope/evidence;
-- destructive safeguards;
-- support actions;
-- working CI/build pipeline.
-
-If risk cannot be controlled, redesign or split the batch.
+Privacy claims must match actual implementation.
 
 ---
 
-# 30. DELIVERY CONTRACT
+# 26. LOCALIZATION
 
-This is a hard operating requirement.
+Current product language direction includes:
 
-When P’Benz requests implementation/package work:
+- English;
+- Thai;
+- Japanese.
 
-- **Do not make P’Benz wait a long time and end the turn without a downloadable file.**
-- Prefer a smaller complete safe batch over a broad unfinished batch.
-- Do not finish with only “I am checking”, “almost done”, or a status report.
-- If a requested batch is being built, produce the actual package in the same turn whenever tooling permits.
-- Never invent a download link, checksum, QA result, or file.
-- If an unavoidable tooling failure prevents packaging, say exactly what failed and do not claim completion.
+All new first-class workflows should support the same language set unless P’Benz explicitly changes scope.
 
-Every normal implementation batch delivery must include:
+Do not design English-only geometry that breaks in Thai or Japanese.
 
-1. downloadable repo-relative ZIP;
-2. changed-file allowlist;
-3. versionCode/versionName for runtime changes;
-4. risk level;
-5. QA performed;
-6. clear statement of what was not tested;
-7. rollback baseline when relevant;
-8. SHA-256;
-9. commit name in a Markdown code block;
-10. commit name **50 characters or fewer**.
+Review:
 
-Example:
-
-```text
-Improve cleanup trust and review
-```
-
-Default ZIP rules:
-
-- changed files only;
-- repository-relative paths;
-- no wrapper folder;
-- no duplicate `v2/final/backup` files.
+- line wrapping;
+- text expansion;
+- touch targets;
+- truncation;
+- card heights;
+- typography/leading;
+- technical terminology;
+- accessibility labels where applicable.
 
 ---
 
-# 31. QA TRUTH
+# 27. CURRENT QUICK-TOOL COMPLETION STATUS
 
-Possible QA layers:
+The four Home quick tools are no longer placeholders:
 
-### Static QA
-Syntax, structure, IDs, paths, asset references, version coherence, localization keys.
+### Cleanup
 
-### Compile / CI QA
-Android build success in GitHub Actions.
+- B28: functional vertical slice;
+- B29: premium live-evidence, trust, empty-state, and next-step polish.
 
-### Runtime simulation
-Useful where available, but not equivalent to a physical Android device.
+### Exact Duplicates
 
-### Physical Android QA
-Only PASS when tested on an actual Android device with real evidence.
+- B30: dedicated verified-duplicates workflow plus Free/Pro plan-status presentation;
+- B31: follow-up presentation polish.
 
-Never claim physical PASS based on CI/static checks.
+### Large Files
 
-Destructive tests must use expendable test files.
+- B31: dedicated Large Files workflow.
 
----
+### Older Files
 
-# 32. CURRENT B26 ENTITLEMENT PHYSICAL TEST CHECKLIST
+- B32: dedicated Older Files workflow.
 
-After B26 is uploaded and CI succeeds, physical-device QA should verify:
+### Hidden Items
 
-1. Cold-start launch and both approved opening sequences remain unchanged.
-2. Home, Checkup, Results and Review retain B25 behavior and visual quality.
-3. Smart remains Recommended and starts normally in Free state.
-4. Quick starts normally in Free state.
-5. Deep shows a clear Pro marker and opens the Pro explanation instead of starting in Free state.
-6. Custom shows a clear Pro marker and opens the Pro explanation instead of starting in Free state.
-7. Native bridge independently rejects a Free Deep/Custom request with `pro_required`.
-8. More shows `Bearagnostic Pro` rather than voluntary Support in the development UI.
-9. Pro presentation distinguishes features available now from roadmap capabilities.
-10. No price is fabricated or hard-coded into the purchase CTA.
-11. Safety-free guarantee is visible and understandable.
-12. Preferences shows current plan status without crowding the screen.
-13. Debug build exposes Free/Pro test controls only inside the Pro development surface.
-14. Switching debug entitlement to Pro immediately unlocks Deep and Custom.
-15. Switching back to Free immediately restores both gates.
-16. Debug entitlement survives a normal app restart for repeatable QA.
-17. Release configuration contains no user-accessible entitlement test switch.
-18. EN / JA / TH Pro copy remains usable and does not overflow.
-19. Existing scanner evidence and destructive safeguards remain unchanged.
-20. No crash, blank screen, click-through into legacy Support, or modal stacking defect occurs.
+- B32: shared default-OFF privacy control across relevant review tools.
 
-Until device testing covers these points, B26 must be described as **Static QA PASS / CI pending / Physical QA pending**.
+### Custom Scan
+
+- B33: premium responsive redesign and composition fix.
+
+Do not regress these tiles back into generic review shortcuts unless explicitly approved.
 
 ---
 
-# 33. CURRENT ROADMAP AFTER B32
+# 28. IMPORTANT ON-DEVICE OBSERVATIONS FROM B29–B33
 
-## B32 — Older Files Complete + Hidden Items Privacy
+These observations should guide future work:
 
-Approved scope:
-
-- make Older Files the fourth dedicated production Home quick-tool vertical slice;
-- use the current native `old` review category and the existing 365-day modified-date rule;
-- use a current review snapshot when available or a real Quick metadata scan when a fresh snapshot is needed;
-- keep age as review evidence only: never auto-select merely because a file is old;
-- support local previews, filters/sorting, explicit selection, stale-snapshot protection, Final Review and native verified deletion;
-- add a single Free Hidden Items privacy preference, OFF by default, reused by Duplicates, Large Files and Older Files;
-- conceal accessible hidden/private-looking items and their local previews from those dedicated review workspaces until the user explicitly opts in;
-- keep Quick Clean from presenting hidden/privacy-classified candidates as one-tap safe cleanup;
-- never bypass Android protected storage, app vaults, encryption, `Android/data` or `Android/obb`;
-- preserve launch, approved assets, entitlement decisions, Billing-disabled state and the native deletion engine.
-
-## B33 — Custom Scan Premium Redesign
-
-Approved scope:
-
-- correct the on-device Custom Scan responsive composition defect without modifying scanner logic;
-- give the custom scope list the full available width instead of sharing the native two-column mode grid with the primary CTA;
-- present Downloads, Photos, Videos and Documents as balanced scope cards, with Music intentionally full width;
-- separate exact duplicate verification into its own clear full-width section;
-- keep Start Custom Scan as the single full-width primary action and Cancel as the secondary action;
-- add compact live context for number of selected locations and exact-duplicate verification state;
-- disable the Start presentation when zero locations are selected so the UI does not imply a silent fallback scope;
-- preserve Pro gating, Custom scanner behavior, Hidden Items privacy, approved assets and all destructive safeguards;
-- maintain readable EN/TH/JA wrapping and allow natural panel scrolling on shorter displays instead of shrinking controls.
-
-## Next — Remaining Perfect V1 review tools
-
-After the four Home quick tools are physically validated, continue the same proven review/confirm/delete/verify architecture for Downloads, temporary/incomplete downloads, APK installers, archives, zero-byte files and empty folders. Screenshot/media review and the manual file browser should then be completed without weakening Hidden Items privacy.
-
-## Storage Overview / Insights foundation
-
-Once the core review tools are stable, complete truthful Storage Overview and local aggregate cleanup history so Home/File Health/Insights can show useful changes without storing filenames, paths or private content for analytics.
-
-## Monetization / Google Play Billing
-
-Before Play release, and after the entitlement/Pro surfaces are stable:
-
-- verify current Play Billing and payments policy again at implementation time;
-- add current Google Play Billing Library dependency;
-- configure/read `bearagnostic_pro_lifetime` ProductDetails;
-- render current localized Play price/offer;
-- launch purchase flow;
-- handle purchased and pending states;
-- acknowledge qualifying purchases correctly;
-- restore ownership on reinstall/new device using the purchasing Google account;
-- synchronize refund/revocation/ownership changes;
-- connect verified ownership to `EntitlementManager`;
-- ensure release builds have no debug entitlement path.
-
-## Remaining Pro value and release hardening
-
-Continue only with truthful, complete capabilities: advanced media review/filtering, historical Insights / What Changed, full cleanup history, custom exclusions and scheduled checkup reminders. Then finish current Play policy review, AAB/release signing, Data Safety, physical-device matrix, purchase/restore/refund matrix, destructive-flow tests, large-storage performance QA, accessibility/localization QA and store-ready assets/copy.
+1. Real scans on P’Benz’s device can finish extremely quickly. This is not itself a defect.
+2. Evidence is more valuable than cosmetic waiting.
+3. Quick Scan is expected to be especially fast because it does not read content or hash duplicates.
+4. Smart/Deep must remain distinguishable by actual I/O work, not by animation duration.
+5. Empty states need value and next steps; “nothing found” should not feel like a dead end.
+6. Scroll screenshots can make a valid sticky-footer workspace look visually cut off; distinguish scroll position from actual layout defects.
+7. B33 confirmed that real responsive geometry problems must be fixed structurally, not by shrinking fonts.
+8. Hidden/private files must not reveal thumbnails before opt-in.
+9. Real-world device screenshots are a critical part of visual QA; desktop/static reasoning alone is insufficient.
 
 ---
 
-# 34. KNOWN PROJECT LESSONS THAT MUST NOT BE REPEATED
+# 29. TOOLS / PERFECT V1 FORWARD ROADMAP
 
-Earlier Android iterations failed because they treated the HTML/PWA as visual inspiration instead of source of truth. This caused:
+This roadmap is priority guidance, not a permanent batch-number contract. Latest explicit instruction and current GitHub production always win.
 
-- wrong launcher icon;
-- wrong mascot crop;
-- launch regressions;
-- missing Benedict Interactive/product opening details;
-- Home mismatches;
-- scroll-heavy layouts;
-- poor white-space usage;
-- blank flying-file tiles;
-- scanner modes that were too shallow;
-- results that only reported totals without useful next actions.
+## Phase A — Finish Perfect V1 file-maintenance toolset
 
-The corrective architectural lesson is permanent:
+Build first-class, safety-aligned workflows for remaining useful categories such as:
 
-> **Preserve the approved PWA literally first. Add Android capabilities as isolated layers.**
+- Downloads review;
+- APK installers;
+- Archives;
+- Zero-byte files;
+- Empty folders where Android access and deletion semantics are reliable;
+- media-oriented review improvements where useful.
 
-Do not regress to “recreate it by eye.”
+Rules:
 
----
+- APK/archive/media are review-first by default;
+- Downloads is a location, not a junk classification;
+- empty-folder logic must avoid app/system-owned areas and protected boundaries;
+- no category may inherit a destructive shortcut merely because another workflow already has one.
 
-# 35. REVISION HISTORY
+## Phase B — File Health and Insights evolution
 
-## Revision 2.5 — 10 September 2026
+Develop the value layer after scanning/cleanup:
 
-Exact Duplicates and plan-status alignment after B29:
+- meaningful File Health summary;
+- storage overview;
+- Historical Insights / What Changed;
+- cleanup history;
+- before/after verified trends;
+- useful local summaries without fake scores.
 
-- records B29 commit `593e5f409da9edf809cb430185048c46440408bf` and GitHub Actions run #33 as the known-good baseline before B30;
-- establishes the dedicated Exact Duplicates vertical-slice contract using only verified native duplicate groups;
-- keeps focused/manual duplicate review available to Free while defining Deep full-scope verification and bulk recommended selection as advanced Pro controls;
-- preserves UI and native keep-one-copy protection, stale-snapshot blocking, reviewed IDs and verified reclaimed-byte accounting;
-- requires post-delete group rebuilding so singleton leftovers are not presented as duplicate groups;
-- formalizes a subtle global Pro-only header indicator and current-plan status in More/Pro while rejecting a persistent global Free badge;
-- corrects Quick Clean live byte labels to match the actual scan phase without adding artificial duration;
-- makes B29 the rollback baseline for B30 and sets Large Files as the next first-class Home-tool completion target.
+Avoid arbitrary health percentages. Prefer factual state, trends, and verified changes.
 
-## Revision 2.4 — 10 September 2026
+## Phase C — Pro toolkit completion
 
-Quick Clean premium trust/UX alignment after physical-device B28 review:
+Complete high-value Pro capabilities such as:
 
-- records B28 commit `bc2a3d04426619bc3b260e78aec614d7060576af` and GitHub Actions run #32 as the known-good production baseline before B29;
-- records that the B28 live-scan and zero-low-risk states worked on device but were visually too sparse and did not explain very fast completion strongly enough;
-- requires live Quick Clean to surface real native scan evidence rather than a lone spinner;
-- requires zero-low-risk results to show useful verified context, snapshot age and source scan mode;
-- adds truthful next-step discovery from actual duplicate, large-file and older-file counts in the current review snapshot;
-- explicitly forbids artificial scan delay or fake progress as a solution to fast completion;
-- preserves the B28 safety/deletion architecture and makes B28 the rollback baseline for B29.
+- advanced media review/filtering;
+- full cleanup history;
+- custom exclusions;
+- scheduled checkup reminders;
+- deeper diagnostics that genuinely save time or improve control.
 
-## Revision 2.3 — 10 September 2026
+Each Pro feature must feel worth paying for; never create artificial friction in Free simply to force an upgrade.
 
-Quick Clean completion alignment after B27:
+## Phase D — Production Google Play Billing
 
-- records B27 and GitHub Actions run #31 as the current known-good production baseline before B28;
-- establishes `android-cleanup.js` as the isolated first-class Quick Clean vertical slice;
-- connects the Home and Tools Cleanup entry points to real native Smart Checkup/review/delete data rather than placeholder behavior;
-- limits Quick Clean to native `lowrisk` / `autoCleanEligible` candidates only;
-- explicitly excludes large, old, APK, archive and exact-duplicate review categories from Quick Clean;
-- requires a fresh scan before destructive action when the review snapshot is older than 15 minutes;
-- preserves the 500-item reviewed deletion batch limit and current-snapshot ID contract;
-- requires Select → Review → Confirm → Delete → Verify → Summary behavior and truthful failure reporting;
-- keeps Quick Clean free and preserves all existing safety, entitlement and scanner boundaries;
-- sets B27 as the rollback baseline for B28.
+After entitlement architecture and core feature boundaries are stable:
 
-## Revision 2.2 — 10 September 2026
+- integrate real Play Billing;
+- configure `bearagnostic_pro_lifetime`;
+- use localized Play price;
+- test purchase, pending, restore, reinstall, refund/revoke, offline/reconnect behavior;
+- remove/disable debug entitlement controls from release;
+- verify no manual user administration is required.
 
-App-wide readability alignment after B26:
+## Phase E — Release hardening
 
-- records B26 and GitHub Actions run #30 as the current known-good production baseline before B27;
-- establishes a centralized final presentation-only readability layer instead of scattering typography fixes across feature modules;
-- prioritizes Pro, Checkup and Home readability while covering secondary screens, results, evidence, review, preferences, privacy and feedback surfaces;
-- requires stronger functional-text contrast, more comfortable leading and deliberate section spacing;
-- prefers scrolling over micro-type on content-heavy sheets;
-- preserves the approved zero-scroll Home and active Checkup compositions while protecting functional readability;
-- explicitly allows smaller typography only for genuinely decorative/nonessential metadata or tightly constrained secondary progress labels;
-- adds Thai/Japanese line-height guidance and holistic typography QA requirements.
+Before public launch:
 
-## Revision 2.1 — 10 September 2026
+- multi-device Android QA;
+- large-storage stress tests;
+- deletion safety matrix;
+- permission-loss/regrant tests;
+- rotation/background/resume edge cases where applicable;
+- EN/TH/JA UI review;
+- accessibility/touch-target review;
+- crash/error-path testing;
+- memory/performance review;
+- release AAB;
+- production signing/keystore process;
+- versioning discipline;
+- Data Safety declaration;
+- Privacy Policy;
+- Play listing copy/screenshots;
+- current MANAGE_EXTERNAL_STORAGE/all-files-access policy eligibility check;
+- current Billing/payment/support-link policy check.
 
-Commercial/entitlement alignment after B25:
-
-- records B25 as the known-good production baseline before B26;
-- locks one-app Free + lifetime Pro direction;
-- keeps Smart fully useful and Recommended in Free;
-- assigns Deep and Custom as the first implemented Pro capabilities;
-- locks no ads, no Bearagnostic account and no subscription at launch;
-- records target Thailand standard/founding prices while forbidding hard-coded runtime price text;
-- establishes `bearagnostic_pro_lifetime` as the planned Play product ID;
-- formalizes centralized native entitlement and debug-only QA override rules;
-- reserves safety, warnings, protected logic and truthful coverage for all users;
-- moves Play-facing commercial UX from voluntary Support toward Bearagnostic Pro;
-- preserves Ko-fi/PromptPay code for possible non-Play/direct distribution without granting entitlement;
-- updates the next milestone to Google Play Billing and ownership lifecycle after B26 device stability.
-
-## Revision 2.0 — 9 September 2026
-
-Major alignment update after B17–B19:
-
-- records B19 production/CI state;
-- locks literal PWA frontend source-of-truth;
-- formalizes Quick / Smart / Deep / Custom;
-- formalizes scan evidence and coverage truth;
-- formalizes Trust & Advice UX;
-- formalizes live result state and verified deletion;
-- formalizes Cleanup Impact and privacy-safe sharing;
-- formalizes functional Dr. Bear illustration mapping;
-- records native Support behavior;
-- formalizes Free/Pro entitlement principles;
-- adds strict regression-protection rules;
-- adds strict same-turn delivery/package contract;
-- records B19 physical-test checklist;
-- updates roadmap to B20 Home/Insights/Entitlement foundation, then Billing.
-
-## Revision 1.0 — 8 September 2026
-
-Initial Android project operating contract.
+Only after this phase should “Play Store ready” be claimed.
 
 ---
 
-# 36. FINAL NORTH STAR
+# 30. PLAY STORE RELEASE BLOCKERS
 
-Every meaningful decision should answer:
+Do not ship merely because a debug APK builds.
 
-- Is it truthful?
-- Is it useful?
-- Is it safe?
-- Is it visually 10/10?
-- Does it preserve what already works?
-- Is it simpler than the alternative?
-- Can a normal user understand what happens next?
-- Can we prove the numbers shown?
-- Does it move Bearagnostic toward a premium daily-use maintenance product rather than a gimmicky cleaner?
+Release blockers include:
 
-When uncertain, protect user data, preserve stable production, and prefer evidence over spectacle.
+- real release signing;
+- AAB generation;
+- Google Play Billing production lifecycle if Pro is offered;
+- privacy policy matching actual behavior;
+- Data Safety form matching actual behavior;
+- review of all-files access eligibility;
+- removal of debug-only entitlement/test controls;
+- release build verification;
+- purchase/restore/refund testing;
+- destructive file-deletion testing on real devices;
+- current-policy review for external support links/PromptPay/Ko-fi;
+- complete store assets and truthful listing copy.
+
+The debug keystore is not a production release-signing solution.
+
+---
+
+# 31. QA TRUTH CATEGORIES
+
+Every batch must distinguish these clearly:
+
+### Static QA PASS
+
+Syntax, source inspection, deterministic simulations, packaging, invariants, lint-like checks.
+
+### CI PASS
+
+GitHub Actions or equivalent verified build/test result for the uploaded commit.
+
+### Runtime simulation PASS
+
+A real executable/browser/native simulation ran successfully in the available environment.
+
+### Physical-device PASS
+
+P’Benz or an actual device test demonstrated the claimed behavior.
+
+### NOT TESTED
+
+Anything not actually tested.
+
+Never blur these categories.
+
+A screenshot can prove a displayed state, but not every underlying path.
+
+---
+
+# 32. BATCH IMPLEMENTATION AND DELIVERY CONTRACT
+
+For normal runtime implementation batches:
+
+- inspect current GitHub production first;
+- establish rollback baseline;
+- make the smallest complete coherent batch;
+- update `versionCode` and `versionName`;
+- keep Android adapter cache query strings coherent where required;
+- package changed files only unless a full package is requested;
+- use canonical repository-relative paths;
+- do not include a wrapper folder;
+- provide changed-file allowlist;
+- provide regression risk: LOW / MEDIUM / HIGH;
+- describe QA actually performed;
+- list untested items;
+- provide SHA-256;
+- provide rollback commit;
+- provide a commit name of 50 characters or fewer.
+
+Do not create production files named `v2`, `new`, `final`, `backup`, `copy`, etc.
+
+### Documentation-only updates
+
+A documentation-only Master Plan/prompt refresh does not require an Android version bump. It should not pretend to be a runtime batch.
+
+---
+
+# 33. NO-WAIT / TANGIBLE-OUTPUT WORKFLOW
+
+When P’Benz requests an implementation/package, do not spend the turn only reporting that work is in progress.
+
+Produce a real downloadable artifact in the same turn whenever technically possible. If the requested scope is too large, shrink to the smallest safe complete batch instead of returning only status.
+
+Never fake:
+
+- ZIP files;
+- links;
+- checksums;
+- CI results;
+- runtime results;
+- physical-device results.
+
+---
+
+# 34. KNOWN FAILURE MODES — DO NOT REPEAT
+
+Avoid these specifically:
+
+- recreating the PWA by eye;
+- changing the approved icon;
+- arbitrary mascot crops/substitutions;
+- scroll-heavy redesign of Home;
+- tiny typography to force-fit content;
+- blank/underused giant sheets without useful state explanation;
+- fake scan duration;
+- shallow scan scope presented as whole-device depth;
+- totals-only results with no evidence/context;
+- SHA jargon in prominent UI;
+- semantic red used for non-danger actions;
+- mascot stealing review workspace;
+- browser/PWA settings exposed unnecessarily in native Android;
+- duplicate groups that can be fully deleted;
+- large/old/hidden items treated as automatically safe;
+- hidden thumbnails revealed while Hidden Items is OFF;
+- stale snapshot deletion;
+- reclaimed bytes calculated without verification;
+- Free badge plastered globally;
+- Pro features represented as finished when they are roadmap-only;
+- Ko-fi/PromptPay used as manual Pro activation;
+- hard-coded localized Play purchase price;
+- changing scanner logic merely to improve visual pacing;
+- using “Done” for an actively running task when “Close/Cancel” is the actual action;
+- mistaking a scroll screenshot for a structural layout failure;
+- fixing genuine responsive geometry by shrinking fonts instead of restructuring layout.
+
+---
+
+# 35. CURRENT HIGH-RISK AREAS TO PROTECT
+
+Changes touching these require extra scrutiny:
+
+- `FileHealthScanner.kt`;
+- `MainActivity.kt` review snapshot/deletion handling;
+- `NativeBridge.kt`;
+- `EntitlementManager.kt`;
+- `app/build.gradle.kts` adapter order/version/cache;
+- duplicate group keep-one logic;
+- hidden-item privacy filters;
+- media preview access;
+- all-files/storage permissions;
+- Google Play Billing when introduced;
+- release signing;
+- support/payment external links.
+
+Prefer adapter-level presentation fixes when scanner/native behavior does not actually need to change.
+
+---
+
+# 36. CURRENT IMPORTANT CONSTANTS / INVARIANTS
+
+Treat these as deliberate until inspected and intentionally changed:
+
+- Smart sample: 256 KiB per readable non-empty file;
+- streaming/hash buffer: 256 KiB;
+- progress emission interval: approximately 160 ms;
+- deletion selection cap: 500;
+- dedicated review stale-snapshot guard: approximately 15 minutes;
+- Older Files age: approximately 365 days;
+- auto-clean temporary/incomplete-download rules include age/safety protections rather than generic temp deletion;
+- protected storage includes Android/data and Android/obb access boundaries;
+- exact duplicates require size match + streaming SHA-256 verification;
+- duplicate deletion keeps at least one copy;
+- scanner is read-only;
+- no artificial scan delay.
+
+---
+
+# 37. DEFINITION OF “FEATURE COMPLETE”
+
+A button opening a screen is not feature complete.
+
+A first-class workflow is complete only when appropriate parts of this chain exist:
+
+`Entry → Real data → Loading/Empty/Found/Error → Explanation → Preview/Context → Selection → Safety classification → Confirm → Native action → Verify → Truthful summary → Updated state`
+
+For non-destructive features, remove irrelevant destructive stages, but still require real data, error/empty states, and truthful outcomes.
+
+---
+
+# 38. DEFINITION OF “10/10” FOR BEARAGNOSTIC
+
+A 10/10 Bearagnostic feature should satisfy all of the following:
+
+- immediately understandable;
+- truthful about what it scanned and what it did not;
+- no fake waiting;
+- no hidden destructive behavior;
+- comfortable typography on a real phone;
+- premium but restrained color;
+- clear hierarchy;
+- useful empty states;
+- coherent next steps;
+- strong Android safety boundaries;
+- local-first privacy;
+- minimal user administration for P’Benz;
+- maintainable architecture;
+- resilient EN/TH/JA layout;
+- real QA evidence matching the claim.
+
+The goal is not merely “works.” The goal is **trustworthy enough that users will confidently let it inspect and clean personal storage**.
+
+---
+
+# 39. NEXT-ROOM / NEXT-DEVELOPER STARTUP CHECKLIST
+
+Before doing anything substantive:
+
+1. fetch latest `main`;
+2. verify whether `4321369aa830894c82b0a84a9ab8aaabfc3681d7` is still current;
+3. fetch this Master Plan from GitHub;
+4. inspect current `app/build.gradle.kts`;
+5. inspect files relevant to the requested task;
+6. inspect latest GitHub Actions status;
+7. identify current runtime batch/version;
+8. establish rollback baseline;
+9. do not assume the next runtime batch number if GitHub has advanced;
+10. preserve all safety/visual/monetization contracts above.
+
+If GitHub still shows B33 runtime, the next runtime implementation would normally be B34 unless P’Benz explicitly defines another batch strategy.
+
+---
+
+# 40. MASTER PLAN MAINTENANCE RULE
+
+This file is not a changelog dump. It is the canonical long-term product/engineering contract.
+
+Update it when a batch materially changes:
+
+- architecture;
+- feature-completion state;
+- safety rules;
+- privacy rules;
+- scan contracts;
+- visual/UX contracts;
+- Free/Pro boundaries;
+- billing/support policy;
+- release strategy;
+- major verified production state.
+
+Do not edit it for trivial cosmetic changes that do not alter a durable contract.
+
+Always overwrite this canonical path:
+
+`docs/BEARAGNOSTIC_ANDROID_MASTER_PLAN.md`
+
+Never create competing `final`, `v2`, `new`, `backup`, or dated Master Plans.
+
+---
+
+**End of Revision 3.0**
