@@ -595,7 +595,41 @@ class FileHealthScanner(private val context: Context) {
             }
             emit(listener, request, plan, "modified_dates", counters, phaseProcessed = processed, phaseTotal = counters.discoveredFiles)
 
-            emit(listener, request, plan, "finalizing", counters, candidateFiles, candidateBytes, hashedFiles, hashedBytes)
+            // Phase A — Downloads Review. Downloads is a location, never a junk verdict.
+            // Add these review identities only after all established cleanup categories have
+            // populated the bounded snapshot so this first-class view cannot starve existing
+            // Large/Older/Duplicate/cleanup candidates on unusually large libraries.
+            processed = 0L
+            lastProgressAt = 0L
+            forEachInventory(inventory) { file ->
+                ensureNotCancelled()
+                processed++
+                if (file.exists() && file.isFile && isDownloadPath(normalizedPath(file))) {
+                    val size = safeLength(file)
+                    if (size != null) {
+                        addReviewCandidate(
+                            reviewCandidates, file, size, "downloads", 2, 0,
+                            suggestedSelected = false, autoCleanEligible = false,
+                            reasonCode = "download_location", modifiedMs = safeModified(file),
+                        )
+                    }
+                }
+                val now = SystemClock.elapsedRealtime()
+                if (processed % 96L == 0L || now - lastProgressAt >= PROGRESS_INTERVAL_MS) {
+                    lastProgressAt = now
+                    emit(
+                        listener, request, plan, "finalizing", counters,
+                        candidateFiles, candidateBytes, hashedFiles, hashedBytes,
+                        phaseProcessed = processed, phaseTotal = counters.discoveredFiles,
+                        activeItem = file,
+                    )
+                }
+            }
+            emit(
+                listener, request, plan, "finalizing", counters,
+                candidateFiles, candidateBytes, hashedFiles, hashedBytes,
+                phaseProcessed = processed, phaseTotal = counters.discoveredFiles,
+            )
             reviewSnapshot = reviewCandidates.snapshot(request.mode)
             listener.onComplete(
                 buildResult(
@@ -784,6 +818,7 @@ class FileHealthScanner(private val context: Context) {
         "installers" -> "installers" in candidate.categories
         "archives" -> "archives" in candidate.categories
         "zero" -> "zero" in candidate.categories
+        "downloads" -> "downloads" in candidate.categories
         "all" -> true
         else -> false
     }
@@ -821,7 +856,7 @@ class FileHealthScanner(private val context: Context) {
         put("scanMode", snapshot.scanMode)
         put("candidateCount", values.size)
         put("detailsTruncated", snapshot.detailsTruncated)
-        for (category in listOf("lowrisk", "duplicates", "large", "old", "temporary", "installers", "archives", "zero")) {
+        for (category in listOf("lowrisk", "duplicates", "large", "old", "temporary", "installers", "archives", "zero", "downloads")) {
             put("${category}Count", count(category))
             put("${category}Bytes", bytes(category))
         }
@@ -1208,7 +1243,7 @@ class FileHealthScanner(private val context: Context) {
     private class ScanCancelledException : RuntimeException()
 
     companion object {
-        const val ANALYSIS_RULES_VERSION = 7
+        const val ANALYSIS_RULES_VERSION = 8
         const val LARGE_FILE_BYTES = 100L * 1024L * 1024L
         const val OLDER_THAN_DAYS = 365L
         const val OLDER_THAN_MS = OLDER_THAN_DAYS * 24L * 60L * 60L * 1000L
