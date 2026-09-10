@@ -2,6 +2,7 @@ package com.benedictinteractive.bearagnostic
 
 import android.os.Build
 import android.webkit.JavascriptInterface
+import org.json.JSONArray
 import org.json.JSONObject
 
 class NativeBridge(private val activity: MainActivity) {
@@ -39,7 +40,9 @@ class NativeBridge(private val activity: MainActivity) {
 
     @JavascriptInterface
     fun startScan(mode: String, customScopesJson: String, verifyDuplicates: Boolean): String {
-        val normalizedMode = mode.trim().lowercase()
+        val normalizedMode = RuntimeContractGuard.normalizeScanMode(mode)
+            ?: return rejected("invalid_scan_mode")
+
         val requiredCapability = when (normalizedMode) {
             "deep" -> EntitlementManager.Capability.DEEP_SCAN
             "custom" -> EntitlementManager.Capability.CUSTOM_SCAN
@@ -53,7 +56,18 @@ class NativeBridge(private val activity: MainActivity) {
                 put("entitlement", entitlement.stateJsonObject())
             }.toString()
         }
-        return activity.startScan(mode, customScopesJson, verifyDuplicates)
+
+        var effectiveCustomScopesJson = customScopesJson
+        if (normalizedMode == "custom") {
+            val scopeDecision = RuntimeContractGuard.validateCustomScopes(customScopesJson)
+            if (!scopeDecision.accepted) return rejected(scopeDecision.reason)
+            if (!RuntimeContractGuard.hasAccessibleCustomTarget(activity, scopeDecision.scopes)) {
+                return rejected("no_matching_scan_locations")
+            }
+            effectiveCustomScopesJson = JSONArray(scopeDecision.scopes.toList()).toString()
+        }
+
+        return activity.startScan(normalizedMode, effectiveCustomScopesJson, verifyDuplicates)
     }
 
     @JavascriptInterface
@@ -74,7 +88,24 @@ class NativeBridge(private val activity: MainActivity) {
         activity.requestReviewMedia(id, variant, requestId)
 
     @JavascriptInterface
-    fun deleteReviewCandidates(idsJson: String): String = activity.deleteReviewCandidates(idsJson)
+    fun deleteReviewCandidates(idsJson: String): String {
+        val summary = try {
+            JSONObject(activity.reviewSummaryJson())
+        } catch (_: Exception) {
+            null
+        }
+        if (summary?.optBoolean("available", false) == true) {
+            val generatedAtMs = summary.optLong("generatedAtMs", 0L)
+            if (!RuntimeContractGuard.isReviewSnapshotFresh(generatedAtMs)) {
+                return JSONObject().apply {
+                    put("accepted", false)
+                    put("reason", "stale_review_snapshot")
+                    put("maxAgeMs", RuntimeContractGuard.REVIEW_SNAPSHOT_MAX_AGE_MS)
+                }.toString()
+            }
+        }
+        return activity.deleteReviewCandidates(idsJson)
+    }
 
     @JavascriptInterface
     fun getStorageSnapshot(): String = activity.storageSnapshotJson()
@@ -109,8 +140,13 @@ class NativeBridge(private val activity: MainActivity) {
         put("scannerCapabilities", "multi_pass,metadata,content_probe,categories,old,large,temp,apk,archives,zero_byte,empty_folders,screenshots,media,downloads,sha256_duplicates,review_candidates,live_activity,local_review_previews,verified_delete")
     }.toString()
 
+    private fun rejected(reason: String): String = JSONObject().apply {
+        put("accepted", false)
+        put("reason", reason)
+    }.toString()
+
     companion object {
         const val JS_INTERFACE_NAME = "BearagnosticNative"
-        const val BRIDGE_VERSION = 10
+        const val BRIDGE_VERSION = 11
     }
 }
