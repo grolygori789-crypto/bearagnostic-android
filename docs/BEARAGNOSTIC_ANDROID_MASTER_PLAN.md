@@ -2,7 +2,7 @@
 
 **Repository:** `grolygori789-crypto/bearagnostic-android`  
 **Canonical file:** `docs/BEARAGNOSTIC_ANDROID_MASTER_PLAN.md`  
-**Revision:** 2.2  
+**Revision:** 2.3  
 **Revision date:** 10 September 2026  
 **Owner / Product Authority:** P’Benz  
 **Studio / Publisher:** Benedict Interactive  
@@ -89,18 +89,18 @@ Create a new file only when it has a durable and genuinely distinct responsibili
 
 ---
 
-# 3. CURRENT VERIFIED PRODUCTION SNAPSHOT — BATCH 26
+# 3. CURRENT VERIFIED PRODUCTION SNAPSHOT — BATCH 27
 
 This section is a snapshot and must never override newer GitHub production.
 
-As of 10 September 2026 before the B27 readability package is uploaded:
+As of 10 September 2026 before the B28 Quick Clean completion package is uploaded:
 
 - branch: `main`
-- latest commit: `7973c431aa6c20037fd8a6ef80edf4498f1a39cd`
-- commit message: `Add Free and Pro entitlement foundation`
-- parent: `c8890668674bb38fd5a6ab0b77610876646af31c`
-- Android version: `0.21.0-alpha26`
-- `versionCode`: `26`
+- latest commit: `3295e75073e5f7df05c8d12f561d4c3fff343852`
+- commit message: `Improve app-wide readability and spacing`
+- parent: `7973c431aa6c20037fd8a6ef80edf4498f1a39cd`
+- Android version: `0.21.1-alpha27`
+- `versionCode`: `27`
 - application ID: `com.benedictinteractive.bearagnostic`
 - debug application ID: `com.benedictinteractive.bearagnostic.debug`
 - compileSdk: `36`
@@ -108,12 +108,12 @@ As of 10 September 2026 before the B27 readability package is uploaded:
 - minSdk: `26`
 - Java compatibility: `17`
 - Native Bridge version: `10`
-- latest GitHub Actions debug APK run for B26: **SUCCESS** (run #30)
-- B26 has physical-device visual evidence for the Pro sheet, but comprehensive physical-device QA is **NOT YET COMPLETE**
+- latest GitHub Actions debug APK run for B27: **SUCCESS** (run #31)
+- B27 has physical-device visual evidence for the Home readability pass, but comprehensive physical-device QA is **NOT YET COMPLETE**
 
-B26 is the known-good rollback baseline for B27 app-wide readability work.
+B27 is the known-good rollback baseline for B28 Quick Clean completion work.
 
-Do not call B27 physically verified until P’Benz supplies real-device evidence covering the affected typography and layouts.
+Do not call B28 physically verified until P’Benz tests the complete Quick Clean path on a real Android device.
 
 ---
 
@@ -262,7 +262,7 @@ If adaptive masking is required, preserve the original composition inside the sa
 
 # 7. CURRENT ANDROID FRONTEND ASSEMBLY
 
-At B26 production, `app/build.gradle.kts`:
+At B27 production, `app/build.gradle.kts`:
 
 - downloads the pinned legacy archive if not cached;
 - verifies critical legacy files/assets by Git blob SHA-1;
@@ -286,6 +286,12 @@ B27 adds one final presentation-only module:
 - `android-readability.js` — centralized typography, contrast, leading and spacing overrides across Android surfaces.
 
 The B27 readability module must load last. It may improve legibility and spacing, but it must not own scan behavior, entitlement decisions, deletion behavior, support actions or business logic.
+
+B28 adds one isolated first-class feature module:
+
+- `android-cleanup.js` — the complete Quick Clean vertical slice for the Home/Tools Cleanup entry points.
+
+Quick Clean must load after the entitlement guard and before generic Android tool handling so its dedicated Cleanup entry points are captured without rewriting the approved PWA shell. It may call the existing native scan/review/delete bridge, but it must not duplicate scanner rules or create a second deletion engine.
 
 This architecture exists specifically to prevent visual drift, monetization logic sprawl and future typography fixes being scattered across unrelated feature modules. Do not replace it with a hand-rebuilt frontend or scattered purchase checks without explicit approval and a strong architectural reason.
 
@@ -404,6 +410,33 @@ Perfect V1 must ultimately include first-class user experiences for:
 16. Privacy dashboard
 
 The scanner currently recognizes many of these categories, but **scanner recognition does not automatically mean the dedicated UI/workflow is complete**. Do not overstate V1 completeness.
+
+## 10.1 Quick Clean vertical-slice contract
+
+B28 makes Quick Clean the first Home quick tool that must operate as a complete production workflow rather than a placeholder.
+
+Quick Clean must:
+
+- use the latest in-memory native review snapshot when one exists;
+- offer a real Smart Checkup when no review snapshot exists;
+- never create fake cleanup candidates or estimated reclaim totals;
+- request only the native `lowrisk` review category, which maps to `autoCleanEligible` candidates;
+- keep large files, older files, APKs, archives and verified duplicates out of the Quick Clean one-tap list because those categories require separate review workflows;
+- allow explicit selection, select-all for the currently shown safe batch, and clearing selections;
+- block destructive action when the review snapshot is older than 15 minutes and require a fresh Smart Checkup first;
+- preserve the native per-batch deletion limit of 500 items;
+- require a final confirmation before deletion;
+- delete only IDs issued by the current native review snapshot;
+- rely on native verified deletion and count only successfully removed bytes as reclaimed space;
+- report deletion failures and native protection events without counting them as cleanup success;
+- refresh the remaining low-risk list and Home/Tools Cleanup status from the live native review snapshot after deletion;
+- remain free; no safety or Quick Clean protection may be gated by Pro.
+
+The canonical destructive sequence for Quick Clean is:
+
+`Smart Checkup / current snapshot → Safe-candidate review → Select → Final confirmation → Native delete → Verify → Verified summary → Remaining candidates`
+
+B28 must not rewrite `FileHealthScanner` classification logic or fork the native deletion engine merely to implement this UI. Future cleanup categories should reuse the proven review/confirm/delete/verify interaction pattern while keeping their own risk-specific rules.
 
 ---
 
@@ -1142,6 +1175,21 @@ Do not regress to “recreate it by eye.”
 ---
 
 # 35. REVISION HISTORY
+
+## Revision 2.3 — 10 September 2026
+
+Quick Clean completion alignment after B27:
+
+- records B27 and GitHub Actions run #31 as the current known-good production baseline before B28;
+- establishes `android-cleanup.js` as the isolated first-class Quick Clean vertical slice;
+- connects the Home and Tools Cleanup entry points to real native Smart Checkup/review/delete data rather than placeholder behavior;
+- limits Quick Clean to native `lowrisk` / `autoCleanEligible` candidates only;
+- explicitly excludes large, old, APK, archive and exact-duplicate review categories from Quick Clean;
+- requires a fresh scan before destructive action when the review snapshot is older than 15 minutes;
+- preserves the 500-item reviewed deletion batch limit and current-snapshot ID contract;
+- requires Select → Review → Confirm → Delete → Verify → Summary behavior and truthful failure reporting;
+- keeps Quick Clean free and preserves all existing safety, entitlement and scanner boundaries;
+- sets B27 as the rollback baseline for B28.
 
 ## Revision 2.2 — 10 September 2026
 
