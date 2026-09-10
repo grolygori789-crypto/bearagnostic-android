@@ -2,7 +2,7 @@
 
 **Repository:** `grolygori789-crypto/bearagnostic-android`  
 **Canonical file:** `docs/BEARAGNOSTIC_ANDROID_MASTER_PLAN.md`  
-**Revision:** 2.1  
+**Revision:** 2.2  
 **Revision date:** 10 September 2026  
 **Owner / Product Authority:** P’Benz  
 **Studio / Publisher:** Benedict Interactive  
@@ -89,31 +89,31 @@ Create a new file only when it has a durable and genuinely distinct responsibili
 
 ---
 
-# 3. CURRENT VERIFIED PRODUCTION SNAPSHOT — BATCH 25
+# 3. CURRENT VERIFIED PRODUCTION SNAPSHOT — BATCH 26
 
 This section is a snapshot and must never override newer GitHub production.
 
-As of 10 September 2026 before the B26 entitlement package is uploaded:
+As of 10 September 2026 before the B27 readability package is uploaded:
 
 - branch: `main`
-- latest commit: `c8890668674bb38fd5a6ab0b77610876646af31c`
-- commit message: `Polish support card color treatment`
-- parent: `431b5bf3a4f86cc67eb3bdc64666ab68472f8245`
-- Android version: `0.20.4-alpha25`
-- `versionCode`: `25`
+- latest commit: `7973c431aa6c20037fd8a6ef80edf4498f1a39cd`
+- commit message: `Add Free and Pro entitlement foundation`
+- parent: `c8890668674bb38fd5a6ab0b77610876646af31c`
+- Android version: `0.21.0-alpha26`
+- `versionCode`: `26`
 - application ID: `com.benedictinteractive.bearagnostic`
 - debug application ID: `com.benedictinteractive.bearagnostic.debug`
 - compileSdk: `36`
 - targetSdk: `36`
 - minSdk: `26`
 - Java compatibility: `17`
-- Native Bridge version: `9`
-- latest GitHub Actions debug APK run for B25: **SUCCESS** (run #29)
-- B25 comprehensive physical-device QA: **NOT YET COMPLETE**
+- Native Bridge version: `10`
+- latest GitHub Actions debug APK run for B26: **SUCCESS** (run #30)
+- B26 has physical-device visual evidence for the Pro sheet, but comprehensive physical-device QA is **NOT YET COMPLETE**
 
-B25 is the known-good rollback baseline for B26 monetization-foundation work.
+B26 is the known-good rollback baseline for B27 app-wide readability work.
 
-Do not call B25 or B26 fully physical-device verified without explicit device evidence covering the affected behavior.
+Do not call B27 physically verified until P’Benz supplies real-device evidence covering the affected typography and layouts.
 
 ---
 
@@ -262,7 +262,7 @@ If adaptive masking is required, preserve the original composition inside the sa
 
 # 7. CURRENT ANDROID FRONTEND ASSEMBLY
 
-At B25 production, `app/build.gradle.kts`:
+At B26 production, `app/build.gradle.kts`:
 
 - downloads the pinned legacy archive if not cached;
 - verifies critical legacy files/assets by Git blob SHA-1;
@@ -279,9 +279,15 @@ B26 adds two isolated monetization modules:
 
 B26 also introduces native `EntitlementManager.kt` as the single access-policy source of truth and exposes that state through `NativeBridge.kt`.
 
-The script-order contract is intentional: entitlement guard first, normal Android adapters next, Pro UI last. This lets Free-state Pro actions be intercepted before normal mode handling while keeping presentation isolated from scanner logic.
+The B26 script-order contract is intentional: entitlement guard first, normal Android adapters next, Pro UI after them. This lets Free-state Pro actions be intercepted before normal mode handling while keeping presentation isolated from scanner logic.
 
-This architecture exists specifically to prevent visual drift and monetization logic sprawl. Do not replace it with a hand-rebuilt frontend or scattered purchase checks without explicit approval and a strong architectural reason.
+B27 adds one final presentation-only module:
+
+- `android-readability.js` — centralized typography, contrast, leading and spacing overrides across Android surfaces.
+
+The B27 readability module must load last. It may improve legibility and spacing, but it must not own scan behavior, entitlement decisions, deletion behavior, support actions or business logic.
+
+This architecture exists specifically to prevent visual drift, monetization logic sprawl and future typography fixes being scattered across unrelated feature modules. Do not replace it with a hand-rebuilt frontend or scattered purchase checks without explicit approval and a strong architectural reason.
 
 ---
 
@@ -912,6 +918,18 @@ Requirements:
 - no large dead zones that make a production surface look unfinished;
 - no excessive scrolling where a carefully composed single-screen view is expected.
 
+Readability rules:
+
+- essential body copy and explanatory text must be readable without deliberate squinting on common Android phone widths;
+- do not use ultra-light gray text merely to create a premium look; hierarchy must come from spacing, weight and restrained contrast;
+- functional body copy should normally sit in the approximately 11.5–14 px range, with comfortable leading around 1.4–1.6 depending on script and density;
+- essential explanatory text should not be compressed into sub-9 px micro-type just to preserve a layout;
+- decorative brand microtext, nonessential footer/build metadata and highly constrained progress labels may be smaller when their role is genuinely secondary;
+- Thai and Japanese require enough line height and vertical breathing room for comfortable reading;
+- content-heavy surfaces such as Pro, Preferences, Privacy, About and detailed evidence should prefer scrolling over shrinking important text;
+- Home and active Checkup may preserve approved zero-scroll compositions, but should reclaim decorative/padding space before shrinking functional copy below a comfortable reading size;
+- typography QA must review font size, weight, contrast, leading, wrapping, truncation and section spacing together rather than changing font size alone.
+
 Premium means hierarchy and restraint, not density for its own sake.
 
 ---
@@ -1124,6 +1142,19 @@ Do not regress to “recreate it by eye.”
 ---
 
 # 35. REVISION HISTORY
+
+## Revision 2.2 — 10 September 2026
+
+App-wide readability alignment after B26:
+
+- records B26 and GitHub Actions run #30 as the current known-good production baseline before B27;
+- establishes a centralized final presentation-only readability layer instead of scattering typography fixes across feature modules;
+- prioritizes Pro, Checkup and Home readability while covering secondary screens, results, evidence, review, preferences, privacy and feedback surfaces;
+- requires stronger functional-text contrast, more comfortable leading and deliberate section spacing;
+- prefers scrolling over micro-type on content-heavy sheets;
+- preserves the approved zero-scroll Home and active Checkup compositions while protecting functional readability;
+- explicitly allows smaller typography only for genuinely decorative/nonessential metadata or tightly constrained secondary progress labels;
+- adds Thai/Japanese line-height guidance and holistic typography QA requirements.
 
 ## Revision 2.1 — 10 September 2026
 
