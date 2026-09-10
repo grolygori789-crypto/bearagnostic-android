@@ -2,9 +2,10 @@
   'use strict';
 
   const NATIVE = window.BearagnosticNative;
+  const HIDDEN = window.BearagnosticHiddenItems;
   if (!NATIVE) return;
 
-  const BUILD = 31;
+  const BUILD = 32;
   const MAX_BATCH = 500;
   const STALE_REVIEW_MS = 15 * 60 * 1000;
   const POLL_MS = 350;
@@ -556,7 +557,7 @@
     const payload = parse(NATIVE.getReviewCandidates?.('lowrisk', 0, MAX_BATCH), {available:false,items:[],totalCount:0});
     if (!payload.available) { renderNeedScan(nativeState()); return; }
     state.page = payload;
-    state.items = Array.isArray(payload.items) ? payload.items.filter((item) => item && item.autoCleanEligible !== false) : [];
+    state.items = Array.isArray(payload.items) ? payload.items.filter((item) => item && item.autoCleanEligible !== false && !HIDDEN?.isHiddenCandidate?.(item)) : [];
     state.selected = new Set(state.items.filter((item) => item.suggestedSelected !== false).slice(0, MAX_BATCH).map((item) => String(item.id)));
     renderCandidates();
   }

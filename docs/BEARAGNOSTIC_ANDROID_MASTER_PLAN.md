@@ -2,7 +2,7 @@
 
 **Repository:** `grolygori789-crypto/bearagnostic-android`  
 **Canonical file:** `docs/BEARAGNOSTIC_ANDROID_MASTER_PLAN.md`  
-**Revision:** 2.6  
+**Revision:** 2.7  
 **Revision date:** 10 September 2026  
 **Owner / Product Authority:** P’Benz  
 **Studio / Publisher:** Benedict Interactive  
@@ -89,18 +89,18 @@ Create a new file only when it has a durable and genuinely distinct responsibili
 
 ---
 
-# 3. CURRENT VERIFIED PRODUCTION SNAPSHOT — BATCH 30
+# 3. CURRENT VERIFIED PRODUCTION SNAPSHOT — BATCH 31
 
 This section is a snapshot and must never override newer GitHub production.
 
-As of 10 September 2026 before the B31 Large Files completion + duplicate-polish package is uploaded:
+As of 10 September 2026 before the B32 Older Files + Hidden Items package is uploaded:
 
 - branch: `main`
-- latest commit: `c54bb215493b2a12ad7bebd97ff13bd45f414a01`
-- commit message: `Complete duplicates and plan status`
-- parent: `593e5f409da9edf809cb430185048c46440408bf`
-- Android version: `0.23.0-alpha30`
-- `versionCode`: `30`
+- latest commit: `6708fc355c99a8af7adf12db0f7c913ef9dd6dbd`
+- commit message: `Complete Large Files workflow`
+- parent: `c54bb215493b2a12ad7bebd97ff13bd45f414a01`
+- Android version: `0.24.0-alpha31`
+- `versionCode`: `31`
 - application ID: `com.benedictinteractive.bearagnostic`
 - debug application ID: `com.benedictinteractive.bearagnostic.debug`
 - compileSdk: `36`
@@ -108,14 +108,14 @@ As of 10 September 2026 before the B31 Large Files completion + duplicate-polish
 - minSdk: `26`
 - Java compatibility: `17`
 - Native Bridge version: `10`
-- latest GitHub Actions debug APK run for B30: **SUCCESS** (run #34)
-- B30 has physical-device evidence for both Pro and Free Exact Duplicates presentation, verified group rendering, keep-one UI state, focused-vs-full coverage messaging, Pro bulk-action presentation, sticky review footer and scrolling behavior.
-- the B30 device review did not demonstrate a complete destructive duplicate deletion on-device in the supplied evidence, so physical-device deletion verification must not be claimed from screenshots alone.
-- the B30 device review identified small presentation refinements only: phase-aware duplicate verification metrics should avoid misleading zeroes before the hash pass begins, the scan-running action should say Close rather than Done, the focused-coverage Pro CTA should stack cleanly at phone widths, and the top selection prompt should not duplicate the sticky footer summary.
+- latest GitHub Actions debug APK run for B31: **SUCCESS** (run #35)
+- B31 has physical-device evidence for Large Files no-snapshot, live Quick Scan and populated review-workspace presentation. The supplied device evidence shows real file counts, storage totals, local media thumbnails, review-first messaging, filtering/sorting UI and the sticky selection footer.
+- the supplied B31 evidence does not demonstrate a complete destructive Large Files deletion on-device, so physical-device deletion verification must not be claimed from screenshots alone.
+- B31 also carries the approved B30 duplicate presentation refinements.
 
-B30 is the known-good rollback baseline for B31 Large Files completion and duplicate presentation polish.
+B31 is the known-good rollback baseline for B32 Older Files completion and Hidden Items privacy controls.
 
-Do not call B31 physically verified until P’Benz tests the Large Files browse/filter/sort/select/confirm/delete/verified-result flow and the revised duplicate presentation on a real Android device.
+Do not call B32 physically verified until P’Benz tests Older Files browsing/selection/deletion and Hidden Items OFF/ON behavior on a real Android device.
 
 ---
 
@@ -307,6 +307,13 @@ B31 adds one focused first-class feature module:
 - `android-large-files.js` — dedicated Large Files workspace using only the current native `large` review candidates, with review-first sorting/filtering, local preview support, explicit selection, final confirmation and the existing verified native deletion engine.
 
 `android-large-files.js` must load after the dedicated Cleanup/Duplicates capture modules and before generic Android tool handling so Large Files entry points are captured without changing the approved PWA shell. Large Files remains a Free capability; no size-based safety explanation or manual review may be paywalled.
+
+B32 adds two focused modules:
+
+- `android-hidden-items.js` — a local-only, default-OFF privacy preference for revealing accessible filesystem-hidden or clearly private-labelled review items; it never expands Android permissions, bypasses protected app storage, opens vaults, or changes scanner access boundaries;
+- `android-older-files.js` — dedicated Older Files workspace using only current native `old` review candidates, with age-first review, local previews, filtering/sorting, explicit selection, final confirmation and the existing verified native deletion engine.
+
+`android-hidden-items.js` loads before dedicated review tools so Cleanup, Duplicates, Large Files and Older Files can share one privacy preference. Hidden items remain concealed from dedicated review lists and preview requests until the user explicitly opts in. Quick Clean never promotes a hidden item into its one-tap safe-clean list. `android-older-files.js` loads before generic Android tool handling and remains a Free capability.
 
 This architecture exists specifically to prevent visual drift, monetization logic sprawl and future typography fixes being scattered across unrelated feature modules. Do not replace it with a hand-rebuilt frontend or scattered purchase checks without explicit approval and a strong architectural reason.
 
@@ -546,6 +553,51 @@ B31 must not alter the scanner’s large-file classification threshold merely to
 
 ---
 
+
+## 10.5 Older Files vertical-slice contract
+
+B32 makes Older Files the fourth complete Home quick-tool workflow.
+
+Older Files must:
+
+- consume only current native review candidates in category `old`; never infer age from filenames or create synthetic candidates;
+- use the scanner’s current older-file rule of files last modified more than 365 days ago unless that rule is intentionally revised in the scanner and Master Plan together;
+- remain a Free capability; age-based safety explanations and manual review must never require Pro;
+- use an existing current review snapshot when available and offer a real Quick Scan when none exists, because the classification depends on metadata and modification dates rather than content reading;
+- represent scope honestly: full accessible shared-storage scans represent that accessible scope, while Custom represents only its selected locations;
+- state prominently that **age alone is not a reason to delete** and never auto-select older files merely because of age;
+- show file name, safe display location, size, modification date, file kind and local image/video preview when supported;
+- default to Oldest first and also allow Newest first, Largest first and Name A–Z, plus basic type filtering;
+- require explicit per-file selection and Final Review before permanent deletion;
+- block destructive action when the current review snapshot is older than 15 minutes;
+- preserve the native 500-item deletion ceiling and duplicate keep-one protection;
+- count removed files and reclaimed bytes only after native deletion verification;
+- refresh the current in-memory review state after deletion;
+- support no-access, no-snapshot, live scan, loading, empty, partial/truncated, stale, browsing, filter/sort, selection, confirmation, result and error states;
+- support EN / TH / JA and Reduced Motion while preserving the premium mint/cyan visual language.
+
+The canonical Older Files sequence is:
+
+`Current review snapshot / Quick modified-date check → Review-first older-file workspace → Filter/sort → Explicit selection → Final Review → Native delete → Verify → Verified summary → Remaining files`
+
+## 10.6 Hidden Items privacy contract
+
+Hidden Items is a user-control and privacy feature, not a junk-confidence signal.
+
+Rules:
+
+- default is **OFF**;
+- the preference is local to the device and stores only the boolean choice, never filenames or paths;
+- when OFF, dedicated review workspaces must conceal items identified from available review metadata as filesystem-hidden or clearly private-labelled and must not request their image/video previews;
+- when ON, those already-accessible items may be shown in Duplicates, Large Files and Older Files with an explicit hidden indicator;
+- changing the preference must clear any now-concealed selection so a hidden item cannot remain queued invisibly for deletion;
+- Quick Clean must exclude hidden/private-looking candidates from one-tap safe cleanup regardless of the reveal preference; hidden does not mean junk;
+- duplicate grouping must be rebuilt from currently visible members so the UI always keeps at least one visible copy, while native keep-one protection remains a second independent safeguard;
+- the control does not broaden filesystem access and never attempts to bypass Android restrictions, encryption, secure vaults, `Android/data`, `Android/obb`, or another app’s protected storage;
+- the current B32 presentation detector is deliberately conservative and operates only on review metadata already exposed to the WebView: dot-prefixed names/path segments and a small exact set of common private-folder labels. It must not claim universal detection of every vendor-specific hidden album;
+- Hidden Items remains Free because privacy control and deletion safety must not be paywalled.
+
+---
 # 11. EXACT DUPLICATE RULE
 
 Duplicate detection must use evidence:
@@ -1204,29 +1256,30 @@ Until device testing covers these points, B26 must be described as **Static QA P
 
 ---
 
-# 33. CURRENT ROADMAP AFTER B29
+# 33. CURRENT ROADMAP AFTER B31
 
-## B30 — Exact Duplicates Complete + Plan Status
+## B32 — Older Files Complete + Hidden Items Privacy
 
 Approved scope:
 
-- make Duplicates a dedicated production vertical slice from Home/Tools;
-- preserve exact-size + streaming SHA-256 as the only duplicate proof;
-- group verified copies, let the user choose the keeper and prevent deletion of every copy;
-- support local previews, current-snapshot freshness, Final Review, native verified deletion and resolved-group summary;
-- keep focused/manual duplicate review useful in Free;
-- add Pro advanced duplicate controls: Deep full-scope verification and bulk recommended selection;
-- add subtle Pro-only header status plus clear current-plan status in More/Pro, with no global Free badge;
-- correct Quick Clean’s live byte metric so its label/value match the actual scan phase;
-- preserve scanner rules, native deletion safeguards, Billing-disabled state, launch and approved visual assets.
+- make Older Files the fourth dedicated production Home quick-tool vertical slice;
+- use the current native `old` review category and the existing 365-day modified-date rule;
+- use a current review snapshot when available or a real Quick metadata scan when a fresh snapshot is needed;
+- keep age as review evidence only: never auto-select merely because a file is old;
+- support local previews, filters/sorting, explicit selection, stale-snapshot protection, Final Review and native verified deletion;
+- add a single Free Hidden Items privacy preference, OFF by default, reused by Duplicates, Large Files and Older Files;
+- conceal accessible hidden/private-looking items and their local previews from those dedicated review workspaces until the user explicitly opts in;
+- keep Quick Clean from presenting hidden/privacy-classified candidates as one-tap safe cleanup;
+- never bypass Android protected storage, app vaults, encryption, `Android/data` or `Android/obb`;
+- preserve launch, approved assets, entitlement decisions, Billing-disabled state and the native deletion engine.
 
-## Next — Large Files Complete
+## Next — Remaining Perfect V1 review tools
 
-After B30 duplicate behavior is physically validated, complete the Large Files vertical slice using the proven review/confirm/delete/verify architecture while retaining the rule that large does not mean junk.
+After the four Home quick tools are physically validated, continue the same proven review/confirm/delete/verify architecture for Downloads, temporary/incomplete downloads, APK installers, archives, zero-byte files and empty folders. Screenshot/media review and the manual file browser should then be completed without weakening Hidden Items privacy.
 
-## Then — Older Files Complete
+## Storage Overview / Insights foundation
 
-Complete the Older Files vertical slice, keeping age as review evidence rather than deletion proof.
+Once the core review tools are stable, complete truthful Storage Overview and local aggregate cleanup history so Home/File Health/Insights can show useful changes without storing filenames, paths or private content for analytics.
 
 ## Monetization / Google Play Billing
 
@@ -1246,7 +1299,7 @@ Before Play release, and after the entitlement/Pro surfaces are stable:
 
 ## Remaining Pro value and release hardening
 
-Continue only with truthful, complete capabilities: advanced media review/filtering, historical Insights / What Changed, full cleanup history, custom exclusions and scheduled checkup reminders. Then finish remaining Perfect V1 tool UX, current Play policy review, AAB/release signing, Data Safety, physical-device matrix, purchase/restore/refund matrix, destructive-flow tests, large-storage performance QA, accessibility/localization QA and store-ready assets/copy.
+Continue only with truthful, complete capabilities: advanced media review/filtering, historical Insights / What Changed, full cleanup history, custom exclusions and scheduled checkup reminders. Then finish current Play policy review, AAB/release signing, Data Safety, physical-device matrix, purchase/restore/refund matrix, destructive-flow tests, large-storage performance QA, accessibility/localization QA and store-ready assets/copy.
 
 ---
 
