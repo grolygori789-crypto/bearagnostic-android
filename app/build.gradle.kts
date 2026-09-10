@@ -106,12 +106,12 @@ val prepareLegacyFrontend by tasks.registering {
         val generatedIndex = File(uiRoot, "index.html")
         val originalHtml = generatedIndex.readText(StandardCharsets.UTF_8)
         val androidTags = buildString {
-            append("  <script src=\"./js/android-native.js?v=22\"></script>\n")
-            append("  <script src=\"./js/android-review.js?v=22\"></script>\n")
-            append("  <script src=\"./js/android-support.js?v=22\"></script>\n")
-            append("  <script src=\"./js/android-scan-trust.js?v=22\"></script>\n")
-            append("  <script src=\"./js/android-live-scan.js?v=22\"></script>\n")
-            append("  <script src=\"./js/android-review-media.js?v=22\"></script>\n")
+            append("  <script src=\"./js/android-native.js?v=23\"></script>\n")
+            append("  <script src=\"./js/android-review.js?v=23\"></script>\n")
+            append("  <script src=\"./js/android-support.js?v=23\"></script>\n")
+            append("  <script src=\"./js/android-scan-trust.js?v=23\"></script>\n")
+            append("  <script src=\"./js/android-live-scan.js?v=23\"></script>\n")
+            append("  <script src=\"./js/android-review-media.js?v=23\"></script>\n")
         }
         check(originalHtml.contains("</body>")) { "Legacy index.html is missing </body>" }
         generatedIndex.writeText(originalHtml.replace("</body>", androidTags + "</body>"), StandardCharsets.UTF_8)
@@ -147,8 +147,8 @@ android {
         applicationId = "com.benedictinteractive.bearagnostic"
         minSdk = 26
         targetSdk = 36
-        versionCode = 22
-        versionName = "0.20.1-alpha22"
+        versionCode = 23
+        versionName = "0.20.2-alpha23"
     }
 
     sourceSets {
