@@ -86,9 +86,9 @@ class EntitlementManager(context: Context) {
             put("implementedProCapabilities", JSONArray(listOf(
                 Capability.DEEP_SCAN.wireName,
                 Capability.CUSTOM_SCAN.wireName,
+                Capability.ADVANCED_EXACT_DUPLICATES.wireName,
             )))
             put("plannedProCapabilities", JSONArray(listOf(
-                Capability.ADVANCED_EXACT_DUPLICATES.wireName,
                 Capability.ADVANCED_MEDIA_REVIEW.wireName,
                 Capability.INSIGHTS_HISTORY.wireName,
                 Capability.WHAT_CHANGED.wireName,

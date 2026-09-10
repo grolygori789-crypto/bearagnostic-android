@@ -31,7 +31,8 @@
       scan_evidence: true,
       share_result: true,
       deep_scan: false,
-      custom_scan: false
+      custom_scan: false,
+      advanced_exact_duplicates: false
     }
   });
 

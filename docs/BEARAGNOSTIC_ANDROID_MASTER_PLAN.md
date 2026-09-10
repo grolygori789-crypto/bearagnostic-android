@@ -2,7 +2,7 @@
 
 **Repository:** `grolygori789-crypto/bearagnostic-android`  
 **Canonical file:** `docs/BEARAGNOSTIC_ANDROID_MASTER_PLAN.md`  
-**Revision:** 2.4  
+**Revision:** 2.5  
 **Revision date:** 10 September 2026  
 **Owner / Product Authority:** P’Benz  
 **Studio / Publisher:** Benedict Interactive  
@@ -89,18 +89,18 @@ Create a new file only when it has a durable and genuinely distinct responsibili
 
 ---
 
-# 3. CURRENT VERIFIED PRODUCTION SNAPSHOT — BATCH 28
+# 3. CURRENT VERIFIED PRODUCTION SNAPSHOT — BATCH 29
 
 This section is a snapshot and must never override newer GitHub production.
 
-As of 10 September 2026 before the B29 Quick Clean premium trust/UX package is uploaded:
+As of 10 September 2026 before the B30 Exact Duplicates + plan-status package is uploaded:
 
 - branch: `main`
-- latest commit: `bc2a3d04426619bc3b260e78aec614d7060576af`
-- commit message: `Complete Quick Clean workflow`
-- parent: `3295e75073e5f7df05c8d12f561d4c3fff343852`
-- Android version: `0.22.0-alpha28`
-- `versionCode`: `28`
+- latest commit: `593e5f409da9edf809cb430185048c46440408bf`
+- commit message: `Polish Quick Clean trust and empty states`
+- parent: `bc2a3d04426619bc3b260e78aec614d7060576af`
+- Android version: `0.22.1-alpha29`
+- `versionCode`: `29`
 - application ID: `com.benedictinteractive.bearagnostic`
 - debug application ID: `com.benedictinteractive.bearagnostic.debug`
 - compileSdk: `36`
@@ -108,12 +108,13 @@ As of 10 September 2026 before the B29 Quick Clean premium trust/UX package is u
 - minSdk: `26`
 - Java compatibility: `17`
 - Native Bridge version: `10`
-- latest GitHub Actions debug APK run for B28: **SUCCESS** (run #32)
-- B28 has physical-device evidence for the Quick Clean live-scan and zero-low-risk result states; the core path runs, but the first-device review found that those states use space too sparsely and do not expose enough evidence to explain very fast completion.
+- latest GitHub Actions debug APK run for B29: **SUCCESS** (run #33)
+- B29 has physical-device evidence for the Quick Clean no-snapshot, live-evidence and zero-low-risk result states. The live view exposes real file/folder activity and review-first next steps; no artificial waiting is used.
+- the first B29 device review also identified one presentation correction: the live third metric must be phase-aware so File Details does not misleadingly show `Data seen 0 B` before the byte-total pass has run.
 
-B28 is the known-good rollback baseline for B29 Quick Clean premium trust/UX completion work.
+B29 is the known-good rollback baseline for B30 Exact Duplicates completion and plan-status work.
 
-Do not call B29 physically verified until P’Benz tests the revised live-evidence, empty-result and next-step states on a real Android device.
+Do not call B30 physically verified until P’Benz tests duplicate grouping, keep-one selection, deletion verification, plan indicators and the Quick Clean phase-aware evidence correction on a real Android device.
 
 ---
 
@@ -293,6 +294,13 @@ B28 adds one isolated first-class feature module:
 
 Quick Clean must load after the entitlement guard and before generic Android tool handling so its dedicated Cleanup entry points are captured without rewriting the approved PWA shell. It may call the existing native scan/review/delete bridge, but it must not duplicate scanner rules or create a second deletion engine.
 
+B30 adds two focused modules:
+
+- `android-duplicates.js` — dedicated Exact Duplicates workspace using only current native verified-duplicate evidence and the existing native deletion engine;
+- `android-plan-status.js` — presentation-only Free/Pro status surfaces, including a subtle global header badge for Pro only and current-plan status in More.
+
+`android-duplicates.js` must load after entitlement and Quick Clean but before generic Android tool handling so duplicate entry points are captured by the dedicated workflow. `android-plan-status.js` must load after Pro UI so it can reflect current entitlement without becoming an entitlement source of truth. Readability remains the final presentation layer.
+
 This architecture exists specifically to prevent visual drift, monetization logic sprawl and future typography fixes being scattered across unrelated feature modules. Do not replace it with a hand-rebuilt frontend or scattered purchase checks without explicit approval and a strong architectural reason.
 
 ---
@@ -463,6 +471,38 @@ The preferred trust model is:
 `Fast because the real work finished` — never `Slow because the UI pretended to work`.
 
 B29 is a presentation/integration refinement of the B28 vertical slice. It must not modify `FileHealthScanner.kt`, the native deletion engine, duplicate verification rules or entitlement decisions merely to make the screen feel busier.
+
+## 10.3 Exact Duplicate Cleaner vertical-slice contract
+
+B30 makes Exact Duplicates a dedicated first-class workflow while preserving the same evidence and deletion engines already used by the scanner/review system.
+
+Exact Duplicates must:
+
+- consume only current review candidates carrying a verified `duplicateGroupId`; never infer duplicates from filenames, visual similarity or size alone;
+- group candidates by native duplicate group and suppress any post-deletion singleton from duplicate-group presentation;
+- expose the scan coverage honestly: Smart is focused/priority-location verification, Deep is all accessible shared-storage verification, and Custom is only the selected Custom scope when duplicate verification was actually represented by the current result;
+- never claim a trustworthy zero-duplicate result from Quick Scan because Quick intentionally performs no duplicate hashing;
+- keep at least one member of every displayed group unselected at all times;
+- let the user change which copy is marked Keep before deletion;
+- keep the existing native keep-one-copy safeguard as a second independent protection layer even when the UI already protects a keeper;
+- allow Free users to inspect all verified groups and manually select extras group by group;
+- treat bulk recommended selection across groups as an advanced Pro control while never paywalling keep-one protection, risk explanation or manual review;
+- use Deep Scan as the Pro path for full accessible-scope duplicate verification rather than pretending Smart’s focused coverage is full coverage;
+- block deletion when the current review snapshot is older than 15 minutes;
+- preserve the 500-item native deletion batch ceiling;
+- show local thumbnails/previews only through the existing native review-media bridge and never expose absolute file paths to JavaScript;
+- require Final Review before destructive action;
+- delete only IDs issued by the current review snapshot;
+- report reclaimed bytes and removed copies only from native verified deletion results;
+- refresh/rebuild groups after deletion so resolved groups and remaining duplicates reflect the current in-memory snapshot;
+- support no-access, no-snapshot, scan-running, empty, partial/truncated, stale, selection, confirmation, result and error states;
+- support EN / TH / JA and Reduced Motion without compromising the approved premium visual language.
+
+The canonical duplicate-cleanup sequence is:
+
+`Verified duplicate snapshot → Group exact matches → Choose keeper → Select extras → Final Review → Native delete → Verify → Rebuild groups → Verified summary`
+
+B30 also corrects Quick Clean live evidence presentation so byte metrics describe the real current phase: content sample bytes during File Details, measured storage bytes during size/date/finalization work, and hash-read bytes during duplicate verification. Before the relevant byte pass begins, the UI should show an unavailable value rather than a misleading `0 B` label.
 
 ---
 
@@ -751,6 +791,13 @@ When Checkup hides bottom navigation, Home and Settings/Gear should form one bal
 
 Do not show redundant Home shortcuts on every screen when bottom navigation/back navigation already solves the task.
 
+Plan status must remain understated:
+
+- do **not** place a persistent global `FREE` badge in the main header;
+- when Pro is active, a small premium `PRO` indicator may appear near the Settings/Gear control without competing with the Bearagnostic wordmark;
+- More and the Pro surface must show the current plan clearly for both Free and Pro;
+- the plan indicator is presentation only; entitlement still comes exclusively from the centralized entitlement layer.
+
 ---
 
 # 22. SUPPORT, PRO ENTRY, AND EXTERNAL ACTIONS
@@ -842,14 +889,14 @@ Free users must be able to scan, review, delete eligible selected files and see 
 
 ## 24.2 Pro tier — deeper diagnostics and advanced control
 
-The first implemented Pro gates are:
+The implemented Pro capabilities are:
 
 - **Deep Scan** — full streaming content read of every readable non-empty file within the accessible scope plus exact duplicate verification across that accessible scope;
-- **Custom Scan** — user-selected shared-storage categories/scopes with optional exact duplicate verification.
+- **Custom Scan** — user-selected shared-storage categories/scopes with optional exact duplicate verification;
+- **Advanced Exact Duplicates controls** — full accessible-scope verification through Deep Scan plus bulk recommended extra-copy selection across verified duplicate groups. Basic focused verification, manual group review and keep-one-copy safety remain available to Free users.
 
 Planned Pro capabilities, which must not be marketed as complete until implemented, are:
 
-- advanced exact-duplicate workflow;
 - advanced media review, filtering and sorting;
 - historical Insights;
 - What Changed between checkups;
@@ -1117,31 +1164,39 @@ Until device testing covers these points, B26 must be described as **Static QA P
 
 ---
 
-# 33. CURRENT ROADMAP AFTER B25
+# 33. CURRENT ROADMAP AFTER B29
 
-## B26 — Monetization Foundation
+## B30 — Exact Duplicates Complete + Plan Status
 
 Approved scope:
 
-- lock the Free + lifetime Pro commercial direction;
-- introduce centralized native entitlement architecture;
-- expose a focused frontend entitlement API;
-- enforce current Pro gates for Deep and Custom below the UI;
-- add premium Pro discovery/explanation UX;
-- replace the visible voluntary Support entry with Bearagnostic Pro for the Play direction;
-- add debug-only Free/Pro QA controls;
-- keep Billing disconnected until entitlement behavior is stable;
-- preserve scanner/deletion/media/support internals that do not require change.
+- make Duplicates a dedicated production vertical slice from Home/Tools;
+- preserve exact-size + streaming SHA-256 as the only duplicate proof;
+- group verified copies, let the user choose the keeper and prevent deletion of every copy;
+- support local previews, current-snapshot freshness, Final Review, native verified deletion and resolved-group summary;
+- keep focused/manual duplicate review useful in Free;
+- add Pro advanced duplicate controls: Deep full-scope verification and bulk recommended selection;
+- add subtle Pro-only header status plus clear current-plan status in More/Pro, with no global Free badge;
+- correct Quick Clean’s live byte metric so its label/value match the actual scan phase;
+- preserve scanner rules, native deletion safeguards, Billing-disabled state, launch and approved visual assets.
 
-## Next — Google Play Billing / Ownership Lifecycle
+## Next — Large Files Complete
 
-Only after B26 behavior is stable on-device:
+After B30 duplicate behavior is physically validated, complete the Large Files vertical slice using the proven review/confirm/delete/verify architecture while retaining the rule that large does not mean junk.
+
+## Then — Older Files Complete
+
+Complete the Older Files vertical slice, keeping age as review evidence rather than deletion proof.
+
+## Monetization / Google Play Billing
+
+Before Play release, and after the entitlement/Pro surfaces are stable:
 
 - verify current Play Billing and payments policy again at implementation time;
 - add current Google Play Billing Library dependency;
 - configure/read `bearagnostic_pro_lifetime` ProductDetails;
 - render current localized Play price/offer;
-- launch Play purchase flow;
+- launch purchase flow;
 - handle purchased and pending states;
 - acknowledge qualifying purchases correctly;
 - restore ownership on reinstall/new device using the purchasing Google account;
@@ -1149,31 +1204,9 @@ Only after B26 behavior is stable on-device:
 - connect verified ownership to `EntitlementManager`;
 - ensure release builds have no debug entitlement path.
 
-## Then — Pro Value Expansion
+## Remaining Pro value and release hardening
 
-Build advanced Pro capabilities only when each is truthful and complete:
-
-- advanced exact duplicates;
-- advanced media review/filtering;
-- historical Insights / What Changed;
-- full cleanup history;
-- custom exclusions;
-- scheduled checkup reminders.
-
-## Release hardening
-
-Then:
-
-- remaining Perfect V1 tool UX;
-- current Play policy review;
-- AAB/release signing;
-- Data Safety;
-- physical-device matrix;
-- purchase/restore/refund test matrix;
-- destructive-flow test matrix;
-- performance/large-storage QA;
-- accessibility/localization QA;
-- store-ready assets/copy.
+Continue only with truthful, complete capabilities: advanced media review/filtering, historical Insights / What Changed, full cleanup history, custom exclusions and scheduled checkup reminders. Then finish remaining Perfect V1 tool UX, current Play policy review, AAB/release signing, Data Safety, physical-device matrix, purchase/restore/refund matrix, destructive-flow tests, large-storage performance QA, accessibility/localization QA and store-ready assets/copy.
 
 ---
 
@@ -1201,6 +1234,19 @@ Do not regress to “recreate it by eye.”
 ---
 
 # 35. REVISION HISTORY
+
+## Revision 2.5 — 10 September 2026
+
+Exact Duplicates and plan-status alignment after B29:
+
+- records B29 commit `593e5f409da9edf809cb430185048c46440408bf` and GitHub Actions run #33 as the known-good baseline before B30;
+- establishes the dedicated Exact Duplicates vertical-slice contract using only verified native duplicate groups;
+- keeps focused/manual duplicate review available to Free while defining Deep full-scope verification and bulk recommended selection as advanced Pro controls;
+- preserves UI and native keep-one-copy protection, stale-snapshot blocking, reviewed IDs and verified reclaimed-byte accounting;
+- requires post-delete group rebuilding so singleton leftovers are not presented as duplicate groups;
+- formalizes a subtle global Pro-only header indicator and current-plan status in More/Pro while rejecting a persistent global Free badge;
+- corrects Quick Clean live byte labels to match the actual scan phase without adding artificial duration;
+- makes B29 the rollback baseline for B30 and sets Large Files as the next first-class Home-tool completion target.
 
 ## Revision 2.4 — 10 September 2026
 

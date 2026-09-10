@@ -133,11 +133,11 @@
     try {
       const raw = NATIVE?.getNativeState?.();
       const state = typeof raw === 'string' ? JSON.parse(raw) : (raw || {});
-      const versionName = String(state.versionName || '0.22.1-alpha29').replace('-debug','');
-      const versionCode = Number(state.versionCode) || 29;
+      const versionName = String(state.versionName || '0.23.0-alpha30').replace('-debug','');
+      const versionCode = Number(state.versionCode) || 30;
       cachedNativeBuild = { versionName, versionCode };
     } catch (_) {
-      cachedNativeBuild = { versionName:'0.22.1-alpha29', versionCode:29 };
+      cachedNativeBuild = { versionName:'0.23.0-alpha30', versionCode:29 };
     }
     return cachedNativeBuild;
   }

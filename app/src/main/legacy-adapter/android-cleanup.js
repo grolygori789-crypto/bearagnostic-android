@@ -4,7 +4,7 @@
   const NATIVE = window.BearagnosticNative;
   if (!NATIVE) return;
 
-  const BUILD = 29;
+  const BUILD = 30;
   const MAX_BATCH = 500;
   const STALE_REVIEW_MS = 15 * 60 * 1000;
   const POLL_MS = 350;
@@ -40,7 +40,7 @@
       liveSource: 'SOURCE', liveSourceSmart: 'Live Smart Checkup', liveSourceActive: 'Active checkup', snapshotSource: 'RESULT SOURCE',
       scopeLabel: 'SCOPE', scopeAccessible: 'Accessible shared storage', scopeCustom: 'Selected Custom Scan scope', safetyLabel: 'SAFETY', lowRiskOnly: 'Low-risk only',
       phasePreparing: 'Discovering storage', phaseDetails: 'Reviewing file details', phaseSizes: 'Measuring file sizes', phaseDuplicates: 'Verifying duplicates', phaseDates: 'Checking modified dates', phaseFinalizing: 'Building safe results',
-      filesReviewedLive: 'Files reviewed', foldersVisited: 'Folders visited', dataSeen: 'Data seen', localLive: 'LOCAL · LIVE', nowChecking: 'Now checking', waitingItem: 'Preparing the next item…',
+      filesReviewedLive: 'Files reviewed', foldersVisited: 'Folders visited', dataSeen: 'Data seen', contentSampled: 'Content sampled', storageMeasured: 'Storage measured', verificationRead: 'Verification read', localLive: 'LOCAL · LIVE', nowChecking: 'Now checking', waitingItem: 'Preparing the next item…',
       realWorkNote: 'This view follows the scan’s real work. It finishes when that work finishes — no padded waiting.',
       emptyKicker: 'QUICK CLEAN RESULT', lowRiskResult: 'Low-risk result', checkedAt: 'Checked', zeroItems: '0 items',
       reviewFirstTitle: 'Review-first opportunities', reviewFirstBody: 'These stay separate because they need your judgement before anything is removed.',
@@ -87,7 +87,7 @@
       liveSource: 'แหล่งข้อมูล', liveSourceSmart: 'Smart Checkup ที่กำลังทำงาน', liveSourceActive: 'การตรวจที่กำลังทำงาน', snapshotSource: 'แหล่งผลลัพธ์',
       scopeLabel: 'ขอบเขต', scopeAccessible: 'shared storage ที่เข้าถึงได้', scopeCustom: 'ขอบเขต Custom Scan ที่เลือก', safetyLabel: 'ความปลอดภัย', lowRiskOnly: 'เฉพาะความเสี่ยงต่ำ',
       phasePreparing: 'กำลังค้นหาพื้นที่จัดเก็บ', phaseDetails: 'กำลังตรวจรายละเอียดไฟล์', phaseSizes: 'กำลังวัดขนาดไฟล์', phaseDuplicates: 'กำลังยืนยันไฟล์ซ้ำ', phaseDates: 'กำลังตรวจวันที่แก้ไข', phaseFinalizing: 'กำลังสร้างผลลัพธ์ที่ปลอดภัย',
-      filesReviewedLive: 'ไฟล์ที่ตรวจแล้ว', foldersVisited: 'โฟลเดอร์ที่ตรวจ', dataSeen: 'ข้อมูลที่พบ', localLive: 'บนเครื่อง · เรียลไทม์', nowChecking: 'กำลังตรวจ', waitingItem: 'กำลังเตรียมรายการถัดไป…',
+      filesReviewedLive: 'ไฟล์ที่ตรวจแล้ว', foldersVisited: 'โฟลเดอร์ที่ตรวจ', dataSeen: 'ข้อมูลที่พบ', contentSampled: 'เนื้อหาที่อ่านตัวอย่าง', storageMeasured: 'พื้นที่ที่วัดแล้ว', verificationRead: 'ข้อมูลที่อ่านเพื่อยืนยัน', localLive: 'บนเครื่อง · เรียลไทม์', nowChecking: 'กำลังตรวจ', waitingItem: 'กำลังเตรียมรายการถัดไป…',
       realWorkNote: 'หน้านี้แสดงงานจากการสแกนจริง และจะจบเมื่องานจริงเสร็จ ไม่มีการหน่วงเวลาเพื่อให้ดูนาน',
       emptyKicker: 'ผล QUICK CLEAN', lowRiskResult: 'ผลความเสี่ยงต่ำ', checkedAt: 'ตรวจเมื่อ', zeroItems: '0 รายการ',
       reviewFirstTitle: 'รายการที่ควรตรวจต่อ', reviewFirstBody: 'รายการเหล่านี้ถูกแยกไว้ เพราะต้องให้คุณพิจารณาก่อนมีการลบ',
@@ -134,7 +134,7 @@
       liveSource: 'ソース', liveSourceSmart: '実行中の Smart Checkup', liveSourceActive: '実行中のチェック', snapshotSource: '結果ソース',
       scopeLabel: '範囲', scopeAccessible: 'アクセス可能な共有ストレージ', scopeCustom: '選択した Custom Scan 範囲', safetyLabel: '安全性', lowRiskOnly: '低リスクのみ',
       phasePreparing: 'ストレージを探索中', phaseDetails: 'ファイル情報を確認中', phaseSizes: 'ファイルサイズを確認中', phaseDuplicates: '重複を検証中', phaseDates: '更新日を確認中', phaseFinalizing: '安全な結果を作成中',
-      filesReviewedLive: '確認済みファイル', foldersVisited: '確認フォルダ', dataSeen: '確認データ', localLive: '端末内 · リアルタイム', nowChecking: '確認中', waitingItem: '次の項目を準備中…',
+      filesReviewedLive: '確認済みファイル', foldersVisited: '確認フォルダ', dataSeen: '確認データ', contentSampled: 'サンプル読取量', storageMeasured: '計測済み容量', verificationRead: '検証読取量', localLive: '端末内 · リアルタイム', nowChecking: '確認中', waitingItem: '次の項目を準備中…',
       realWorkNote: 'この画面は実際のスキャン処理に連動します。見せかけの待ち時間は追加しません。',
       emptyKicker: 'QUICK CLEAN 結果', lowRiskResult: '低リスク結果', checkedAt: '確認時刻', zeroItems: '0 件',
       reviewFirstTitle: '確認が必要な候補', reviewFirstBody: '削除前に判断が必要なため、Quick Clean とは分けて表示します。',
@@ -260,6 +260,10 @@
     return String(scanMode || '').toLowerCase() === 'custom' ? t('scopeCustom') : t('scopeAccessible');
   }
   function categoryTotal(category) {
+    if (category === 'duplicates' && typeof window.BearagnosticDuplicates?.activeCandidateCount === 'function') {
+      const active = safeNumber(window.BearagnosticDuplicates.activeCandidateCount());
+      return active;
+    }
     const payload = parse(NATIVE.getReviewCandidates?.(category, 0, 1), {available:false,totalCount:0});
     return payload.available ? safeNumber(payload.totalCount) : 0;
   }
@@ -272,9 +276,9 @@
   }
 
   function ensureStyle() {
-    if (byId('androidQuickClean29Style')) return;
+    if (byId('androidQuickClean30Style')) return;
     const style = document.createElement('style');
-    style.id = 'androidQuickClean29Style';
+    style.id = 'androidQuickClean30Style';
     style.textContent = `
       .ba-qc{position:fixed;inset:0;z-index:1860;padding:max(10px,env(safe-area-inset-top)) 10px max(10px,env(safe-area-inset-bottom));background:radial-gradient(circle at 18% 0%,rgba(52,194,232,.16),transparent 31%),linear-gradient(180deg,#edf7fc 0%,#e9f3f9 100%);color:#1b3046;overflow:hidden}.ba-qc[hidden]{display:none!important}
       .ba-qc-panel{height:100%;width:min(100%,560px);margin:0 auto;border-radius:34px;background:linear-gradient(180deg,rgba(254,255,255,.995),rgba(247,251,253,.995));border:1px solid rgba(255,255,255,.98);box-shadow:0 26px 76px rgba(29,62,94,.18),inset 0 1px 0 #fff;display:grid;grid-template-rows:auto minmax(0,1fr);overflow:hidden}
@@ -392,7 +396,7 @@
 
   function renderScanning(existing=false) {
     const sourceValue = existing ? t('liveSourceActive') : t('liveSourceSmart');
-    byId('baQcBody').innerHTML = `<section class="ba-qc-scan-state"><div class="ba-qc-scan-hero"><div class="ba-qc-spinner" aria-hidden="true"></div><h3>${esc(t('scanningTitle'))}</h3><p class="ba-qc-scan-lead">${esc(existing ? t('scanElsewhere') : t('scanningBody'))}</p></div><div class="ba-qc-evidence-grid"><div class="ba-qc-evidence"><span>${esc(t('liveSource'))}</span><strong id="baQcLiveSource">${esc(sourceValue)}</strong></div><div class="ba-qc-evidence"><span>${esc(t('scopeLabel'))}</span><strong id="baQcLiveScope">${esc(t('scopeAccessible'))}</strong></div><div class="ba-qc-evidence"><span>${esc(t('safetyLabel'))}</span><strong>${esc(t('lowRiskOnly'))}</strong></div></div><section class="ba-qc-live-card"><div class="ba-qc-live-top"><span class="ba-qc-live-icon">${svg('file')}</span><div class="ba-qc-live-copy"><span id="baQcLivePhase">${esc(phaseLabel(state.liveProgress?.phase))}</span><strong id="baQcLiveItem">${esc(t('waitingItem'))}</strong></div><b class="ba-qc-live-pill">${esc(t('localLive'))}</b></div><small class="ba-qc-live-location" id="baQcLiveLocation">${esc(t('scopeAccessible'))}</small><div class="ba-qc-live-metrics"><div class="ba-qc-live-metric"><b id="baQcLiveReviewed">0</b><span>${esc(t('filesReviewedLive'))}</span></div><div class="ba-qc-live-metric"><b id="baQcLiveFolders">0</b><span>${esc(t('foldersVisited'))}</span></div><div class="ba-qc-live-metric"><b id="baQcLiveBytes">0 B</b><span>${esc(t('dataSeen'))}</span></div></div></section><div class="ba-qc-real-work">${svg('check')}<span>${esc(t('realWorkNote'))}</span></div><div class="ba-qc-state-actions one"><button class="ba-qc-secondary" id="baQcScanningClose" type="button">${esc(t('close'))}</button></div></section>`;
+    byId('baQcBody').innerHTML = `<section class="ba-qc-scan-state"><div class="ba-qc-scan-hero"><div class="ba-qc-spinner" aria-hidden="true"></div><h3>${esc(t('scanningTitle'))}</h3><p class="ba-qc-scan-lead">${esc(existing ? t('scanElsewhere') : t('scanningBody'))}</p></div><div class="ba-qc-evidence-grid"><div class="ba-qc-evidence"><span>${esc(t('liveSource'))}</span><strong id="baQcLiveSource">${esc(sourceValue)}</strong></div><div class="ba-qc-evidence"><span>${esc(t('scopeLabel'))}</span><strong id="baQcLiveScope">${esc(t('scopeAccessible'))}</strong></div><div class="ba-qc-evidence"><span>${esc(t('safetyLabel'))}</span><strong>${esc(t('lowRiskOnly'))}</strong></div></div><section class="ba-qc-live-card"><div class="ba-qc-live-top"><span class="ba-qc-live-icon">${svg('file')}</span><div class="ba-qc-live-copy"><span id="baQcLivePhase">${esc(phaseLabel(state.liveProgress?.phase))}</span><strong id="baQcLiveItem">${esc(t('waitingItem'))}</strong></div><b class="ba-qc-live-pill">${esc(t('localLive'))}</b></div><small class="ba-qc-live-location" id="baQcLiveLocation">${esc(t('scopeAccessible'))}</small><div class="ba-qc-live-metrics"><div class="ba-qc-live-metric"><b id="baQcLiveReviewed">0</b><span>${esc(t('filesReviewedLive'))}</span></div><div class="ba-qc-live-metric"><b id="baQcLiveFolders">0</b><span>${esc(t('foldersVisited'))}</span></div><div class="ba-qc-live-metric"><b id="baQcLiveBytes">—</b><span id="baQcLiveBytesLabel">${esc(t('storageMeasured'))}</span></div></div></section><div class="ba-qc-real-work">${svg('check')}<span>${esc(t('realWorkNote'))}</span></div><div class="ba-qc-state-actions one"><button class="ba-qc-secondary" id="baQcScanningClose" type="button">${esc(t('close'))}</button></div></section>`;
     byId('baQcScanningClose').addEventListener('click', closeSurface);
     updateScanningEvidence();
   }
@@ -408,7 +412,22 @@
     byId('baQcLiveLocation').textContent = itemLocation || scopeText(mode);
     byId('baQcLiveReviewed').textContent = formatCount(progress.reviewedFiles);
     byId('baQcLiveFolders').textContent = formatCount(progress.directoriesVisited);
-    byId('baQcLiveBytes').textContent = formatBytes(progress.totalBytes);
+    const phase = String(progress.phase || 'preparing');
+    const bytesNode = byId('baQcLiveBytes');
+    const bytesLabel = byId('baQcLiveBytesLabel');
+    if (phase === 'file_details') {
+      if (bytesNode) bytesNode.textContent = formatBytes(progress.contentProbeBytes);
+      if (bytesLabel) bytesLabel.textContent = t('contentSampled');
+    } else if (phase === 'duplicates') {
+      if (bytesNode) bytesNode.textContent = formatBytes(progress.hashedBytes);
+      if (bytesLabel) bytesLabel.textContent = t('verificationRead');
+    } else if (phase === 'preparing') {
+      if (bytesNode) bytesNode.textContent = '—';
+      if (bytesLabel) bytesLabel.textContent = t('storageMeasured');
+    } else {
+      if (bytesNode) bytesNode.textContent = formatBytes(progress.totalBytes);
+      if (bytesLabel) bytesLabel.textContent = t('storageMeasured');
+    }
     if (byId('baQcLiveScope')) byId('baQcLiveScope').textContent = scopeText(mode);
     if (byId('baQcLiveSource')) byId('baQcLiveSource').textContent = mode ? `${scanModeLabel(mode)} · ${t('localLive')}` : (state.ownsScan ? t('liveSourceSmart') : t('liveSourceActive'));
   }
@@ -448,6 +467,10 @@
     const surface = byId('baQuickClean');
     if (surface) surface.hidden = true;
     window.requestAnimationFrame(() => {
+      if (category === 'duplicates' && typeof window.BearagnosticDuplicates?.open === 'function') {
+        window.BearagnosticDuplicates.open();
+        return;
+      }
       const reviewButton = document.querySelector(`[data-review-category="${category}"]`);
       if (reviewButton) { reviewButton.click(); return; }
       const toolName = category === 'old' ? 'older' : category;

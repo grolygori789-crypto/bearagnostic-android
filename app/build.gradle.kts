@@ -21,7 +21,9 @@ val androidReviewMedia = layout.projectDirectory.file("src/main/legacy-adapter/a
 val androidPremiumColor = layout.projectDirectory.file("src/main/legacy-adapter/android-premium-color.js").asFile
 val androidEntitlement = layout.projectDirectory.file("src/main/legacy-adapter/android-entitlement.js").asFile
 val androidCleanup = layout.projectDirectory.file("src/main/legacy-adapter/android-cleanup.js").asFile
+val androidDuplicates = layout.projectDirectory.file("src/main/legacy-adapter/android-duplicates.js").asFile
 val androidProUi = layout.projectDirectory.file("src/main/legacy-adapter/android-pro-ui.js").asFile
+val androidPlanStatus = layout.projectDirectory.file("src/main/legacy-adapter/android-plan-status.js").asFile
 val androidReadability = layout.projectDirectory.file("src/main/legacy-adapter/android-readability.js").asFile
 val nativeAssetsDir = layout.projectDirectory.dir("src/main/native-assets").asFile
 
@@ -61,7 +63,7 @@ val legacyCriticalBlobs = mapOf(
 val prepareLegacyFrontend by tasks.registering {
     group = "bearagnostic"
     description = "Imports the approved Bearagnostic PWA byte-for-byte, then overlays Android integration modules."
-    inputs.files(androidAdapter, androidReview, androidSupport, androidScanTrust, androidLiveScan, androidReviewMedia, androidPremiumColor, androidEntitlement, androidCleanup, androidProUi, androidReadability)
+    inputs.files(androidAdapter, androidReview, androidSupport, androidScanTrust, androidLiveScan, androidReviewMedia, androidPremiumColor, androidEntitlement, androidCleanup, androidDuplicates, androidProUi, androidPlanStatus, androidReadability)
     inputs.dir(nativeAssetsDir)
     inputs.property("legacyCommit", legacyCommit)
     outputs.dir(generatedLegacyAssetsDir)
@@ -112,18 +114,20 @@ val prepareLegacyFrontend by tasks.registering {
         val originalHtml = generatedIndex.readText(StandardCharsets.UTF_8)
         val androidTags = buildString {
             // Entitlement loads first so its capture guard can protect Pro-only actions
-            // before the Android interaction adapter handles them. Quick Clean captures its dedicated tile before generic tool handling; B29 adds live evidence and premium resolved states inside that isolated module; readability loads last.
-            append("  <script src=\"./js/android-entitlement.js?v=29\"></script>\n")
-            append("  <script src=\"./js/android-cleanup.js?v=29\"></script>\n")
-            append("  <script src=\"./js/android-native.js?v=29\"></script>\n")
-            append("  <script src=\"./js/android-review.js?v=29\"></script>\n")
-            append("  <script src=\"./js/android-support.js?v=29\"></script>\n")
-            append("  <script src=\"./js/android-scan-trust.js?v=29\"></script>\n")
-            append("  <script src=\"./js/android-live-scan.js?v=29\"></script>\n")
-            append("  <script src=\"./js/android-review-media.js?v=29\"></script>\n")
-            append("  <script src=\"./js/android-premium-color.js?v=29\"></script>\n")
-            append("  <script src=\"./js/android-pro-ui.js?v=29\"></script>\n")
-            append("  <script src=\"./js/android-readability.js?v=29\"></script>\n")
+            // before the Android interaction adapter handles them. Quick Clean and Exact Duplicates capture their dedicated tiles before generic tool handling; Pro plan status loads after Pro UI; readability loads last.
+            append("  <script src=\"./js/android-entitlement.js?v=30\"></script>\n")
+            append("  <script src=\"./js/android-cleanup.js?v=30\"></script>\n")
+            append("  <script src=\"./js/android-duplicates.js?v=30\"></script>\n")
+            append("  <script src=\"./js/android-native.js?v=30\"></script>\n")
+            append("  <script src=\"./js/android-review.js?v=30\"></script>\n")
+            append("  <script src=\"./js/android-support.js?v=30\"></script>\n")
+            append("  <script src=\"./js/android-scan-trust.js?v=30\"></script>\n")
+            append("  <script src=\"./js/android-live-scan.js?v=30\"></script>\n")
+            append("  <script src=\"./js/android-review-media.js?v=30\"></script>\n")
+            append("  <script src=\"./js/android-premium-color.js?v=30\"></script>\n")
+            append("  <script src=\"./js/android-pro-ui.js?v=30\"></script>\n")
+            append("  <script src=\"./js/android-plan-status.js?v=30\"></script>\n")
+            append("  <script src=\"./js/android-readability.js?v=30\"></script>\n")
         }
         check(originalHtml.contains("</body>")) { "Legacy index.html is missing </body>" }
         generatedIndex.writeText(originalHtml.replace("</body>", androidTags + "</body>"), StandardCharsets.UTF_8)
@@ -139,7 +143,9 @@ val prepareLegacyFrontend by tasks.registering {
         androidPremiumColor.copyTo(File(jsRoot, "android-premium-color.js"), overwrite = true)
         androidEntitlement.copyTo(File(jsRoot, "android-entitlement.js"), overwrite = true)
         androidCleanup.copyTo(File(jsRoot, "android-cleanup.js"), overwrite = true)
+        androidDuplicates.copyTo(File(jsRoot, "android-duplicates.js"), overwrite = true)
         androidProUi.copyTo(File(jsRoot, "android-pro-ui.js"), overwrite = true)
+        androidPlanStatus.copyTo(File(jsRoot, "android-plan-status.js"), overwrite = true)
         androidReadability.copyTo(File(jsRoot, "android-readability.js"), overwrite = true)
 
         if (nativeAssetsDir.isDirectory) {
@@ -164,8 +170,8 @@ android {
         applicationId = "com.benedictinteractive.bearagnostic"
         minSdk = 26
         targetSdk = 36
-        versionCode = 29
-        versionName = "0.22.1-alpha29"
+        versionCode = 30
+        versionName = "0.23.0-alpha30"
     }
 
     sourceSets {
