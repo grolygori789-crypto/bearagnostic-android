@@ -2,7 +2,7 @@
 
 **Repository:** `grolygori789-crypto/bearagnostic-android`  
 **Canonical file:** `docs/BEARAGNOSTIC_ANDROID_MASTER_PLAN.md`  
-**Revision:** 2.7  
+**Revision:** 2.8  
 **Revision date:** 10 September 2026  
 **Owner / Product Authority:** P’Benz  
 **Studio / Publisher:** Benedict Interactive  
@@ -89,18 +89,18 @@ Create a new file only when it has a durable and genuinely distinct responsibili
 
 ---
 
-# 3. CURRENT VERIFIED PRODUCTION SNAPSHOT — BATCH 31
+# 3. CURRENT VERIFIED PRODUCTION SNAPSHOT — BATCH 32
 
 This section is a snapshot and must never override newer GitHub production.
 
-As of 10 September 2026 before the B32 Older Files + Hidden Items package is uploaded:
+As of 10 September 2026 before the B33 Custom Scan presentation package is uploaded:
 
 - branch: `main`
-- latest commit: `6708fc355c99a8af7adf12db0f7c913ef9dd6dbd`
-- commit message: `Complete Large Files workflow`
-- parent: `c54bb215493b2a12ad7bebd97ff13bd45f414a01`
-- Android version: `0.24.0-alpha31`
-- `versionCode`: `31`
+- latest commit: `53e141e2ce791db5bad64f16bce2e3c3ac75a410`
+- commit message: `Complete Older Files and hidden item controls`
+- parent: `6708fc355c99a8af7adf12db0f7c913ef9dd6dbd`
+- Android version: `0.25.0-alpha32`
+- `versionCode`: `32`
 - application ID: `com.benedictinteractive.bearagnostic`
 - debug application ID: `com.benedictinteractive.bearagnostic.debug`
 - compileSdk: `36`
@@ -108,14 +108,15 @@ As of 10 September 2026 before the B32 Older Files + Hidden Items package is upl
 - minSdk: `26`
 - Java compatibility: `17`
 - Native Bridge version: `10`
-- latest GitHub Actions debug APK run for B31: **SUCCESS** (run #35)
-- B31 has physical-device evidence for Large Files no-snapshot, live Quick Scan and populated review-workspace presentation. The supplied device evidence shows real file counts, storage totals, local media thumbnails, review-first messaging, filtering/sorting UI and the sticky selection footer.
-- the supplied B31 evidence does not demonstrate a complete destructive Large Files deletion on-device, so physical-device deletion verification must not be claimed from screenshots alone.
-- B31 also carries the approved B30 duplicate presentation refinements.
+- latest GitHub Actions debug APK run for B32: **SUCCESS** (run #36)
+- B32 has physical-device evidence for the Older Files entry state, live Quick Scan presentation and populated Older Files workspace. Supplied device evidence shows 14 older files, 79.1 MB total and an oldest-modified date of 18 September 2024 on the tested device.
+- B32 also has physical-device evidence that the Hidden Items preference can be enabled and that the Large Files workspace then reveals accessible hidden/private-labelled items with explicit `HIDDEN` markers while retaining review-first selection behavior.
+- supplied B32 screenshots do not demonstrate a complete destructive Older Files/Hidden Items deletion, so physical-device deletion verification must not be claimed from screenshots alone.
+- a B32 physical review exposed one presentation regression in Custom Scan: the native mode grid still remained a two-column container while the custom scope list and Start button were inserted as sibling children, compressing the scope list into one half of the sheet. This is a responsive composition defect, not a scanner or entitlement defect.
 
-B31 is the known-good rollback baseline for B32 Older Files completion and Hidden Items privacy controls.
+B32 is the known-good rollback baseline for B33 Custom Scan presentation work.
 
-Do not call B32 physically verified until P’Benz tests Older Files browsing/selection/deletion and Hidden Items OFF/ON behavior on a real Android device.
+Do not call B33 physically verified until P’Benz tests Custom Scan scope selection, duplicate-verification selection, Start/Cancel actions and EN/TH/JA layout on a real Android device.
 
 ---
 
@@ -287,7 +288,7 @@ B27 adds one final presentation-only module:
 
 - `android-readability.js` — centralized typography, contrast, leading and spacing overrides across Android surfaces.
 
-The B27 readability module must load last. It may improve legibility and spacing, but it must not own scan behavior, entitlement decisions, deletion behavior, support actions or business logic.
+The B27 readability module is the final general-purpose typography layer. It may improve legibility and spacing, but it must not own scan behavior, entitlement decisions, deletion behavior, support actions or business logic. A later narrowly scoped presentation module may load after it only when that module must own one specific surface without weakening this centralized readability contract.
 
 B28 adds one isolated first-class feature module:
 
@@ -314,6 +315,12 @@ B32 adds two focused modules:
 - `android-older-files.js` — dedicated Older Files workspace using only current native `old` review candidates, with age-first review, local previews, filtering/sorting, explicit selection, final confirmation and the existing verified native deletion engine.
 
 `android-hidden-items.js` loads before dedicated review tools so Cleanup, Duplicates, Large Files and Older Files can share one privacy preference. Hidden items remain concealed from dedicated review lists and preview requests until the user explicitly opts in. Quick Clean never promotes a hidden item into its one-tap safe-clean list. `android-older-files.js` loads before generic Android tool handling and remains a Free capability.
+
+B33 adds one isolated presentation module:
+
+- `android-custom-scan.js` — a Custom Scan-only responsive composition layer. It converts the custom mode grid into one full-width vertical flow, restores a balanced two-column location grid, gives Music and exact-duplicate verification deliberate full-width treatment, adds compact selection-state context, and prevents the Start action from being presented as available when no locations are selected.
+
+`android-custom-scan.js` loads after the general readability layer because it owns only the final Custom Scan geometry seen on-device. It must not change scanner depth, entitlement decisions, Custom scope definitions, duplicate algorithms, hidden-item policy, deletion behavior, or the approved PWA shell.
 
 This architecture exists specifically to prevent visual drift, monetization logic sprawl and future typography fixes being scattered across unrelated feature modules. Do not replace it with a hand-rebuilt frontend or scattered purchase checks without explicit approval and a strong architectural reason.
 
@@ -369,6 +376,20 @@ Current supported custom scopes include:
 - Videos;
 - Documents;
 - Music.
+
+Custom Scan presentation must preserve the following mobile contract:
+
+- the scope list receives the full available sheet width and must never be compressed beside the Start button;
+- Downloads/Photos and Videos/Documents may use a balanced two-column grid when width permits;
+- Music may occupy a deliberate full-width row so an odd number of scopes does not leave an accidental visual hole;
+- exact duplicate verification is a separate full-width setting rather than another indistinguishable location tile;
+- Start Custom Scan is a full-width primary action below the selected options;
+- Cancel remains a clear secondary action;
+- content may scroll naturally on short displays instead of shrinking text or clipping controls;
+- the UI must not present Start as available with zero selected locations, because a Custom Scan should reflect explicit user scope rather than silently imply a default selection;
+- EN/TH/JA must retain readable line wrapping and touch targets.
+
+These are presentation/interaction safeguards. They do not redefine scanner depth or Android access boundaries.
 
 Future Custom evolution may allow explicit depth selection, provided complexity remains controlled.
 
@@ -1256,7 +1277,7 @@ Until device testing covers these points, B26 must be described as **Static QA P
 
 ---
 
-# 33. CURRENT ROADMAP AFTER B31
+# 33. CURRENT ROADMAP AFTER B32
 
 ## B32 — Older Files Complete + Hidden Items Privacy
 
@@ -1272,6 +1293,20 @@ Approved scope:
 - keep Quick Clean from presenting hidden/privacy-classified candidates as one-tap safe cleanup;
 - never bypass Android protected storage, app vaults, encryption, `Android/data` or `Android/obb`;
 - preserve launch, approved assets, entitlement decisions, Billing-disabled state and the native deletion engine.
+
+## B33 — Custom Scan Premium Redesign
+
+Approved scope:
+
+- correct the on-device Custom Scan responsive composition defect without modifying scanner logic;
+- give the custom scope list the full available width instead of sharing the native two-column mode grid with the primary CTA;
+- present Downloads, Photos, Videos and Documents as balanced scope cards, with Music intentionally full width;
+- separate exact duplicate verification into its own clear full-width section;
+- keep Start Custom Scan as the single full-width primary action and Cancel as the secondary action;
+- add compact live context for number of selected locations and exact-duplicate verification state;
+- disable the Start presentation when zero locations are selected so the UI does not imply a silent fallback scope;
+- preserve Pro gating, Custom scanner behavior, Hidden Items privacy, approved assets and all destructive safeguards;
+- maintain readable EN/TH/JA wrapping and allow natural panel scrolling on shorter displays instead of shrinking controls.
 
 ## Next — Remaining Perfect V1 review tools
 
