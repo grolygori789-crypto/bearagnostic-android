@@ -2,7 +2,7 @@
 
 **Repository:** `grolygori789-crypto/bearagnostic-android`  
 **Canonical file:** `docs/BEARAGNOSTIC_ANDROID_MASTER_PLAN.md`  
-**Revision:** 2.3  
+**Revision:** 2.4  
 **Revision date:** 10 September 2026  
 **Owner / Product Authority:** P’Benz  
 **Studio / Publisher:** Benedict Interactive  
@@ -89,18 +89,18 @@ Create a new file only when it has a durable and genuinely distinct responsibili
 
 ---
 
-# 3. CURRENT VERIFIED PRODUCTION SNAPSHOT — BATCH 27
+# 3. CURRENT VERIFIED PRODUCTION SNAPSHOT — BATCH 28
 
 This section is a snapshot and must never override newer GitHub production.
 
-As of 10 September 2026 before the B28 Quick Clean completion package is uploaded:
+As of 10 September 2026 before the B29 Quick Clean premium trust/UX package is uploaded:
 
 - branch: `main`
-- latest commit: `3295e75073e5f7df05c8d12f561d4c3fff343852`
-- commit message: `Improve app-wide readability and spacing`
-- parent: `7973c431aa6c20037fd8a6ef80edf4498f1a39cd`
-- Android version: `0.21.1-alpha27`
-- `versionCode`: `27`
+- latest commit: `bc2a3d04426619bc3b260e78aec614d7060576af`
+- commit message: `Complete Quick Clean workflow`
+- parent: `3295e75073e5f7df05c8d12f561d4c3fff343852`
+- Android version: `0.22.0-alpha28`
+- `versionCode`: `28`
 - application ID: `com.benedictinteractive.bearagnostic`
 - debug application ID: `com.benedictinteractive.bearagnostic.debug`
 - compileSdk: `36`
@@ -108,12 +108,12 @@ As of 10 September 2026 before the B28 Quick Clean completion package is uploade
 - minSdk: `26`
 - Java compatibility: `17`
 - Native Bridge version: `10`
-- latest GitHub Actions debug APK run for B27: **SUCCESS** (run #31)
-- B27 has physical-device visual evidence for the Home readability pass, but comprehensive physical-device QA is **NOT YET COMPLETE**
+- latest GitHub Actions debug APK run for B28: **SUCCESS** (run #32)
+- B28 has physical-device evidence for the Quick Clean live-scan and zero-low-risk result states; the core path runs, but the first-device review found that those states use space too sparsely and do not expose enough evidence to explain very fast completion.
 
-B27 is the known-good rollback baseline for B28 Quick Clean completion work.
+B28 is the known-good rollback baseline for B29 Quick Clean premium trust/UX completion work.
 
-Do not call B28 physically verified until P’Benz tests the complete Quick Clean path on a real Android device.
+Do not call B29 physically verified until P’Benz tests the revised live-evidence, empty-result and next-step states on a real Android device.
 
 ---
 
@@ -437,6 +437,32 @@ The canonical destructive sequence for Quick Clean is:
 `Smart Checkup / current snapshot → Safe-candidate review → Select → Final confirmation → Native delete → Verify → Verified summary → Remaining candidates`
 
 B28 must not rewrite `FileHealthScanner` classification logic or fork the native deletion engine merely to implement this UI. Future cleanup categories should reuse the proven review/confirm/delete/verify interaction pattern while keeping their own risk-specific rules.
+
+## 10.2 Quick Clean premium trust/UX contract
+
+B29 closes the perceptual-quality gap found during the first physical-device B28 review without changing scanner rules or adding artificial time.
+
+Quick Clean live and resolved states must:
+
+- never add fake delay, minimum duration, fake progress or fabricated scan evidence;
+- show whether Quick Clean is following a live Smart Checkup/active checkup or resolving an already available review snapshot;
+- expose real live evidence when a scan is running, using native progress fields such as phase, reviewed files, visited folders, bytes seen and the current item/location when available;
+- explain the actual scan scope and keep the low-risk-only safety boundary visible;
+- use the available viewport for meaningful trust information rather than leaving large visually empty regions;
+- treat a zero-low-risk result as a useful verified outcome, not a dead end;
+- show the actual snapshot age and scan mode on the zero-low-risk result;
+- query the current review snapshot for duplicate, large-file and older-file counts and surface only categories that actually contain review items;
+- route those next steps into the existing review surfaces without claiming those dedicated workflows are already complete;
+- keep review-first categories separate from Quick Clean deletion;
+- use immediate, subtle resolved-state motion only as presentation; animation must never hold back a result that is already available;
+- preserve reduced-motion behavior;
+- keep Quick Clean free and preserve all deletion, entitlement and privacy contracts.
+
+The preferred trust model is:
+
+`Fast because the real work finished` — never `Slow because the UI pretended to work`.
+
+B29 is a presentation/integration refinement of the B28 vertical slice. It must not modify `FileHealthScanner.kt`, the native deletion engine, duplicate verification rules or entitlement decisions merely to make the screen feel busier.
 
 ---
 
@@ -1175,6 +1201,18 @@ Do not regress to “recreate it by eye.”
 ---
 
 # 35. REVISION HISTORY
+
+## Revision 2.4 — 10 September 2026
+
+Quick Clean premium trust/UX alignment after physical-device B28 review:
+
+- records B28 commit `bc2a3d04426619bc3b260e78aec614d7060576af` and GitHub Actions run #32 as the known-good production baseline before B29;
+- records that the B28 live-scan and zero-low-risk states worked on device but were visually too sparse and did not explain very fast completion strongly enough;
+- requires live Quick Clean to surface real native scan evidence rather than a lone spinner;
+- requires zero-low-risk results to show useful verified context, snapshot age and source scan mode;
+- adds truthful next-step discovery from actual duplicate, large-file and older-file counts in the current review snapshot;
+- explicitly forbids artificial scan delay or fake progress as a solution to fast completion;
+- preserves the B28 safety/deletion architecture and makes B28 the rollback baseline for B29.
 
 ## Revision 2.3 — 10 September 2026
 

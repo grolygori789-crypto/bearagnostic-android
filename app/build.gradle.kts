@@ -112,18 +112,18 @@ val prepareLegacyFrontend by tasks.registering {
         val originalHtml = generatedIndex.readText(StandardCharsets.UTF_8)
         val androidTags = buildString {
             // Entitlement loads first so its capture guard can protect Pro-only actions
-            // before the Android interaction adapter handles them. Quick Clean captures its dedicated tile before generic tool handling; readability loads last.
-            append("  <script src=\"./js/android-entitlement.js?v=28\"></script>\n")
-            append("  <script src=\"./js/android-cleanup.js?v=28\"></script>\n")
-            append("  <script src=\"./js/android-native.js?v=28\"></script>\n")
-            append("  <script src=\"./js/android-review.js?v=28\"></script>\n")
-            append("  <script src=\"./js/android-support.js?v=28\"></script>\n")
-            append("  <script src=\"./js/android-scan-trust.js?v=28\"></script>\n")
-            append("  <script src=\"./js/android-live-scan.js?v=28\"></script>\n")
-            append("  <script src=\"./js/android-review-media.js?v=28\"></script>\n")
-            append("  <script src=\"./js/android-premium-color.js?v=28\"></script>\n")
-            append("  <script src=\"./js/android-pro-ui.js?v=28\"></script>\n")
-            append("  <script src=\"./js/android-readability.js?v=28\"></script>\n")
+            // before the Android interaction adapter handles them. Quick Clean captures its dedicated tile before generic tool handling; B29 adds live evidence and premium resolved states inside that isolated module; readability loads last.
+            append("  <script src=\"./js/android-entitlement.js?v=29\"></script>\n")
+            append("  <script src=\"./js/android-cleanup.js?v=29\"></script>\n")
+            append("  <script src=\"./js/android-native.js?v=29\"></script>\n")
+            append("  <script src=\"./js/android-review.js?v=29\"></script>\n")
+            append("  <script src=\"./js/android-support.js?v=29\"></script>\n")
+            append("  <script src=\"./js/android-scan-trust.js?v=29\"></script>\n")
+            append("  <script src=\"./js/android-live-scan.js?v=29\"></script>\n")
+            append("  <script src=\"./js/android-review-media.js?v=29\"></script>\n")
+            append("  <script src=\"./js/android-premium-color.js?v=29\"></script>\n")
+            append("  <script src=\"./js/android-pro-ui.js?v=29\"></script>\n")
+            append("  <script src=\"./js/android-readability.js?v=29\"></script>\n")
         }
         check(originalHtml.contains("</body>")) { "Legacy index.html is missing </body>" }
         generatedIndex.writeText(originalHtml.replace("</body>", androidTags + "</body>"), StandardCharsets.UTF_8)
@@ -164,8 +164,8 @@ android {
         applicationId = "com.benedictinteractive.bearagnostic"
         minSdk = 26
         targetSdk = 36
-        versionCode = 28
-        versionName = "0.22.0-alpha28"
+        versionCode = 29
+        versionName = "0.22.1-alpha29"
     }
 
     sourceSets {

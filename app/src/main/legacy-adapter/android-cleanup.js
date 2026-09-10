@@ -4,7 +4,7 @@
   const NATIVE = window.BearagnosticNative;
   if (!NATIVE) return;
 
-  const BUILD = 28;
+  const BUILD = 29;
   const MAX_BATCH = 500;
   const STALE_REVIEW_MS = 15 * 60 * 1000;
   const POLL_MS = 350;
@@ -37,6 +37,14 @@
       openSettings: 'Open Android settings', scanningTitle: 'Checking for safe cleanup candidates',
       scanningBody: 'Smart Checkup is running on this device. No artificial waiting is added; this finishes when the real scan work finishes.',
       scanElsewhere: 'A checkup is already running. Quick Clean will use its verified review snapshot when it finishes.',
+      liveSource: 'SOURCE', liveSourceSmart: 'Live Smart Checkup', liveSourceActive: 'Active checkup', snapshotSource: 'RESULT SOURCE',
+      scopeLabel: 'SCOPE', scopeAccessible: 'Accessible shared storage', scopeCustom: 'Selected Custom Scan scope', safetyLabel: 'SAFETY', lowRiskOnly: 'Low-risk only',
+      phasePreparing: 'Discovering storage', phaseDetails: 'Reviewing file details', phaseSizes: 'Measuring file sizes', phaseDuplicates: 'Verifying duplicates', phaseDates: 'Checking modified dates', phaseFinalizing: 'Building safe results',
+      filesReviewedLive: 'Files reviewed', foldersVisited: 'Folders visited', dataSeen: 'Data seen', localLive: 'LOCAL · LIVE', nowChecking: 'Now checking', waitingItem: 'Preparing the next item…',
+      realWorkNote: 'This view follows the scan’s real work. It finishes when that work finishes — no padded waiting.',
+      emptyKicker: 'QUICK CLEAN RESULT', lowRiskResult: 'Low-risk result', checkedAt: 'Checked', zeroItems: '0 items',
+      reviewFirstTitle: 'Review-first opportunities', reviewFirstBody: 'These stay separate because they need your judgement before anything is removed.',
+      duplicatesNext: 'Duplicates', largeNext: 'Large files', olderNext: 'Older files', reviewCount: '{count} to review', noneReviewFirst: 'No duplicate, large-file or older-file review items were surfaced in this snapshot.', openReview: 'Review', checkAgain: 'Check again',
       safeItems: 'Safe candidates', reclaimable: 'Selected size', fromCheckup: 'Review snapshot',
       current: 'Current', refreshRecommended: 'Refresh recommended', minutesAgo: 'min ago', justNow: 'just now',
       safeTitle: 'Safety boundary',
@@ -76,6 +84,14 @@
       openSettings: 'เปิดการตั้งค่า Android', scanningTitle: 'กำลังหารายการที่เหมาะกับ Quick Clean',
       scanningBody: 'Smart Checkup กำลังตรวจบนเครื่องนี้ ไม่มีการหน่วงเวลาเพื่อให้ดูนาน ระบบจะจบเมื่อการตรวจจริงเสร็จ',
       scanElsewhere: 'มีการตรวจเครื่องทำงานอยู่แล้ว Quick Clean จะใช้รายการตรวจจริงเมื่อการสแกนเสร็จ',
+      liveSource: 'แหล่งข้อมูล', liveSourceSmart: 'Smart Checkup ที่กำลังทำงาน', liveSourceActive: 'การตรวจที่กำลังทำงาน', snapshotSource: 'แหล่งผลลัพธ์',
+      scopeLabel: 'ขอบเขต', scopeAccessible: 'shared storage ที่เข้าถึงได้', scopeCustom: 'ขอบเขต Custom Scan ที่เลือก', safetyLabel: 'ความปลอดภัย', lowRiskOnly: 'เฉพาะความเสี่ยงต่ำ',
+      phasePreparing: 'กำลังค้นหาพื้นที่จัดเก็บ', phaseDetails: 'กำลังตรวจรายละเอียดไฟล์', phaseSizes: 'กำลังวัดขนาดไฟล์', phaseDuplicates: 'กำลังยืนยันไฟล์ซ้ำ', phaseDates: 'กำลังตรวจวันที่แก้ไข', phaseFinalizing: 'กำลังสร้างผลลัพธ์ที่ปลอดภัย',
+      filesReviewedLive: 'ไฟล์ที่ตรวจแล้ว', foldersVisited: 'โฟลเดอร์ที่ตรวจ', dataSeen: 'ข้อมูลที่พบ', localLive: 'บนเครื่อง · เรียลไทม์', nowChecking: 'กำลังตรวจ', waitingItem: 'กำลังเตรียมรายการถัดไป…',
+      realWorkNote: 'หน้านี้แสดงงานจากการสแกนจริง และจะจบเมื่องานจริงเสร็จ ไม่มีการหน่วงเวลาเพื่อให้ดูนาน',
+      emptyKicker: 'ผล QUICK CLEAN', lowRiskResult: 'ผลความเสี่ยงต่ำ', checkedAt: 'ตรวจเมื่อ', zeroItems: '0 รายการ',
+      reviewFirstTitle: 'รายการที่ควรตรวจต่อ', reviewFirstBody: 'รายการเหล่านี้ถูกแยกไว้ เพราะต้องให้คุณพิจารณาก่อนมีการลบ',
+      duplicatesNext: 'ไฟล์ซ้ำ', largeNext: 'ไฟล์ขนาดใหญ่', olderNext: 'ไฟล์เก่า', reviewCount: '{count} รายการให้ตรวจ', noneReviewFirst: 'ไม่พบไฟล์ซ้ำ ไฟล์ขนาดใหญ่ หรือไฟล์เก่าที่ต้องตรวจต่อใน snapshot นี้', openReview: 'ตรวจรายการ', checkAgain: 'ตรวจอีกครั้ง',
       safeItems: 'รายการเสี่ยงต่ำ', reclaimable: 'ขนาดที่เลือก', fromCheckup: 'ข้อมูลจากการตรวจ',
       current: 'ล่าสุด', refreshRecommended: 'แนะนำให้ตรวจใหม่', minutesAgo: 'นาทีที่แล้ว', justNow: 'เมื่อสักครู่',
       safeTitle: 'ขอบเขตความปลอดภัย',
@@ -115,6 +131,14 @@
       openSettings: 'Android 設定を開く', scanningTitle: '安全に整理できる候補を確認中',
       scanningBody: 'Smart Checkup を端末内で実行しています。見せかけの待ち時間は追加せず、実際の処理が終わると完了します。',
       scanElsewhere: 'チェックはすでに実行中です。完了後の検証済みレビュースナップショットを Quick Clean が使用します。',
+      liveSource: 'ソース', liveSourceSmart: '実行中の Smart Checkup', liveSourceActive: '実行中のチェック', snapshotSource: '結果ソース',
+      scopeLabel: '範囲', scopeAccessible: 'アクセス可能な共有ストレージ', scopeCustom: '選択した Custom Scan 範囲', safetyLabel: '安全性', lowRiskOnly: '低リスクのみ',
+      phasePreparing: 'ストレージを探索中', phaseDetails: 'ファイル情報を確認中', phaseSizes: 'ファイルサイズを確認中', phaseDuplicates: '重複を検証中', phaseDates: '更新日を確認中', phaseFinalizing: '安全な結果を作成中',
+      filesReviewedLive: '確認済みファイル', foldersVisited: '確認フォルダ', dataSeen: '確認データ', localLive: '端末内 · リアルタイム', nowChecking: '確認中', waitingItem: '次の項目を準備中…',
+      realWorkNote: 'この画面は実際のスキャン処理に連動します。見せかけの待ち時間は追加しません。',
+      emptyKicker: 'QUICK CLEAN 結果', lowRiskResult: '低リスク結果', checkedAt: '確認時刻', zeroItems: '0 件',
+      reviewFirstTitle: '確認が必要な候補', reviewFirstBody: '削除前に判断が必要なため、Quick Clean とは分けて表示します。',
+      duplicatesNext: '重複ファイル', largeNext: '大きいファイル', olderNext: '古いファイル', reviewCount: '{count} 件を確認', noneReviewFirst: 'このスナップショットでは重複・大容量・古いファイルの確認候補もありません。', openReview: '確認', checkAgain: '再チェック',
       safeItems: '低リスク候補', reclaimable: '選択サイズ', fromCheckup: 'レビュースナップショット',
       current: '最新', refreshRecommended: '再チェック推奨', minutesAgo: '分前', justNow: 'たった今',
       safeTitle: '安全境界',
@@ -160,6 +184,9 @@
     permissionPollStartedAt: 0,
     deleting: false,
     lastDelete: null,
+    liveProgress: null,
+    scanStartedAt: 0,
+    callbackWrapped: false,
   };
 
   function lang() {
@@ -211,10 +238,43 @@
   function selectedItems() { return state.items.filter((item) => state.selected.has(String(item.id))); }
   function selectedBytes() { return selectedItems().reduce((sum, item) => sum + safeNumber(item.sizeBytes), 0); }
 
+
+  function formatCount(value) {
+    const number = safeNumber(value);
+    try {
+      const locale = lang() === 'th' ? 'th-TH' : lang() === 'ja' ? 'ja-JP' : 'en-US';
+      return new Intl.NumberFormat(locale, {maximumFractionDigits:0}).format(number);
+    } catch (_) { return String(Math.round(number)); }
+  }
+  function phaseLabel(phase) {
+    const normalized = String(phase || 'preparing');
+    const key = normalized === 'file_details' ? 'phaseDetails'
+      : normalized === 'file_sizes' ? 'phaseSizes'
+      : normalized === 'duplicates' ? 'phaseDuplicates'
+      : normalized === 'modified_dates' ? 'phaseDates'
+      : normalized === 'finalizing' ? 'phaseFinalizing'
+      : 'phasePreparing';
+    return t(key);
+  }
+  function scopeText(scanMode) {
+    return String(scanMode || '').toLowerCase() === 'custom' ? t('scopeCustom') : t('scopeAccessible');
+  }
+  function categoryTotal(category) {
+    const payload = parse(NATIVE.getReviewCandidates?.(category, 0, 1), {available:false,totalCount:0});
+    return payload.available ? safeNumber(payload.totalCount) : 0;
+  }
+  function reviewOpportunityTotals() {
+    return {
+      duplicates: categoryTotal('duplicates'),
+      large: categoryTotal('large'),
+      older: categoryTotal('old'),
+    };
+  }
+
   function ensureStyle() {
-    if (byId('androidQuickClean28Style')) return;
+    if (byId('androidQuickClean29Style')) return;
     const style = document.createElement('style');
-    style.id = 'androidQuickClean28Style';
+    style.id = 'androidQuickClean29Style';
     style.textContent = `
       .ba-qc{position:fixed;inset:0;z-index:1860;padding:max(10px,env(safe-area-inset-top)) 10px max(10px,env(safe-area-inset-bottom));background:radial-gradient(circle at 18% 0%,rgba(52,194,232,.16),transparent 31%),linear-gradient(180deg,#edf7fc 0%,#e9f3f9 100%);color:#1b3046;overflow:hidden}.ba-qc[hidden]{display:none!important}
       .ba-qc-panel{height:100%;width:min(100%,560px);margin:0 auto;border-radius:34px;background:linear-gradient(180deg,rgba(254,255,255,.995),rgba(247,251,253,.995));border:1px solid rgba(255,255,255,.98);box-shadow:0 26px 76px rgba(29,62,94,.18),inset 0 1px 0 #fff;display:grid;grid-template-rows:auto minmax(0,1fr);overflow:hidden}
@@ -234,9 +294,18 @@
       .ba-qc-footer{position:sticky;bottom:-18px;margin:12px -16px -18px;padding:10px 16px calc(15px + env(safe-area-inset-bottom,0px));background:linear-gradient(180deg,rgba(249,252,254,.82),#fbfdff 28%);border-top:1px solid rgba(86,119,149,.07);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}.ba-qc-footer-copy{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:8px}.ba-qc-footer-copy strong{font-size:12.5px;color:#263e55}.ba-qc-footer-copy small{font-size:10.5px;color:#64798d;text-align:right}.ba-qc-footer-actions{display:grid;grid-template-columns:.78fr 1.22fr;gap:9px}.ba-qc-footer .ba-qc-primary,.ba-qc-footer .ba-qc-secondary{width:100%}
       .ba-qc-confirm{position:fixed;inset:0;z-index:1890;display:grid;place-items:center;padding:20px;background:rgba(14,30,48,.38);backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px)}.ba-qc-confirm[hidden]{display:none!important}.ba-qc-confirm-card{width:min(100%,430px);padding:19px;border-radius:27px;background:#fff;box-shadow:0 24px 70px rgba(21,46,72,.24)}.ba-qc-confirm-kicker{font-size:9px;letter-spacing:.18em;font-weight:850;color:#b17a25}.ba-qc-confirm-card h3{margin:6px 0 0;font-size:21px;line-height:1.12;color:#1b3046;letter-spacing:-.025em}.ba-qc-confirm-card>p{margin:8px 0 0;font-size:12.5px;line-height:1.52;color:#596f83}.ba-qc-confirm-metric{margin-top:12px;padding:12px;border-radius:18px;background:linear-gradient(145deg,#f6fbfe,#edf8fc);display:flex;align-items:center;justify-content:space-between;gap:12px}.ba-qc-confirm-metric strong{font-size:14px;color:#1f374e}.ba-qc-confirm-metric b{font-size:16px;color:#1189d5}.ba-qc-proof{display:grid;grid-template-columns:24px minmax(0,1fr);gap:8px;margin-top:11px;padding:10px 11px;border-radius:15px;background:#eefaf6;color:#3d6e60;font-size:11px;line-height:1.45}.ba-qc-proof svg{width:20px;height:20px;fill:none;stroke:#188f77;stroke-width:1.8}.ba-qc-confirm-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:14px}.ba-qc-danger{min-height:48px;border-radius:17px;background:linear-gradient(120deg,#b84550,#d15862);color:#fff;font-size:13px;font-weight:780;box-shadow:0 10px 22px rgba(184,69,80,.16)}.ba-qc-danger:disabled{opacity:.55}
       .ba-qc-result{padding:8px 0}.ba-qc-result-card{text-align:center;padding:20px 14px 18px;border-radius:25px;background:linear-gradient(145deg,#f0fbf7,#f4fbff);border:1px solid rgba(42,155,132,.09)}.ba-qc-result-check{width:70px;height:70px;border-radius:24px;display:grid;place-items:center;margin:0 auto 14px;background:linear-gradient(145deg,#dff8ef,#e7f7ff);color:#15977e;box-shadow:0 11px 27px rgba(49,148,124,.11)}.ba-qc-result-check svg{width:34px;height:34px;fill:none;stroke:currentColor;stroke-width:2}.ba-qc-result-kicker{display:block;font-size:9px;letter-spacing:.18em;font-weight:850;color:#3f8a74}.ba-qc-result h3{font-size:22px;line-height:1.12;margin:6px 0 0;color:#1c334a}.ba-qc-result-bytes{font-size:34px;line-height:1;font-weight:820;letter-spacing:-.05em;color:#128fd7;margin-top:15px}.ba-qc-result-label{font-size:11px;color:#647a8d;margin-top:5px}.ba-qc-result p{font-size:12px;line-height:1.5;color:#5a7083;max-width:36ch;margin:11px auto 0}.ba-qc-result-notes{display:grid;gap:8px;margin-top:11px;text-align:left}.ba-qc-result-note{padding:10px 11px;border-radius:15px;background:#fff7e8;color:#745c30;font-size:11px;line-height:1.45}.ba-qc-result-note strong{display:block;font-size:11.5px;margin-bottom:3px}.ba-qc-result-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:14px}
-      @media(max-width:360px){.ba-qc-head{grid-template-columns:46px minmax(0,1fr) 38px;padding-left:13px;padding-right:13px;gap:9px}.ba-qc-mark{width:46px;height:46px;border-radius:16px}.ba-qc-head h2{font-size:20px}.ba-qc-head p{font-size:11.5px}.ba-qc-scroll{padding-left:12px;padding-right:12px}.ba-qc-overview{gap:6px}.ba-qc-metric{padding:10px 6px}.ba-qc-metric b{font-size:14px}.ba-qc-row{padding:10px 9px;gap:8px}.ba-qc-meta{min-width:64px}.ba-qc-toolbar{flex-wrap:wrap}.ba-qc-toolbar-label{flex-basis:100%}.ba-qc-footer{margin-left:-12px;margin-right:-12px;padding-left:12px;padding-right:12px}}
-      @media(prefers-reduced-motion:reduce){.ba-qc-spinner:before{animation:none!important}}
-      html[data-motion='reduced'] .ba-qc-spinner:before{animation:none!important}
+      .ba-qc-scan-state{min-height:100%;display:grid;align-content:center;padding:clamp(20px,3dvh,34px) 1px 18px;animation:baQcResolve .24s ease-out}.ba-qc-scan-hero{text-align:center}.ba-qc-scan-state .ba-qc-spinner{margin:0 auto 15px}.ba-qc-scan-state h3{font-size:22px;line-height:1.12;letter-spacing:-.03em;margin:0;color:#1a3047}.ba-qc-scan-lead{font-size:13px;line-height:1.52;color:#5a7083;max-width:39ch;margin:8px auto 0}
+      .ba-qc-evidence-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:22px}.ba-qc-evidence{min-width:0;text-align:left;padding:12px 11px;border-radius:18px;background:linear-gradient(145deg,#f5fbfe,#edf7fc);border:1px solid rgba(72,126,160,.08);box-shadow:0 7px 20px rgba(49,88,119,.045)}.ba-qc-evidence:nth-child(2){background:linear-gradient(145deg,#f4fbf8,#eefaf6)}.ba-qc-evidence:nth-child(3){background:linear-gradient(145deg,#f7f5ff,#f4f6fc)}.ba-qc-evidence span{display:block;font-size:9.5px;line-height:1.18;letter-spacing:.085em;font-weight:820;color:#6e8497;text-transform:uppercase}.ba-qc-evidence strong{display:block;margin-top:5px;font-size:11.5px;line-height:1.3;color:#254159}
+      .ba-qc-live-card{margin-top:10px;padding:13px;border-radius:21px;background:#fff;border:1px solid rgba(76,117,148,.09);box-shadow:0 8px 24px rgba(47,82,115,.055);text-align:left}.ba-qc-live-top{display:grid;grid-template-columns:36px minmax(0,1fr) auto;gap:10px;align-items:center}.ba-qc-live-icon{width:36px;height:36px;border-radius:13px;display:grid;place-items:center;background:linear-gradient(145deg,#e2f7ff,#edf9f5);color:#168fd2}.ba-qc-live-icon svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}.ba-qc-live-copy{min-width:0}.ba-qc-live-copy span{display:block;font-size:10px;line-height:1.1;letter-spacing:.09em;font-weight:820;color:#2d7fae;text-transform:uppercase}.ba-qc-live-copy strong{display:block;margin-top:4px;font-size:13px;line-height:1.25;color:#223c53;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ba-qc-live-pill{padding:6px 8px;border-radius:999px;background:#eaf8f4;color:#197f6a;font-size:9.5px;line-height:1;font-weight:820;white-space:nowrap}.ba-qc-live-location{display:block;margin:8px 0 0 46px;font-size:10.5px;line-height:1.35;color:#667c8f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      .ba-qc-live-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-top:11px}.ba-qc-live-metric{padding:9px 8px;border-radius:14px;background:#f6fafc;text-align:center}.ba-qc-live-metric b{display:block;font-size:13px;line-height:1.1;color:#203a51}.ba-qc-live-metric span{display:block;margin-top:4px;font-size:10px;line-height:1.25;color:#6d8294}.ba-qc-real-work{display:flex;align-items:flex-start;gap:8px;margin:10px 2px 0;padding:10px 11px;border-radius:16px;background:linear-gradient(135deg,#eef9f6,#f6fbfd);color:#557469;text-align:left;font-size:10.5px;line-height:1.45}.ba-qc-real-work svg{flex:0 0 auto;width:18px;height:18px;fill:none;stroke:#188e77;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+      .ba-qc-empty{min-height:100%;display:grid;align-content:center;padding:clamp(16px,2.5dvh,26px) 0 16px;animation:baQcResolve .26s ease-out}.ba-qc-empty-hero{text-align:center;padding:0 7px}.ba-qc-empty-hero .ba-qc-state-icon{width:66px;height:66px;border-radius:22px;margin:0 auto 13px}.ba-qc-empty-kicker{display:block;font-size:9px;line-height:1.1;letter-spacing:.16em;font-weight:850;color:#278b78}.ba-qc-empty h3{font-size:22px;line-height:1.12;letter-spacing:-.03em;margin:6px 0 0;color:#1b3147}.ba-qc-empty-hero p{font-size:13px;line-height:1.53;color:#5a7083;max-width:39ch;margin:9px auto 0}
+      .ba-qc-empty-proof{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:19px}.ba-qc-empty-metric{min-width:0;padding:12px 9px;border-radius:18px;background:linear-gradient(145deg,#f1fbf7,#f6fcfa);border:1px solid rgba(41,151,127,.08);text-align:center}.ba-qc-empty-metric:nth-child(2){background:linear-gradient(145deg,#f3f9fd,#edf7fc);border-color:rgba(41,132,187,.08)}.ba-qc-empty-metric:nth-child(3){background:linear-gradient(145deg,#f7f5ff,#f5f7fc);border-color:rgba(112,91,194,.07)}.ba-qc-empty-metric b{display:block;font-size:13.5px;line-height:1.18;color:#214057;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ba-qc-empty-metric span{display:block;margin-top:4px;font-size:10px;line-height:1.25;color:#6a8092}
+      .ba-qc-empty-trust{display:grid;grid-template-columns:34px minmax(0,1fr);gap:10px;align-items:center;margin-top:10px;padding:11px 12px;border-radius:18px;background:linear-gradient(135deg,#ecfaf5,#f7fcfb);border:1px solid rgba(39,158,130,.08);text-align:left}.ba-qc-empty-trust i{width:34px;height:34px;border-radius:12px;display:grid;place-items:center;background:#dff7ef;color:#168b74;font-style:normal}.ba-qc-empty-trust svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.8}.ba-qc-empty-trust strong{display:block;font-size:11.8px;line-height:1.25;color:#24473e}.ba-qc-empty-trust small{display:block;margin-top:3px;font-size:11px;line-height:1.45;color:#5d776e}
+      .ba-qc-next{margin-top:11px;padding:13px;border-radius:21px;background:#fff;border:1px solid rgba(77,116,146,.09);box-shadow:0 8px 24px rgba(47,82,115,.045);text-align:left}.ba-qc-next-head strong{display:block;font-size:13.5px;line-height:1.25;color:#233d54}.ba-qc-next-head p{margin:4px 0 0;font-size:11.5px;line-height:1.48;color:#667b8e}.ba-qc-next-list{display:grid;gap:7px;margin-top:10px}.ba-qc-next-button{width:100%;min-height:48px;display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px;align-items:center;padding:9px 11px;border-radius:15px;background:#f6fafc;border:1px solid rgba(83,123,153,.07);text-align:left;color:#243e55}.ba-qc-next-button strong{font-size:12.5px;line-height:1.25}.ba-qc-next-button span{font-size:11px;color:#667c8e;white-space:nowrap}.ba-qc-next-button b{width:25px;height:25px;border-radius:9px;display:grid;place-items:center;background:#e9f4fa;color:#2581b4;font-size:15px}.ba-qc-none-review{margin-top:10px;padding:11px 12px;border-radius:16px;background:#f4f8fb;color:#64798c;font-size:11.5px;line-height:1.48;text-align:left}.ba-qc-empty-actions{display:grid;grid-template-columns:.78fr 1.22fr;gap:9px;margin-top:12px}
+      @keyframes baQcResolve{from{opacity:.25;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+      @media(max-width:360px){.ba-qc-evidence-grid,.ba-qc-empty-proof{gap:6px}.ba-qc-evidence{padding:10px 8px}.ba-qc-evidence strong{font-size:10.5px}.ba-qc-live-card{padding:11px}.ba-qc-live-location{margin-left:0;margin-top:8px}.ba-qc-live-metrics{gap:5px}.ba-qc-next{padding:11px}.ba-qc-head{grid-template-columns:46px minmax(0,1fr) 38px;padding-left:13px;padding-right:13px;gap:9px}.ba-qc-mark{width:46px;height:46px;border-radius:16px}.ba-qc-head h2{font-size:20px}.ba-qc-head p{font-size:11.5px}.ba-qc-scroll{padding-left:12px;padding-right:12px}.ba-qc-overview{gap:6px}.ba-qc-metric{padding:10px 6px}.ba-qc-metric b{font-size:14px}.ba-qc-row{padding:10px 9px;gap:8px}.ba-qc-meta{min-width:64px}.ba-qc-toolbar{flex-wrap:wrap}.ba-qc-toolbar-label{flex-basis:100%}.ba-qc-footer{margin-left:-12px;margin-right:-12px;padding-left:12px;padding-right:12px}}
+      @media(prefers-reduced-motion:reduce){.ba-qc-spinner:before,.ba-qc-scan-state,.ba-qc-empty{animation:none!important}}
+      html[data-motion='reduced'] .ba-qc-spinner:before,html[data-motion='reduced'] .ba-qc-scan-state,html[data-motion='reduced'] .ba-qc-empty{animation:none!important}
     `;
     document.head.appendChild(style);
   }
@@ -322,8 +391,26 @@
   }
 
   function renderScanning(existing=false) {
-    byId('baQcBody').innerHTML = `<section class="ba-qc-state"><div class="ba-qc-spinner" aria-hidden="true"></div><h3>${esc(t('scanningTitle'))}</h3><p>${esc(existing ? t('scanElsewhere') : t('scanningBody'))}</p><div class="ba-qc-state-actions one"><button class="ba-qc-secondary" id="baQcScanningClose" type="button">${esc(t('close'))}</button></div></section>`;
+    const sourceValue = existing ? t('liveSourceActive') : t('liveSourceSmart');
+    byId('baQcBody').innerHTML = `<section class="ba-qc-scan-state"><div class="ba-qc-scan-hero"><div class="ba-qc-spinner" aria-hidden="true"></div><h3>${esc(t('scanningTitle'))}</h3><p class="ba-qc-scan-lead">${esc(existing ? t('scanElsewhere') : t('scanningBody'))}</p></div><div class="ba-qc-evidence-grid"><div class="ba-qc-evidence"><span>${esc(t('liveSource'))}</span><strong id="baQcLiveSource">${esc(sourceValue)}</strong></div><div class="ba-qc-evidence"><span>${esc(t('scopeLabel'))}</span><strong id="baQcLiveScope">${esc(t('scopeAccessible'))}</strong></div><div class="ba-qc-evidence"><span>${esc(t('safetyLabel'))}</span><strong>${esc(t('lowRiskOnly'))}</strong></div></div><section class="ba-qc-live-card"><div class="ba-qc-live-top"><span class="ba-qc-live-icon">${svg('file')}</span><div class="ba-qc-live-copy"><span id="baQcLivePhase">${esc(phaseLabel(state.liveProgress?.phase))}</span><strong id="baQcLiveItem">${esc(t('waitingItem'))}</strong></div><b class="ba-qc-live-pill">${esc(t('localLive'))}</b></div><small class="ba-qc-live-location" id="baQcLiveLocation">${esc(t('scopeAccessible'))}</small><div class="ba-qc-live-metrics"><div class="ba-qc-live-metric"><b id="baQcLiveReviewed">0</b><span>${esc(t('filesReviewedLive'))}</span></div><div class="ba-qc-live-metric"><b id="baQcLiveFolders">0</b><span>${esc(t('foldersVisited'))}</span></div><div class="ba-qc-live-metric"><b id="baQcLiveBytes">0 B</b><span>${esc(t('dataSeen'))}</span></div></div></section><div class="ba-qc-real-work">${svg('check')}<span>${esc(t('realWorkNote'))}</span></div><div class="ba-qc-state-actions one"><button class="ba-qc-secondary" id="baQcScanningClose" type="button">${esc(t('close'))}</button></div></section>`;
     byId('baQcScanningClose').addEventListener('click', closeSurface);
+    updateScanningEvidence();
+  }
+
+  function updateScanningEvidence() {
+    if (!state.open || !byId('baQcLivePhase')) return;
+    const progress = state.liveProgress || {};
+    const mode = String(progress.scanMode || (state.ownsScan ? 'smart' : '')).toLowerCase();
+    const itemName = String(progress.activeItemName || '').trim();
+    const itemLocation = String(progress.activeItemLocation || '').trim();
+    byId('baQcLivePhase').textContent = phaseLabel(progress.phase);
+    byId('baQcLiveItem').textContent = itemName || t('waitingItem');
+    byId('baQcLiveLocation').textContent = itemLocation || scopeText(mode);
+    byId('baQcLiveReviewed').textContent = formatCount(progress.reviewedFiles);
+    byId('baQcLiveFolders').textContent = formatCount(progress.directoriesVisited);
+    byId('baQcLiveBytes').textContent = formatBytes(progress.totalBytes);
+    if (byId('baQcLiveScope')) byId('baQcLiveScope').textContent = scopeText(mode);
+    if (byId('baQcLiveSource')) byId('baQcLiveSource').textContent = mode ? `${scanModeLabel(mode)} · ${t('localLive')}` : (state.ownsScan ? t('liveSourceSmart') : t('liveSourceActive'));
   }
 
   function renderError(message) {
@@ -334,9 +421,40 @@
 
   function renderEmpty() {
     updateHomeCard(0);
-    byId('baQcBody').innerHTML = `<section class="ba-qc-state"><div class="ba-qc-state-icon">${svg('check')}</div><h3>${esc(t('noCandidatesTitle'))}</h3><p>${esc(t('noCandidatesBody'))}</p><div class="ba-qc-state-actions"><button class="ba-qc-secondary" id="baQcEmptyClose" type="button">${esc(t('close'))}</button><button class="ba-qc-primary" id="baQcRefreshEmpty" type="button">${esc(t('refresh'))}</button></div></section>`;
+    const opportunities = reviewOpportunityTotals();
+    const cards = [
+      ['duplicates', opportunities.duplicates, t('duplicatesNext')],
+      ['large', opportunities.large, t('largeNext')],
+      ['old', opportunities.older, t('olderNext')],
+    ].filter(([,count]) => count > 0).map(([category,count,label]) => `<button class="ba-qc-next-button" type="button" data-qc-next="${esc(category)}"><strong>${esc(label)}</strong><span>${esc(t('reviewCount',{count:formatCount(count)}))}</span><b>›</b></button>`).join('');
+    const age = formatAge(state.summary?.generatedAtMs) || t('justNow');
+    const mode = scanModeLabel(state.summary?.scanMode || 'smart');
+    byId('baQcBody').innerHTML = `<section class="ba-qc-empty"><div class="ba-qc-empty-hero"><div class="ba-qc-state-icon">${svg('check')}</div><span class="ba-qc-empty-kicker">${esc(t('emptyKicker'))}</span><h3>${esc(t('noCandidatesTitle'))}</h3><p>${esc(t('noCandidatesBody'))}</p></div><div class="ba-qc-empty-proof"><div class="ba-qc-empty-metric"><b>${esc(t('zeroItems'))}</b><span>${esc(t('lowRiskResult'))}</span></div><div class="ba-qc-empty-metric"><b>${esc(age)}</b><span>${esc(t('checkedAt'))}</span></div><div class="ba-qc-empty-metric"><b>${esc(mode)}</b><span>${esc(t('snapshotSource'))}</span></div></div><div class="ba-qc-empty-trust"><i>${svg('shield')}</i><div><strong>${esc(t('safeTitle'))}</strong><small>${esc(t('safeBody'))}</small></div></div>${cards ? `<section class="ba-qc-next"><div class="ba-qc-next-head"><strong>${esc(t('reviewFirstTitle'))}</strong><p>${esc(t('reviewFirstBody'))}</p></div><div class="ba-qc-next-list">${cards}</div></section>` : `<div class="ba-qc-none-review">${esc(t('noneReviewFirst'))}</div>`}<div class="ba-qc-empty-actions"><button class="ba-qc-secondary" id="baQcRefreshEmpty" type="button">${esc(t('checkAgain'))}</button><button class="ba-qc-primary" id="baQcEmptyClose" type="button">${esc(t('done'))}</button></div></section>`;
     byId('baQcEmptyClose').addEventListener('click', closeSurface);
     byId('baQcRefreshEmpty').addEventListener('click', startSmartCheckup);
+    byId('baQcBody').querySelectorAll('[data-qc-next]').forEach((button) => {
+      button.addEventListener('click', () => openNextReview(String(button.dataset.qcNext || '')));
+    });
+  }
+
+  function openNextReview(category) {
+    if (!['duplicates','large','old'].includes(category)) return;
+    const source = state.source;
+    state.open = false;
+    state.pendingPermissionScan = false;
+    stopPolling();
+    stopPermissionPolling();
+    hideConfirm();
+    const surface = byId('baQuickClean');
+    if (surface) surface.hidden = true;
+    window.requestAnimationFrame(() => {
+      const reviewButton = document.querySelector(`[data-review-category="${category}"]`);
+      if (reviewButton) { reviewButton.click(); return; }
+      const toolName = category === 'old' ? 'older' : category;
+      const scopeSelector = source === 'tools' ? '#toolsScreen' : '.home-screen';
+      const toolButton = document.querySelector(`${scopeSelector} [data-tool="${toolName}"]`) || document.querySelector(`[data-tool="${toolName}"]`);
+      toolButton?.click();
+    });
   }
 
   function renderCandidates() {
@@ -483,6 +601,8 @@
     }
     state.ownsScan = true;
     state.pendingPermissionScan = false;
+    state.liveProgress = null;
+    state.scanStartedAt = Date.now();
     state.items = [];
     state.selected.clear();
     const result = parse(NATIVE.startScan?.('smart', '[]', true), {accepted:false});
@@ -637,6 +757,46 @@
   window.addEventListener('focus', handleForegroundReturn);
   window.addEventListener('pageshow', handleForegroundReturn);
 
+  function wrapNativeCallbacks() {
+    const base = window.BearagnosticAndroid;
+    if (!base || base.__quickCleanTrustWrapped) return false;
+    window.BearagnosticAndroid = Object.freeze({
+      ...base,
+      __quickCleanTrustWrapped: true,
+      onNativeStateChanged(raw) { base.onNativeStateChanged?.(raw); },
+      onScanProgress(raw) {
+        base.onScanProgress?.(raw);
+        state.liveProgress = parse(raw, {});
+        if (state.open && byId('baQcLivePhase')) updateScanningEvidence();
+      },
+      onScanComplete(raw) {
+        base.onScanComplete?.(raw);
+        if (!state.open) return;
+        state.liveProgress = parse(raw, state.liveProgress || {});
+        window.setTimeout(refreshWorkspace, 0);
+      },
+      onScanCancelled(raw) {
+        base.onScanCancelled?.(raw);
+        if (state.open && state.ownsScan) window.setTimeout(() => renderError(t('scanFailed')), 0);
+      },
+      onScanError(raw) {
+        base.onScanError?.(raw);
+        if (state.open && state.ownsScan) window.setTimeout(() => renderError(t('scanFailed')), 0);
+      },
+    });
+    state.callbackWrapped = true;
+    return true;
+  }
+
+  function scheduleCallbackWrap() {
+    if (wrapNativeCallbacks()) return;
+    let attempts = 0;
+    const timer = window.setInterval(() => {
+      attempts += 1;
+      if (wrapNativeCallbacks() || attempts >= 20) window.clearInterval(timer);
+    }, 50);
+  }
+
   window.addEventListener('bearagnostic:languagechange', () => {
     if (state.open) refreshWorkspace();
     else refreshHomeFromNative();
@@ -649,6 +809,7 @@
 
   ensureSurface();
   refreshHomeFromNative();
+  scheduleCallbackWrap();
 
   window.BearagnosticQuickClean = Object.freeze({
     build: BUILD,
