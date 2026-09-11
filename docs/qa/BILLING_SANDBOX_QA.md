@@ -106,3 +106,17 @@ B50 acceptance criteria:
 - every owner-console action (market, network, payment behavior, acknowledgement mode, availability, provider, restore, sync, pending decision, refund, revoke, chargeback, reinstall and reset) must use a receiver-bound native invocation;
 - static QA must reject reintroduction of `const fn = NATIVE[name]` style detached bridge calls;
 - release isolation remains unchanged.
+
+
+## B51 startup recovery / observer safety
+
+B51 fixes a physical-device regression where a persisted Developer Mode could keep the app on the Benedict Interactive launch surface. The developer-row MutationObserver must be idempotent: it may create/remove the row when state changes, but it must not rewrite unchanged child text on every observed mutation.
+
+Owner-console bridge actions now use explicit native wrappers instead of dynamic indexed invocation. Native action success is parsed before best-effort UI refresh, so a refresh exception cannot misreport a completed native action as a bridge failure. Sandbox state reads are exception-safe.
+
+Acceptance:
+- App reaches Home even when Developer Mode was already persisted ON from B49/B50.
+- Developer Tools appears once in More; no observer feedback loop or launch starvation.
+- Fresh seven-tap activation opens Billing QA Console immediately.
+- Disabling Developer Mode removes the row without affecting normal startup.
+- Customer, Store, Transactions and Events remain linked to the same debug-only ledger.

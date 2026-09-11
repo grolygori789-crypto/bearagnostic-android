@@ -465,7 +465,10 @@
   const esc = (v) => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const parse = (v, f={}) => { try { return typeof v === 'string' ? JSON.parse(v) : (v || f); } catch (_) { return f; } };
   const lang = () => { const v=(document.documentElement.lang||'en').toLowerCase(); return v.startsWith('th')?'th':v.startsWith('ja')?'ja':'en'; };
-  const state = () => parse(NATIVE.getDebugBillingSandboxState?.(), {available:false});
+  const state = () => {
+    try { return parse(NATIVE.getDebugBillingSandboxState?.(), {available:false}); }
+    catch (_) { return {available:false,debugOnly:true,reason:'bridge_state_error'}; }
+  };
   let tapCount=0, tapTimer=null, poll=null, activeTab='overview';
 
   const COPY = {
@@ -507,24 +510,50 @@
     }
   };
   const c=()=>COPY[lang()]||COPY.en;
-  const nativeBuild=()=>parse(NATIVE.getNativeState?.(),{});
+  const DEV_CONSOLE_BUILD=51;
+
+  // Use explicit wrappers for Android @JavascriptInterface methods. Dynamic method
+  // extraction/indexed invocation is avoided because bridge objects are not ordinary JS
+  // objects on every WebView implementation.
+  const BRIDGE_CALLS=Object.freeze({
+    setDebugBillingDeveloperMode:(v)=>NATIVE.setDebugBillingDeveloperMode(Boolean(v)),
+    setDebugBillingSandboxMarket:(v)=>NATIVE.setDebugBillingSandboxMarket(String(v)),
+    setDebugBillingSandboxNetwork:(v)=>NATIVE.setDebugBillingSandboxNetwork(String(v)),
+    setDebugBillingSandboxPaymentBehavior:(v)=>NATIVE.setDebugBillingSandboxPaymentBehavior(String(v)),
+    setDebugBillingSandboxAcknowledgeMode:(v)=>NATIVE.setDebugBillingSandboxAcknowledgeMode(String(v)),
+    setDebugBillingSandboxStoreAvailable:(v)=>NATIVE.setDebugBillingSandboxStoreAvailable(Boolean(v)),
+    setDebugBillingSandboxEnabled:(v)=>NATIVE.setDebugBillingSandboxEnabled(Boolean(v)),
+    restoreDebugBillingSandboxPurchase:()=>NATIVE.restoreDebugBillingSandboxPurchase(),
+    syncDebugBillingSandboxOwnership:()=>NATIVE.syncDebugBillingSandboxOwnership(),
+    forgetDebugBillingSandboxLocalEntitlement:()=>NATIVE.forgetDebugBillingSandboxLocalEntitlement(),
+    simulateDebugBillingSandboxReinstall:()=>NATIVE.simulateDebugBillingSandboxReinstall(),
+    completeDebugBillingSandboxPending:()=>NATIVE.completeDebugBillingSandboxPending(),
+    declineDebugBillingSandboxPending:()=>NATIVE.declineDebugBillingSandboxPending(),
+    retryDebugBillingSandboxAcknowledgement:()=>NATIVE.retryDebugBillingSandboxAcknowledgement(),
+    refundDebugBillingSandboxKeepAccess:()=>NATIVE.refundDebugBillingSandboxKeepAccess(),
+    refundDebugBillingSandboxAndRevoke:()=>NATIVE.refundDebugBillingSandboxAndRevoke(),
+    revokeDebugBillingSandbox:()=>NATIVE.revokeDebugBillingSandbox(),
+    chargebackDebugBillingSandbox:()=>NATIVE.chargebackDebugBillingSandbox(),
+    expireDebugBillingSandboxUnacknowledged:()=>NATIVE.expireDebugBillingSandboxUnacknowledged(),
+    resetDebugBillingSandboxPurchase:()=>NATIVE.resetDebugBillingSandboxPurchase(),
+    clearDebugBillingSandboxEvents:()=>NATIVE.clearDebugBillingSandboxEvents()
+  });
 
   function call(name, value, kind='none') {
+    const invoke=BRIDGE_CALLS[name];
+    if(typeof invoke!=='function') return {accepted:false,reason:'bridge_unavailable'};
+    let result;
     try {
-      // Android WebView's @JavascriptInterface object must remain the receiver of the
-      // method call. Detaching NATIVE[name] into a local function loses the Java bridge
-      // receiver on real devices and can throw even though the method exists.
-      if(typeof NATIVE[name]!=='function') return {accepted:false,reason:'bridge_unavailable'};
-      const raw = kind==='bool'
-        ? NATIVE[name](Boolean(value))
-        : kind==='string'
-          ? NATIVE[name](String(value))
-          : NATIVE[name]();
-      const result=parse(raw,{accepted:false});
-      ENT.refresh?.(); NATIVE.refreshNativeState?.(); setTimeout(refreshAll,60); return result;
+      result=parse(invoke(value),{accepted:false});
     } catch (error) {
       return {accepted:false,reason:'bridge_error',detail:String(error?.name||'Error').slice(0,40)};
     }
+    // Post-call UI refresh must never make a successful native action look like a
+    // bridge failure. Each refresh is isolated and best-effort.
+    try { ENT.refresh?.(); } catch (_) {}
+    try { NATIVE.refreshNativeState?.(); } catch (_) {}
+    setTimeout(refreshAll,60);
+    return result;
   }
 
   function ensureStyle(){
@@ -560,7 +589,11 @@
       row.addEventListener('click',openConsole);
       row.addEventListener('keydown',(event)=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();openConsole();}});
     }
-    const t=c(); row.setAttribute('aria-label',t.dev); $('strong',row).textContent=t.dev; $('small',row).textContent=t.devSub;
+    const t=c();
+    if(row.getAttribute('aria-label')!==t.dev) row.setAttribute('aria-label',t.dev);
+    const strong=$('strong',row), small=$('small',row);
+    if(strong && strong.textContent!==t.dev) strong.textContent=t.dev;
+    if(small && small.textContent!==t.devSub) small.textContent=t.devSub;
     return row;
   }
 
@@ -569,7 +602,7 @@
     if(confirmed?.devModeEnabled!==true) return false;
     ensureStyle();
     const row=ensureRow(confirmed);
-    if(row){
+    if(row && open){
       try { row.scrollIntoView({behavior:'smooth',block:'center'}); } catch (_) { row.scrollIntoView?.(); }
     }
     if(open) openConsole();
@@ -616,7 +649,7 @@
 
   function renderConsole(){
     const el=ensureConsole(),s=state(),t=c(); if(s.devModeEnabled!==true){closeConsole();ensureRow(s);return;}
-    $('.ba-dev-head',el).innerHTML=`<div><span class="ba-dev-head__kicker">${esc(t.debug)} · B${esc(nativeBuild().versionCode||50)}</span><h2>${esc(t.title)}</h2><p>${esc(t.subtitle)}</p></div><button class="ba-dev-close" type="button" data-dev-close aria-label="${esc(t.close)}">×</button>`;
+    $('.ba-dev-head',el).innerHTML=`<div><span class="ba-dev-head__kicker">${esc(t.debug)} · B${DEV_CONSOLE_BUILD}</span><h2>${esc(t.title)}</h2><p>${esc(t.subtitle)}</p></div><button class="ba-dev-close" type="button" data-dev-close aria-label="${esc(t.close)}">×</button>`;
     $('.ba-dev-tabs',el).innerHTML=[['overview',t.overview],['store',t.store],['transactions',t.transactions],['events',t.events]].map(([id,label])=>`<button class="ba-dev-tab ${activeTab===id?'is-active':''}" type="button" data-dev-tab="${id}">${esc(label)}</button>`).join('');
     const wrap=$('.ba-dev-wrap',el); wrap.innerHTML=activeTab==='store'?renderStore(s,t):activeTab==='transactions'?renderTransactions(s,t):activeTab==='events'?renderEvents(s,t):renderOverview(s,t);
   }
@@ -681,6 +714,16 @@
   window.addEventListener('bearagnostic:languagechange',()=>setTimeout(refreshAll,0));
   window.addEventListener('bearagnostic:screenchange',()=>setTimeout(refreshAll,0));
   window.addEventListener('bearagnostic:entitlementchange',()=>setTimeout(refreshAll,0));
-  const observer=new MutationObserver(()=>{const s=state();if(s.available===true)ensureRow(s)});observer.observe(document.body,{childList:true,subtree:true});
+  let devObserverQueued=false;
+  const observer=new MutationObserver(()=>{
+    if(devObserverQueued) return;
+    devObserverQueued=true;
+    queueMicrotask(()=>{
+      devObserverQueued=false;
+      const s=state();
+      if(s.available===true) ensureRow(s);
+    });
+  });
+  observer.observe(document.body,{childList:true,subtree:true});
   ensureStyle();setTimeout(refreshAll,160);
 })();
