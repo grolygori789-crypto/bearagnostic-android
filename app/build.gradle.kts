@@ -39,6 +39,7 @@ val androidCustomScan = layout.projectDirectory.file("src/main/legacy-adapter/an
 val androidInsights = layout.projectDirectory.file("src/main/legacy-adapter/android-insights.js").asFile
 val androidShellUx = layout.projectDirectory.file("src/main/legacy-adapter/android-shell-ux.js").asFile
 val androidStabilization = layout.projectDirectory.file("src/main/legacy-adapter/android-stabilization.js").asFile
+val androidLocalePolish = layout.projectDirectory.file("src/main/legacy-adapter/android-locale-polish.js").asFile
 val androidBuildTruth = layout.projectDirectory.file("src/main/legacy-adapter/android-build-truth.js").asFile
 val nativeAssetsDir = layout.projectDirectory.dir("src/main/native-assets").asFile
 
@@ -78,7 +79,7 @@ val legacyCriticalBlobs = mapOf(
 val prepareLegacyFrontend by tasks.registering {
     group = "bearagnostic"
     description = "Imports the approved Bearagnostic PWA byte-for-byte, then overlays Android integration modules."
-    inputs.files(androidAdapter, androidReview, androidSupport, androidScanTrust, androidLiveScan, androidReviewMedia, androidPremiumColor, androidEntitlement, androidHiddenItems, androidCleanup, androidDuplicates, androidLargeFiles, androidOlderFiles, androidDownloads, androidInstallers, androidArchives, androidZero, androidEmptyFolders, androidAdvancedMedia, androidProUi, androidBilling, androidPlanStatus, androidReadability, androidCustomScan, androidInsights, androidShellUx, androidStabilization, androidBuildTruth)
+    inputs.files(androidAdapter, androidReview, androidSupport, androidScanTrust, androidLiveScan, androidReviewMedia, androidPremiumColor, androidEntitlement, androidHiddenItems, androidCleanup, androidDuplicates, androidLargeFiles, androidOlderFiles, androidDownloads, androidInstallers, androidArchives, androidZero, androidEmptyFolders, androidAdvancedMedia, androidProUi, androidBilling, androidPlanStatus, androidReadability, androidCustomScan, androidInsights, androidShellUx, androidStabilization, androidLocalePolish, androidBuildTruth)
     inputs.dir(nativeAssetsDir)
     inputs.property("legacyCommit", legacyCommit)
     outputs.dir(generatedLegacyAssetsDir)
@@ -129,35 +130,36 @@ val prepareLegacyFrontend by tasks.registering {
         val originalHtml = generatedIndex.readText(StandardCharsets.UTF_8)
         val androidTags = buildString {
             // Entitlement loads first so its capture guard can protect Pro-only actions
-            // before the Android interaction adapter handles them. Hidden-item privacy loads before dedicated review tools; Quick Clean, Exact Duplicates, Large Files, Older Files, Downloads Review, APK Installers, Archives, Zero-byte Files, Empty Folders, and Advanced Media Review capture their dedicated entries before generic tool handling; Billing presentation loads after Pro UI; Pro plan status follows billing; readability loads late; Custom Scan owns its responsive composition; Insights owns aggregate local-history presentation; shell-ux owns app-wide scroll cues and Checkup root-navigation consistency; stabilization applies late product-truth, legal, File Health, preferences, and localization contracts without changing scan/history logic; build-truth loads last so visible version labels always resolve from native BuildConfig.
-            append("  <script src=\"./js/android-entitlement.js?v=45\"></script>\n")
-            append("  <script src=\"./js/android-hidden-items.js?v=45\"></script>\n")
-            append("  <script src=\"./js/android-cleanup.js?v=45\"></script>\n")
-            append("  <script src=\"./js/android-duplicates.js?v=45\"></script>\n")
-            append("  <script src=\"./js/android-large-files.js?v=45\"></script>\n")
-            append("  <script src=\"./js/android-older-files.js?v=45\"></script>\n")
-            append("  <script src=\"./js/android-downloads.js?v=45\"></script>\n")
-            append("  <script src=\"./js/android-installers.js?v=45\"></script>\n")
-            append("  <script src=\"./js/android-archives.js?v=45\"></script>\n")
-            append("  <script src=\"./js/android-zero.js?v=45\"></script>\n")
-            append("  <script src=\"./js/android-empty-folders.js?v=45\"></script>\n")
-            append("  <script src=\"./js/android-advanced-media.js?v=45\"></script>\n")
-            append("  <script src=\"./js/android-native.js?v=45\"></script>\n")
-            append("  <script src=\"./js/android-review.js?v=45\"></script>\n")
-            append("  <script src=\"./js/android-support.js?v=45\"></script>\n")
-            append("  <script src=\"./js/android-scan-trust.js?v=45\"></script>\n")
-            append("  <script src=\"./js/android-live-scan.js?v=45\"></script>\n")
-            append("  <script src=\"./js/android-review-media.js?v=45\"></script>\n")
-            append("  <script src=\"./js/android-premium-color.js?v=45\"></script>\n")
-            append("  <script src=\"./js/android-pro-ui.js?v=45\"></script>\n")
-            append("  <script src=\"./js/android-billing.js?v=45\"></script>\n")
-            append("  <script src=\"./js/android-plan-status.js?v=45\"></script>\n")
-            append("  <script src=\"./js/android-readability.js?v=45\"></script>\n")
-            append("  <script src=\"./js/android-custom-scan.js?v=45\"></script>\n")
-            append("  <script src=\"./js/android-insights.js?v=45\"></script>\n")
-            append("  <script src=\"./js/android-shell-ux.js?v=45\"></script>\n")
-            append("  <script src=\"./js/android-stabilization.js?v=45\"></script>\n")
-            append("  <script src=\"./js/android-build-truth.js?v=45\"></script>\n")
+            // before the Android interaction adapter handles them. Hidden-item privacy loads before dedicated review tools; Quick Clean, Exact Duplicates, Large Files, Older Files, Downloads Review, APK Installers, Archives, Zero-byte Files, Empty Folders, and Advanced Media Review capture their dedicated entries before generic tool handling; Billing presentation loads after Pro UI; Pro plan status follows billing; readability loads late; Custom Scan owns its responsive composition; Insights owns aggregate local-history presentation; shell-ux owns app-wide scroll cues and Checkup root-navigation consistency; stabilization applies late product-truth, legal, File Health, preferences, and localization contracts without changing scan/history logic; locale-polish owns final multilingual typography, privacy geometry, and semantic icon contrast; build-truth loads last so visible version labels always resolve from native BuildConfig.
+            append("  <script src=\"./js/android-entitlement.js?v=46\"></script>\n")
+            append("  <script src=\"./js/android-hidden-items.js?v=46\"></script>\n")
+            append("  <script src=\"./js/android-cleanup.js?v=46\"></script>\n")
+            append("  <script src=\"./js/android-duplicates.js?v=46\"></script>\n")
+            append("  <script src=\"./js/android-large-files.js?v=46\"></script>\n")
+            append("  <script src=\"./js/android-older-files.js?v=46\"></script>\n")
+            append("  <script src=\"./js/android-downloads.js?v=46\"></script>\n")
+            append("  <script src=\"./js/android-installers.js?v=46\"></script>\n")
+            append("  <script src=\"./js/android-archives.js?v=46\"></script>\n")
+            append("  <script src=\"./js/android-zero.js?v=46\"></script>\n")
+            append("  <script src=\"./js/android-empty-folders.js?v=46\"></script>\n")
+            append("  <script src=\"./js/android-advanced-media.js?v=46\"></script>\n")
+            append("  <script src=\"./js/android-native.js?v=46\"></script>\n")
+            append("  <script src=\"./js/android-review.js?v=46\"></script>\n")
+            append("  <script src=\"./js/android-support.js?v=46\"></script>\n")
+            append("  <script src=\"./js/android-scan-trust.js?v=46\"></script>\n")
+            append("  <script src=\"./js/android-live-scan.js?v=46\"></script>\n")
+            append("  <script src=\"./js/android-review-media.js?v=46\"></script>\n")
+            append("  <script src=\"./js/android-premium-color.js?v=46\"></script>\n")
+            append("  <script src=\"./js/android-pro-ui.js?v=46\"></script>\n")
+            append("  <script src=\"./js/android-billing.js?v=46\"></script>\n")
+            append("  <script src=\"./js/android-plan-status.js?v=46\"></script>\n")
+            append("  <script src=\"./js/android-readability.js?v=46\"></script>\n")
+            append("  <script src=\"./js/android-custom-scan.js?v=46\"></script>\n")
+            append("  <script src=\"./js/android-insights.js?v=46\"></script>\n")
+            append("  <script src=\"./js/android-shell-ux.js?v=46\"></script>\n")
+            append("  <script src=\"./js/android-stabilization.js?v=46\"></script>\n")
+            append("  <script src=\"./js/android-locale-polish.js?v=46\"></script>\n")
+            append("  <script src=\"./js/android-build-truth.js?v=46\"></script>\n")
         }
         check(originalHtml.contains("</body>")) { "Legacy index.html is missing </body>" }
         generatedIndex.writeText(originalHtml.replace("</body>", androidTags + "</body>"), StandardCharsets.UTF_8)
@@ -191,6 +193,7 @@ val prepareLegacyFrontend by tasks.registering {
         androidInsights.copyTo(File(jsRoot, "android-insights.js"), overwrite = true)
         androidShellUx.copyTo(File(jsRoot, "android-shell-ux.js"), overwrite = true)
         androidStabilization.copyTo(File(jsRoot, "android-stabilization.js"), overwrite = true)
+        androidLocalePolish.copyTo(File(jsRoot, "android-locale-polish.js"), overwrite = true)
         androidBuildTruth.copyTo(File(jsRoot, "android-build-truth.js"), overwrite = true)
 
         if (nativeAssetsDir.isDirectory) {
@@ -215,8 +218,8 @@ android {
         applicationId = "com.benedictinteractive.bearagnostic"
         minSdk = 26
         targetSdk = 36
-        versionCode = 45
-        versionName = "0.34.0-alpha45"
+        versionCode = 46
+        versionName = "0.34.1-alpha46"
     }
 
     sourceSets {
@@ -253,7 +256,7 @@ android {
             signingConfig = signingConfigs.getByName("debug")
         }
         release {
-            // B45 intentionally does not enable minification yet. R8/resource shrinking is
+            // B46 intentionally does not enable minification yet. R8/resource shrinking is
             // deferred until the stabilization/localization passes are physically verified,
             // so release-hardening does not introduce a hard-to-isolate regression here.
             isMinifyEnabled = false
