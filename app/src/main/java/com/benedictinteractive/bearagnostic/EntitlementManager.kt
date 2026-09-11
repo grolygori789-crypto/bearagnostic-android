@@ -72,6 +72,7 @@ class EntitlementManager(context: Context) {
             null
         }
         if (debugTier != null) return debugTier
+        if (BuildConfig.DEBUG && isDebugSandboxOwned()) return Tier.PRO
         return if (isPlayOwnedCached()) Tier.PRO else Tier.FREE
     }
 
@@ -81,6 +82,25 @@ class EntitlementManager(context: Context) {
     fun isPlayOwnedCached(): Boolean = preferences.getBoolean(KEY_PLAY_OWNED, false)
 
     fun playOwnershipVerifiedAtMs(): Long = preferences.getLong(KEY_PLAY_VERIFIED_AT_MS, 0L)
+
+    fun isDebugSandboxOwned(): Boolean =
+        BuildConfig.DEBUG && preferences.getBoolean(KEY_DEBUG_SANDBOX_OWNED, false)
+
+    fun debugSandboxVerifiedAtMs(): Long = if (BuildConfig.DEBUG) {
+        preferences.getLong(KEY_DEBUG_SANDBOX_VERIFIED_AT_MS, 0L)
+    } else {
+        0L
+    }
+
+    /** Debug-only mock ownership used by the isolated Billing Sandbox. */
+    fun setDebugSandboxOwnership(owned: Boolean, verifiedAtMs: Long = System.currentTimeMillis()): Boolean {
+        if (!BuildConfig.DEBUG) return false
+        preferences.edit()
+            .putBoolean(KEY_DEBUG_SANDBOX_OWNED, owned)
+            .putLong(KEY_DEBUG_SANDBOX_VERIFIED_AT_MS, if (owned) verifiedAtMs.coerceAtLeast(0L) else 0L)
+            .apply()
+        return true
+    }
 
     /** Called only after a successful Google Play ownership result or PURCHASED update. */
     fun updatePlayOwnership(owned: Boolean, verifiedAtMs: Long = System.currentTimeMillis()) {
@@ -103,6 +123,7 @@ class EntitlementManager(context: Context) {
     fun stateJsonObject(): JSONObject {
         val tier = currentTier()
         val debugOverride = BuildConfig.DEBUG && preferences.contains(KEY_DEBUG_TIER)
+        val sandboxOwned = isDebugSandboxOwned()
         val playOwned = isPlayOwnedCached()
         val verifiedAtMs = playOwnershipVerifiedAtMs()
         val billing = billingPresentation
@@ -113,6 +134,7 @@ class EntitlementManager(context: Context) {
 
         val source = when {
             debugOverride -> "debug_override"
+            sandboxOwned -> "billing_sandbox"
             playOwned || verifiedAtMs > 0L -> "google_play"
             else -> "local_default"
         }
@@ -122,6 +144,8 @@ class EntitlementManager(context: Context) {
             put("isPro", tier == Tier.PRO)
             put("source", source)
             put("debugControlsAvailable", BuildConfig.DEBUG)
+            put("debugBillingSandboxOwned", sandboxOwned)
+            put("debugBillingSandboxVerifiedAtMs", debugSandboxVerifiedAtMs())
             put("billingReady", billing.ready)
             put("canPurchase", billing.canPurchase && tier != Tier.PRO)
             put("productAvailable", billing.productAvailable)
@@ -195,6 +219,8 @@ class EntitlementManager(context: Context) {
 
         private const val PREFS_NAME = "bearagnostic_entitlement"
         private const val KEY_DEBUG_TIER = "debug_tier"
+        private const val KEY_DEBUG_SANDBOX_OWNED = "debug_billing_sandbox_owned"
+        private const val KEY_DEBUG_SANDBOX_VERIFIED_AT_MS = "debug_billing_sandbox_verified_at_ms"
         private const val KEY_PLAY_OWNED = "play_owned"
         private const val KEY_PLAY_VERIFIED_AT_MS = "play_verified_at_ms"
 

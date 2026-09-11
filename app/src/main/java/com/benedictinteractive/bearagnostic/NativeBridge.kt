@@ -10,6 +10,7 @@ class NativeBridge(private val activity: MainActivity) {
     private val billing = PlayBillingManager(activity, entitlement) {
         activity.runOnUiThread { activity.pushNativeStateToWeb() }
     }
+    private val debugBillingSandbox: Any? = createDebugBillingSandbox()
     private val emptyFolders = EmptyFolderManager(activity.applicationContext)
     private val history = LocalHistoryStore(activity.applicationContext)
 
@@ -44,6 +45,93 @@ class NativeBridge(private val activity: MainActivity) {
         activity.runOnUiThread { activity.pushNativeStateToWeb() }
         return result
     }
+
+
+    @JavascriptInterface
+    fun getDebugBillingSandboxState(): String = sandboxCall("stateJson")
+
+    @JavascriptInterface
+    fun setDebugBillingSandboxEnabled(enabled: Boolean): String =
+        sandboxCall("setEnabled", java.lang.Boolean.TYPE, enabled)
+
+    @JavascriptInterface
+    fun setDebugBillingSandboxScenario(scenario: String): String =
+        sandboxCall("setScenario", String::class.java, scenario)
+
+    @JavascriptInterface
+    fun launchDebugBillingSandboxPurchase(): String = sandboxCall("launchPurchase")
+
+    @JavascriptInterface
+    fun confirmDebugBillingSandboxPurchase(): String = sandboxCall("confirmCheckout")
+
+    @JavascriptInterface
+    fun cancelDebugBillingSandboxPurchase(): String = sandboxCall("cancelCheckout")
+
+    @JavascriptInterface
+    fun completeDebugBillingSandboxPending(): String = sandboxCall("completePending")
+
+    @JavascriptInterface
+    fun restoreDebugBillingSandboxPurchase(): String = sandboxCall("restore")
+
+    @JavascriptInterface
+    fun forgetDebugBillingSandboxLocalEntitlement(): String = sandboxCall("forgetLocalEntitlement")
+
+    @JavascriptInterface
+    fun resetDebugBillingSandboxPurchase(): String = sandboxCall("resetPurchase")
+
+    @JavascriptInterface
+    fun setDebugBillingDeveloperMode(enabled: Boolean): String =
+        sandboxCall("setDeveloperMode", java.lang.Boolean.TYPE, enabled)
+
+    @JavascriptInterface
+    fun setDebugBillingSandboxMarket(market: String): String =
+        sandboxCall("setMarket", String::class.java, market)
+
+    @JavascriptInterface
+    fun setDebugBillingSandboxNetwork(mode: String): String =
+        sandboxCall("setNetworkMode", String::class.java, mode)
+
+    @JavascriptInterface
+    fun setDebugBillingSandboxPaymentBehavior(mode: String): String =
+        sandboxCall("setPaymentBehavior", String::class.java, mode)
+
+    @JavascriptInterface
+    fun setDebugBillingSandboxAcknowledgeMode(mode: String): String =
+        sandboxCall("setAcknowledgeMode", String::class.java, mode)
+
+    @JavascriptInterface
+    fun setDebugBillingSandboxStoreAvailable(available: Boolean): String =
+        sandboxCall("setStoreAvailable", java.lang.Boolean.TYPE, available)
+
+    @JavascriptInterface
+    fun declineDebugBillingSandboxPending(): String = sandboxCall("declinePending")
+
+    @JavascriptInterface
+    fun syncDebugBillingSandboxOwnership(): String = sandboxCall("syncOwnership")
+
+    @JavascriptInterface
+    fun retryDebugBillingSandboxAcknowledgement(): String = sandboxCall("retryAcknowledgement")
+
+    @JavascriptInterface
+    fun refundDebugBillingSandboxKeepAccess(): String = sandboxCall("refundKeepAccess")
+
+    @JavascriptInterface
+    fun refundDebugBillingSandboxAndRevoke(): String = sandboxCall("refundAndRevoke")
+
+    @JavascriptInterface
+    fun revokeDebugBillingSandbox(): String = sandboxCall("revoke")
+
+    @JavascriptInterface
+    fun chargebackDebugBillingSandbox(): String = sandboxCall("chargeback")
+
+    @JavascriptInterface
+    fun expireDebugBillingSandboxUnacknowledged(): String = sandboxCall("expireUnacknowledged")
+
+    @JavascriptInterface
+    fun simulateDebugBillingSandboxReinstall(): String = sandboxCall("simulateReinstall")
+
+    @JavascriptInterface
+    fun clearDebugBillingSandboxEvents(): String = sandboxCall("clearEvents")
 
     @JavascriptInterface
     fun requestBroadStorageAccess() {
@@ -190,8 +278,54 @@ class NativeBridge(private val activity: MainActivity) {
         put("proProductId", EntitlementManager.PRO_PRODUCT_ID)
         put("billingReady", billing.stateJsonObject().optBoolean("billingReady", false))
         put("billing", billing.stateJsonObject())
+        put("debugBillingSandbox", JSONObject(getDebugBillingSandboxState()))
         put("scannerCapabilities", "multi_pass,metadata,content_probe,categories,old,large,temp,apk,archives,zero_byte,empty_folders,empty_folder_review,verified_empty_folder_delete,screenshots,media,downloads,sha256_duplicates,review_candidates,live_activity,local_review_previews,verified_delete,aggregate_local_history,insights,what_changed,verified_cleanup_history,play_billing_foundation")
     }.toString()
+
+
+    private fun createDebugBillingSandbox(): Any? {
+        if (!BuildConfig.DEBUG) return null
+        return try {
+            val type = Class.forName("com.benedictinteractive.bearagnostic.DebugBillingSandbox")
+            val constructor = type.getConstructor(android.content.Context::class.java, EntitlementManager::class.java)
+            constructor.newInstance(activity.applicationContext, entitlement)
+        } catch (_: Throwable) {
+            null
+        }
+    }
+
+    private fun sandboxUnavailable(): String = JSONObject().apply {
+        put("available", false)
+        put("debugOnly", true)
+        put("releaseIncluded", false)
+        put("reason", if (BuildConfig.DEBUG) "sandbox_not_loaded" else "debug_only")
+    }.toString()
+
+    private fun sandboxCall(method: String): String {
+        val target = debugBillingSandbox ?: return sandboxUnavailable()
+        return try {
+            target.javaClass.getMethod(method).invoke(target) as? String ?: sandboxUnavailable()
+        } catch (_: Throwable) {
+            JSONObject().apply {
+                put("available", true)
+                put("accepted", false)
+                put("reason", "sandbox_call_failed")
+            }.toString()
+        }
+    }
+
+    private fun sandboxCall(method: String, parameterType: Class<*>, value: Any): String {
+        val target = debugBillingSandbox ?: return sandboxUnavailable()
+        return try {
+            target.javaClass.getMethod(method, parameterType).invoke(target, value) as? String ?: sandboxUnavailable()
+        } catch (_: Throwable) {
+            JSONObject().apply {
+                put("available", true)
+                put("accepted", false)
+                put("reason", "sandbox_call_failed")
+            }.toString()
+        }
+    }
 
     private fun rejected(reason: String): String = JSONObject().apply {
         put("accepted", false)
@@ -200,6 +334,6 @@ class NativeBridge(private val activity: MainActivity) {
 
     companion object {
         const val JS_INTERFACE_NAME = "BearagnosticNative"
-        const val BRIDGE_VERSION = 14
+        const val BRIDGE_VERSION = 16
     }
 }
