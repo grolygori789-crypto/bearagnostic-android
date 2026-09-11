@@ -30,24 +30,27 @@ def require(condition: bool, message: str) -> None:
 
 def check_build_contracts() -> None:
     gradle = read("app/build.gradle.kts")
-    require('versionCode = 37' in gradle, "B37 versionCode must be 37")
-    require('versionName = "0.27.0-alpha37"' in gradle, "B37 versionName mismatch")
+    require('versionCode = 38' in gradle, "B38 versionCode must be 38")
+    require('versionName = "0.28.0-alpha38"' in gradle, "B38 versionName mismatch")
 
     cache_versions = re.findall(r'android-[a-z-]+\.js\?v=(\d+)', gradle)
     require(cache_versions, "no Android adapter cache versions found")
-    require(set(cache_versions) == {"37"}, f"adapter cache versions are not coherent: {sorted(set(cache_versions))}")
+    require(set(cache_versions) == {"38"}, f"adapter cache versions are not coherent: {sorted(set(cache_versions))}")
 
     require("androidDownloads" in gradle, "Downloads Review adapter is not registered")
     require("androidInstallers" in gradle, "APK Installers adapter is not registered")
-    require('android-downloads.js?v=37' in gradle, "Downloads Review adapter is not loaded at B37")
-    require('android-installers.js?v=37' in gradle, "APK Installers adapter is not loaded at B37")
-    require('android-build-truth.js?v=37' in gradle, "build-truth adapter is not loaded at B37")
+    require("androidArchives" in gradle, "Archives adapter is not registered")
+    require('android-downloads.js?v=38' in gradle, "Downloads Review adapter is not loaded at B38")
+    require('android-installers.js?v=38' in gradle, "APK Installers adapter is not loaded at B38")
+    require('android-archives.js?v=38' in gradle, "Archives adapter is not loaded at B38")
+    require('android-build-truth.js?v=38' in gradle, "build-truth adapter is not loaded at B38")
 
-    downloads_pos = gradle.find('android-downloads.js?v=37')
-    installers_pos = gradle.find('android-installers.js?v=37')
-    native_pos = gradle.find('android-native.js?v=37')
-    truth_pos = gradle.find('android-build-truth.js?v=37')
-    require(0 <= downloads_pos < installers_pos < native_pos < truth_pos, "adapter ownership/load order is unsafe for APK Installers")
+    downloads_pos = gradle.find('android-downloads.js?v=38')
+    installers_pos = gradle.find('android-installers.js?v=38')
+    archives_pos = gradle.find('android-archives.js?v=38')
+    native_pos = gradle.find('android-native.js?v=38')
+    truth_pos = gradle.find('android-build-truth.js?v=38')
+    require(0 <= downloads_pos < installers_pos < archives_pos < native_pos < truth_pos, "adapter ownership/load order is unsafe for Phase A review tools")
 
 
 def check_native_guard_contracts() -> None:
@@ -62,7 +65,7 @@ def check_native_guard_contracts() -> None:
     require("JSONArray(scopeDecision.scopes.toList()).toString()" in bridge, "Custom scopes are not canonicalized before scanning")
     require("RuntimeContractGuard.isReviewSnapshotFresh(generatedAtMs)" in bridge, "native stale-review guard is missing")
     require('put("reason", "stale_review_snapshot")' in bridge, "native stale-review rejection reason is missing")
-    require("const val BRIDGE_VERSION = 11" in bridge, "B37 must preserve NativeBridge v11 contract")
+    require("const val BRIDGE_VERSION = 11" in bridge, "B38 must preserve NativeBridge v11 contract")
 
     require("const val REVIEW_SNAPSHOT_MAX_AGE_MS = 15L * 60L * 1000L" in guard, "15-minute native review age limit changed")
     for mode in ("smart", "quick", "deep", "custom"):
@@ -147,6 +150,39 @@ def check_apk_installers_contracts(*, patch_only: bool = False) -> None:
         require("QUERY_ALL_PACKAGES" not in manifest, "B37 must not add broad package visibility permission")
 
 
+def check_archives_contracts(*, patch_only: bool = False) -> None:
+    ui = read("app/src/main/legacy-adapter/android-archives.js")
+    scanner = read("app/src/main/java/com/benedictinteractive/bearagnostic/FileHealthScanner.kt", required=not patch_only)
+
+    if scanner:
+        require('if (ext in ARCHIVE_EXTENSIONS) addReviewCandidate(review, file, size, "archives", 2, 20, false, false, "archive_file"' in scanner,
+                "Archives are no longer surfaced as Review First candidates")
+        require('"archives" -> "archives" in candidate.categories' in scanner, "Archives category matcher is missing")
+        require('"temporary", "installers", "archives"' in scanner, "Archives aggregate is missing from review summary")
+        require("const val ANALYSIS_RULES_VERSION = 8" in scanner, "B38 must not silently alter scan classification rules")
+
+    require("const BUILD = 38;" in ui, "Archives adapter build marker mismatch")
+    require("const CATEGORY = 'archives';" in ui, "Archives category mismatch")
+    require("const REVIEW_PAGE_SIZE = 250;" in ui, "Archives review page size contract changed")
+    require("const MAX_DELETE_SELECTION = 500;" in ui, "Archives UI deletion cap changed")
+    require("const STALE_REVIEW_MS = 15 * 60 * 1000;" in ui, "Archives UI stale-review guard changed")
+    require("HIDDEN.filter" in ui, "Archives does not honor Hidden Items privacy")
+    require("NATIVE.getReviewCandidates?.(CATEGORY, offset, REVIEW_PAGE_SIZE)" in ui, "Archives is not reading native review candidates")
+    require("NATIVE.startScan?.('quick', '[]', false)" in ui, "Archives refresh must use the Free metadata-only Quick Scan")
+    require("NATIVE.deleteReviewCandidates" in ui, "Archive deletion is not routed through native verified deletion")
+    require('data-tool="archives"' in ui, "Archives first-class Tools entry is missing")
+    require("ba-tools-expandable" in ui and "overflow-y:auto" in ui, "Tools screen growth is not handled by natural scrolling")
+    require("archiveFormat(item)" in ui, "Archive type classification is missing")
+    for ext in ("zip", "rar", "7z", "tar", "gz", "tgz", "bz2", "xz"):
+        require(f"'{ext}'" in ui, f"Archive format support missing: {ext}")
+    require("Nothing here is selected automatically." in ui, "English no-auto-selection disclosure is missing")
+    require("จะไม่เลือกไฟล์เหล่านี้ให้ลบอัตโนมัติ" in ui, "Thai no-auto-selection disclosure is missing")
+    require("自動選択は行いません" in ui, "Japanese no-auto-selection disclosure is missing")
+    require("An archive can be the only copy" in ui, "Archive backup-risk explanation is missing")
+    require("does not inspect or assume the contents are replaceable" in ui, "Archive deletion uncertainty disclosure is missing")
+    require("anchor = list.querySelector('[data-tool=\"installers\"]')" in ui, "Archives is not positioned after APK Installers")
+
+
 def check_build_truth_contract() -> None:
     js = read("app/src/main/legacy-adapter/android-build-truth.js")
     require("NATIVE.getNativeState" in js, "visible build labels are not sourced from native state")
@@ -188,7 +224,7 @@ def main() -> int:
     if args.patch_only:
         checks = [
             ("build/version/cache", check_build_contracts),
-            ("APK Installers contracts", lambda: check_apk_installers_contracts(patch_only=True)),
+            ("Archives contracts", lambda: check_archives_contracts(patch_only=True)),
             ("CI contract verification", check_ci_contract),
         ]
     else:
@@ -197,6 +233,7 @@ def main() -> int:
             ("native request/deletion guards", check_native_guard_contracts),
             ("Downloads Review contracts", check_downloads_review_contracts),
             ("APK Installers contracts", lambda: check_apk_installers_contracts(patch_only=False)),
+            ("Archives contracts", lambda: check_archives_contracts(patch_only=False)),
             ("native-sourced visible build labels", check_build_truth_contract),
             ("CI contract verification", check_ci_contract),
         ]
