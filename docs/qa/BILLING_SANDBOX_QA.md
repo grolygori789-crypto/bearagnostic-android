@@ -120,3 +120,18 @@ Acceptance:
 - Fresh seven-tap activation opens Billing QA Console immediately.
 - Disabling Developer Mode removes the row without affecting normal startup.
 - Customer, Store, Transactions and Events remain linked to the same debug-only ledger.
+
+
+## B52 Developer Console interaction and readability
+
+B52 makes the Developer Console safe for native Android controls. Background state polling must never replace focused or recently interacted controls. Store selectors must remain open long enough for a human to choose an option, and the console must only re-render when the visible state signature changes.
+
+Physical acceptance requirements:
+
+- Store dropdowns remain open and selectable for at least 5 seconds without disappearing.
+- Focused controls are protected from polling-driven DOM replacement.
+- Tabs and scroll position do not reset solely because the background poll runs.
+- Async Sandbox state changes still appear after interaction completes.
+- Developer Console typography is comfortably readable on a phone without zooming or squinting.
+- On phone widths, Store fields and lifecycle actions use a natural one-column flow instead of shrinking text to preserve density.
+- Sandbox engine, transaction semantics, entitlement gates, and release isolation remain unchanged.

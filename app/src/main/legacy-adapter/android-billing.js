@@ -470,6 +470,7 @@
     catch (_) { return {available:false,debugOnly:true,reason:'bridge_state_error'}; }
   };
   let tapCount=0, tapTimer=null, poll=null, activeTab='overview';
+  let consoleInteractionUntil=0, lastConsoleSignature='';
 
   const COPY = {
     en:{
@@ -480,7 +481,7 @@
       openCustomer:'Open customer purchase flow',restore:'Restore purchase',sync:'Sync ownership',reinstall:'Simulate reinstall',clearLocal:'Clear local entitlement',
       provider:'Sandbox provider',providerOn:'Enabled',providerOff:'Disabled',market:'Market / test price',network:'Network',payment:'Payment behavior',ack:'Acknowledgement',availability:'Store availability',
       online:'Online',slow:'Slow',offline:'Offline',approve:'Approve immediately',pending:'Pending / manual decision',decline:'Decline',chargebackLater:'Approve then charge back',ackOk:'Succeed',ackOnce:'Fail once, retry',ackAlways:'Always fail',available:'Available',unavailable:'Unavailable',
-      pendingActions:'Pending payment decision',confirmPending:'Confirm payment',declinePending:'Cancel / decline',ownershipActions:'Ownership lifecycle',retryAck:'Retry acknowledgement',refundKeep:'Refund · keep access',refundRevoke:'Refund + revoke',revoke:'Revoke access',chargeback:'Chargeback / void',expireAck:'Simulate 3-day unacknowledged refund',
+      pendingActions:'Pending payment decision',confirmPending:'Confirm payment',declinePending:'Cancel / decline',ownershipActions:'Ownership lifecycle',normalOps:'Normal operations',recoveryOps:'Recovery & restore',destructiveOps:'Destructive / reversal tests',retryAck:'Retry acknowledgement',refundKeep:'Refund · keep access',refundRevoke:'Refund + revoke',revoke:'Revoke access',chargeback:'Chargeback / void',expireAck:'Simulate 3-day unacknowledged refund',
       reset:'Reset sandbox',disable:'Disable developer mode',noTx:'No transactions yet',noEvents:'No events yet',clearEvents:'Clear events',
       testOnly:'No real money · no Google account · local QA ledger only',free:'FREE',pro:'PRO',yes:'Yes',no:'No',none:'—'
     },
@@ -492,7 +493,7 @@
       openCustomer:'เปิดหน้าซื้อแบบลูกค้า',restore:'กู้คืนการซื้อ',sync:'ซิงก์สิทธิ์จาก Store',reinstall:'จำลองติดตั้งแอปใหม่',clearLocal:'ล้างสิทธิ์เฉพาะในแอป',
       provider:'Sandbox provider',providerOn:'เปิดใช้งาน',providerOff:'ปิดใช้งาน',market:'ประเทศ / ราคาทดสอบ',network:'เครือข่าย',payment:'พฤติกรรมการชำระ',ack:'การ Acknowledge',availability:'สถานะ Store',
       online:'ออนไลน์',slow:'ช้า',offline:'ออฟไลน์',approve:'อนุมัติทันที',pending:'Pending รอเจ้าของตัดสิน',decline:'ปฏิเสธ',chargebackLater:'อนุมัติแล้ว Chargeback',ackOk:'สำเร็จ',ackOnce:'ล้มเหลว 1 ครั้งแล้ว Retry',ackAlways:'ล้มเหลวตลอด',available:'พร้อมใช้งาน',unavailable:'ใช้งานไม่ได้',
-      pendingActions:'ตัดสินรายการ Pending',confirmPending:'ยืนยันรับเงิน',declinePending:'ยกเลิก / ปฏิเสธ',ownershipActions:'จัดการวงจรสิทธิ์',retryAck:'Retry Acknowledgement',refundKeep:'Refund · คงสิทธิ์',refundRevoke:'Refund + ถอนสิทธิ์',revoke:'ถอนสิทธิ์',chargeback:'Chargeback / Void',expireAck:'จำลองครบ 3 วันไม่ Acknowledge',
+      pendingActions:'ตัดสินรายการ Pending',confirmPending:'ยืนยันรับเงิน',declinePending:'ยกเลิก / ปฏิเสธ',ownershipActions:'จัดการวงจรสิทธิ์',normalOps:'การทำงานปกติ',recoveryOps:'กู้คืนและจำลองติดตั้งใหม่',destructiveOps:'ทดสอบการถอนสิทธิ์ / ย้อนรายการ',retryAck:'Retry Acknowledgement',refundKeep:'Refund · คงสิทธิ์',refundRevoke:'Refund + ถอนสิทธิ์',revoke:'ถอนสิทธิ์',chargeback:'Chargeback / Void',expireAck:'จำลองครบ 3 วันไม่ Acknowledge',
       reset:'รีเซ็ต Sandbox',disable:'ปิด Developer mode',noTx:'ยังไม่มีธุรกรรม',noEvents:'ยังไม่มีเหตุการณ์',clearEvents:'ล้าง Event log',
       testOnly:'ไม่มีเงินจริง · ไม่มีบัญชี Google · ใช้ Ledger จำลองในเครื่องเท่านั้น',free:'FREE',pro:'PRO',yes:'ใช่',no:'ไม่',none:'—'
     },
@@ -504,13 +505,13 @@
       openCustomer:'顧客の購入画面を開く',restore:'購入を復元',sync:'所有権を同期',reinstall:'再インストールを再現',clearLocal:'端末側権限を消去',
       provider:'Sandbox provider',providerOn:'有効',providerOff:'無効',market:'市場 / テスト価格',network:'ネットワーク',payment:'支払い動作',ack:'Acknowledgement',availability:'Store 状態',
       online:'オンライン',slow:'低速',offline:'オフライン',approve:'即時承認',pending:'Pending / 手動確定',decline:'拒否',chargebackLater:'承認後に Chargeback',ackOk:'成功',ackOnce:'1回失敗して再試行',ackAlways:'常に失敗',available:'利用可能',unavailable:'利用不可',
-      pendingActions:'Pending 支払い',confirmPending:'支払い確定',declinePending:'キャンセル / 拒否',ownershipActions:'所有権ライフサイクル',retryAck:'Acknowledgement 再試行',refundKeep:'返金 · 権限維持',refundRevoke:'返金 + 権限取消',revoke:'権限を取消',chargeback:'Chargeback / Void',expireAck:'未承認3日経過を再現',
+      pendingActions:'Pending 支払い',confirmPending:'支払い確定',declinePending:'キャンセル / 拒否',ownershipActions:'所有権ライフサイクル',normalOps:'通常操作',recoveryOps:'復元・再インストール',destructiveOps:'取消・無効化テスト',retryAck:'Acknowledgement 再試行',refundKeep:'返金 · 権限維持',refundRevoke:'返金 + 権限取消',revoke:'権限を取消',chargeback:'Chargeback / Void',expireAck:'未承認3日経過を再現',
       reset:'Sandbox をリセット',disable:'Developer mode を無効化',noTx:'取引はまだありません',noEvents:'イベントはまだありません',clearEvents:'イベントを消去',
       testOnly:'実課金なし · Google アカウントなし · 端末内QA台帳のみ',free:'FREE',pro:'PRO',yes:'はい',no:'いいえ',none:'—'
     }
   };
   const c=()=>COPY[lang()]||COPY.en;
-  const DEV_CONSOLE_BUILD=51;
+  const DEV_CONSOLE_BUILD=52;
 
   // Use explicit wrappers for Android @JavascriptInterface methods. Dynamic method
   // extraction/indexed invocation is avoided because bridge objects are not ordinary JS
@@ -563,15 +564,16 @@
       #baBillingSandboxPanel{display:none!important}
       .ba-dev-row .soft-icon{background:linear-gradient(145deg,#dfe8ff,#8b8de7 62%,#5e62b9)!important;color:#fff!important}
       .ba-dev-console{position:fixed;inset:0;z-index:4900;background:linear-gradient(180deg,#f4f8fc,#eaf2f8);display:grid;grid-template-rows:auto auto minmax(0,1fr);color:#1b3047}.ba-dev-console[hidden]{display:none!important}
-      .ba-dev-head{padding:calc(14px + env(safe-area-inset-top)) 16px 12px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;background:rgba(252,254,255,.97);border-bottom:1px solid rgba(62,91,122,.08)}.ba-dev-head__kicker{font-size:8px;font-weight:900;letter-spacing:.14em;color:#6a64bb}.ba-dev-head h2{margin:4px 0 0;font-size:22px;line-height:1.15;color:#1b3046}.ba-dev-head p{margin:4px 0 0;font-size:10.5px;line-height:1.4;color:#718294}.ba-dev-close{width:42px;height:42px;border-radius:14px;background:#eef3f8;color:#627487;font-size:23px}
-      .ba-dev-tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;padding:8px 12px;background:rgba(249,252,254,.96);border-bottom:1px solid rgba(72,101,128,.06)}.ba-dev-tab{min-height:35px;border-radius:11px;background:#eef3f7;color:#657789;font-size:9px;font-weight:780}.ba-dev-tab.is-active{background:linear-gradient(135deg,#675fcb,#3e86d8);color:#fff;box-shadow:0 6px 15px rgba(77,76,171,.16)}
-      .ba-dev-scroll{overflow:auto;padding:12px 12px calc(26px + env(safe-area-inset-bottom));scrollbar-width:none}.ba-dev-scroll::-webkit-scrollbar{display:none}.ba-dev-wrap{max-width:680px;margin:0 auto;display:grid;gap:10px}.ba-dev-card{padding:13px;border-radius:21px;background:#fff;border:1px solid rgba(69,102,132,.07);box-shadow:0 8px 24px rgba(48,75,101,.045)}.ba-dev-card h3{margin:0;font-size:13px;line-height:1.28;color:#2a4157}.ba-dev-card>p{margin:5px 0 0;font-size:9.5px;line-height:1.5;color:#7b8997}.ba-dev-eyebrow{display:block;margin-bottom:6px;font-size:7.5px;font-weight:900;letter-spacing:.13em;color:#7a74be}
-      .ba-dev-metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-top:10px}.ba-dev-metric{padding:10px;border-radius:15px;background:#f5f8fb;min-width:0}.ba-dev-metric span{display:block;font-size:8px;color:#82909d}.ba-dev-metric b{display:block;margin-top:4px;font-size:11.5px;line-height:1.25;color:#294157;overflow-wrap:anywhere}.ba-dev-metric b.is-pro{color:#2d8c76}.ba-dev-metric b.is-warn{color:#a06933}
-      .ba-dev-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-top:10px}.ba-dev-actions button{min-height:40px;padding:7px 9px;border-radius:13px;background:#eef3f7;color:#536b80;font-size:9px;font-weight:760}.ba-dev-actions button.primary{background:linear-gradient(120deg,#6960cd,#398ad9);color:#fff}.ba-dev-actions button.mint{background:#e9f8f3;color:#247d69}.ba-dev-actions button.warn{background:#fff4e5;color:#946127}.ba-dev-actions button.danger{background:#fff0f1;color:#a34b54}.ba-dev-actions button:disabled{opacity:.38}
-      .ba-dev-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px}.ba-dev-field label{display:block;margin-bottom:4px;font-size:8px;font-weight:780;color:#7c8996}.ba-dev-field select{width:100%;height:40px;border-radius:13px;border:1px solid rgba(72,105,135,.10);background:#f8fafc;color:#3d5368;padding:0 28px 0 10px;font-size:9.5px;font-weight:700}
-      .ba-dev-tx,.ba-dev-event{padding:10px 11px;border-radius:15px;background:#f7f9fc;border:1px solid rgba(72,103,132,.055)}.ba-dev-tx+.ba-dev-tx,.ba-dev-event+.ba-dev-event{margin-top:7px}.ba-dev-tx__top,.ba-dev-event__top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.ba-dev-tx strong,.ba-dev-event strong{font-size:10.5px;color:#31485e}.ba-dev-tx small,.ba-dev-event small{font-size:8.5px;color:#8795a2}.ba-dev-tx p,.ba-dev-event p{margin:5px 0 0;font-size:9px;line-height:1.45;color:#708193}.ba-dev-pill{display:inline-flex;align-items:center;padding:4px 7px;border-radius:999px;background:#edf2f7;color:#62768a;font-size:7.5px;font-weight:850}.ba-dev-pill.pro{background:#e8f7f1;color:#26806c}.ba-dev-pill.pending{background:#fff3dd;color:#9d6c25}.ba-dev-pill.void{background:#fff0f1;color:#a44f58}
-      .ba-dev-note{padding:10px 11px;border-radius:15px;background:linear-gradient(135deg,#f4f2ff,#eff8fd);color:#69748c;font-size:9px;line-height:1.5}.ba-dev-empty{text-align:center;padding:24px 12px;color:#8996a2;font-size:10px}
-      @media(max-width:370px){.ba-dev-fields,.ba-dev-actions{grid-template-columns:1fr}.ba-dev-head h2{font-size:20px}}
+      .ba-dev-head{padding:calc(18px + env(safe-area-inset-top)) 18px 15px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;align-items:center;background:rgba(252,254,255,.98);border-bottom:1px solid rgba(62,91,122,.10)}.ba-dev-head__kicker{font-size:11.5px;font-weight:850;letter-spacing:.10em;color:#625cad}.ba-dev-head h2{margin:6px 0 0;font-size:clamp(27px,7.2vw,31px);line-height:1.13;color:#172d44;letter-spacing:-.025em}.ba-dev-head p{margin:7px 0 0;font-size:14px;line-height:1.5;color:#5f7285}.ba-dev-close{width:48px;height:48px;border-radius:16px;background:#edf2f7;color:#53687c;font-size:26px}
+      .ba-dev-tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;padding:10px 12px;background:rgba(249,252,254,.97);border-bottom:1px solid rgba(72,101,128,.08)}.ba-dev-tab{min-height:44px;padding:7px 6px;border-radius:13px;background:#edf2f7;color:#53687c;font-size:13px;line-height:1.2;font-weight:760}.ba-dev-tab.is-active{background:linear-gradient(135deg,#665dcb,#3387d8);color:#fff;box-shadow:0 7px 17px rgba(77,76,171,.17)}
+      .ba-dev-scroll{overflow:auto;padding:16px 14px calc(30px + env(safe-area-inset-bottom));scrollbar-width:none}.ba-dev-scroll::-webkit-scrollbar{display:none}.ba-dev-wrap{max-width:680px;margin:0 auto;display:grid;gap:14px}.ba-dev-card{padding:17px;border-radius:23px;background:#fff;border:1px solid rgba(69,102,132,.08);box-shadow:0 9px 26px rgba(48,75,101,.05)}.ba-dev-card h3{margin:0;font-size:18px;line-height:1.32;color:#213a52}.ba-dev-card>p{margin:7px 0 0;font-size:14px;line-height:1.55;color:#617487}.ba-dev-eyebrow{display:block;margin-bottom:8px;font-size:11.5px;font-weight:850;letter-spacing:.095em;color:#6d67b3}
+      .ba-dev-metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:13px}.ba-dev-metric{padding:12px;border-radius:16px;background:#f3f7fa;min-width:0}.ba-dev-metric span{display:block;font-size:12.5px;line-height:1.35;color:#65798b}.ba-dev-metric b{display:block;margin-top:5px;font-size:15px;line-height:1.32;color:#243f57;overflow-wrap:anywhere}.ba-dev-metric b.is-pro{color:#237965}.ba-dev-metric b.is-warn{color:#8f612e}
+      .ba-dev-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:13px}.ba-dev-actions button{min-height:50px;padding:9px 12px;border-radius:15px;background:#edf2f7;color:#445e75;font-size:14px;line-height:1.3;font-weight:740}.ba-dev-actions button.primary{background:linear-gradient(120deg,#675ecd,#3288da);color:#fff}.ba-dev-actions button.mint{background:#e5f6f0;color:#1f725f}.ba-dev-actions button.warn{background:#fff2df;color:#8b5b21}.ba-dev-actions button.danger{background:#fff0f1;color:#984650}.ba-dev-actions button:disabled{opacity:.42;color:#8c98a3}
+      .ba-dev-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:13px}.ba-dev-field label{display:block;margin-bottom:7px;font-size:12.5px;line-height:1.35;font-weight:760;color:#5c7083}.ba-dev-field select{width:100%;height:50px;border-radius:15px;border:1px solid rgba(72,105,135,.13);background:#f7f9fb;color:#2f4a62;padding:0 34px 0 12px;font-size:14px;font-weight:680}
+      .ba-dev-tx,.ba-dev-event{padding:13px 14px;border-radius:17px;background:#f6f9fb;border:1px solid rgba(72,103,132,.07)}.ba-dev-tx+.ba-dev-tx,.ba-dev-event+.ba-dev-event{margin-top:9px}.ba-dev-tx__top,.ba-dev-event__top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.ba-dev-tx strong,.ba-dev-event strong{font-size:14px;line-height:1.35;color:#29445b}.ba-dev-tx small,.ba-dev-event small{font-size:12.5px;line-height:1.35;color:#687b8c}.ba-dev-tx p,.ba-dev-event p{margin:7px 0 0;font-size:13px;line-height:1.55;color:#526b80}.ba-dev-pill{display:inline-flex;align-items:center;padding:5px 8px;border-radius:999px;background:#eaf0f5;color:#506a80;font-size:11.5px;font-weight:820}.ba-dev-pill.pro{background:#e4f6ef;color:#217763}.ba-dev-pill.pending{background:#fff0d6;color:#906421}.ba-dev-pill.void{background:#ffedef;color:#974851}
+      .ba-dev-note{padding:13px 14px;border-radius:16px;background:linear-gradient(135deg,#f3f1ff,#edf7fc);color:#556b80;font-size:13.5px;line-height:1.55}.ba-dev-empty{text-align:center;padding:28px 14px;color:#677a8b;font-size:14px}
+      @media(max-width:520px){.ba-dev-fields,.ba-dev-actions{grid-template-columns:1fr}.ba-dev-metrics{grid-template-columns:1fr 1fr}.ba-dev-card{padding:16px}.ba-dev-scroll{padding-left:12px;padding-right:12px}}
+      @media(max-width:365px){.ba-dev-tabs{grid-template-columns:repeat(2,1fr)}.ba-dev-metrics{grid-template-columns:1fr}.ba-dev-head h2{font-size:26px}}
     `; document.head.appendChild(style);
   }
 
@@ -640,15 +642,37 @@
     ensureStyle(); let el=$('#baDevBillingConsole'); if(el) return el;
     el=document.createElement('section');el.id='baDevBillingConsole';el.className='ba-dev-console';el.hidden=true;el.innerHTML='<header class="ba-dev-head"></header><nav class="ba-dev-tabs"></nav><div class="ba-dev-scroll"><div class="ba-dev-wrap"></div></div>';document.body.appendChild(el);return el;
   }
-  function openConsole(){const el=ensureConsole();el.hidden=false;document.body.classList.add('modal-open');renderConsole();startPoll();}
-  function closeConsole(){const el=$('#baDevBillingConsole');if(el)el.hidden=true;document.body.classList.remove('modal-open');stopPoll();}
+  function markConsoleInteraction(ms=8000){consoleInteractionUntil=Math.max(consoleInteractionUntil,Date.now()+ms);}
+  function consoleIsInteracting(){
+    const el=$('#baDevBillingConsole');
+    const active=document.activeElement;
+    return Date.now()<consoleInteractionUntil || !!(el && active && el.contains(active) && active.matches('select,button,input,textarea'));
+  }
+  function openConsole(){const el=ensureConsole();el.hidden=false;document.body.classList.add('modal-open');lastConsoleSignature='';renderConsole({force:true});startPoll();}
+  function closeConsole(){const el=$('#baDevBillingConsole');if(el)el.hidden=true;document.body.classList.remove('modal-open');lastConsoleSignature='';stopPoll();}
 
   const opt=(v,l,cur)=>`<option value="${esc(v)}" ${v===cur?'selected':''}>${esc(l)}</option>`;
   const fmtTime=(ms)=>{if(!Number(ms))return '—';try{return new Intl.DateTimeFormat(lang()==='th'?'th-TH':lang()==='ja'?'ja-JP':'en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit'}).format(new Date(Number(ms)));}catch(_){return '—';}};
   const pill=(value)=>{const v=String(value||'');const cls=/owned|purchased|confirmed|pro/i.test(v)?'pro':/pending|processing/i.test(v)?'pending':/void|refund|revok|charge|cancel|declin/i.test(v)?'void':'';return `<span class="ba-dev-pill ${cls}">${esc(v||'—')}</span>`;};
 
-  function renderConsole(){
+  function consoleSignature(s,t){
+    const tx=s?.currentTransaction&&typeof s.currentTransaction==='object'?s.currentTransaction:{};
+    const txs=Array.isArray(s?.transactions)?s.transactions:[];
+    const evs=Array.isArray(s?.events)?s.events:[];
+    return JSON.stringify([
+      activeTab,lang(),s?.devModeEnabled,s?.enabled,s?.status,s?.storeOwned,s?.entitlementApplied,s?.purchasePending,
+      s?.market,s?.formattedPrice,s?.networkMode,s?.paymentBehavior,s?.acknowledgeMode,s?.storeAvailable,
+      tx?.id,tx?.purchaseState,tx?.paymentState,tx?.acknowledged,tx?.entitlement,
+      txs.length,(txs.length?txs[txs.length-1]?.updatedAtMs:0)||0,evs.length,(evs.length?evs[evs.length-1]?.atMs:0)||0
+    ]);
+  }
+
+  function renderConsole({force=false}={}){
     const el=ensureConsole(),s=state(),t=c(); if(s.devModeEnabled!==true){closeConsole();ensureRow(s);return;}
+    if(!force && consoleIsInteracting()) return;
+    const signature=consoleSignature(s,t);
+    if(!force && signature===lastConsoleSignature) return;
+    lastConsoleSignature=signature;
     $('.ba-dev-head',el).innerHTML=`<div><span class="ba-dev-head__kicker">${esc(t.debug)} · B${DEV_CONSOLE_BUILD}</span><h2>${esc(t.title)}</h2><p>${esc(t.subtitle)}</p></div><button class="ba-dev-close" type="button" data-dev-close aria-label="${esc(t.close)}">×</button>`;
     $('.ba-dev-tabs',el).innerHTML=[['overview',t.overview],['store',t.store],['transactions',t.transactions],['events',t.events]].map(([id,label])=>`<button class="ba-dev-tab ${activeTab===id?'is-active':''}" type="button" data-dev-tab="${id}">${esc(label)}</button>`).join('');
     const wrap=$('.ba-dev-wrap',el); wrap.innerHTML=activeTab==='store'?renderStore(s,t):activeTab==='transactions'?renderTransactions(s,t):activeTab==='events'?renderEvents(s,t):renderOverview(s,t);
@@ -672,7 +696,9 @@
       <div class="ba-dev-field"><label>${esc(t.provider)}</label><select data-dev-setting="provider">${opt('true',t.providerOn,String(s.enabled))+opt('false',t.providerOff,String(s.enabled))}</select></div>
       </div></section>
       ${s.purchasePending?`<section class="ba-dev-card"><span class="ba-dev-eyebrow">PENDING</span><h3>${esc(t.pendingActions)}</h3><div class="ba-dev-actions"><button class="primary" data-dev-action="pending-confirm">${esc(t.confirmPending)}</button><button class="warn" data-dev-action="pending-decline">${esc(t.declinePending)}</button></div></section>`:''}
-      <section class="ba-dev-card"><span class="ba-dev-eyebrow">LIFECYCLE</span><h3>${esc(t.ownershipActions)}</h3><div class="ba-dev-actions"><button class="mint" data-dev-action="sync">${esc(t.sync)}</button><button data-dev-action="reinstall">${esc(t.reinstall)}</button><button data-dev-action="clear-local">${esc(t.clearLocal)}</button><button ${ackPending?'':'disabled'} data-dev-action="retry-ack">${esc(t.retryAck)}</button><button ${s.storeOwned?'':'disabled'} data-dev-action="refund-keep">${esc(t.refundKeep)}</button><button ${s.storeOwned?'':'disabled'} class="warn" data-dev-action="refund-revoke">${esc(t.refundRevoke)}</button><button ${s.storeOwned?'':'disabled'} class="danger" data-dev-action="revoke">${esc(t.revoke)}</button><button ${s.storeOwned?'':'disabled'} class="danger" data-dev-action="chargeback">${esc(t.chargeback)}</button><button ${ackPending?'':'disabled'} class="danger" data-dev-action="expire-ack">${esc(t.expireAck)}</button><button class="warn" data-dev-action="reset">${esc(t.reset)}</button><button class="danger" data-dev-action="disable-dev">${esc(t.disable)}</button></div></section>`;
+      <section class="ba-dev-card"><span class="ba-dev-eyebrow">LIFECYCLE · NORMAL</span><h3>${esc(t.normalOps)}</h3><div class="ba-dev-actions"><button class="mint" data-dev-action="sync">${esc(t.sync)}</button><button ${ackPending?'':'disabled'} data-dev-action="retry-ack">${esc(t.retryAck)}</button></div></section>
+      <section class="ba-dev-card"><span class="ba-dev-eyebrow">LIFECYCLE · RECOVERY</span><h3>${esc(t.recoveryOps)}</h3><div class="ba-dev-actions"><button data-dev-action="reinstall">${esc(t.reinstall)}</button><button data-dev-action="clear-local">${esc(t.clearLocal)}</button><button ${s.storeOwned?'':'disabled'} data-dev-action="refund-keep">${esc(t.refundKeep)}</button></div></section>
+      <section class="ba-dev-card"><span class="ba-dev-eyebrow">LIFECYCLE · DESTRUCTIVE</span><h3>${esc(t.destructiveOps)}</h3><div class="ba-dev-actions"><button ${s.storeOwned?'':'disabled'} class="warn" data-dev-action="refund-revoke">${esc(t.refundRevoke)}</button><button ${s.storeOwned?'':'disabled'} class="danger" data-dev-action="revoke">${esc(t.revoke)}</button><button ${s.storeOwned?'':'disabled'} class="danger" data-dev-action="chargeback">${esc(t.chargeback)}</button><button ${ackPending?'':'disabled'} class="danger" data-dev-action="expire-ack">${esc(t.expireAck)}</button><button class="warn" data-dev-action="reset">${esc(t.reset)}</button><button class="danger" data-dev-action="disable-dev">${esc(t.disable)}</button></div></section>`;
   }
 
   function renderTransactions(s,t){
@@ -701,16 +727,31 @@
     else if(key==='provider')call('setDebugBillingSandboxEnabled',value==='true','bool');
   }
 
-  function refreshAll(){const s=state();if(s.devModeEnabled===true)revealDeveloperTools(s);else ensureRow(s);if(!$('#baDevBillingConsole')?.hidden)renderConsole();window.BearagnosticBilling?.refresh?.();}
-  function startPoll(){stopPoll();poll=setInterval(refreshAll,420)} function stopPoll(){if(poll){clearInterval(poll);poll=null}}
+  function refreshAll({forceConsole=false}={}){
+    const s=state();
+    if(s.devModeEnabled===true)revealDeveloperTools(s);else ensureRow(s);
+    const console=$('#baDevBillingConsole');
+    if(console && !console.hidden) renderConsole({force:forceConsole});
+    try { window.BearagnosticBilling?.refresh?.(); } catch (_) {}
+  }
+  function startPoll(){stopPoll();poll=setInterval(()=>refreshAll(),1100)} function stopPoll(){if(poll){clearInterval(poll);poll=null}}
 
+  document.addEventListener('pointerdown',e=>{if(e.target?.closest?.('#baDevBillingConsole select, #baDevBillingConsole button'))markConsoleInteraction();},true);
+  document.addEventListener('focusin',e=>{if(e.target?.closest?.('#baDevBillingConsole select, #baDevBillingConsole button'))markConsoleInteraction(12000);},true);
   document.addEventListener('click',e=>{
     activateTap(e);
     const close=e.target?.closest?.('[data-dev-close]');if(close){e.preventDefault();closeConsole();return;}
-    const tab=e.target?.closest?.('[data-dev-tab]');if(tab){e.preventDefault();activeTab=tab.dataset.devTab;renderConsole();return;}
-    const action=e.target?.closest?.('[data-dev-action]');if(action){e.preventDefault();handleAction(action.dataset.devAction);return;}
+    const tab=e.target?.closest?.('[data-dev-tab]');if(tab){e.preventDefault();markConsoleInteraction(250);activeTab=tab.dataset.devTab;lastConsoleSignature='';renderConsole({force:true});return;}
+    const action=e.target?.closest?.('[data-dev-action]');if(action){e.preventDefault();markConsoleInteraction(700);handleAction(action.dataset.devAction);setTimeout(()=>{lastConsoleSignature='';renderConsole({force:true});},160);return;}
   },true);
-  document.addEventListener('change',e=>{const field=e.target?.closest?.('[data-dev-setting]');if(field)handleSetting(field.dataset.devSetting,field.value)},true);
+  document.addEventListener('change',e=>{
+    const field=e.target?.closest?.('[data-dev-setting]');
+    if(!field)return;
+    markConsoleInteraction(420);
+    handleSetting(field.dataset.devSetting,field.value);
+    try { field.blur(); } catch (_) {}
+    setTimeout(()=>{consoleInteractionUntil=0;lastConsoleSignature='';renderConsole({force:true});},180);
+  },true);
   window.addEventListener('bearagnostic:languagechange',()=>setTimeout(refreshAll,0));
   window.addEventListener('bearagnostic:screenchange',()=>setTimeout(refreshAll,0));
   window.addEventListener('bearagnostic:entitlementchange',()=>setTimeout(refreshAll,0));
