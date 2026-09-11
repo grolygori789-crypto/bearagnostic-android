@@ -507,14 +507,24 @@
     }
   };
   const c=()=>COPY[lang()]||COPY.en;
+  const nativeBuild=()=>parse(NATIVE.getNativeState?.(),{});
 
   function call(name, value, kind='none') {
     try {
-      const fn=NATIVE[name]; if(typeof fn!=='function') return {accepted:false,reason:'bridge_unavailable'};
-      const raw = kind==='bool' ? fn(Boolean(value)) : kind==='string' ? fn(String(value)) : fn();
+      // Android WebView's @JavascriptInterface object must remain the receiver of the
+      // method call. Detaching NATIVE[name] into a local function loses the Java bridge
+      // receiver on real devices and can throw even though the method exists.
+      if(typeof NATIVE[name]!=='function') return {accepted:false,reason:'bridge_unavailable'};
+      const raw = kind==='bool'
+        ? NATIVE[name](Boolean(value))
+        : kind==='string'
+          ? NATIVE[name](String(value))
+          : NATIVE[name]();
       const result=parse(raw,{accepted:false});
       ENT.refresh?.(); NATIVE.refreshNativeState?.(); setTimeout(refreshAll,60); return result;
-    } catch (_) { return {accepted:false,reason:'bridge_error'}; }
+    } catch (error) {
+      return {accepted:false,reason:'bridge_error',detail:String(error?.name||'Error').slice(0,40)};
+    }
   }
 
   function ensureStyle(){
@@ -606,7 +616,7 @@
 
   function renderConsole(){
     const el=ensureConsole(),s=state(),t=c(); if(s.devModeEnabled!==true){closeConsole();ensureRow(s);return;}
-    $('.ba-dev-head',el).innerHTML=`<div><span class="ba-dev-head__kicker">${esc(t.debug)} · B48</span><h2>${esc(t.title)}</h2><p>${esc(t.subtitle)}</p></div><button class="ba-dev-close" type="button" data-dev-close aria-label="${esc(t.close)}">×</button>`;
+    $('.ba-dev-head',el).innerHTML=`<div><span class="ba-dev-head__kicker">${esc(t.debug)} · B${esc(nativeBuild().versionCode||50)}</span><h2>${esc(t.title)}</h2><p>${esc(t.subtitle)}</p></div><button class="ba-dev-close" type="button" data-dev-close aria-label="${esc(t.close)}">×</button>`;
     $('.ba-dev-tabs',el).innerHTML=[['overview',t.overview],['store',t.store],['transactions',t.transactions],['events',t.events]].map(([id,label])=>`<button class="ba-dev-tab ${activeTab===id?'is-active':''}" type="button" data-dev-tab="${id}">${esc(label)}</button>`).join('');
     const wrap=$('.ba-dev-wrap',el); wrap.innerHTML=activeTab==='store'?renderStore(s,t):activeTab==='transactions'?renderTransactions(s,t):activeTab==='events'?renderEvents(s,t):renderOverview(s,t);
   }

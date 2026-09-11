@@ -92,3 +92,17 @@ Acceptance behavior:
 - The row is reasserted after screen/localization/entitlement repaints and remains available until Developer Mode is disabled.
 - Failure to activate shows a diagnostic reason instead of a false success toast.
 - Release isolation remains unchanged: the simulator engine continues to live only in `src/debug`.
+
+
+## B50 WebView bridge receiver regression
+
+Physical B49 testing exposed a real-device WebView bridge failure after the seven-tap Developer Mode gesture. The owner-console helper had detached a dynamic `@JavascriptInterface` method from `BearagnosticNative` before invoking it. Real WebView bridge objects require the Java bridge object to remain the method receiver.
+
+B50 acceptance criteria:
+
+- seven taps on the About build metadata must receive a successful native response;
+- the Billing QA Console opens immediately after confirmed activation;
+- Developer Tools remains visible in More after the console is closed;
+- every owner-console action (market, network, payment behavior, acknowledgement mode, availability, provider, restore, sync, pending decision, refund, revoke, chargeback, reinstall and reset) must use a receiver-bound native invocation;
+- static QA must reject reintroduction of `const fn = NATIVE[name]` style detached bridge calls;
+- release isolation remains unchanged.
