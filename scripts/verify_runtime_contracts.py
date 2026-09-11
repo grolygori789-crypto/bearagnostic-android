@@ -30,30 +30,38 @@ def require(condition: bool, message: str) -> None:
 
 def check_build_contracts() -> None:
     gradle = read("app/build.gradle.kts")
-    require('versionCode = 39' in gradle, "B39 versionCode must be 39")
-    require('versionName = "0.29.0-alpha39"' in gradle, "B39 versionName mismatch")
+    require('versionCode = 40' in gradle, "B40 versionCode must be 40")
+    require('versionName = "0.30.0-alpha40"' in gradle, "B40 versionName mismatch")
 
     cache_versions = re.findall(r'android-[a-z-]+\.js\?v=(\d+)', gradle)
     require(cache_versions, "no Android adapter cache versions found")
-    require(set(cache_versions) == {"39"}, f"adapter cache versions are not coherent: {sorted(set(cache_versions))}")
+    require(set(cache_versions) == {"40"}, f"adapter cache versions are not coherent: {sorted(set(cache_versions))}")
 
     require("androidDownloads" in gradle, "Downloads Review adapter is not registered")
     require("androidInstallers" in gradle, "APK Installers adapter is not registered")
     require("androidArchives" in gradle, "Archives adapter is not registered")
     require("androidZero" in gradle, "Zero-byte Files adapter is not registered")
-    require('android-downloads.js?v=39' in gradle, "Downloads Review adapter is not loaded at B39")
-    require('android-installers.js?v=39' in gradle, "APK Installers adapter is not loaded at B39")
-    require('android-archives.js?v=39' in gradle, "Archives adapter is not loaded at B39")
-    require('android-zero.js?v=39' in gradle, "Zero-byte Files adapter is not loaded at B39")
-    require('android-build-truth.js?v=39' in gradle, "build-truth adapter is not loaded at B39")
+    require("androidEmptyFolders" in gradle, "Empty Folders adapter is not registered")
+    require("androidShellUx" in gradle, "Shell UX adapter is not registered")
+    require('android-downloads.js?v=40' in gradle, "Downloads Review adapter is not loaded at B40")
+    require('android-installers.js?v=40' in gradle, "APK Installers adapter is not loaded at B40")
+    require('android-archives.js?v=40' in gradle, "Archives adapter is not loaded at B40")
+    require('android-zero.js?v=40' in gradle, "Zero-byte Files adapter is not loaded at B40")
+    require('android-empty-folders.js?v=40' in gradle, "Empty Folders adapter is not loaded at B40")
+    require('android-shell-ux.js?v=40' in gradle, "Shell UX adapter is not loaded at B40")
+    require('android-build-truth.js?v=40' in gradle, "build-truth adapter is not loaded at B40")
 
-    downloads_pos = gradle.find('android-downloads.js?v=39')
-    installers_pos = gradle.find('android-installers.js?v=39')
-    archives_pos = gradle.find('android-archives.js?v=39')
-    zero_pos = gradle.find('android-zero.js?v=39')
-    native_pos = gradle.find('android-native.js?v=39')
-    truth_pos = gradle.find('android-build-truth.js?v=39')
-    require(0 <= downloads_pos < installers_pos < archives_pos < zero_pos < native_pos < truth_pos, "adapter ownership/load order is unsafe for Phase A review tools")
+    downloads_pos = gradle.find('android-downloads.js?v=40')
+    installers_pos = gradle.find('android-installers.js?v=40')
+    archives_pos = gradle.find('android-archives.js?v=40')
+    zero_pos = gradle.find('android-zero.js?v=40')
+    empty_pos = gradle.find('android-empty-folders.js?v=40')
+    native_pos = gradle.find('android-native.js?v=40')
+    shell_pos = gradle.find('android-shell-ux.js?v=40')
+    truth_pos = gradle.find('android-build-truth.js?v=40')
+    require(0 <= downloads_pos < installers_pos < archives_pos < zero_pos < empty_pos < native_pos < shell_pos < truth_pos,
+            "adapter ownership/load order is unsafe for B40 Phase A / shell UX")
+
 
 
 def check_native_guard_contracts() -> None:
@@ -68,7 +76,7 @@ def check_native_guard_contracts() -> None:
     require("JSONArray(scopeDecision.scopes.toList()).toString()" in bridge, "Custom scopes are not canonicalized before scanning")
     require("RuntimeContractGuard.isReviewSnapshotFresh(generatedAtMs)" in bridge, "native stale-review guard is missing")
     require('put("reason", "stale_review_snapshot")' in bridge, "native stale-review rejection reason is missing")
-    require("const val BRIDGE_VERSION = 11" in bridge, "B38 must preserve NativeBridge v11 contract")
+    require("const val BRIDGE_VERSION = 12" in bridge, "B40 NativeBridge version must be 12")
 
     require("const val REVIEW_SNAPSHOT_MAX_AGE_MS = 15L * 60L * 1000L" in guard, "15-minute native review age limit changed")
     for mode in ("smart", "quick", "deep", "custom"):
@@ -209,6 +217,85 @@ def check_zero_byte_contracts() -> None:
     require("anchor = list.querySelector('[data-tool=\"archives\"]')" in ui, "Zero-byte Files is not positioned after Archives")
 
 
+
+def check_empty_folder_contracts() -> None:
+    manager = read("app/src/main/java/com/benedictinteractive/bearagnostic/EmptyFolderManager.kt")
+    bridge = read("app/src/main/java/com/benedictinteractive/bearagnostic/NativeBridge.kt")
+    ui = read("app/src/main/legacy-adapter/android-empty-folders.js")
+
+    require("class EmptyFolderManager" in manager, "dedicated Empty Folders native manager is missing")
+    require("const val MAX_DELETE_SELECTION = 100" in manager, "Empty Folders deletion cap must remain 100")
+    require("const val MAX_CANDIDATES = 2_000" in manager, "Empty Folders candidate bound changed")
+    require("RuntimeContractGuard.isReviewSnapshotFresh(current.generatedAtMs)" in manager,
+            "Empty Folders native stale-snapshot guard is missing")
+    require("Files.isSymbolicLink(file.toPath())" in manager, "Empty Folders does not conservatively reject symbolic links")
+    require("snapshotPathIsLink = isSymbolicLink(snapshotPath)" in manager and "isSymbolicLink(snapshotPath)" in manager,
+            "Empty Folders does not re-check the original snapshot path against symlink replacement")
+    require("if (relativeSegments.size < 2) return false" in manager,
+            "shared-storage root/top-level Empty Folder deletion protection is missing")
+    require('lower.firstOrNull() == "android"' in manager and 'lower.firstOrNull() == "lost.dir"' in manager,
+            "Android/LOST.DIR directory protection is missing")
+    require("relativeSegments.any { it.startsWith('.') }" in manager,
+            "hidden/control directory protection is missing")
+    list_pos = manager.find("val children = try { snapshotPath.listFiles() }")
+    nonempty_pos = manager.find('children.isNotEmpty() -> "folder_not_empty"', list_pos)
+    delete_pos = manager.find("snapshotPath.delete() && !snapshotPath.exists()", nonempty_pos)
+    require(0 <= list_pos < nonempty_pos < delete_pos,
+            "Empty Folders must re-check emptiness immediately before verified deletion")
+    require('put("becameNonEmptyCount", becameNonEmptyCount)' in manager,
+            "became-non-empty refusal evidence is not reported")
+    require('put("reclaimedBytes"' not in manager,
+            "Empty Folders must not fabricate reclaimed-space bytes")
+
+    require("private val emptyFolders = EmptyFolderManager" in bridge, "NativeBridge does not own EmptyFolderManager")
+    for fn in ("startEmptyFolderScan", "getEmptyFolderSummary", "getEmptyFolderCandidates", "deleteEmptyFolderCandidates"):
+        require(f"fun {fn}" in bridge, f"NativeBridge missing Empty Folders API: {fn}")
+    require('return rejected("storage_access_required")' in bridge, "Empty Folders does not require storage access")
+    require('if (activity.isScannerRunning()) return rejected("scan_running")' in bridge,
+            "Empty Folders does not refuse destructive/workflow overlap with the file scanner")
+    require("const val BRIDGE_VERSION = 12" in bridge, "B40 bridge version mismatch")
+
+    require("const BUILD = 40;" in ui, "Empty Folders adapter build marker mismatch")
+    require("const MAX_SELECTION = 100;" in ui, "Empty Folders UI deletion cap changed")
+    require("const STALE_MS = 15 * 60 * 1000;" in ui, "Empty Folders UI stale-review guard changed")
+    require("NATIVE.startEmptyFolderScan" in ui, "Empty Folders UI does not use dedicated native scan")
+    require("NATIVE.getEmptyFolderSummary" in ui and "NATIVE.getEmptyFolderCandidates" in ui,
+            "Empty Folders UI does not read dedicated native evidence")
+    require("NATIVE.deleteEmptyFolderCandidates" in ui, "Empty Folders deletion bypasses dedicated native verification")
+    require('data-tool="empty-folders"' in ui, "Empty Folders first-class Tools entry is missing")
+    require("[data-tool=\"zero\"]" in ui, "Empty Folders must be positioned after Zero-byte Files")
+    require("Nothing is selected automatically" in ui, "English Empty Folders review-first disclosure is missing")
+    require("ระบบจะไม่เลือกให้อัตโนมัติ" in ui, "Thai Empty Folders no-auto-selection disclosure is missing")
+    require("自動選択せず" in ui, "Japanese Empty Folders no-auto-selection disclosure is missing")
+    require("No reclaimed-space estimate" in ui, "Empty Folders no-space-claim disclosure is missing")
+    require("If a file appears" in ui, "deletion-time non-empty refusal is not explained")
+
+
+def check_shell_ux_contracts() -> None:
+    ui = read("app/src/main/legacy-adapter/android-shell-ux.js")
+    require("const BUILD = 40;" in ui, "Shell UX adapter build marker mismatch")
+    require("scrollHeight > element.clientHeight + OVERFLOW_EPSILON" in ui,
+            "Scroll continuation cue is not conditioned on real overflow")
+    require("scroller.scrollTop + scroller.clientHeight >= scroller.scrollHeight - BOTTOM_EPSILON" in ui,
+            "Scroll continuation cue does not disappear at the real bottom")
+    require("bearagnostic.scrollCue.seen.v1" in ui and "localStorage.setItem" in ui,
+            "one-time scroll micro-hint contract is missing")
+    require("#nativeHomeButton{display:none!important}" in ui,
+            "redundant Checkup header Home button is not suppressed")
+    require("ba-checkup-root" in ui, "Checkup root shell state is missing")
+    require(".app-shell.is-checkup.ba-checkup-root .bottom-nav{display:grid!important}" in ui,
+            "Checkup root does not restore the primary bottom navigation")
+    require("state === 'running'" in ui and "state === 'idle' || state === 'complete'" in ui,
+            "Checkup bottom navigation is not limited to non-running root states")
+    require("#nativeModeSheet:not([hidden])" in ui, "Checkup mode-picker focused state is not detected")
+    require("button.dataset.nav === 'checkup'" in ui, "Checkup tab is not highlighted on its root landing")
+    require(ui.count("new MutationObserver") == 1,
+            "Shell UX must use one centralized MutationObserver, not per-surface observers")
+    for surface in ("ba-qc-scroll", "ba-dup-scroll", "ba-large-scroll", "ba-old-scroll",
+                    "baDownloadsSurface", "baInstallersSurface", "baArchivesSurface", "baZeroSurface", "baEmptySurface",
+                    "nativeModeSheet", "nativeResultsSheet", "nativeReviewSheet"):
+        require(surface in ui, f"Scroll continuation coverage missing for {surface}")
+
 def check_build_truth_contract() -> None:
     js = read("app/src/main/legacy-adapter/android-build-truth.js")
     require("NATIVE.getNativeState" in js, "visible build labels are not sourced from native state")
@@ -250,8 +337,8 @@ def main() -> int:
     if args.patch_only:
         checks = [
             ("build/version/cache", check_build_contracts),
-            ("Archives contracts", lambda: check_archives_contracts(patch_only=True)),
-            ("Zero-byte Files contracts", check_zero_byte_contracts),
+            ("Empty Folders contracts", check_empty_folder_contracts),
+            ("app-shell / scroll UX contracts", check_shell_ux_contracts),
             ("CI contract verification", check_ci_contract),
         ]
     else:
@@ -262,6 +349,8 @@ def main() -> int:
             ("APK Installers contracts", lambda: check_apk_installers_contracts(patch_only=False)),
             ("Archives contracts", lambda: check_archives_contracts(patch_only=False)),
             ("Zero-byte Files contracts", check_zero_byte_contracts),
+            ("Empty Folders contracts", check_empty_folder_contracts),
+            ("app-shell / scroll UX contracts", check_shell_ux_contracts),
             ("native-sourced visible build labels", check_build_truth_contract),
             ("CI contract verification", check_ci_contract),
         ]
