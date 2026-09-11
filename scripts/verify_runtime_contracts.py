@@ -30,12 +30,12 @@ def require(condition: bool, message: str) -> None:
 
 def check_build_contracts() -> None:
     gradle = read("app/build.gradle.kts")
-    require('versionCode = 43' in gradle, "B43 versionCode must be 43")
-    require('versionName = "0.32.0-alpha43"' in gradle, "B43 versionName mismatch")
+    require('versionCode = 44' in gradle, "B44 versionCode must be 44")
+    require('versionName = "0.33.0-alpha44"' in gradle, "B44 versionName mismatch")
 
     cache_versions = re.findall(r'android-[a-z-]+\.js\?v=(\d+)', gradle)
     require(cache_versions, "no Android adapter cache versions found")
-    require(set(cache_versions) == {"43"}, f"adapter cache versions are not coherent: {sorted(set(cache_versions))}")
+    require(set(cache_versions) == {"44"}, f"adapter cache versions are not coherent: {sorted(set(cache_versions))}")
 
     require("androidDownloads" in gradle, "Downloads Review adapter is not registered")
     require("androidInstallers" in gradle, "APK Installers adapter is not registered")
@@ -43,31 +43,36 @@ def check_build_contracts() -> None:
     require("androidZero" in gradle, "Zero-byte Files adapter is not registered")
     require("androidEmptyFolders" in gradle, "Empty Folders adapter is not registered")
     require("androidAdvancedMedia" in gradle, "Advanced Media Review adapter is not registered")
+    require("androidBilling" in gradle, "Google Play Billing adapter is not registered")
     require("androidInsights" in gradle, "Insights adapter is not registered")
     require("androidShellUx" in gradle, "Shell UX adapter is not registered")
-    require('android-downloads.js?v=43' in gradle, "Downloads Review adapter is not loaded at B43")
-    require('android-installers.js?v=43' in gradle, "APK Installers adapter is not loaded at B43")
-    require('android-archives.js?v=43' in gradle, "Archives adapter is not loaded at B43")
-    require('android-zero.js?v=43' in gradle, "Zero-byte Files adapter is not loaded at B43")
-    require('android-empty-folders.js?v=43' in gradle, "Empty Folders adapter is not loaded at B43")
-    require('android-advanced-media.js?v=43' in gradle, "Advanced Media Review adapter is not loaded at B43")
-    require('android-insights.js?v=43' in gradle, "Insights adapter is not loaded at B43")
-    require('android-shell-ux.js?v=43' in gradle, "Shell UX adapter is not loaded at B43")
-    require('android-build-truth.js?v=43' in gradle, "build-truth adapter is not loaded at B43")
+    require('android-downloads.js?v=44' in gradle, "Downloads Review adapter is not loaded at B44")
+    require('android-installers.js?v=44' in gradle, "APK Installers adapter is not loaded at B44")
+    require('android-archives.js?v=44' in gradle, "Archives adapter is not loaded at B44")
+    require('android-zero.js?v=44' in gradle, "Zero-byte Files adapter is not loaded at B44")
+    require('android-empty-folders.js?v=44' in gradle, "Empty Folders adapter is not loaded at B44")
+    require('android-advanced-media.js?v=44' in gradle, "Advanced Media Review adapter is not loaded at B44")
+    require('android-billing.js?v=44' in gradle, "Google Play Billing adapter is not loaded at B44")
+    require('android-insights.js?v=44' in gradle, "Insights adapter is not loaded at B44")
+    require('android-shell-ux.js?v=44' in gradle, "Shell UX adapter is not loaded at B44")
+    require('android-build-truth.js?v=44' in gradle, "build-truth adapter is not loaded at B44")
 
-    downloads_pos = gradle.find('android-downloads.js?v=43')
-    installers_pos = gradle.find('android-installers.js?v=43')
-    archives_pos = gradle.find('android-archives.js?v=43')
-    zero_pos = gradle.find('android-zero.js?v=43')
-    empty_pos = gradle.find('android-empty-folders.js?v=43')
-    media_pos = gradle.find('android-advanced-media.js?v=43')
-    native_pos = gradle.find('android-native.js?v=43')
-    custom_pos = gradle.find('android-custom-scan.js?v=43')
-    insights_pos = gradle.find('android-insights.js?v=43')
-    shell_pos = gradle.find('android-shell-ux.js?v=43')
-    truth_pos = gradle.find('android-build-truth.js?v=43')
-    require(0 <= downloads_pos < installers_pos < archives_pos < zero_pos < empty_pos < media_pos < native_pos < custom_pos < insights_pos < shell_pos < truth_pos,
-            "adapter ownership/load order is unsafe for B43 Phase A / Advanced Media / Insights / shell UX")
+    downloads_pos = gradle.find('android-downloads.js?v=44')
+    installers_pos = gradle.find('android-installers.js?v=44')
+    archives_pos = gradle.find('android-archives.js?v=44')
+    zero_pos = gradle.find('android-zero.js?v=44')
+    empty_pos = gradle.find('android-empty-folders.js?v=44')
+    media_pos = gradle.find('android-advanced-media.js?v=44')
+    native_pos = gradle.find('android-native.js?v=44')
+    pro_pos = gradle.find('android-pro-ui.js?v=44')
+    billing_pos = gradle.find('android-billing.js?v=44')
+    plan_pos = gradle.find('android-plan-status.js?v=44')
+    custom_pos = gradle.find('android-custom-scan.js?v=44')
+    insights_pos = gradle.find('android-insights.js?v=44')
+    shell_pos = gradle.find('android-shell-ux.js?v=44')
+    truth_pos = gradle.find('android-build-truth.js?v=44')
+    require(0 <= downloads_pos < installers_pos < archives_pos < zero_pos < empty_pos < media_pos < native_pos < pro_pos < billing_pos < plan_pos < custom_pos < insights_pos < shell_pos < truth_pos,
+            "adapter ownership/load order is unsafe for B44 Phase A / Advanced Media / Billing / Insights / shell UX")
 
 
 
@@ -83,7 +88,7 @@ def check_native_guard_contracts() -> None:
     require("JSONArray(scopeDecision.scopes.toList()).toString()" in bridge, "Custom scopes are not canonicalized before scanning")
     require("RuntimeContractGuard.isReviewSnapshotFresh(generatedAtMs)" in bridge, "native stale-review guard is missing")
     require('put("reason", "stale_review_snapshot")' in bridge, "native stale-review rejection reason is missing")
-    require("const val BRIDGE_VERSION = 13" in bridge, "B42 NativeBridge version must be 13")
+    require("const val BRIDGE_VERSION = 14" in bridge, "B44 NativeBridge version must be 14")
 
     require("const val REVIEW_SNAPSHOT_MAX_AGE_MS = 15L * 60L * 1000L" in guard, "15-minute native review age limit changed")
     for mode in ("smart", "quick", "deep", "custom"):
@@ -260,7 +265,7 @@ def check_empty_folder_contracts() -> None:
     require('return rejected("storage_access_required")' in bridge, "Empty Folders does not require storage access")
     require('if (activity.isScannerRunning()) return rejected("scan_running")' in bridge,
             "Empty Folders does not refuse destructive/workflow overlap with the file scanner")
-    require("const val BRIDGE_VERSION = 13" in bridge, "B42 bridge version mismatch")
+    require("const val BRIDGE_VERSION = 14" in bridge, "B44 bridge version mismatch")
 
     require("const BUILD = 40;" in ui, "Empty Folders adapter build marker mismatch")
     require("const MAX_SELECTION = 100;" in ui, "Empty Folders UI deletion cap changed")
@@ -357,7 +362,7 @@ def check_insights_contracts() -> None:
     require("try { history.recordFileCleanup(result) }" in bridge and "try { history.recordEmptyFolderCleanup(result) }" in bridge,
             "history logging must never be able to block a verified deletion result")
     require("fun clearInsightsHistory" in bridge, "native history clear API is missing")
-    require("const val BRIDGE_VERSION = 13" in bridge, "B42 bridge version mismatch")
+    require("const val BRIDGE_VERSION = 14" in bridge, "B44 bridge version mismatch")
 
     for capability in ("INSIGHTS_HISTORY", "WHAT_CHANGED", "FULL_CLEANUP_HISTORY"):
         require(f"Capability.{capability}.wireName" in entitlement,
@@ -410,6 +415,71 @@ def check_advanced_media_contracts() -> None:
             "Advanced Media Review is still marked planned after implementation")
 
 
+def check_billing_contracts() -> None:
+    gradle = read("app/build.gradle.kts")
+    manager = read("app/src/main/java/com/benedictinteractive/bearagnostic/PlayBillingManager.kt")
+    entitlement = read("app/src/main/java/com/benedictinteractive/bearagnostic/EntitlementManager.kt")
+    bridge = read("app/src/main/java/com/benedictinteractive/bearagnostic/NativeBridge.kt")
+    ui = read("app/src/main/legacy-adapter/android-billing.js")
+
+    require('implementation("com.android.billingclient:billing:9.1.0")' in gradle,
+            "B44 must use current Google Play Billing Library 9.1.0")
+    require('android-billing.js?v=44' in gradle and 'androidBilling.copyTo' in gradle,
+            "Billing presentation adapter is not assembled into the runtime")
+
+    require('PendingPurchasesParams.newBuilder()' in manager and '.enableOneTimeProducts()' in manager,
+            "one-time pending purchases are not explicitly enabled")
+    require('.enableAutoServiceReconnection()' in manager,
+            "Play Billing automatic service reconnection is not enabled")
+    require('QueryProductDetailsParams.Product.newBuilder()' in manager and 'BillingClient.ProductType.INAPP' in manager,
+            "Pro is not queried as a one-time INAPP product")
+    require('oneTimePurchaseOfferDetailsList' in manager and 'rentalDetails == null' in manager,
+            "Billing does not select a non-rental one-time purchase offer")
+    require('.setOfferToken(selectedOfferToken)' in manager,
+            "purchase flow does not use the exact Play offer token shown to the user")
+    require('QueryPurchasesParams.newBuilder()' in manager and 'queryPurchasesAsync' in manager,
+            "Play ownership restore/query path is missing")
+    require('Purchase.PurchaseState.PURCHASED' in manager and 'Purchase.PurchaseState.PENDING' in manager,
+            "PURCHASED/PENDING states are not distinguished")
+    require('entitlement.updatePlayOwnership(true' in manager,
+            "PURCHASED does not feed the entitlement source of truth")
+    require('AcknowledgePurchaseParams.newBuilder()' in manager and 'acknowledgePurchase' in manager,
+            "non-consumable Play purchases are not acknowledged")
+    require('if (!pending)' in manager and 'entitlement.updatePlayOwnership(false' in manager,
+            "successful ownership refresh cannot revoke stale cached ownership")
+    require('put("tokensExposedToWeb", false)' in manager and 'put("serverVerification", false)' in manager,
+            "billing state must be explicit about token privacy and client-side foundation scope")
+    state_block = manager.split('fun stateJsonObject()', 1)[1].split('fun refresh()', 1)[0]
+    for forbidden in ('purchaseToken', 'orderId', 'originalJson', 'signature'):
+        require(forbidden not in state_block, f"sensitive Play field leaked to WebView state: {forbidden}")
+
+    require('KEY_PLAY_OWNED' in entitlement and 'KEY_PLAY_VERIFIED_AT_MS' in entitlement,
+            "Play ownership cache is missing")
+    require('if (debugTier != null) return debugTier' in entitlement and 'isPlayOwnedCached()' in entitlement,
+            "release entitlement is not sourced from Play ownership while preserving debug QA override")
+    require('put("formattedPrice", billing.formattedPrice ?: JSONObject.NULL)' in entitlement,
+            "localized Play price is not passed through entitlement state")
+    require('put("purchaseModel", "one_time_lifetime")' in entitlement,
+            "Pro purchase model changed from one-time lifetime")
+
+    for method in ('getBillingState', 'refreshBilling', 'purchasePro', 'restoreProPurchase'):
+        require(f'fun {method}' in bridge, f"Native billing bridge method missing: {method}")
+    require('private val billing = PlayBillingManager' in bridge,
+            "NativeBridge does not share Billing with the entitlement source of truth")
+    require('const val BRIDGE_VERSION = 14' in bridge, "B44 billing bridge version mismatch")
+
+    require('NATIVE.getBillingState' in ui and 'NATIVE.purchasePro' in ui and 'NATIVE.restoreProPurchase' in ui,
+            "Billing UI is not connected to native Play Billing")
+    require('billing.formattedPrice' in ui and 'price = typeof billing.formattedPrice' in ui,
+            "Billing UI does not use Play-localized price")
+    require('purchasePending' in ui and 'PURCHASED' in ui,
+            "Billing UI does not explain pending purchase semantics")
+    require('test track' in ui.lower(), "Billing UI does not disclose Play test-track requirement")
+    # Never silently introduce a hard-coded currency/price into the billing adapter.
+    require(not re.search(r'[$€£¥฿]\s*\d|\d+[.,]\d{2}\s*(USD|EUR|GBP|JPY|THB)', ui),
+            "Billing UI contains a hard-coded price or currency amount")
+
+
 def check_build_truth_contract() -> None:
     js = read("app/src/main/legacy-adapter/android-build-truth.js")
     require("NATIVE.getNativeState" in js, "visible build labels are not sourced from native state")
@@ -451,7 +521,7 @@ def main() -> int:
     if args.patch_only:
         checks = [
             ("build/version/cache", check_build_contracts),
-            ("Advanced Media Review", check_advanced_media_contracts),
+            ("Google Play Billing foundation", check_billing_contracts),
         ]
     else:
         checks = [
@@ -464,6 +534,7 @@ def main() -> int:
             ("Empty Folders contracts", check_empty_folder_contracts),
             ("Phase B Insights / local history", check_insights_contracts),
             ("Advanced Media Review", check_advanced_media_contracts),
+            ("Google Play Billing foundation", check_billing_contracts),
             ("app-shell / scroll UX contracts", check_shell_ux_contracts),
             ("native-sourced visible build labels", check_build_truth_contract),
             ("CI contract verification", check_ci_contract),

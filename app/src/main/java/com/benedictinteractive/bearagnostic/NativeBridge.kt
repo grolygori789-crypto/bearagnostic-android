@@ -7,6 +7,9 @@ import org.json.JSONObject
 
 class NativeBridge(private val activity: MainActivity) {
     private val entitlement = EntitlementManager(activity.applicationContext)
+    private val billing = PlayBillingManager(activity, entitlement) {
+        activity.runOnUiThread { activity.pushNativeStateToWeb() }
+    }
     private val emptyFolders = EmptyFolderManager(activity.applicationContext)
     private val history = LocalHistoryStore(activity.applicationContext)
 
@@ -15,6 +18,18 @@ class NativeBridge(private val activity: MainActivity) {
 
     @JavascriptInterface
     fun getEntitlementState(): String = entitlement.stateJson()
+
+    @JavascriptInterface
+    fun getBillingState(): String = billing.stateJson()
+
+    @JavascriptInterface
+    fun refreshBilling(): String = billing.refresh()
+
+    @JavascriptInterface
+    fun purchasePro(): String = billing.launchPurchase()
+
+    @JavascriptInterface
+    fun restoreProPurchase(): String = billing.restore()
 
     @JavascriptInterface
     fun setDebugEntitlement(tier: String): String {
@@ -173,8 +188,9 @@ class NativeBridge(private val activity: MainActivity) {
         put("shareAvailable", true)
         put("entitlement", entitlement.stateJsonObject())
         put("proProductId", EntitlementManager.PRO_PRODUCT_ID)
-        put("billingReady", false)
-        put("scannerCapabilities", "multi_pass,metadata,content_probe,categories,old,large,temp,apk,archives,zero_byte,empty_folders,empty_folder_review,verified_empty_folder_delete,screenshots,media,downloads,sha256_duplicates,review_candidates,live_activity,local_review_previews,verified_delete,aggregate_local_history,insights,what_changed,verified_cleanup_history")
+        put("billingReady", billing.stateJsonObject().optBoolean("billingReady", false))
+        put("billing", billing.stateJsonObject())
+        put("scannerCapabilities", "multi_pass,metadata,content_probe,categories,old,large,temp,apk,archives,zero_byte,empty_folders,empty_folder_review,verified_empty_folder_delete,screenshots,media,downloads,sha256_duplicates,review_candidates,live_activity,local_review_previews,verified_delete,aggregate_local_history,insights,what_changed,verified_cleanup_history,play_billing_foundation")
     }.toString()
 
     private fun rejected(reason: String): String = JSONObject().apply {
@@ -184,6 +200,6 @@ class NativeBridge(private val activity: MainActivity) {
 
     companion object {
         const val JS_INTERFACE_NAME = "BearagnosticNative"
-        const val BRIDGE_VERSION = 13
+        const val BRIDGE_VERSION = 14
     }
 }

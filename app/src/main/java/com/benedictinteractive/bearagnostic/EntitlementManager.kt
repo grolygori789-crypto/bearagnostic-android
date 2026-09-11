@@ -7,10 +7,10 @@ import org.json.JSONObject
 /**
  * Single source of truth for Bearagnostic Free/Pro access.
  *
- * Billing intentionally does not live here yet. The next Play Billing batch will
- * feed verified ownership into this layer instead of teaching feature code about
- * purchases. Until then release builds are Free; debug builds may use a local
- * override solely for QA of both entitlement states.
+ * Google Play Billing feeds ownership and localized product presentation into this
+ * layer. Feature code never grants Pro directly. Debug builds may still apply a
+ * local QA override, but release builds can become Pro only from cached ownership
+ * that was established by a successful Google Play purchase query/update.
  */
 class EntitlementManager(context: Context) {
 
@@ -46,39 +46,94 @@ class EntitlementManager(context: Context) {
         SCHEDULED_CHECKUPS("scheduled_checkups"),
     }
 
+    data class BillingPresentation(
+        val ready: Boolean = false,
+        val canPurchase: Boolean = false,
+        val productAvailable: Boolean = false,
+        val purchasePending: Boolean = false,
+        val status: String = "initializing",
+        val formattedPrice: String? = null,
+        val lastResponseCode: Int? = null,
+        val lastSyncAtMs: Long = 0L,
+    )
+
     private val preferences = context.applicationContext.getSharedPreferences(
         PREFS_NAME,
         Context.MODE_PRIVATE,
     )
 
+    @Volatile
+    private var billingPresentation = BillingPresentation()
+
     fun currentTier(): Tier {
-        if (!BuildConfig.DEBUG) return Tier.FREE
-        return Tier.fromWire(preferences.getString(KEY_DEBUG_TIER, null)) ?: Tier.FREE
+        val debugTier = if (BuildConfig.DEBUG) {
+            Tier.fromWire(preferences.getString(KEY_DEBUG_TIER, null))
+        } else {
+            null
+        }
+        if (debugTier != null) return debugTier
+        return if (isPlayOwnedCached()) Tier.PRO else Tier.FREE
     }
 
     fun has(capability: Capability): Boolean =
         capability in FREE_CAPABILITIES || currentTier() == Tier.PRO
+
+    fun isPlayOwnedCached(): Boolean = preferences.getBoolean(KEY_PLAY_OWNED, false)
+
+    fun playOwnershipVerifiedAtMs(): Long = preferences.getLong(KEY_PLAY_VERIFIED_AT_MS, 0L)
+
+    /** Called only after a successful Google Play ownership result or PURCHASED update. */
+    fun updatePlayOwnership(owned: Boolean, verifiedAtMs: Long = System.currentTimeMillis()) {
+        preferences.edit()
+            .putBoolean(KEY_PLAY_OWNED, owned)
+            .putLong(KEY_PLAY_VERIFIED_AT_MS, verifiedAtMs.coerceAtLeast(0L))
+            .apply()
+    }
+
+    fun updateBillingPresentation(value: BillingPresentation) {
+        billingPresentation = value.copy(
+            status = value.status.trim().take(64).ifBlank { "unknown" },
+            formattedPrice = value.formattedPrice?.trim()?.take(80)?.takeIf { it.isNotEmpty() },
+            lastSyncAtMs = value.lastSyncAtMs.coerceAtLeast(0L),
+        )
+    }
 
     fun stateJson(): String = stateJsonObject().toString()
 
     fun stateJsonObject(): JSONObject {
         val tier = currentTier()
         val debugOverride = BuildConfig.DEBUG && preferences.contains(KEY_DEBUG_TIER)
+        val playOwned = isPlayOwnedCached()
+        val verifiedAtMs = playOwnershipVerifiedAtMs()
+        val billing = billingPresentation
         val capabilities = JSONObject()
         Capability.values().forEach { capability ->
             capabilities.put(capability.wireName, has(capability))
         }
 
+        val source = when {
+            debugOverride -> "debug_override"
+            playOwned || verifiedAtMs > 0L -> "google_play"
+            else -> "local_default"
+        }
+
         return JSONObject().apply {
             put("tier", tier.wireName)
             put("isPro", tier == Tier.PRO)
-            put("source", if (debugOverride) "debug_override" else "local_default")
+            put("source", source)
             put("debugControlsAvailable", BuildConfig.DEBUG)
-            put("billingReady", false)
-            put("canPurchase", false)
+            put("billingReady", billing.ready)
+            put("canPurchase", billing.canPurchase && tier != Tier.PRO)
+            put("productAvailable", billing.productAvailable)
+            put("purchasePending", billing.purchasePending)
+            put("billingStatus", billing.status)
             put("purchaseModel", "one_time_lifetime")
             put("productId", PRO_PRODUCT_ID)
-            put("formattedPrice", JSONObject.NULL)
+            put("formattedPrice", billing.formattedPrice ?: JSONObject.NULL)
+            put("playOwnershipCached", playOwned)
+            put("ownershipVerifiedAtMs", verifiedAtMs)
+            put("billingLastSyncAtMs", billing.lastSyncAtMs)
+            if (billing.lastResponseCode != null) put("billingResponseCode", billing.lastResponseCode)
             put("noAccountRequired", true)
             put("ads", false)
             put("safetyAlwaysFree", true)
@@ -140,6 +195,8 @@ class EntitlementManager(context: Context) {
 
         private const val PREFS_NAME = "bearagnostic_entitlement"
         private const val KEY_DEBUG_TIER = "debug_tier"
+        private const val KEY_PLAY_OWNED = "play_owned"
+        private const val KEY_PLAY_VERIFIED_AT_MS = "play_verified_at_ms"
 
         private val FREE_CAPABILITIES = setOf(
             Capability.QUICK_SCAN,
