@@ -126,30 +126,30 @@ val prepareLegacyFrontend by tasks.registering {
         val androidTags = buildString {
             // Entitlement loads first so its capture guard can protect Pro-only actions
             // before the Android interaction adapter handles them. Hidden-item privacy loads before dedicated review tools; Quick Clean, Exact Duplicates, Large Files, Older Files, Downloads Review, APK Installers, Archives, Zero-byte Files, and Empty Folders capture their dedicated entries before generic tool handling; Pro plan status loads after Pro UI; readability loads late; Custom Scan owns its responsive composition; shell-ux owns app-wide scroll cues and Checkup root-navigation consistency; build-truth loads last so visible version labels always resolve from native BuildConfig.
-            append("  <script src=\"./js/android-entitlement.js?v=40\"></script>\n")
-            append("  <script src=\"./js/android-hidden-items.js?v=40\"></script>\n")
-            append("  <script src=\"./js/android-cleanup.js?v=40\"></script>\n")
-            append("  <script src=\"./js/android-duplicates.js?v=40\"></script>\n")
-            append("  <script src=\"./js/android-large-files.js?v=40\"></script>\n")
-            append("  <script src=\"./js/android-older-files.js?v=40\"></script>\n")
-            append("  <script src=\"./js/android-downloads.js?v=40\"></script>\n")
-            append("  <script src=\"./js/android-installers.js?v=40\"></script>\n")
-            append("  <script src=\"./js/android-archives.js?v=40\"></script>\n")
-            append("  <script src=\"./js/android-zero.js?v=40\"></script>\n")
-            append("  <script src=\"./js/android-empty-folders.js?v=40\"></script>\n")
-            append("  <script src=\"./js/android-native.js?v=40\"></script>\n")
-            append("  <script src=\"./js/android-review.js?v=40\"></script>\n")
-            append("  <script src=\"./js/android-support.js?v=40\"></script>\n")
-            append("  <script src=\"./js/android-scan-trust.js?v=40\"></script>\n")
-            append("  <script src=\"./js/android-live-scan.js?v=40\"></script>\n")
-            append("  <script src=\"./js/android-review-media.js?v=40\"></script>\n")
-            append("  <script src=\"./js/android-premium-color.js?v=40\"></script>\n")
-            append("  <script src=\"./js/android-pro-ui.js?v=40\"></script>\n")
-            append("  <script src=\"./js/android-plan-status.js?v=40\"></script>\n")
-            append("  <script src=\"./js/android-readability.js?v=40\"></script>\n")
-            append("  <script src=\"./js/android-custom-scan.js?v=40\"></script>\n")
-            append("  <script src=\"./js/android-shell-ux.js?v=40\"></script>\n")
-            append("  <script src=\"./js/android-build-truth.js?v=40\"></script>\n")
+            append("  <script src=\"./js/android-entitlement.js?v=41\"></script>\n")
+            append("  <script src=\"./js/android-hidden-items.js?v=41\"></script>\n")
+            append("  <script src=\"./js/android-cleanup.js?v=41\"></script>\n")
+            append("  <script src=\"./js/android-duplicates.js?v=41\"></script>\n")
+            append("  <script src=\"./js/android-large-files.js?v=41\"></script>\n")
+            append("  <script src=\"./js/android-older-files.js?v=41\"></script>\n")
+            append("  <script src=\"./js/android-downloads.js?v=41\"></script>\n")
+            append("  <script src=\"./js/android-installers.js?v=41\"></script>\n")
+            append("  <script src=\"./js/android-archives.js?v=41\"></script>\n")
+            append("  <script src=\"./js/android-zero.js?v=41\"></script>\n")
+            append("  <script src=\"./js/android-empty-folders.js?v=41\"></script>\n")
+            append("  <script src=\"./js/android-native.js?v=41\"></script>\n")
+            append("  <script src=\"./js/android-review.js?v=41\"></script>\n")
+            append("  <script src=\"./js/android-support.js?v=41\"></script>\n")
+            append("  <script src=\"./js/android-scan-trust.js?v=41\"></script>\n")
+            append("  <script src=\"./js/android-live-scan.js?v=41\"></script>\n")
+            append("  <script src=\"./js/android-review-media.js?v=41\"></script>\n")
+            append("  <script src=\"./js/android-premium-color.js?v=41\"></script>\n")
+            append("  <script src=\"./js/android-pro-ui.js?v=41\"></script>\n")
+            append("  <script src=\"./js/android-plan-status.js?v=41\"></script>\n")
+            append("  <script src=\"./js/android-readability.js?v=41\"></script>\n")
+            append("  <script src=\"./js/android-custom-scan.js?v=41\"></script>\n")
+            append("  <script src=\"./js/android-shell-ux.js?v=41\"></script>\n")
+            append("  <script src=\"./js/android-build-truth.js?v=41\"></script>\n")
         }
         check(originalHtml.contains("</body>")) { "Legacy index.html is missing </body>" }
         generatedIndex.writeText(originalHtml.replace("</body>", androidTags + "</body>"), StandardCharsets.UTF_8)
@@ -203,8 +203,8 @@ android {
         applicationId = "com.benedictinteractive.bearagnostic"
         minSdk = 26
         targetSdk = 36
-        versionCode = 40
-        versionName = "0.30.0-alpha40"
+        versionCode = 41
+        versionName = "0.30.1-alpha41"
     }
 
     sourceSets {

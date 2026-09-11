@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const BUILD = 40;
+  const BUILD = 41;
   const HINT_STORAGE_KEY = 'bearagnostic.scrollCue.seen.v1';
   const OVERFLOW_EPSILON = 8;
   const BOTTOM_EPSILON = 10;
@@ -42,13 +42,13 @@
     const style = document.createElement('style');
     style.id = 'androidShellUxStyle';
     style.textContent = `
-      /* B40 app-shell UX: root navigation stays consistent; focused tasks stay focused. */
+      /* B41 app-shell UX: root navigation and standard footer stay consistent; focused tasks stay focused. */
       #nativeHomeButton{display:none!important}
       #toolsScreen.ba-tools-expandable{overflow-y:auto!important;overscroll-behavior-y:contain;-webkit-overflow-scrolling:touch;padding-bottom:24px!important;scrollbar-width:none}
       #toolsScreen.ba-tools-expandable::-webkit-scrollbar{display:none}
-      .app-shell.is-checkup.ba-checkup-root{grid-template-rows:auto minmax(0,1fr) auto!important}
+      .app-shell.is-checkup.ba-checkup-root{grid-template-rows:auto minmax(0,1fr) auto auto!important}
       .app-shell.is-checkup.ba-checkup-root .bottom-nav{display:grid!important}
-      .app-shell.is-checkup.ba-checkup-root .app-footer{display:none!important}
+      .app-shell.is-checkup.ba-checkup-root .app-footer{display:flex!important}
       .app-shell.is-checkup.ba-checkup-root .app-main{overflow:hidden!important}
       .app-shell.is-checkup.ba-checkup-root #checkupScreen.is-active:not([data-state="running"]){overflow-y:auto!important;overscroll-behavior-y:contain;-webkit-overflow-scrolling:touch;padding-bottom:clamp(12px,1.6dvh,18px)!important}
       .app-shell.is-checkup.ba-checkup-root .bottom-nav .nav-button[data-nav="checkup"]{color:var(--blue)!important}

@@ -30,12 +30,12 @@ def require(condition: bool, message: str) -> None:
 
 def check_build_contracts() -> None:
     gradle = read("app/build.gradle.kts")
-    require('versionCode = 40' in gradle, "B40 versionCode must be 40")
-    require('versionName = "0.30.0-alpha40"' in gradle, "B40 versionName mismatch")
+    require('versionCode = 41' in gradle, "B41 versionCode must be 41")
+    require('versionName = "0.30.1-alpha41"' in gradle, "B41 versionName mismatch")
 
     cache_versions = re.findall(r'android-[a-z-]+\.js\?v=(\d+)', gradle)
     require(cache_versions, "no Android adapter cache versions found")
-    require(set(cache_versions) == {"40"}, f"adapter cache versions are not coherent: {sorted(set(cache_versions))}")
+    require(set(cache_versions) == {"41"}, f"adapter cache versions are not coherent: {sorted(set(cache_versions))}")
 
     require("androidDownloads" in gradle, "Downloads Review adapter is not registered")
     require("androidInstallers" in gradle, "APK Installers adapter is not registered")
@@ -43,24 +43,24 @@ def check_build_contracts() -> None:
     require("androidZero" in gradle, "Zero-byte Files adapter is not registered")
     require("androidEmptyFolders" in gradle, "Empty Folders adapter is not registered")
     require("androidShellUx" in gradle, "Shell UX adapter is not registered")
-    require('android-downloads.js?v=40' in gradle, "Downloads Review adapter is not loaded at B40")
-    require('android-installers.js?v=40' in gradle, "APK Installers adapter is not loaded at B40")
-    require('android-archives.js?v=40' in gradle, "Archives adapter is not loaded at B40")
-    require('android-zero.js?v=40' in gradle, "Zero-byte Files adapter is not loaded at B40")
-    require('android-empty-folders.js?v=40' in gradle, "Empty Folders adapter is not loaded at B40")
-    require('android-shell-ux.js?v=40' in gradle, "Shell UX adapter is not loaded at B40")
-    require('android-build-truth.js?v=40' in gradle, "build-truth adapter is not loaded at B40")
+    require('android-downloads.js?v=41' in gradle, "Downloads Review adapter is not loaded at B40")
+    require('android-installers.js?v=41' in gradle, "APK Installers adapter is not loaded at B40")
+    require('android-archives.js?v=41' in gradle, "Archives adapter is not loaded at B40")
+    require('android-zero.js?v=41' in gradle, "Zero-byte Files adapter is not loaded at B40")
+    require('android-empty-folders.js?v=41' in gradle, "Empty Folders adapter is not loaded at B40")
+    require('android-shell-ux.js?v=41' in gradle, "Shell UX adapter is not loaded at B40")
+    require('android-build-truth.js?v=41' in gradle, "build-truth adapter is not loaded at B40")
 
-    downloads_pos = gradle.find('android-downloads.js?v=40')
-    installers_pos = gradle.find('android-installers.js?v=40')
-    archives_pos = gradle.find('android-archives.js?v=40')
-    zero_pos = gradle.find('android-zero.js?v=40')
-    empty_pos = gradle.find('android-empty-folders.js?v=40')
-    native_pos = gradle.find('android-native.js?v=40')
-    shell_pos = gradle.find('android-shell-ux.js?v=40')
-    truth_pos = gradle.find('android-build-truth.js?v=40')
+    downloads_pos = gradle.find('android-downloads.js?v=41')
+    installers_pos = gradle.find('android-installers.js?v=41')
+    archives_pos = gradle.find('android-archives.js?v=41')
+    zero_pos = gradle.find('android-zero.js?v=41')
+    empty_pos = gradle.find('android-empty-folders.js?v=41')
+    native_pos = gradle.find('android-native.js?v=41')
+    shell_pos = gradle.find('android-shell-ux.js?v=41')
+    truth_pos = gradle.find('android-build-truth.js?v=41')
     require(0 <= downloads_pos < installers_pos < archives_pos < zero_pos < empty_pos < native_pos < shell_pos < truth_pos,
-            "adapter ownership/load order is unsafe for B40 Phase A / shell UX")
+            "adapter ownership/load order is unsafe for B41 Phase A / shell UX")
 
 
 
@@ -273,7 +273,7 @@ def check_empty_folder_contracts() -> None:
 
 def check_shell_ux_contracts() -> None:
     ui = read("app/src/main/legacy-adapter/android-shell-ux.js")
-    require("const BUILD = 40;" in ui, "Shell UX adapter build marker mismatch")
+    require("const BUILD = 41;" in ui, "Shell UX adapter B41 build marker mismatch")
     require("scrollHeight > element.clientHeight + OVERFLOW_EPSILON" in ui,
             "Scroll continuation cue is not conditioned on real overflow")
     require("scroller.scrollTop + scroller.clientHeight >= scroller.scrollHeight - BOTTOM_EPSILON" in ui,
@@ -285,6 +285,12 @@ def check_shell_ux_contracts() -> None:
     require("ba-checkup-root" in ui, "Checkup root shell state is missing")
     require(".app-shell.is-checkup.ba-checkup-root .bottom-nav{display:grid!important}" in ui,
             "Checkup root does not restore the primary bottom navigation")
+    require("grid-template-rows:auto minmax(0,1fr) auto auto!important" in ui,
+            "Checkup root shell does not reserve the normal footer row")
+    require(".app-shell.is-checkup.ba-checkup-root .app-footer{display:flex!important}" in ui,
+            "Checkup root does not restore the standard Benedict Interactive footer")
+    require(".app-shell.is-checkup.ba-checkup-root .app-footer{display:none!important}" not in ui,
+            "Checkup root still suppresses the standard footer")
     require("state === 'running'" in ui and "state === 'idle' || state === 'complete'" in ui,
             "Checkup bottom navigation is not limited to non-running root states")
     require("#nativeModeSheet:not([hidden])" in ui, "Checkup mode-picker focused state is not detected")
