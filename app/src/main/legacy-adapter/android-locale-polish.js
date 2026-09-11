@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const BUILD = 46;
+  const BUILD = 47;
   const byId = (id) => document.getElementById(id);
   let refreshQueued = false;
 
@@ -13,11 +13,11 @@
   }
 
   function ensureStyle() {
-    if (byId('androidLocalePolish46Style')) return;
+    if (byId('androidLocalePolish47Style')) return;
     const style = document.createElement('style');
-    style.id = 'androidLocalePolish46Style';
+    style.id = 'androidLocalePolish47Style';
     style.textContent = `
-      /* B46 — locale-safe geometry. Secondary headers grow with their real text. */
+      /* B47 — locale-safe geometry. Secondary headers grow with their real text. */
       #privacyScreen.is-active:not([hidden]){
         display:grid!important;
         grid-template-rows:auto minmax(0,1fr)!important;
@@ -94,6 +94,194 @@
         filter:drop-shadow(0 2px 2px rgba(34,73,98,.26))!important;
       }
 
+      /* B47 heading system — one visual hierarchy, tuned natively per script. */
+      html[lang^="en"]{
+        --ba-display-heading-size:clamp(28px,7.65vw,40px);
+        --ba-display-heading-leading:1.08;
+        --ba-section-heading-size:clamp(24px,6.45vw,31px);
+        --ba-section-heading-leading:1.14;
+        --ba-workspace-heading-size:clamp(21.5px,5.7vw,26px);
+        --ba-workspace-heading-leading:1.18;
+      }
+      html[lang^="th"]{
+        --ba-display-heading-size:clamp(26.5px,7.15vw,33px);
+        --ba-display-heading-leading:1.20;
+        --ba-section-heading-size:clamp(22px,5.9vw,27px);
+        --ba-section-heading-leading:1.25;
+        --ba-workspace-heading-size:clamp(20.5px,5.4vw,24px);
+        --ba-workspace-heading-leading:1.27;
+      }
+      html[lang^="ja"]{
+        --ba-display-heading-size:clamp(26.5px,7.1vw,34px);
+        --ba-display-heading-leading:1.20;
+        --ba-section-heading-size:clamp(22px,5.85vw,27.5px);
+        --ba-section-heading-leading:1.25;
+        --ba-workspace-heading-size:clamp(20.5px,5.35vw,24.5px);
+        --ba-workspace-heading-leading:1.27;
+      }
+
+      /* Primary display headings: Checkup + Insights. */
+      #checkupScreen .scan-title,
+      #insightsScreen .ba-insights-head h2{
+        font-size:var(--ba-display-heading-size)!important;
+        line-height:var(--ba-display-heading-leading)!important;
+        text-wrap:balance;
+        overflow-wrap:break-word;
+        word-break:normal;
+      }
+
+      /* Secondary page headings: Tools / More / Settings / Legal / Pro. */
+      #toolsScreen .utility-head h2,
+      #moreScreen .panel-head h2,
+      #preferencesScreen .settings-title-row h2,
+      #privacyScreen .settings-title-row h2,
+      .ba-legal-title,
+      .ba-pro-title{
+        font-size:var(--ba-section-heading-size)!important;
+        line-height:var(--ba-section-heading-leading)!important;
+        text-wrap:balance;
+        overflow-wrap:break-word;
+        word-break:normal;
+      }
+
+      /* First-class workspace headings share a calmer scale than page-level display copy. */
+      .ba-media-title,
+      .ba-downloads-title,
+      .ba-installers-title,
+      .ba-archives-title,
+      .ba-zero-title,
+      .ba-empty-title,
+      .ba-large-head h2,
+      .ba-old-head h2,
+      .ba-dup-head h2,
+      .ba-qc-head h2,
+      .native-pro-surface h2{
+        font-size:var(--ba-workspace-heading-size)!important;
+        line-height:var(--ba-workspace-heading-leading)!important;
+        text-wrap:pretty;
+        overflow-wrap:break-word;
+        word-break:normal;
+      }
+
+      /* Lead copy receives the same breathing-room discipline as its heading. */
+      #checkupScreen .scan-subtitle{
+        margin-top:clamp(11px,1.55dvh,16px)!important;
+        line-height:1.46!important;
+      }
+      #insightsScreen .ba-insights-head p{
+        margin-top:12px!important;
+        line-height:1.58!important;
+      }
+      #toolsScreen .utility-head p,
+      #moreScreen .panel-head p{
+        line-height:1.52!important;
+      }
+
+      /* Thai uses natural Thai metrics: no Latin-tight tracking and more vertical room. */
+      html[lang^="th"] #checkupScreen .scan-title,
+      html[lang^="th"] #insightsScreen .ba-insights-head h2,
+      html[lang^="th"] #toolsScreen .utility-head h2,
+      html[lang^="th"] #moreScreen .panel-head h2,
+      html[lang^="th"] #preferencesScreen .settings-title-row h2,
+      html[lang^="th"] #privacyScreen .settings-title-row h2,
+      html[lang^="th"] .ba-legal-title,
+      html[lang^="th"] .ba-pro-title,
+      html[lang^="th"] .ba-media-title,
+      html[lang^="th"] .ba-downloads-title,
+      html[lang^="th"] .ba-installers-title,
+      html[lang^="th"] .ba-archives-title,
+      html[lang^="th"] .ba-zero-title,
+      html[lang^="th"] .ba-empty-title,
+      html[lang^="th"] .ba-large-head h2,
+      html[lang^="th"] .ba-old-head h2,
+      html[lang^="th"] .ba-dup-head h2,
+      html[lang^="th"] .ba-qc-head h2{
+        font-family:var(--ui)!important;
+        letter-spacing:0!important;
+        font-style:normal!important;
+      }
+      html[lang^="th"] #checkupScreen .scan-title{font-weight:720!important}
+      html[lang^="th"] #insightsScreen .ba-insights-head h2{font-weight:570!important}
+      html[lang^="th"] #toolsScreen .utility-head h2,
+      html[lang^="th"] #moreScreen .panel-head h2,
+      html[lang^="th"] #preferencesScreen .settings-title-row h2,
+      html[lang^="th"] #privacyScreen .settings-title-row h2,
+      html[lang^="th"] .ba-legal-title,
+      html[lang^="th"] .ba-pro-title{font-weight:610!important}
+
+      html[lang^="th"] #checkupScreen .scan-kicker,
+      html[lang^="th"] #insightsScreen .ba-insights-kicker,
+      html[lang^="th"] #toolsScreen .utility-head>span,
+      html[lang^="th"] #moreScreen .panel-head>span,
+      html[lang^="th"] .settings-title-row>div>span{
+        letter-spacing:.045em!important;
+        line-height:1.38!important;
+      }
+      html[lang^="th"] #checkupScreen .scan-subtitle,
+      html[lang^="th"] #insightsScreen .ba-insights-head p{
+        line-height:1.64!important;
+        letter-spacing:0!important;
+      }
+
+      /* Japanese keeps system-native glyphs and relaxed vertical metrics. */
+      html[lang^="ja"] #checkupScreen .scan-title,
+      html[lang^="ja"] #insightsScreen .ba-insights-head h2,
+      html[lang^="ja"] #toolsScreen .utility-head h2,
+      html[lang^="ja"] #moreScreen .panel-head h2,
+      html[lang^="ja"] #preferencesScreen .settings-title-row h2,
+      html[lang^="ja"] #privacyScreen .settings-title-row h2,
+      html[lang^="ja"] .ba-legal-title,
+      html[lang^="ja"] .ba-pro-title,
+      html[lang^="ja"] .ba-media-title,
+      html[lang^="ja"] .ba-downloads-title,
+      html[lang^="ja"] .ba-installers-title,
+      html[lang^="ja"] .ba-archives-title,
+      html[lang^="ja"] .ba-zero-title,
+      html[lang^="ja"] .ba-empty-title,
+      html[lang^="ja"] .ba-large-head h2,
+      html[lang^="ja"] .ba-old-head h2,
+      html[lang^="ja"] .ba-dup-head h2,
+      html[lang^="ja"] .ba-qc-head h2{
+        font-family:var(--ui)!important;
+        letter-spacing:.005em!important;
+        font-style:normal!important;
+      }
+      html[lang^="ja"] #checkupScreen .scan-title{font-weight:650!important}
+      html[lang^="ja"] #insightsScreen .ba-insights-head h2{font-weight:540!important}
+      html[lang^="ja"] #toolsScreen .utility-head h2,
+      html[lang^="ja"] #moreScreen .panel-head h2,
+      html[lang^="ja"] #preferencesScreen .settings-title-row h2,
+      html[lang^="ja"] #privacyScreen .settings-title-row h2,
+      html[lang^="ja"] .ba-legal-title,
+      html[lang^="ja"] .ba-pro-title{font-weight:570!important}
+
+      html[lang^="ja"] #checkupScreen .scan-kicker,
+      html[lang^="ja"] #insightsScreen .ba-insights-kicker{
+        letter-spacing:.09em!important;
+      }
+      html[lang^="ja"] #checkupScreen .scan-subtitle,
+      html[lang^="ja"] #insightsScreen .ba-insights-head p{
+        line-height:1.64!important;
+      }
+
+      /* On phone-width Insights, the LOCAL ONLY badge gets its own row so the title owns full width. */
+      @media(max-width:430px){
+        #insightsScreen .ba-insights-head{
+          grid-template-columns:minmax(0,1fr)!important;
+          gap:7px!important;
+        }
+        #insightsScreen .ba-insights-local{
+          grid-column:1!important;
+          grid-row:1!important;
+          justify-self:end!important;
+        }
+        #insightsScreen .ba-insights-head>div:first-child{
+          grid-column:1!important;
+          grid-row:2!important;
+          min-width:0!important;
+        }
+      }
+
       /* Shared multilingual text safety. Never solve expansion by shrinking critical copy. */
       #homeScreen .home-hero h1,
       #homeScreen .editorial-card blockquote,
@@ -144,10 +332,8 @@
       }
       html[lang^="th"] #privacyScreen .settings-title-row h2{
         font-family:var(--ui)!important;
-        font-size:clamp(23px,6.35vw,28px)!important;
         font-weight:620!important;
         letter-spacing:0!important;
-        line-height:1.30!important;
       }
       html[lang^="th"] #privacyScreen .settings-title-row>div>span{
         line-height:1.35!important;
@@ -189,9 +375,7 @@
       }
       html[lang^="ja"] #privacyScreen .settings-title-row h2{
         font-family:var(--ui)!important;
-        font-size:clamp(23px,6.2vw,28px)!important;
         font-weight:580!important;
-        line-height:1.30!important;
         letter-spacing:0!important;
       }
       html[lang^="ja"] #privacyScreen .privacy-principle-card__copy{
@@ -200,12 +384,13 @@
 
       /* Narrow-device guard: preserve readability and let headers grow vertically. */
       @media(max-width:360px){
+        html[lang^="en"]{--ba-display-heading-size:clamp(27px,7.45vw,34px);--ba-section-heading-size:clamp(23px,6.25vw,28px);--ba-workspace-heading-size:clamp(20.5px,5.55vw,24px)}
+        html[lang^="th"]{--ba-display-heading-size:clamp(25px,6.9vw,30.5px);--ba-section-heading-size:clamp(21px,5.75vw,25px);--ba-workspace-heading-size:clamp(19.5px,5.3vw,22.5px)}
+        html[lang^="ja"]{--ba-display-heading-size:clamp(25px,6.85vw,31px);--ba-section-heading-size:clamp(21px,5.7vw,25px);--ba-workspace-heading-size:clamp(19.5px,5.25vw,23px)}
         #privacyScreen.is-active:not([hidden]){row-gap:8px!important}
         #privacyScreen .settings-title-row{gap:10px!important}
-        html[lang^="th"] #privacyScreen .settings-title-row h2{font-size:22px!important;line-height:1.30!important}
         html[lang^="th"] #homeScreen .home-hero h1{font-size:17px!important;line-height:1.34!important}
         html[lang^="th"] #homeScreen .editorial-card blockquote{font-size:13.8px!important;line-height:1.42!important}
-        html[lang^="ja"] #privacyScreen .settings-title-row h2{font-size:22px!important}
       }
     `;
     document.head.appendChild(style);
@@ -213,9 +398,9 @@
 
   function strengthenSemanticIcons() {
     const legalIcon = document.querySelector('#baLegalRow .soft-icon');
-    if (legalIcon) legalIcon.setAttribute('data-b46-contrast', 'strong');
+    if (legalIcon) legalIcon.setAttribute('data-b47-contrast', 'strong');
     const privacyIcon = document.querySelector('#privacyScreen .privacy-principle-card__icon');
-    if (privacyIcon) privacyIcon.setAttribute('data-b46-contrast', 'strong');
+    if (privacyIcon) privacyIcon.setAttribute('data-b47-contrast', 'strong');
   }
 
   function protectPrivacyGeometry() {
@@ -223,14 +408,14 @@
     const title = screen?.querySelector('.settings-title-row');
     const scroll = screen?.querySelector('.settings-scroll');
     if (!screen || !title || !scroll) return;
-    screen.dataset.b46LocaleSafe = 'true';
+    screen.dataset.b47LocaleSafe = 'true';
     title.style.removeProperty('height');
     scroll.style.removeProperty('height');
   }
 
   function refresh() {
     ensureStyle();
-    document.documentElement.dataset.b46Language = language();
+    document.documentElement.dataset.b47Language = language();
     strengthenSemanticIcons();
     protectPrivacyGeometry();
   }
