@@ -28,6 +28,7 @@ val androidOlderFiles = layout.projectDirectory.file("src/main/legacy-adapter/an
 val androidDownloads = layout.projectDirectory.file("src/main/legacy-adapter/android-downloads.js").asFile
 val androidInstallers = layout.projectDirectory.file("src/main/legacy-adapter/android-installers.js").asFile
 val androidArchives = layout.projectDirectory.file("src/main/legacy-adapter/android-archives.js").asFile
+val androidZero = layout.projectDirectory.file("src/main/legacy-adapter/android-zero.js").asFile
 val androidProUi = layout.projectDirectory.file("src/main/legacy-adapter/android-pro-ui.js").asFile
 val androidPlanStatus = layout.projectDirectory.file("src/main/legacy-adapter/android-plan-status.js").asFile
 val androidReadability = layout.projectDirectory.file("src/main/legacy-adapter/android-readability.js").asFile
@@ -71,7 +72,7 @@ val legacyCriticalBlobs = mapOf(
 val prepareLegacyFrontend by tasks.registering {
     group = "bearagnostic"
     description = "Imports the approved Bearagnostic PWA byte-for-byte, then overlays Android integration modules."
-    inputs.files(androidAdapter, androidReview, androidSupport, androidScanTrust, androidLiveScan, androidReviewMedia, androidPremiumColor, androidEntitlement, androidHiddenItems, androidCleanup, androidDuplicates, androidLargeFiles, androidOlderFiles, androidDownloads, androidInstallers, androidArchives, androidProUi, androidPlanStatus, androidReadability, androidCustomScan, androidBuildTruth)
+    inputs.files(androidAdapter, androidReview, androidSupport, androidScanTrust, androidLiveScan, androidReviewMedia, androidPremiumColor, androidEntitlement, androidHiddenItems, androidCleanup, androidDuplicates, androidLargeFiles, androidOlderFiles, androidDownloads, androidInstallers, androidArchives, androidZero, androidProUi, androidPlanStatus, androidReadability, androidCustomScan, androidBuildTruth)
     inputs.dir(nativeAssetsDir)
     inputs.property("legacyCommit", legacyCommit)
     outputs.dir(generatedLegacyAssetsDir)
@@ -122,28 +123,29 @@ val prepareLegacyFrontend by tasks.registering {
         val originalHtml = generatedIndex.readText(StandardCharsets.UTF_8)
         val androidTags = buildString {
             // Entitlement loads first so its capture guard can protect Pro-only actions
-            // before the Android interaction adapter handles them. Hidden-item privacy loads before dedicated review tools; Quick Clean, Exact Duplicates, Large Files, Older Files, Downloads Review, APK Installers and Archives capture their dedicated entries before generic tool handling; Pro plan status loads after Pro UI; readability loads late; Custom Scan owns its responsive composition; build-truth loads last so visible version labels always resolve from native BuildConfig.
-            append("  <script src=\"./js/android-entitlement.js?v=38\"></script>\n")
-            append("  <script src=\"./js/android-hidden-items.js?v=38\"></script>\n")
-            append("  <script src=\"./js/android-cleanup.js?v=38\"></script>\n")
-            append("  <script src=\"./js/android-duplicates.js?v=38\"></script>\n")
-            append("  <script src=\"./js/android-large-files.js?v=38\"></script>\n")
-            append("  <script src=\"./js/android-older-files.js?v=38\"></script>\n")
-            append("  <script src=\"./js/android-downloads.js?v=38\"></script>\n")
-            append("  <script src=\"./js/android-installers.js?v=38\"></script>\n")
-            append("  <script src=\"./js/android-archives.js?v=38\"></script>\n")
-            append("  <script src=\"./js/android-native.js?v=38\"></script>\n")
-            append("  <script src=\"./js/android-review.js?v=38\"></script>\n")
-            append("  <script src=\"./js/android-support.js?v=38\"></script>\n")
-            append("  <script src=\"./js/android-scan-trust.js?v=38\"></script>\n")
-            append("  <script src=\"./js/android-live-scan.js?v=38\"></script>\n")
-            append("  <script src=\"./js/android-review-media.js?v=38\"></script>\n")
-            append("  <script src=\"./js/android-premium-color.js?v=38\"></script>\n")
-            append("  <script src=\"./js/android-pro-ui.js?v=38\"></script>\n")
-            append("  <script src=\"./js/android-plan-status.js?v=38\"></script>\n")
-            append("  <script src=\"./js/android-readability.js?v=38\"></script>\n")
-            append("  <script src=\"./js/android-custom-scan.js?v=38\"></script>\n")
-            append("  <script src=\"./js/android-build-truth.js?v=38\"></script>\n")
+            // before the Android interaction adapter handles them. Hidden-item privacy loads before dedicated review tools; Quick Clean, Exact Duplicates, Large Files, Older Files, Downloads Review, APK Installers, Archives, and Zero-byte Files capture their dedicated entries before generic tool handling; Pro plan status loads after Pro UI; readability loads late; Custom Scan owns its responsive composition; build-truth loads last so visible version labels always resolve from native BuildConfig.
+            append("  <script src=\"./js/android-entitlement.js?v=39\"></script>\n")
+            append("  <script src=\"./js/android-hidden-items.js?v=39\"></script>\n")
+            append("  <script src=\"./js/android-cleanup.js?v=39\"></script>\n")
+            append("  <script src=\"./js/android-duplicates.js?v=39\"></script>\n")
+            append("  <script src=\"./js/android-large-files.js?v=39\"></script>\n")
+            append("  <script src=\"./js/android-older-files.js?v=39\"></script>\n")
+            append("  <script src=\"./js/android-downloads.js?v=39\"></script>\n")
+            append("  <script src=\"./js/android-installers.js?v=39\"></script>\n")
+            append("  <script src=\"./js/android-archives.js?v=39\"></script>\n")
+            append("  <script src=\"./js/android-zero.js?v=39\"></script>\n")
+            append("  <script src=\"./js/android-native.js?v=39\"></script>\n")
+            append("  <script src=\"./js/android-review.js?v=39\"></script>\n")
+            append("  <script src=\"./js/android-support.js?v=39\"></script>\n")
+            append("  <script src=\"./js/android-scan-trust.js?v=39\"></script>\n")
+            append("  <script src=\"./js/android-live-scan.js?v=39\"></script>\n")
+            append("  <script src=\"./js/android-review-media.js?v=39\"></script>\n")
+            append("  <script src=\"./js/android-premium-color.js?v=39\"></script>\n")
+            append("  <script src=\"./js/android-pro-ui.js?v=39\"></script>\n")
+            append("  <script src=\"./js/android-plan-status.js?v=39\"></script>\n")
+            append("  <script src=\"./js/android-readability.js?v=39\"></script>\n")
+            append("  <script src=\"./js/android-custom-scan.js?v=39\"></script>\n")
+            append("  <script src=\"./js/android-build-truth.js?v=39\"></script>\n")
         }
         check(originalHtml.contains("</body>")) { "Legacy index.html is missing </body>" }
         generatedIndex.writeText(originalHtml.replace("</body>", androidTags + "</body>"), StandardCharsets.UTF_8)
@@ -166,6 +168,7 @@ val prepareLegacyFrontend by tasks.registering {
         androidDownloads.copyTo(File(jsRoot, "android-downloads.js"), overwrite = true)
         androidInstallers.copyTo(File(jsRoot, "android-installers.js"), overwrite = true)
         androidArchives.copyTo(File(jsRoot, "android-archives.js"), overwrite = true)
+        androidZero.copyTo(File(jsRoot, "android-zero.js"), overwrite = true)
         androidProUi.copyTo(File(jsRoot, "android-pro-ui.js"), overwrite = true)
         androidPlanStatus.copyTo(File(jsRoot, "android-plan-status.js"), overwrite = true)
         androidReadability.copyTo(File(jsRoot, "android-readability.js"), overwrite = true)
@@ -194,8 +197,8 @@ android {
         applicationId = "com.benedictinteractive.bearagnostic"
         minSdk = 26
         targetSdk = 36
-        versionCode = 38
-        versionName = "0.28.0-alpha38"
+        versionCode = 39
+        versionName = "0.29.0-alpha39"
     }
 
     sourceSets {

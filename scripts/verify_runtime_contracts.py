@@ -30,27 +30,30 @@ def require(condition: bool, message: str) -> None:
 
 def check_build_contracts() -> None:
     gradle = read("app/build.gradle.kts")
-    require('versionCode = 38' in gradle, "B38 versionCode must be 38")
-    require('versionName = "0.28.0-alpha38"' in gradle, "B38 versionName mismatch")
+    require('versionCode = 39' in gradle, "B39 versionCode must be 39")
+    require('versionName = "0.29.0-alpha39"' in gradle, "B39 versionName mismatch")
 
     cache_versions = re.findall(r'android-[a-z-]+\.js\?v=(\d+)', gradle)
     require(cache_versions, "no Android adapter cache versions found")
-    require(set(cache_versions) == {"38"}, f"adapter cache versions are not coherent: {sorted(set(cache_versions))}")
+    require(set(cache_versions) == {"39"}, f"adapter cache versions are not coherent: {sorted(set(cache_versions))}")
 
     require("androidDownloads" in gradle, "Downloads Review adapter is not registered")
     require("androidInstallers" in gradle, "APK Installers adapter is not registered")
     require("androidArchives" in gradle, "Archives adapter is not registered")
-    require('android-downloads.js?v=38' in gradle, "Downloads Review adapter is not loaded at B38")
-    require('android-installers.js?v=38' in gradle, "APK Installers adapter is not loaded at B38")
-    require('android-archives.js?v=38' in gradle, "Archives adapter is not loaded at B38")
-    require('android-build-truth.js?v=38' in gradle, "build-truth adapter is not loaded at B38")
+    require("androidZero" in gradle, "Zero-byte Files adapter is not registered")
+    require('android-downloads.js?v=39' in gradle, "Downloads Review adapter is not loaded at B39")
+    require('android-installers.js?v=39' in gradle, "APK Installers adapter is not loaded at B39")
+    require('android-archives.js?v=39' in gradle, "Archives adapter is not loaded at B39")
+    require('android-zero.js?v=39' in gradle, "Zero-byte Files adapter is not loaded at B39")
+    require('android-build-truth.js?v=39' in gradle, "build-truth adapter is not loaded at B39")
 
-    downloads_pos = gradle.find('android-downloads.js?v=38')
-    installers_pos = gradle.find('android-installers.js?v=38')
-    archives_pos = gradle.find('android-archives.js?v=38')
-    native_pos = gradle.find('android-native.js?v=38')
-    truth_pos = gradle.find('android-build-truth.js?v=38')
-    require(0 <= downloads_pos < installers_pos < archives_pos < native_pos < truth_pos, "adapter ownership/load order is unsafe for Phase A review tools")
+    downloads_pos = gradle.find('android-downloads.js?v=39')
+    installers_pos = gradle.find('android-installers.js?v=39')
+    archives_pos = gradle.find('android-archives.js?v=39')
+    zero_pos = gradle.find('android-zero.js?v=39')
+    native_pos = gradle.find('android-native.js?v=39')
+    truth_pos = gradle.find('android-build-truth.js?v=39')
+    require(0 <= downloads_pos < installers_pos < archives_pos < zero_pos < native_pos < truth_pos, "adapter ownership/load order is unsafe for Phase A review tools")
 
 
 def check_native_guard_contracts() -> None:
@@ -183,6 +186,29 @@ def check_archives_contracts(*, patch_only: bool = False) -> None:
     require("anchor = list.querySelector('[data-tool=\"installers\"]')" in ui, "Archives is not positioned after APK Installers")
 
 
+def check_zero_byte_contracts() -> None:
+    ui = read("app/src/main/legacy-adapter/android-zero.js")
+
+    require("const BUILD = 39;" in ui, "Zero-byte Files adapter build marker mismatch")
+    require("const CATEGORY = 'zero';" in ui, "Zero-byte Files category mismatch")
+    require("const REVIEW_PAGE_SIZE = 250;" in ui, "Zero-byte Files review page size contract changed")
+    require("const MAX_DELETE_SELECTION = 500;" in ui, "Zero-byte Files UI deletion cap changed")
+    require("const STALE_REVIEW_MS = 15 * 60 * 1000;" in ui, "Zero-byte Files UI stale-review guard changed")
+    require("HIDDEN.filter" in ui, "Zero-byte Files does not honor Hidden Items privacy")
+    require("NATIVE.getReviewCandidates?.(CATEGORY, offset, REVIEW_PAGE_SIZE)" in ui, "Zero-byte Files is not reading native review candidates")
+    require("NATIVE.startScan?.('quick', '[]', false)" in ui, "Zero-byte Files refresh must use the Free metadata-only Quick Scan")
+    require("NATIVE.deleteReviewCandidates" in ui, "Zero-byte Files deletion is not routed through native verified deletion")
+    require('data-tool="zero"' in ui, "Zero-byte Files first-class Tools entry is missing")
+    require("ba-tools-expandable" in ui and "overflow-y:auto" in ui, "Tools screen growth is not handled by natural scrolling")
+    require("zeroKind(item)" in ui, "Zero-byte file type classification is missing")
+    require("Nothing here is selected automatically." in ui, "English no-auto-selection disclosure is missing for Zero-byte Files")
+    require("จะไม่เลือกไฟล์เหล่านี้ให้ลบอัตโนมัติ" in ui, "Thai no-auto-selection disclosure is missing for Zero-byte Files")
+    require("自動選択は行いません" in ui, "Japanese no-auto-selection disclosure is missing for Zero-byte Files")
+    require("0 B" in ui, "Zero-byte rationale is missing")
+    require("does not assume every 0 B file is disposable" in ui, "Zero-byte deletion uncertainty disclosure is missing")
+    require("anchor = list.querySelector('[data-tool=\"archives\"]')" in ui, "Zero-byte Files is not positioned after Archives")
+
+
 def check_build_truth_contract() -> None:
     js = read("app/src/main/legacy-adapter/android-build-truth.js")
     require("NATIVE.getNativeState" in js, "visible build labels are not sourced from native state")
@@ -225,6 +251,7 @@ def main() -> int:
         checks = [
             ("build/version/cache", check_build_contracts),
             ("Archives contracts", lambda: check_archives_contracts(patch_only=True)),
+            ("Zero-byte Files contracts", check_zero_byte_contracts),
             ("CI contract verification", check_ci_contract),
         ]
     else:
@@ -234,6 +261,7 @@ def main() -> int:
             ("Downloads Review contracts", check_downloads_review_contracts),
             ("APK Installers contracts", lambda: check_apk_installers_contracts(patch_only=False)),
             ("Archives contracts", lambda: check_archives_contracts(patch_only=False)),
+            ("Zero-byte Files contracts", check_zero_byte_contracts),
             ("native-sourced visible build labels", check_build_truth_contract),
             ("CI contract verification", check_ci_contract),
         ]
