@@ -1,16 +1,20 @@
 package com.benedictinteractive.bearagnostic
 
 import android.content.Context
+import android.content.pm.PackageInfo
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
 import android.media.MediaMetadataRetriever
+import android.os.Build
 import android.util.Base64
 import android.webkit.MimeTypeMap
 import org.json.JSONObject
 import java.io.ByteArrayOutputStream
 import java.io.File
+import java.security.MessageDigest
 import kotlin.math.max
 import kotlin.math.roundToInt
 
@@ -136,25 +140,167 @@ class ReviewMediaProvider(private val context: Context) {
         }
     }
 
-    @Suppress("DEPRECATION")
+    /**
+     * Reads APK metadata only when the user opens a review surface. This is deliberately
+     * separate from Quick Scan so Quick remains metadata-only at the filesystem layer.
+     *
+     * Android 11+ package visibility can make an installed-package lookup inconclusive.
+     * In that case the provider returns `not_confirmed`, never the stronger `not_installed`.
+     */
     private fun describeApk(file: File, variant: String, json: JSONObject) {
         val packageManager = context.packageManager
-        val info = packageManager.getPackageArchiveInfo(file.absolutePath, 0) ?: return
-        json.put("appVersion", info.versionName.orEmpty().take(MAX_TEXT_CHARS))
-        val applicationInfo = info.applicationInfo ?: return
-        applicationInfo.sourceDir = file.absolutePath
-        applicationInfo.publicSourceDir = file.absolutePath
-        try {
-            val label = packageManager.getApplicationLabel(applicationInfo).toString().trim()
-            if (label.isNotEmpty()) json.put("appName", label.take(MAX_TEXT_CHARS))
-        } catch (_: Exception) {}
-        if (variant != "compact") {
+        val archiveInfo = packageArchiveInfo(packageManager, file.absolutePath)
+        if (archiveInfo == null) {
+            json.put("apkMetadataStatus", "unavailable")
+            json.put("installStatus", "metadata_unavailable")
+            return
+        }
+
+        json.put("apkMetadataStatus", "available")
+        val packageName = archiveInfo.packageName.orEmpty().trim().take(MAX_TEXT_CHARS)
+        if (packageName.isNotEmpty()) json.put("packageName", packageName)
+        archiveInfo.versionName?.trim()?.takeIf { it.isNotEmpty() }?.let {
+            json.put("appVersion", it.take(MAX_TEXT_CHARS))
+        }
+        val archiveVersionCode = packageVersionCode(archiveInfo)
+        if (archiveVersionCode >= 0L) json.put("versionCode", archiveVersionCode)
+
+        val applicationInfo = archiveInfo.applicationInfo
+        if (applicationInfo != null) {
+            applicationInfo.sourceDir = file.absolutePath
+            applicationInfo.publicSourceDir = file.absolutePath
+            try {
+                val label = packageManager.getApplicationLabel(applicationInfo).toString().trim()
+                if (label.isNotEmpty()) json.put("appName", label.take(MAX_TEXT_CHARS))
+            } catch (_: Exception) {}
+        }
+
+        val archiveSigning = signingDigests(archiveInfo)
+        if (archiveSigning.isNotEmpty()) json.put("archiveSigningAvailable", true)
+
+        val installedInfo = packageName.takeIf { it.isNotEmpty() }?.let {
+            installedPackageInfo(packageManager, it)
+        }
+
+        if (installedInfo == null) {
+            val visibilityLimited = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
+            json.put("installedMatchConfirmed", false)
+            json.put("packageVisibilityLimited", visibilityLimited)
+            json.put("signingStatus", "not_checked")
+            json.put("installStatus", if (visibilityLimited) "not_confirmed" else "not_installed")
+        } else {
+            json.put("installedMatchConfirmed", true)
+            installedInfo.versionName?.trim()?.takeIf { it.isNotEmpty() }?.let {
+                json.put("installedVersion", it.take(MAX_TEXT_CHARS))
+            }
+            val installedVersionCode = packageVersionCode(installedInfo)
+            if (installedVersionCode >= 0L) json.put("installedVersionCode", installedVersionCode)
+
+            val installedSigning = signingDigests(installedInfo)
+            val signingStatus = when {
+                archiveSigning.isNotEmpty() && installedSigning.isNotEmpty() && archiveSigning.any { it in installedSigning } -> "verified_match"
+                archiveSigning.isNotEmpty() && installedSigning.isNotEmpty() -> "mismatch"
+                else -> "unavailable"
+            }
+            json.put("signingStatus", signingStatus)
+
+            val installStatus = when {
+                signingStatus == "mismatch" -> "identity_mismatch"
+                signingStatus != "verified_match" -> "installed_unverified_identity"
+                archiveVersionCode >= 0L && installedVersionCode >= 0L && archiveVersionCode < installedVersionCode -> "older_installer"
+                archiveVersionCode >= 0L && installedVersionCode >= 0L && archiveVersionCode == installedVersionCode -> "same_version_installed"
+                archiveVersionCode >= 0L && installedVersionCode >= 0L && archiveVersionCode > installedVersionCode -> "newer_installer"
+                else -> "installed_confirmed"
+            }
+            json.put("installStatus", installStatus)
+        }
+
+        if (variant != "compact" && applicationInfo != null) {
             try {
                 val drawable = packageManager.getApplicationIcon(applicationInfo)
                 drawableToBitmap(drawable, if (variant == "large") 220 else 128)?.useBitmap { bitmap ->
                     bitmapDataUrl(bitmap)?.let { json.put("previewDataUrl", it) }
                 }
             } catch (_: Exception) {}
+        }
+    }
+
+    private fun packageArchiveInfo(packageManager: PackageManager, path: String): PackageInfo? {
+        val flags = signingFlags()
+        return try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                packageManager.getPackageArchiveInfo(
+                    path,
+                    PackageManager.PackageInfoFlags.of(flags.toLong()),
+                )
+            } else {
+                @Suppress("DEPRECATION")
+                packageManager.getPackageArchiveInfo(path, flags)
+            }
+        } catch (_: Throwable) {
+            null
+        }
+    }
+
+    private fun installedPackageInfo(packageManager: PackageManager, packageName: String): PackageInfo? {
+        val flags = signingFlags()
+        return try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                packageManager.getPackageInfo(
+                    packageName,
+                    PackageManager.PackageInfoFlags.of(flags.toLong()),
+                )
+            } else {
+                @Suppress("DEPRECATION")
+                packageManager.getPackageInfo(packageName, flags)
+            }
+        } catch (_: PackageManager.NameNotFoundException) {
+            null
+        } catch (_: SecurityException) {
+            null
+        } catch (_: Throwable) {
+            null
+        }
+    }
+
+    private fun signingFlags(): Int = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+        PackageManager.GET_SIGNING_CERTIFICATES
+    } else {
+        @Suppress("DEPRECATION")
+        PackageManager.GET_SIGNATURES
+    }
+
+    private fun packageVersionCode(info: PackageInfo): Long = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+        info.longVersionCode.coerceAtLeast(0L)
+    } else {
+        @Suppress("DEPRECATION")
+        info.versionCode.toLong().coerceAtLeast(0L)
+    }
+
+    private fun signingDigests(info: PackageInfo): Set<String> {
+        val signatures = try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                val signingInfo = info.signingInfo ?: return emptySet()
+                if (signingInfo.hasMultipleSigners()) {
+                    signingInfo.apkContentsSigners
+                } else {
+                    signingInfo.signingCertificateHistory
+                }
+            } else {
+                @Suppress("DEPRECATION")
+                info.signatures
+            }
+        } catch (_: Throwable) {
+            null
+        } ?: return emptySet()
+
+        return signatures.mapNotNullTo(linkedSetOf()) { signature ->
+            try {
+                val digest = MessageDigest.getInstance("SHA-256").digest(signature.toByteArray())
+                digest.joinToString(separator = "") { byte -> "%02x".format(byte) }
+            } catch (_: Throwable) {
+                null
+            }
         }
     }
 

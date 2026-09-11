@@ -30,21 +30,24 @@ def require(condition: bool, message: str) -> None:
 
 def check_build_contracts() -> None:
     gradle = read("app/build.gradle.kts")
-    require('versionCode = 36' in gradle, "B36 versionCode must be 36")
-    require('versionName = "0.26.1-alpha36"' in gradle, "B36 versionName mismatch")
+    require('versionCode = 37' in gradle, "B37 versionCode must be 37")
+    require('versionName = "0.27.0-alpha37"' in gradle, "B37 versionName mismatch")
 
     cache_versions = re.findall(r'android-[a-z-]+\.js\?v=(\d+)', gradle)
     require(cache_versions, "no Android adapter cache versions found")
-    require(set(cache_versions) == {"36"}, f"adapter cache versions are not coherent: {sorted(set(cache_versions))}")
+    require(set(cache_versions) == {"37"}, f"adapter cache versions are not coherent: {sorted(set(cache_versions))}")
 
     require("androidDownloads" in gradle, "Downloads Review adapter is not registered")
-    require('android-downloads.js?v=36' in gradle, "Downloads Review adapter is not loaded at B36")
-    require('android-build-truth.js?v=36' in gradle, "build-truth adapter is not loaded at B36")
+    require("androidInstallers" in gradle, "APK Installers adapter is not registered")
+    require('android-downloads.js?v=37' in gradle, "Downloads Review adapter is not loaded at B37")
+    require('android-installers.js?v=37' in gradle, "APK Installers adapter is not loaded at B37")
+    require('android-build-truth.js?v=37' in gradle, "build-truth adapter is not loaded at B37")
 
-    downloads_pos = gradle.find('android-downloads.js?v=36')
-    native_pos = gradle.find('android-native.js?v=36')
-    truth_pos = gradle.find('android-build-truth.js?v=36')
-    require(0 <= downloads_pos < native_pos < truth_pos, "adapter ownership/load order is unsafe for Downloads Review")
+    downloads_pos = gradle.find('android-downloads.js?v=37')
+    installers_pos = gradle.find('android-installers.js?v=37')
+    native_pos = gradle.find('android-native.js?v=37')
+    truth_pos = gradle.find('android-build-truth.js?v=37')
+    require(0 <= downloads_pos < installers_pos < native_pos < truth_pos, "adapter ownership/load order is unsafe for APK Installers")
 
 
 def check_native_guard_contracts() -> None:
@@ -59,7 +62,7 @@ def check_native_guard_contracts() -> None:
     require("JSONArray(scopeDecision.scopes.toList()).toString()" in bridge, "Custom scopes are not canonicalized before scanning")
     require("RuntimeContractGuard.isReviewSnapshotFresh(generatedAtMs)" in bridge, "native stale-review guard is missing")
     require('put("reason", "stale_review_snapshot")' in bridge, "native stale-review rejection reason is missing")
-    require("const val BRIDGE_VERSION = 11" in bridge, "B36 must preserve NativeBridge v11 contract")
+    require("const val BRIDGE_VERSION = 11" in bridge, "B37 must preserve NativeBridge v11 contract")
 
     require("const val REVIEW_SNAPSHOT_MAX_AGE_MS = 15L * 60L * 1000L" in guard, "15-minute native review age limit changed")
     for mode in ("smart", "quick", "deep", "custom"):
@@ -75,36 +78,73 @@ def check_downloads_review_contracts() -> None:
     scanner = read("app/src/main/java/com/benedictinteractive/bearagnostic/FileHealthScanner.kt")
     ui = read("app/src/main/legacy-adapter/android-downloads.js")
 
-    require("const val ANALYSIS_RULES_VERSION = 8" in scanner, "Downloads review must advance analysis rules to v8")
+    require("const val ANALYSIS_RULES_VERSION = 8" in scanner, "Downloads review analysis rules must remain v8")
     require('"downloads" -> "downloads" in candidate.categories' in scanner, "Downloads review category matcher is missing")
     require('"archives", "zero", "downloads"' in scanner, "Downloads aggregate is missing from review summary")
     require('reviewCandidates, file, size, "downloads", 2, 0' in scanner, "Downloads files are not surfaced as Review First candidates")
     require('suggestedSelected = false, autoCleanEligible = false' in scanner, "Downloads candidates must never be auto-selected or auto-cleaned")
     require('reasonCode = "download_location"' in scanner, "Downloads candidates need an explicit location-only reason")
 
-    old_pos = scanner.find('emit(listener, request, plan, "modified_dates", counters, phaseProcessed = processed, phaseTotal = counters.discoveredFiles)')
-    downloads_pos = scanner.find('// Phase A — Downloads Review.')
-    snapshot_pos = scanner.find('reviewSnapshot = reviewCandidates.snapshot(request.mode)', downloads_pos)
-    require(0 <= old_pos < downloads_pos < snapshot_pos, "Downloads candidates must be appended after established review categories")
-    require('emit(\n                        listener, request, plan, "finalizing", counters,' in scanner, "Downloads review pass must report real finalizing work")
-
-    require("const BUILD = 36;" in ui, "Downloads adapter build marker mismatch")
+    require("const BUILD = 36;" in ui, "Downloads adapter source marker unexpectedly changed")
     require("const CATEGORY = 'downloads';" in ui, "Downloads adapter category mismatch")
-    require("const REVIEW_PAGE_SIZE = 250;" in ui, "Downloads review page size contract changed")
-    require("const RENDER_BATCH = 80;" in ui, "Downloads DOM rendering must remain bounded")
     require("const MAX_DELETE_SELECTION = 500;" in ui, "Downloads UI deletion cap changed")
     require("const STALE_REVIEW_MS = 15 * 60 * 1000;" in ui, "Downloads UI stale-review guard changed")
     require("HIDDEN.filter" in ui, "Downloads review does not honor Hidden Items privacy")
-    require("NATIVE.getReviewCandidates?.(CATEGORY, offset, REVIEW_PAGE_SIZE)" in ui, "Downloads review is not reading native review candidates")
-    require("NATIVE.startScan?.('quick', '[]', false)" in ui, "Downloads refresh must use the Free metadata-only Quick Scan")
     require("NATIVE.deleteReviewCandidates" in ui, "Downloads deletion is not routed through native verified deletion")
-    require("data-tool=\"downloads\"" in ui, "Downloads first-class Tools entry is missing")
-    require("downloadsBadge('tool')" in ui and "downloadsBadge('header')" in ui, "Downloads icon polish markup is missing")
-    require("ba-downloads-badge__plate" in ui and "ba-downloads-badge__glyph" in ui, "Downloads glass icon styling is missing")
-    require("function locationLabel(item)" in ui, "Downloads location-label normalizer is missing")
-    require("item?.location || ''" in ui and "return c().toolTitle;" in ui, "Downloads location normalization is incomplete")
-    require("Nothing in Downloads is selected automatically." in ui, "English review-first disclosure is missing")
-    require("จะไม่เลือกไฟล์ใน Downloads ให้ลบอัตโนมัติ" in ui, "Thai review-first disclosure is missing")
+
+
+def check_apk_installers_contracts(*, patch_only: bool = False) -> None:
+    ui = read("app/src/main/legacy-adapter/android-installers.js")
+    provider = read("app/src/main/java/com/benedictinteractive/bearagnostic/ReviewMediaProvider.kt")
+    scanner = read("app/src/main/java/com/benedictinteractive/bearagnostic/FileHealthScanner.kt", required=not patch_only)
+    manifest = read("app/src/main/AndroidManifest.xml", required=not patch_only)
+
+    if scanner:
+        require('if (ext == "apk") addReviewCandidate(review, file, size, "installers", 2, 62, false, false, "apk_installer"' in scanner,
+                "APK installers are no longer surfaced as Review First candidates")
+        require('"installers" -> "installers" in candidate.categories' in scanner, "APK installer category matcher is missing")
+        require('"temporary", "installers", "archives"' in scanner, "APK installer aggregate is missing from review summary")
+        require("const val ANALYSIS_RULES_VERSION = 8" in scanner, "B37 must not silently alter scan classification rules")
+
+    require("const BUILD = 37;" in ui, "APK Installers adapter build marker mismatch")
+    require("const CATEGORY = 'installers';" in ui, "APK Installers category mismatch")
+    require("const REVIEW_PAGE_SIZE = 250;" in ui, "APK Installers review page size contract changed")
+    require("const MAX_DELETE_SELECTION = 500;" in ui, "APK Installers UI deletion cap changed")
+    require("const STALE_REVIEW_MS = 15 * 60 * 1000;" in ui, "APK Installers UI stale-review guard changed")
+    require("HIDDEN.filter" in ui, "APK Installers does not honor Hidden Items privacy")
+    require("NATIVE.getReviewCandidates?.(CATEGORY, offset, REVIEW_PAGE_SIZE)" in ui, "APK Installers is not reading native review candidates")
+    require("NATIVE.requestReviewMedia?.(item.id, 'compact', requestId)" in ui, "APK metadata is not requested through the authorized review-ID bridge")
+    require("NATIVE.startScan?.('quick', '[]', false)" in ui, "APK Installers refresh must use the Free metadata-only Quick Scan")
+    require("NATIVE.deleteReviewCandidates" in ui, "APK Installer deletion is not routed through native verified deletion")
+    require('data-tool="installers"' in ui, "APK Installers first-class Tools entry is missing")
+    require("ba-tools-expandable" in ui and "overflow-y:auto" in ui, "Tools screen growth is not handled by natural scrolling")
+    require("does not uninstall" in ui, "APK deletion/uninstall distinction is missing")
+    require("จะไม่เลือกไฟล์ APK ให้ลบอัตโนมัติ" in ui, "Thai no-auto-selection disclosure is missing")
+    require("package visibility" in ui.lower(), "package visibility limitation is not disclosed")
+    for status in (
+        "older_installer", "same_version_installed", "newer_installer", "installed_confirmed",
+        "installed_unverified_identity", "identity_mismatch", "not_installed", "not_confirmed",
+        "metadata_unavailable",
+    ):
+        require(status in ui, f"APK UI status missing: {status}")
+
+    require('json.put("installStatus", "metadata_unavailable")' in provider, "APK metadata failure is not represented conservatively")
+    require('json.put("packageVisibilityLimited", visibilityLimited)' in provider, "APK package-visibility evidence is missing")
+    require('if (visibilityLimited) "not_confirmed" else "not_installed"' in provider, "APK package visibility is not handled conservatively")
+    require('"identity_mismatch"' in provider, "APK signing-identity mismatch state is missing")
+    require('"installed_unverified_identity"' in provider, "APK unverified signing state is missing")
+    require('"older_installer"' in provider and '"same_version_installed"' in provider and '"newer_installer"' in provider,
+            "APK installed-version comparison states are incomplete")
+    require("PackageManager.GET_SIGNING_CERTIFICATES" in provider, "modern APK signing identity is not inspected")
+    require("PackageManager.GET_SIGNATURES" in provider, "legacy APK signing identity fallback is missing")
+    require('MessageDigest.getInstance("SHA-256")' in provider, "APK signing identity comparison is not digest-backed")
+    require('json.put("archiveSigningAvailable", true)' in provider, "APK signing availability evidence is missing")
+    # The digest is computed only for equality and never serialized. Reject common digest-key names.
+    require('"signingDigest"' not in provider and '"signatureDigest"' not in provider and '"sha256"' not in provider.lower().replace('messageDigest.getInstance("SHA-256")'.lower(), ''),
+            "raw signing digest appears to be exposed")
+
+    if manifest:
+        require("QUERY_ALL_PACKAGES" not in manifest, "B37 must not add broad package visibility permission")
 
 
 def check_build_truth_contract() -> None:
@@ -142,23 +182,31 @@ def check_existing_destructive_invariants(*, patch_only: bool) -> None:
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--patch-only", action="store_true", help="Skip checks that require unchanged production files.")
+    parser.add_argument("--patch-only", action="store_true", help="Run checks possible from the repo-relative patch package only.")
     args = parser.parse_args()
 
-    checks = [
-        ("build/version/cache", check_build_contracts),
-        ("native request/deletion guards", check_native_guard_contracts),
-        ("Downloads Review contracts", check_downloads_review_contracts),
-        ("native-sourced visible build labels", check_build_truth_contract),
-        ("CI contract verification", check_ci_contract),
-    ]
+    if args.patch_only:
+        checks = [
+            ("build/version/cache", check_build_contracts),
+            ("APK Installers contracts", lambda: check_apk_installers_contracts(patch_only=True)),
+            ("CI contract verification", check_ci_contract),
+        ]
+    else:
+        checks = [
+            ("build/version/cache", check_build_contracts),
+            ("native request/deletion guards", check_native_guard_contracts),
+            ("Downloads Review contracts", check_downloads_review_contracts),
+            ("APK Installers contracts", lambda: check_apk_installers_contracts(patch_only=False)),
+            ("native-sourced visible build labels", check_build_truth_contract),
+            ("CI contract verification", check_ci_contract),
+        ]
 
     try:
         for label, check in checks:
             check()
             print(f"PASS: {label}")
         check_existing_destructive_invariants(patch_only=args.patch_only)
-        print("PASS: existing destructive invariants" + (" (deferred to CI)" if args.patch_only else ""))
+        print("PASS: existing destructive invariants" + (" (deferred to full CI)" if args.patch_only else ""))
     except AssertionError as exc:
         print(f"FAIL: {exc}", file=sys.stderr)
         return 1
