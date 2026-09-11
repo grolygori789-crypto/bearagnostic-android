@@ -34,6 +34,7 @@ val androidProUi = layout.projectDirectory.file("src/main/legacy-adapter/android
 val androidPlanStatus = layout.projectDirectory.file("src/main/legacy-adapter/android-plan-status.js").asFile
 val androidReadability = layout.projectDirectory.file("src/main/legacy-adapter/android-readability.js").asFile
 val androidCustomScan = layout.projectDirectory.file("src/main/legacy-adapter/android-custom-scan.js").asFile
+val androidInsights = layout.projectDirectory.file("src/main/legacy-adapter/android-insights.js").asFile
 val androidShellUx = layout.projectDirectory.file("src/main/legacy-adapter/android-shell-ux.js").asFile
 val androidBuildTruth = layout.projectDirectory.file("src/main/legacy-adapter/android-build-truth.js").asFile
 val nativeAssetsDir = layout.projectDirectory.dir("src/main/native-assets").asFile
@@ -74,7 +75,7 @@ val legacyCriticalBlobs = mapOf(
 val prepareLegacyFrontend by tasks.registering {
     group = "bearagnostic"
     description = "Imports the approved Bearagnostic PWA byte-for-byte, then overlays Android integration modules."
-    inputs.files(androidAdapter, androidReview, androidSupport, androidScanTrust, androidLiveScan, androidReviewMedia, androidPremiumColor, androidEntitlement, androidHiddenItems, androidCleanup, androidDuplicates, androidLargeFiles, androidOlderFiles, androidDownloads, androidInstallers, androidArchives, androidZero, androidEmptyFolders, androidProUi, androidPlanStatus, androidReadability, androidCustomScan, androidShellUx, androidBuildTruth)
+    inputs.files(androidAdapter, androidReview, androidSupport, androidScanTrust, androidLiveScan, androidReviewMedia, androidPremiumColor, androidEntitlement, androidHiddenItems, androidCleanup, androidDuplicates, androidLargeFiles, androidOlderFiles, androidDownloads, androidInstallers, androidArchives, androidZero, androidEmptyFolders, androidProUi, androidPlanStatus, androidReadability, androidCustomScan, androidInsights, androidShellUx, androidBuildTruth)
     inputs.dir(nativeAssetsDir)
     inputs.property("legacyCommit", legacyCommit)
     outputs.dir(generatedLegacyAssetsDir)
@@ -125,31 +126,32 @@ val prepareLegacyFrontend by tasks.registering {
         val originalHtml = generatedIndex.readText(StandardCharsets.UTF_8)
         val androidTags = buildString {
             // Entitlement loads first so its capture guard can protect Pro-only actions
-            // before the Android interaction adapter handles them. Hidden-item privacy loads before dedicated review tools; Quick Clean, Exact Duplicates, Large Files, Older Files, Downloads Review, APK Installers, Archives, Zero-byte Files, and Empty Folders capture their dedicated entries before generic tool handling; Pro plan status loads after Pro UI; readability loads late; Custom Scan owns its responsive composition; shell-ux owns app-wide scroll cues and Checkup root-navigation consistency; build-truth loads last so visible version labels always resolve from native BuildConfig.
-            append("  <script src=\"./js/android-entitlement.js?v=41\"></script>\n")
-            append("  <script src=\"./js/android-hidden-items.js?v=41\"></script>\n")
-            append("  <script src=\"./js/android-cleanup.js?v=41\"></script>\n")
-            append("  <script src=\"./js/android-duplicates.js?v=41\"></script>\n")
-            append("  <script src=\"./js/android-large-files.js?v=41\"></script>\n")
-            append("  <script src=\"./js/android-older-files.js?v=41\"></script>\n")
-            append("  <script src=\"./js/android-downloads.js?v=41\"></script>\n")
-            append("  <script src=\"./js/android-installers.js?v=41\"></script>\n")
-            append("  <script src=\"./js/android-archives.js?v=41\"></script>\n")
-            append("  <script src=\"./js/android-zero.js?v=41\"></script>\n")
-            append("  <script src=\"./js/android-empty-folders.js?v=41\"></script>\n")
-            append("  <script src=\"./js/android-native.js?v=41\"></script>\n")
-            append("  <script src=\"./js/android-review.js?v=41\"></script>\n")
-            append("  <script src=\"./js/android-support.js?v=41\"></script>\n")
-            append("  <script src=\"./js/android-scan-trust.js?v=41\"></script>\n")
-            append("  <script src=\"./js/android-live-scan.js?v=41\"></script>\n")
-            append("  <script src=\"./js/android-review-media.js?v=41\"></script>\n")
-            append("  <script src=\"./js/android-premium-color.js?v=41\"></script>\n")
-            append("  <script src=\"./js/android-pro-ui.js?v=41\"></script>\n")
-            append("  <script src=\"./js/android-plan-status.js?v=41\"></script>\n")
-            append("  <script src=\"./js/android-readability.js?v=41\"></script>\n")
-            append("  <script src=\"./js/android-custom-scan.js?v=41\"></script>\n")
-            append("  <script src=\"./js/android-shell-ux.js?v=41\"></script>\n")
-            append("  <script src=\"./js/android-build-truth.js?v=41\"></script>\n")
+            // before the Android interaction adapter handles them. Hidden-item privacy loads before dedicated review tools; Quick Clean, Exact Duplicates, Large Files, Older Files, Downloads Review, APK Installers, Archives, Zero-byte Files, and Empty Folders capture their dedicated entries before generic tool handling; Pro plan status loads after Pro UI; readability loads late; Custom Scan owns its responsive composition; Insights owns aggregate local-history presentation; shell-ux owns app-wide scroll cues and Checkup root-navigation consistency; build-truth loads last so visible version labels always resolve from native BuildConfig.
+            append("  <script src=\"./js/android-entitlement.js?v=42\"></script>\n")
+            append("  <script src=\"./js/android-hidden-items.js?v=42\"></script>\n")
+            append("  <script src=\"./js/android-cleanup.js?v=42\"></script>\n")
+            append("  <script src=\"./js/android-duplicates.js?v=42\"></script>\n")
+            append("  <script src=\"./js/android-large-files.js?v=42\"></script>\n")
+            append("  <script src=\"./js/android-older-files.js?v=42\"></script>\n")
+            append("  <script src=\"./js/android-downloads.js?v=42\"></script>\n")
+            append("  <script src=\"./js/android-installers.js?v=42\"></script>\n")
+            append("  <script src=\"./js/android-archives.js?v=42\"></script>\n")
+            append("  <script src=\"./js/android-zero.js?v=42\"></script>\n")
+            append("  <script src=\"./js/android-empty-folders.js?v=42\"></script>\n")
+            append("  <script src=\"./js/android-native.js?v=42\"></script>\n")
+            append("  <script src=\"./js/android-review.js?v=42\"></script>\n")
+            append("  <script src=\"./js/android-support.js?v=42\"></script>\n")
+            append("  <script src=\"./js/android-scan-trust.js?v=42\"></script>\n")
+            append("  <script src=\"./js/android-live-scan.js?v=42\"></script>\n")
+            append("  <script src=\"./js/android-review-media.js?v=42\"></script>\n")
+            append("  <script src=\"./js/android-premium-color.js?v=42\"></script>\n")
+            append("  <script src=\"./js/android-pro-ui.js?v=42\"></script>\n")
+            append("  <script src=\"./js/android-plan-status.js?v=42\"></script>\n")
+            append("  <script src=\"./js/android-readability.js?v=42\"></script>\n")
+            append("  <script src=\"./js/android-custom-scan.js?v=42\"></script>\n")
+            append("  <script src=\"./js/android-insights.js?v=42\"></script>\n")
+            append("  <script src=\"./js/android-shell-ux.js?v=42\"></script>\n")
+            append("  <script src=\"./js/android-build-truth.js?v=42\"></script>\n")
         }
         check(originalHtml.contains("</body>")) { "Legacy index.html is missing </body>" }
         generatedIndex.writeText(originalHtml.replace("</body>", androidTags + "</body>"), StandardCharsets.UTF_8)
@@ -178,6 +180,7 @@ val prepareLegacyFrontend by tasks.registering {
         androidPlanStatus.copyTo(File(jsRoot, "android-plan-status.js"), overwrite = true)
         androidReadability.copyTo(File(jsRoot, "android-readability.js"), overwrite = true)
         androidCustomScan.copyTo(File(jsRoot, "android-custom-scan.js"), overwrite = true)
+        androidInsights.copyTo(File(jsRoot, "android-insights.js"), overwrite = true)
         androidShellUx.copyTo(File(jsRoot, "android-shell-ux.js"), overwrite = true)
         androidBuildTruth.copyTo(File(jsRoot, "android-build-truth.js"), overwrite = true)
 
@@ -203,8 +206,8 @@ android {
         applicationId = "com.benedictinteractive.bearagnostic"
         minSdk = 26
         targetSdk = 36
-        versionCode = 41
-        versionName = "0.30.1-alpha41"
+        versionCode = 42
+        versionName = "0.31.0-alpha42"
     }
 
     sourceSets {

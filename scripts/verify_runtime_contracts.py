@@ -30,37 +30,41 @@ def require(condition: bool, message: str) -> None:
 
 def check_build_contracts() -> None:
     gradle = read("app/build.gradle.kts")
-    require('versionCode = 41' in gradle, "B41 versionCode must be 41")
-    require('versionName = "0.30.1-alpha41"' in gradle, "B41 versionName mismatch")
+    require('versionCode = 42' in gradle, "B42 versionCode must be 42")
+    require('versionName = "0.31.0-alpha42"' in gradle, "B42 versionName mismatch")
 
     cache_versions = re.findall(r'android-[a-z-]+\.js\?v=(\d+)', gradle)
     require(cache_versions, "no Android adapter cache versions found")
-    require(set(cache_versions) == {"41"}, f"adapter cache versions are not coherent: {sorted(set(cache_versions))}")
+    require(set(cache_versions) == {"42"}, f"adapter cache versions are not coherent: {sorted(set(cache_versions))}")
 
     require("androidDownloads" in gradle, "Downloads Review adapter is not registered")
     require("androidInstallers" in gradle, "APK Installers adapter is not registered")
     require("androidArchives" in gradle, "Archives adapter is not registered")
     require("androidZero" in gradle, "Zero-byte Files adapter is not registered")
     require("androidEmptyFolders" in gradle, "Empty Folders adapter is not registered")
+    require("androidInsights" in gradle, "Insights adapter is not registered")
     require("androidShellUx" in gradle, "Shell UX adapter is not registered")
-    require('android-downloads.js?v=41' in gradle, "Downloads Review adapter is not loaded at B40")
-    require('android-installers.js?v=41' in gradle, "APK Installers adapter is not loaded at B40")
-    require('android-archives.js?v=41' in gradle, "Archives adapter is not loaded at B40")
-    require('android-zero.js?v=41' in gradle, "Zero-byte Files adapter is not loaded at B40")
-    require('android-empty-folders.js?v=41' in gradle, "Empty Folders adapter is not loaded at B40")
-    require('android-shell-ux.js?v=41' in gradle, "Shell UX adapter is not loaded at B40")
-    require('android-build-truth.js?v=41' in gradle, "build-truth adapter is not loaded at B40")
+    require('android-downloads.js?v=42' in gradle, "Downloads Review adapter is not loaded at B42")
+    require('android-installers.js?v=42' in gradle, "APK Installers adapter is not loaded at B42")
+    require('android-archives.js?v=42' in gradle, "Archives adapter is not loaded at B42")
+    require('android-zero.js?v=42' in gradle, "Zero-byte Files adapter is not loaded at B42")
+    require('android-empty-folders.js?v=42' in gradle, "Empty Folders adapter is not loaded at B42")
+    require('android-insights.js?v=42' in gradle, "Insights adapter is not loaded at B42")
+    require('android-shell-ux.js?v=42' in gradle, "Shell UX adapter is not loaded at B42")
+    require('android-build-truth.js?v=42' in gradle, "build-truth adapter is not loaded at B42")
 
-    downloads_pos = gradle.find('android-downloads.js?v=41')
-    installers_pos = gradle.find('android-installers.js?v=41')
-    archives_pos = gradle.find('android-archives.js?v=41')
-    zero_pos = gradle.find('android-zero.js?v=41')
-    empty_pos = gradle.find('android-empty-folders.js?v=41')
-    native_pos = gradle.find('android-native.js?v=41')
-    shell_pos = gradle.find('android-shell-ux.js?v=41')
-    truth_pos = gradle.find('android-build-truth.js?v=41')
-    require(0 <= downloads_pos < installers_pos < archives_pos < zero_pos < empty_pos < native_pos < shell_pos < truth_pos,
-            "adapter ownership/load order is unsafe for B41 Phase A / shell UX")
+    downloads_pos = gradle.find('android-downloads.js?v=42')
+    installers_pos = gradle.find('android-installers.js?v=42')
+    archives_pos = gradle.find('android-archives.js?v=42')
+    zero_pos = gradle.find('android-zero.js?v=42')
+    empty_pos = gradle.find('android-empty-folders.js?v=42')
+    native_pos = gradle.find('android-native.js?v=42')
+    custom_pos = gradle.find('android-custom-scan.js?v=42')
+    insights_pos = gradle.find('android-insights.js?v=42')
+    shell_pos = gradle.find('android-shell-ux.js?v=42')
+    truth_pos = gradle.find('android-build-truth.js?v=42')
+    require(0 <= downloads_pos < installers_pos < archives_pos < zero_pos < empty_pos < native_pos < custom_pos < insights_pos < shell_pos < truth_pos,
+            "adapter ownership/load order is unsafe for B42 Phase A / Insights / shell UX")
 
 
 
@@ -76,7 +80,7 @@ def check_native_guard_contracts() -> None:
     require("JSONArray(scopeDecision.scopes.toList()).toString()" in bridge, "Custom scopes are not canonicalized before scanning")
     require("RuntimeContractGuard.isReviewSnapshotFresh(generatedAtMs)" in bridge, "native stale-review guard is missing")
     require('put("reason", "stale_review_snapshot")' in bridge, "native stale-review rejection reason is missing")
-    require("const val BRIDGE_VERSION = 12" in bridge, "B40 NativeBridge version must be 12")
+    require("const val BRIDGE_VERSION = 13" in bridge, "B42 NativeBridge version must be 13")
 
     require("const val REVIEW_SNAPSHOT_MAX_AGE_MS = 15L * 60L * 1000L" in guard, "15-minute native review age limit changed")
     for mode in ("smart", "quick", "deep", "custom"):
@@ -253,7 +257,7 @@ def check_empty_folder_contracts() -> None:
     require('return rejected("storage_access_required")' in bridge, "Empty Folders does not require storage access")
     require('if (activity.isScannerRunning()) return rejected("scan_running")' in bridge,
             "Empty Folders does not refuse destructive/workflow overlap with the file scanner")
-    require("const val BRIDGE_VERSION = 12" in bridge, "B40 bridge version mismatch")
+    require("const val BRIDGE_VERSION = 13" in bridge, "B42 bridge version mismatch")
 
     require("const BUILD = 40;" in ui, "Empty Folders adapter build marker mismatch")
     require("const MAX_SELECTION = 100;" in ui, "Empty Folders UI deletion cap changed")
@@ -302,6 +306,68 @@ def check_shell_ux_contracts() -> None:
                     "nativeModeSheet", "nativeResultsSheet", "nativeReviewSheet"):
         require(surface in ui, f"Scroll continuation coverage missing for {surface}")
 
+def check_insights_contracts() -> None:
+    ui = read("app/src/main/legacy-adapter/android-insights.js")
+    store = read("app/src/main/java/com/benedictinteractive/bearagnostic/LocalHistoryStore.kt")
+    bridge = read("app/src/main/java/com/benedictinteractive/bearagnostic/NativeBridge.kt")
+    entitlement = read("app/src/main/java/com/benedictinteractive/bearagnostic/EntitlementManager.kt")
+
+    require("const BUILD = 42;" in ui, "Insights adapter build marker mismatch")
+    require("NATIVE.getInsightsHistory" in ui, "Insights UI does not read native local history")
+    require("NATIVE.recordInsightsScan" in ui, "completed scans are not captured into local history")
+    require("NATIVE.clearInsightsHistory" in ui, "Insights does not expose a user-controlled history reset")
+    require("__insightsHistoryWrapped" in ui and "onScanComplete(raw)" in ui,
+            "Insights does not wrap the real scan-complete callback")
+    require("scope === FULL_SCOPE" in ui and "coverageStatus === COMPLETE_COVERAGE" in ui,
+            "What Changed is not limited to comparable complete full-scope scans")
+    require("No invented score." in ui, "Insights truthfulness copy no longer rejects invented scoring")
+    require("aggregate-only" in ui.lower() and "file names" in ui.lower() and "paths" in ui.lower(),
+            "Insights privacy disclosure is incomplete")
+    require("ba-insights-screen" in ui and "overflow-y:auto" in ui,
+            "Insights screen is not a natural scrollable workspace")
+    require("patchProSheet" in ui and "plannedInsights" in ui and "plannedCleanup" in ui,
+            "Pro roadmap is not reconciled after Insights implementation")
+
+    require("class LocalHistoryStore" in store, "native aggregate LocalHistoryStore is missing")
+    require("AtomicFile" in store, "local history persistence is not atomic")
+    require("MAX_SCAN_RECORDS = 30" in store, "scan-history bound changed")
+    require("MAX_CLEANUP_RECORDS = 50" in store, "cleanup-history bound changed")
+    require("aggregate-only" in store.lower(), "aggregate-only storage contract is undocumented")
+    require('put("capturedAtMs"' in store and 'put("totalBytes"' in store and 'put("reviewedFiles"' in store,
+            "scan aggregate evidence is incomplete")
+    require('put("name"' not in store and 'put("path"' not in store and 'put("deletedIds"' not in store and 'put("fingerprint"' not in store,
+            "local history must never persist file identity, deletion IDs, or synthetic fingerprints")
+    require('history_write_failed' in store and 'private fun saveRoot(root: JSONObject): Boolean' in store,
+            "local history must report persistence failures truthfully")
+    require("recordFileCleanup" in store and "recordEmptyFolderCleanup" in store,
+            "verified cleanup history is incomplete")
+    require("FULL_SCOPE = \"accessible_shared_storage\"" in store and 'put("comparable", scan.optString("scope") == FULL_SCOPE)' in store,
+            "history does not distinguish full-scope comparable scans")
+
+    require("private val history = LocalHistoryStore" in bridge, "NativeBridge does not own local history")
+    require("fun recordInsightsScan" in bridge and "history.recordScan(scanJson, activity.storageSnapshotJson())" in bridge,
+            "NativeBridge scan-history capture is missing")
+    require("fun getInsightsHistory" in bridge and "history.historyJson(entitlement)" in bridge,
+            "NativeBridge Insights history API is missing")
+    require("history.recordFileCleanup(result)" in bridge and "history.recordEmptyFolderCleanup(result)" in bridge,
+            "native verified deletions are not recorded in history")
+    require("try { history.recordFileCleanup(result) }" in bridge and "try { history.recordEmptyFolderCleanup(result) }" in bridge,
+            "history logging must never be able to block a verified deletion result")
+    require("fun clearInsightsHistory" in bridge, "native history clear API is missing")
+    require("const val BRIDGE_VERSION = 13" in bridge, "B42 bridge version mismatch")
+
+    for capability in ("INSIGHTS_HISTORY", "WHAT_CHANGED", "FULL_CLEANUP_HISTORY"):
+        require(f"Capability.{capability}.wireName" in entitlement,
+                f"implemented Pro Insights capability missing: {capability}")
+    implemented_block = entitlement.split('put("implementedProCapabilities"', 1)[1].split('put("plannedProCapabilities"', 1)[0]
+    planned_block = entitlement.split('put("plannedProCapabilities"', 1)[1].split(')', 1)[0]
+    for capability in ("INSIGHTS_HISTORY", "WHAT_CHANGED", "FULL_CLEANUP_HISTORY"):
+        require(f"Capability.{capability}.wireName" in implemented_block,
+                f"{capability} is not marked implemented")
+        require(f"Capability.{capability}.wireName" not in planned_block,
+                f"{capability} is still marked planned after implementation")
+
+
 def check_build_truth_contract() -> None:
     js = read("app/src/main/legacy-adapter/android-build-truth.js")
     require("NATIVE.getNativeState" in js, "visible build labels are not sourced from native state")
@@ -343,9 +409,7 @@ def main() -> int:
     if args.patch_only:
         checks = [
             ("build/version/cache", check_build_contracts),
-            ("Empty Folders contracts", check_empty_folder_contracts),
-            ("app-shell / scroll UX contracts", check_shell_ux_contracts),
-            ("CI contract verification", check_ci_contract),
+            ("Phase B Insights / local history", check_insights_contracts),
         ]
     else:
         checks = [
@@ -356,6 +420,7 @@ def main() -> int:
             ("Archives contracts", lambda: check_archives_contracts(patch_only=False)),
             ("Zero-byte Files contracts", check_zero_byte_contracts),
             ("Empty Folders contracts", check_empty_folder_contracts),
+            ("Phase B Insights / local history", check_insights_contracts),
             ("app-shell / scroll UX contracts", check_shell_ux_contracts),
             ("native-sourced visible build labels", check_build_truth_contract),
             ("CI contract verification", check_ci_contract),

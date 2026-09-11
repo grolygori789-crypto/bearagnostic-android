@@ -8,6 +8,7 @@ import org.json.JSONObject
 class NativeBridge(private val activity: MainActivity) {
     private val entitlement = EntitlementManager(activity.applicationContext)
     private val emptyFolders = EmptyFolderManager(activity.applicationContext)
+    private val history = LocalHistoryStore(activity.applicationContext)
 
     @JavascriptInterface
     fun getNativeState(): String = statusJson()
@@ -105,8 +106,20 @@ class NativeBridge(private val activity: MainActivity) {
                 }.toString()
             }
         }
-        return activity.deleteReviewCandidates(idsJson)
+        val result = activity.deleteReviewCandidates(idsJson)
+        try { history.recordFileCleanup(result) } catch (_: Exception) { }
+        return result
     }
+
+    @JavascriptInterface
+    fun recordInsightsScan(scanJson: String): String =
+        history.recordScan(scanJson, activity.storageSnapshotJson())
+
+    @JavascriptInterface
+    fun getInsightsHistory(): String = history.historyJson(entitlement)
+
+    @JavascriptInterface
+    fun clearInsightsHistory(): String = history.clear()
 
     @JavascriptInterface
     fun startEmptyFolderScan(): String {
@@ -125,7 +138,9 @@ class NativeBridge(private val activity: MainActivity) {
     @JavascriptInterface
     fun deleteEmptyFolderCandidates(idsJson: String): String {
         if (activity.isScannerRunning()) return rejected("scan_running")
-        return emptyFolders.delete(idsJson)
+        val result = emptyFolders.delete(idsJson)
+        try { history.recordEmptyFolderCleanup(result) } catch (_: Exception) { }
+        return result
     }
 
     @JavascriptInterface
@@ -159,7 +174,7 @@ class NativeBridge(private val activity: MainActivity) {
         put("entitlement", entitlement.stateJsonObject())
         put("proProductId", EntitlementManager.PRO_PRODUCT_ID)
         put("billingReady", false)
-        put("scannerCapabilities", "multi_pass,metadata,content_probe,categories,old,large,temp,apk,archives,zero_byte,empty_folders,empty_folder_review,verified_empty_folder_delete,screenshots,media,downloads,sha256_duplicates,review_candidates,live_activity,local_review_previews,verified_delete")
+        put("scannerCapabilities", "multi_pass,metadata,content_probe,categories,old,large,temp,apk,archives,zero_byte,empty_folders,empty_folder_review,verified_empty_folder_delete,screenshots,media,downloads,sha256_duplicates,review_candidates,live_activity,local_review_previews,verified_delete,aggregate_local_history,insights,what_changed,verified_cleanup_history")
     }.toString()
 
     private fun rejected(reason: String): String = JSONObject().apply {
@@ -169,6 +184,6 @@ class NativeBridge(private val activity: MainActivity) {
 
     companion object {
         const val JS_INTERFACE_NAME = "BearagnosticNative"
-        const val BRIDGE_VERSION = 12
+        const val BRIDGE_VERSION = 13
     }
 }
