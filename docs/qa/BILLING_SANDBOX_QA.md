@@ -79,3 +79,16 @@ This separation lets QA verify cases where the Store owns the product but the lo
 The state-machine implementation is under `app/src/debug/.../DebugBillingSandbox.kt`; it is not part of the release source set. Main-code discovery is debug-gated and reflective. CI builds a release APK and checks that the debug sandbox class descriptor and debug ledger preference namespace are absent from release DEX.
 
 Before public Play Store release, the remaining inert QA presentation hooks should also be stripped during final release hardening, then real Google Play Internal Testing must validate ProductDetails, purchase sheet, license tester behavior, account ownership, pending purchases, refunds/voids, and real Play lifecycle callbacks.
+
+## B49 Developer Mode entry behavior
+
+B49 hardens the hidden Developer Mode entrance after physical-device testing found that the success toast could appear without a visible Developer Tools entry.
+
+Acceptance behavior:
+
+- Seven taps on the About build metadata must not show a success message unless the native sandbox confirms `devModeEnabled=true`.
+- On confirmed activation, Billing QA Console opens immediately.
+- A persistent Developer Tools row is inserted before About Bearagnostic using the same `setting-link` structure as the production More rows.
+- The row is reasserted after screen/localization/entitlement repaints and remains available until Developer Mode is disabled.
+- Failure to activate shows a diagnostic reason instead of a false success toast.
+- Release isolation remains unchanged: the simulator engine continues to live only in `src/debug`.

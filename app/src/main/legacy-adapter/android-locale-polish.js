@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const BUILD = 48;
+  const BUILD = 49;
   const byId = (id) => document.getElementById(id);
   let refreshQueued = false;
 
@@ -13,9 +13,9 @@
   }
 
   function ensureStyle() {
-    if (byId('androidLocalePolish48Style')) return;
+    if (byId('androidLocalePolish49Style')) return;
     const style = document.createElement('style');
-    style.id = 'androidLocalePolish48Style';
+    style.id = 'androidLocalePolish49Style';
     style.textContent = `
       /* B47 — locale-safe geometry. Secondary headers grow with their real text. */
       #privacyScreen.is-active:not([hidden]){

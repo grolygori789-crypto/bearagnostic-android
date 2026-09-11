@@ -537,15 +537,33 @@
   }
 
   function ensureRow(s=state()){
-    const about=$('#moreScreen [data-open="about"]'); if(!about) return;
+    const about=$('#moreScreen [data-open="about"]'); if(!about) return null;
     let row=$('#baDeveloperToolsRow');
-    if(s.devModeEnabled!==true){ row?.remove(); return; }
+    if(s.devModeEnabled!==true){ row?.remove(); return null; }
     if(!row){
-      row=document.createElement('button'); row.type='button'; row.id='baDeveloperToolsRow'; row.className='setting-link ba-dev-row';
+      // Match the production More rows exactly. A div avoids browser button defaults and
+      // stays compatible with the existing setting-link layout/animation rules.
+      row=document.createElement('div'); row.id='baDeveloperToolsRow'; row.className='setting-link ba-dev-row';
+      row.setAttribute('role','button'); row.setAttribute('tabindex','0'); row.setAttribute('aria-label',c().dev);
       row.innerHTML=`<span class="soft-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 9 5 12l3 3M16 9l3 3-3 3M14 6l-4 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span><strong></strong><small></small></span><b>›</b>`;
-      about.insertAdjacentElement('beforebegin',row); row.addEventListener('click',openConsole);
+      about.parentElement?.insertBefore(row,about);
+      row.addEventListener('click',openConsole);
+      row.addEventListener('keydown',(event)=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();openConsole();}});
     }
-    const t=c(); $('strong',row).textContent=t.dev; $('small',row).textContent=t.devSub;
+    const t=c(); row.setAttribute('aria-label',t.dev); $('strong',row).textContent=t.dev; $('small',row).textContent=t.devSub;
+    return row;
+  }
+
+  function revealDeveloperTools(s, { open = false } = {}){
+    const confirmed=s?.devModeEnabled===true ? s : state();
+    if(confirmed?.devModeEnabled!==true) return false;
+    ensureStyle();
+    const row=ensureRow(confirmed);
+    if(row){
+      try { row.scrollIntoView({behavior:'smooth',block:'center'}); } catch (_) { row.scrollIntoView?.(); }
+    }
+    if(open) openConsole();
+    return true;
   }
 
   function activateTap(event){
@@ -553,7 +571,21 @@
     const s=state(); if(s.available!==true || s.devModeEnabled===true) return;
     event.preventDefault(); event.stopPropagation();
     tapCount++; clearTimeout(tapTimer); tapTimer=setTimeout(()=>{tapCount=0},2600);
-    if(tapCount>=7){ tapCount=0; call('setDebugBillingDeveloperMode',true,'bool'); toast(c().enabled); setTimeout(()=>ensureRow(state()),80); }
+    if(tapCount>=7){
+      tapCount=0;
+      const result=call('setDebugBillingDeveloperMode',true,'bool');
+      const confirmed=result?.accepted===true && result?.state?.devModeEnabled===true;
+      if(!confirmed){
+        const reason=String(result?.reason||'developer_mode_activation_failed').replaceAll('_',' ');
+        toast(`Developer mode unavailable · ${reason}`);
+        return;
+      }
+      toast(c().enabled);
+      // Open the console immediately so successful activation always produces a visible,
+      // testable result. Re-assert the More entry after other adapters finish repainting.
+      revealDeveloperTools(result.state,{open:true});
+      [80,220,600,1200].forEach(delay=>setTimeout(()=>revealDeveloperTools(state()),delay));
+    }
     else if(tapCount>=4) toast(`${c().tap} ${7-tapCount}`);
   }
 
@@ -626,7 +658,7 @@
     else if(key==='provider')call('setDebugBillingSandboxEnabled',value==='true','bool');
   }
 
-  function refreshAll(){const s=state();ensureRow(s);if(!$('#baDevBillingConsole')?.hidden)renderConsole();window.BearagnosticBilling?.refresh?.();}
+  function refreshAll(){const s=state();if(s.devModeEnabled===true)revealDeveloperTools(s);else ensureRow(s);if(!$('#baDevBillingConsole')?.hidden)renderConsole();window.BearagnosticBilling?.refresh?.();}
   function startPoll(){stopPoll();poll=setInterval(refreshAll,420)} function stopPoll(){if(poll){clearInterval(poll);poll=null}}
 
   document.addEventListener('click',e=>{
