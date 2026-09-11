@@ -30,41 +30,44 @@ def require(condition: bool, message: str) -> None:
 
 def check_build_contracts() -> None:
     gradle = read("app/build.gradle.kts")
-    require('versionCode = 42' in gradle, "B42 versionCode must be 42")
-    require('versionName = "0.31.0-alpha42"' in gradle, "B42 versionName mismatch")
+    require('versionCode = 43' in gradle, "B43 versionCode must be 43")
+    require('versionName = "0.32.0-alpha43"' in gradle, "B43 versionName mismatch")
 
     cache_versions = re.findall(r'android-[a-z-]+\.js\?v=(\d+)', gradle)
     require(cache_versions, "no Android adapter cache versions found")
-    require(set(cache_versions) == {"42"}, f"adapter cache versions are not coherent: {sorted(set(cache_versions))}")
+    require(set(cache_versions) == {"43"}, f"adapter cache versions are not coherent: {sorted(set(cache_versions))}")
 
     require("androidDownloads" in gradle, "Downloads Review adapter is not registered")
     require("androidInstallers" in gradle, "APK Installers adapter is not registered")
     require("androidArchives" in gradle, "Archives adapter is not registered")
     require("androidZero" in gradle, "Zero-byte Files adapter is not registered")
     require("androidEmptyFolders" in gradle, "Empty Folders adapter is not registered")
+    require("androidAdvancedMedia" in gradle, "Advanced Media Review adapter is not registered")
     require("androidInsights" in gradle, "Insights adapter is not registered")
     require("androidShellUx" in gradle, "Shell UX adapter is not registered")
-    require('android-downloads.js?v=42' in gradle, "Downloads Review adapter is not loaded at B42")
-    require('android-installers.js?v=42' in gradle, "APK Installers adapter is not loaded at B42")
-    require('android-archives.js?v=42' in gradle, "Archives adapter is not loaded at B42")
-    require('android-zero.js?v=42' in gradle, "Zero-byte Files adapter is not loaded at B42")
-    require('android-empty-folders.js?v=42' in gradle, "Empty Folders adapter is not loaded at B42")
-    require('android-insights.js?v=42' in gradle, "Insights adapter is not loaded at B42")
-    require('android-shell-ux.js?v=42' in gradle, "Shell UX adapter is not loaded at B42")
-    require('android-build-truth.js?v=42' in gradle, "build-truth adapter is not loaded at B42")
+    require('android-downloads.js?v=43' in gradle, "Downloads Review adapter is not loaded at B43")
+    require('android-installers.js?v=43' in gradle, "APK Installers adapter is not loaded at B43")
+    require('android-archives.js?v=43' in gradle, "Archives adapter is not loaded at B43")
+    require('android-zero.js?v=43' in gradle, "Zero-byte Files adapter is not loaded at B43")
+    require('android-empty-folders.js?v=43' in gradle, "Empty Folders adapter is not loaded at B43")
+    require('android-advanced-media.js?v=43' in gradle, "Advanced Media Review adapter is not loaded at B43")
+    require('android-insights.js?v=43' in gradle, "Insights adapter is not loaded at B43")
+    require('android-shell-ux.js?v=43' in gradle, "Shell UX adapter is not loaded at B43")
+    require('android-build-truth.js?v=43' in gradle, "build-truth adapter is not loaded at B43")
 
-    downloads_pos = gradle.find('android-downloads.js?v=42')
-    installers_pos = gradle.find('android-installers.js?v=42')
-    archives_pos = gradle.find('android-archives.js?v=42')
-    zero_pos = gradle.find('android-zero.js?v=42')
-    empty_pos = gradle.find('android-empty-folders.js?v=42')
-    native_pos = gradle.find('android-native.js?v=42')
-    custom_pos = gradle.find('android-custom-scan.js?v=42')
-    insights_pos = gradle.find('android-insights.js?v=42')
-    shell_pos = gradle.find('android-shell-ux.js?v=42')
-    truth_pos = gradle.find('android-build-truth.js?v=42')
-    require(0 <= downloads_pos < installers_pos < archives_pos < zero_pos < empty_pos < native_pos < custom_pos < insights_pos < shell_pos < truth_pos,
-            "adapter ownership/load order is unsafe for B42 Phase A / Insights / shell UX")
+    downloads_pos = gradle.find('android-downloads.js?v=43')
+    installers_pos = gradle.find('android-installers.js?v=43')
+    archives_pos = gradle.find('android-archives.js?v=43')
+    zero_pos = gradle.find('android-zero.js?v=43')
+    empty_pos = gradle.find('android-empty-folders.js?v=43')
+    media_pos = gradle.find('android-advanced-media.js?v=43')
+    native_pos = gradle.find('android-native.js?v=43')
+    custom_pos = gradle.find('android-custom-scan.js?v=43')
+    insights_pos = gradle.find('android-insights.js?v=43')
+    shell_pos = gradle.find('android-shell-ux.js?v=43')
+    truth_pos = gradle.find('android-build-truth.js?v=43')
+    require(0 <= downloads_pos < installers_pos < archives_pos < zero_pos < empty_pos < media_pos < native_pos < custom_pos < insights_pos < shell_pos < truth_pos,
+            "adapter ownership/load order is unsafe for B43 Phase A / Advanced Media / Insights / shell UX")
 
 
 
@@ -368,6 +371,45 @@ def check_insights_contracts() -> None:
                 f"{capability} is still marked planned after implementation")
 
 
+def check_advanced_media_contracts() -> None:
+    ui = read("app/src/main/legacy-adapter/android-advanced-media.js")
+    entitlement = read("app/src/main/java/com/benedictinteractive/bearagnostic/EntitlementManager.kt")
+
+    require("const BUILD = 43;" in ui, "Advanced Media Review build marker mismatch")
+    require("const CAPABILITY = 'advanced_media_review';" in ui, "Advanced Media Review capability mismatch")
+    require("const CATEGORY = 'all';" in ui, "Advanced Media Review must use the existing bounded review snapshot")
+    require("const MAX_DELETE_SELECTION = 500;" in ui, "Advanced Media Review deletion cap changed")
+    require("const STALE_REVIEW_MS = 15 * 60 * 1000;" in ui, "Advanced Media Review stale-review guard changed")
+    require("ENT.can?.(CAPABILITY)" in ui, "Advanced Media Review is not entitlement-gated")
+    require("ENT.requestPro?.('advanced_media_review',CAPABILITY)" in ui, "Free state does not route Advanced Media Review to Pro")
+    require("NATIVE.getReviewSummary" in ui, "Advanced Media Review does not read review snapshot evidence")
+    require("NATIVE.getReviewCandidates?.(CATEGORY,offset,PAGE_SIZE)" in ui, "Advanced Media Review bypasses existing review candidates")
+    require("NATIVE.startScan?.('quick','[]',false)" in ui, "Advanced Media Review refresh must use truthful Quick Scan")
+    require("NATIVE.requestReviewMedia?.(id,'preview',token)" in ui, "Advanced Media Review does not use authorized local preview IDs")
+    require("NATIVE.deleteReviewCandidates" in ui, "Advanced Media Review deletion bypasses native verified deletion")
+    require("HIDDEN?.filter" in ui, "Advanced Media Review does not honor Hidden Items privacy")
+    require('data-tool="advanced-media"' in ui, "Advanced Media Review first-class Tools entry is missing")
+    require("[data-tool=\"empty-folders\"]" in ui, "Advanced Media Review is not positioned after Empty Folders")
+    require("This is not a full gallery" in ui, "Advanced Media Review overstates gallery coverage")
+    require("does not claim this is your complete photo, video, or music library" in ui, "Review-set scope disclosure is missing")
+    require("Nothing is selected automatically" in ui, "English no-auto-selection disclosure is missing")
+    require("ไม่มีการเลือกให้อัตโนมัติ" in ui, "Thai no-auto-selection disclosure is missing")
+    require("自動選択は行いません" in ui, "Japanese no-auto-selection disclosure is missing")
+    for kind in ("image", "video", "audio"):
+        require(f"'{kind}'" in ui, f"Advanced Media Review kind missing: {kind}")
+    for filter_name in ("screenshots", "over10", "over100", "recent30", "olderYear"):
+        require(filter_name in ui, f"Advanced Media Review filter missing: {filter_name}")
+    require("patchProPresentation" in ui and "Advanced media review & filters" in ui,
+            "Pro presentation is not reconciled after Advanced Media Review implementation")
+
+    implemented_block = entitlement.split('put("implementedProCapabilities"', 1)[1].split('put("plannedProCapabilities"', 1)[0]
+    planned_block = entitlement.split('put("plannedProCapabilities"', 1)[1].split(')', 1)[0]
+    require("Capability.ADVANCED_MEDIA_REVIEW.wireName" in implemented_block,
+            "Advanced Media Review is not marked implemented in the native entitlement source")
+    require("Capability.ADVANCED_MEDIA_REVIEW.wireName" not in planned_block,
+            "Advanced Media Review is still marked planned after implementation")
+
+
 def check_build_truth_contract() -> None:
     js = read("app/src/main/legacy-adapter/android-build-truth.js")
     require("NATIVE.getNativeState" in js, "visible build labels are not sourced from native state")
@@ -409,7 +451,7 @@ def main() -> int:
     if args.patch_only:
         checks = [
             ("build/version/cache", check_build_contracts),
-            ("Phase B Insights / local history", check_insights_contracts),
+            ("Advanced Media Review", check_advanced_media_contracts),
         ]
     else:
         checks = [
@@ -421,6 +463,7 @@ def main() -> int:
             ("Zero-byte Files contracts", check_zero_byte_contracts),
             ("Empty Folders contracts", check_empty_folder_contracts),
             ("Phase B Insights / local history", check_insights_contracts),
+            ("Advanced Media Review", check_advanced_media_contracts),
             ("app-shell / scroll UX contracts", check_shell_ux_contracts),
             ("native-sourced visible build labels", check_build_truth_contract),
             ("CI contract verification", check_ci_contract),

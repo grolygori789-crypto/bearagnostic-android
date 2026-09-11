@@ -87,12 +87,12 @@ class EntitlementManager(context: Context) {
                 Capability.DEEP_SCAN.wireName,
                 Capability.CUSTOM_SCAN.wireName,
                 Capability.ADVANCED_EXACT_DUPLICATES.wireName,
+                Capability.ADVANCED_MEDIA_REVIEW.wireName,
                 Capability.INSIGHTS_HISTORY.wireName,
                 Capability.WHAT_CHANGED.wireName,
                 Capability.FULL_CLEANUP_HISTORY.wireName,
             )))
             put("plannedProCapabilities", JSONArray(listOf(
-                Capability.ADVANCED_MEDIA_REVIEW.wireName,
                 Capability.CUSTOM_EXCLUSIONS.wireName,
                 Capability.SCHEDULED_CHECKUPS.wireName,
             )))
