@@ -8,7 +8,6 @@ import android.app.DownloadManager
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
-import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.net.Uri
 import android.os.Build
@@ -16,10 +15,6 @@ import android.os.Bundle
 import android.os.Environment
 import android.os.StatFs
 import android.os.SystemClock
-import android.text.SpannableString
-import android.text.Spanned
-import android.text.style.ForegroundColorSpan
-import android.text.style.StyleSpan
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
@@ -52,9 +47,7 @@ class MainActivity : Activity() {
     private lateinit var studioAccentSweep: View
     private lateinit var studioLaunchLabel: TextView
     private lateinit var studioPromise: TextView
-    private lateinit var productBear: ImageView
-    private lateinit var productWordmark: TextView
-    private lateinit var productTagline: LinearLayout
+    private lateinit var productHero: ImageView
 
     private val reviewMediaExecutor = Executors.newSingleThreadExecutor { runnable ->
         Thread(runnable, "BearagnosticReviewMedia").apply { priority = Thread.NORM_PRIORITY - 1 }
@@ -261,7 +254,7 @@ class MainActivity : Activity() {
 
         productStage = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            gravity = Gravity.CENTER_HORIZONTAL
+            gravity = Gravity.CENTER
             alpha = 0f
             visibility = View.INVISIBLE
             layoutParams = FrameLayout.LayoutParams(
@@ -269,93 +262,26 @@ class MainActivity : Activity() {
                 FrameLayout.LayoutParams.WRAP_CONTENT,
                 Gravity.CENTER,
             ).apply {
-                leftMargin = dp(24)
-                rightMargin = dp(24)
+                leftMargin = dp(26)
+                rightMargin = dp(26)
             }
         }
 
-        productBear = ImageView(this).apply {
-            setImageResource(R.drawable.bearagnostic_launch_bear)
+        productHero = ImageView(this).apply {
+            setImageResource(R.drawable.bearagnostic_launch_hero)
             adjustViewBounds = true
             alpha = 0f
-            scaleX = 0.972f
-            scaleY = 0.972f
+            scaleX = 0.978f
+            scaleY = 0.978f
             translationY = dp(10).toFloat()
-            layoutParams = LinearLayout.LayoutParams(dp(278), LinearLayout.LayoutParams.WRAP_CONTENT)
+            layoutParams = LinearLayout.LayoutParams(dp(248), LinearLayout.LayoutParams.WRAP_CONTENT)
         }
 
-        productWordmark = TextView(this).apply {
-            text = bearagnosticWordmark()
-            setTextSize(TypedValue.COMPLEX_UNIT_SP, 38f)
-            letterSpacing = -0.035f
-            typeface = Typeface.create("sans-serif", Typeface.BOLD)
-            gravity = Gravity.CENTER
-            alpha = 0f
-            translationY = dp(7).toFloat()
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-            ).apply { topMargin = dp(7) }
-        }
-
-        productTagline = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER
-            alpha = 0f
-            translationY = dp(6).toFloat()
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-            ).apply { topMargin = dp(7) }
-        }
-        productTagline.addView(productTagText("DEVICE HEALTH"))
-        productTagline.addView(View(this).apply {
-            background = GradientDrawable(
-                GradientDrawable.Orientation.LEFT_RIGHT,
-                intArrayOf(Color.parseColor("#27C2EC"), Color.parseColor("#248DF0")),
-            ).apply { cornerRadius = dp(999).toFloat() }
-            layoutParams = LinearLayout.LayoutParams(dp(35), dp(2)).apply {
-                leftMargin = dp(9)
-                rightMargin = dp(9)
-            }
-        })
-        productTagline.addView(productTagText("BETTER DAYS"))
-
-        productStage.addView(productBear)
-        productStage.addView(productWordmark)
-        productStage.addView(productTagline)
+        productStage.addView(productHero)
 
         overlay.addView(studioStage)
         overlay.addView(productStage)
         return overlay
-    }
-
-    private fun productTagText(value: String): TextView = TextView(this).apply {
-        text = value
-        setTextColor(Color.parseColor("#33435A"))
-        setTextSize(TypedValue.COMPLEX_UNIT_SP, 8.5f)
-        letterSpacing = 0.22f
-        typeface = Typeface.create("sans-serif-medium", Typeface.NORMAL)
-        gravity = Gravity.CENTER
-    }
-
-    private fun bearagnosticWordmark(): SpannableString {
-        val value = "Bearagnostic"
-        return SpannableString(value).apply {
-            setSpan(
-                ForegroundColorSpan(Color.parseColor("#13233A")),
-                0,
-                4,
-                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE,
-            )
-            setSpan(
-                ForegroundColorSpan(Color.parseColor("#168FEA")),
-                4,
-                value.length,
-                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE,
-            )
-            setSpan(StyleSpan(Typeface.BOLD), 0, value.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-        }
     }
 
     private fun startNativeLaunchIntro() {
@@ -426,39 +352,23 @@ class MainActivity : Activity() {
         studioStage.animate()
             .alpha(0f)
             .translationY(-dp(5).toFloat())
-            .setDuration(250L)
+            .setDuration(240L)
             .setInterpolator(DecelerateInterpolator())
             .start()
 
         productStage.animate()
             .alpha(1f)
-            .setDuration(330L)
+            .setDuration(320L)
             .setInterpolator(DecelerateInterpolator())
             .start()
 
-        productBear.animate()
+        productHero.animate()
             .alpha(1f)
             .translationY(0f)
             .scaleX(1f)
             .scaleY(1f)
-            .setStartDelay(70L)
-            .setDuration(360L)
-            .setInterpolator(DecelerateInterpolator())
-            .start()
-
-        productWordmark.animate()
-            .alpha(1f)
-            .translationY(0f)
-            .setStartDelay(180L)
-            .setDuration(280L)
-            .setInterpolator(DecelerateInterpolator())
-            .start()
-
-        productTagline.animate()
-            .alpha(1f)
-            .translationY(0f)
-            .setStartDelay(270L)
-            .setDuration(260L)
+            .setStartDelay(90L)
+            .setDuration(420L)
             .setInterpolator(DecelerateInterpolator())
             .start()
     }
@@ -856,8 +766,8 @@ class MainActivity : Activity() {
     }
     companion object {
         private const val SUPPORT_QR_WRITE_REQUEST_CODE = 9418
-        private const val STUDIO_STAGE_MILLIS = 1_120L
-        private const val MINIMUM_BRAND_REVEAL_MILLIS = 3_000L
+        private const val STUDIO_STAGE_MILLIS = 980L
+        private const val MINIMUM_BRAND_REVEAL_MILLIS = 3_050L
         private const val PROMPTPAY_QR_URL =
             "https://raw.githubusercontent.com/grolygori789-crypto/little-ganesha-tarot/f21e6a4c81812276d661d6ebb0a3e6c86c6cf48b/assets/support/promptpay-qr.png"
         private const val WEB_LAUNCH_BYPASS_SCRIPT =

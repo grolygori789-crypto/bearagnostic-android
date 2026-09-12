@@ -1,29 +1,18 @@
-# Bearagnostic B55 — final premium launch + gear polish
+# Bearagnostic B56 centered hero launch package
 
-Baseline verified before packaging:
-- GitHub main: `144ff818b71cdd39baf205fc49b34c414c760c4a`
-- Android: `0.35.6-alpha54` / versionCode `54`
-- Latest GitHub Actions run #60: SUCCESS
+This package supersedes the earlier B55 launch package.
 
-This package changes only the approved launch presentation and Home header gear presentation.
+Intent:
+- Keep the premium Benedict studio intro.
+- Replace the previous pre-main hero with the user-approved Bearagnostic thinker artwork.
+- Center the Bearagnostic hero composition professionally with a reduced visual scale for better balance.
+- Keep the total intro long enough to be clearly visible before entering Main.
+- Keep the Home settings gear without the boxed background.
 
-## Upload
-Overwrite the repository files with this package using the same repo-relative paths, then commit/push to `main`.
-
-## Changed-file allowlist
-- `app/build.gradle.kts`
-- `app/src/main/java/com/benedictinteractive/bearagnostic/MainActivity.kt`
-- `app/src/main/legacy-adapter/android-home-polish.js`
-- `app/src/main/res/drawable-nodpi/benedict_interactive_launch_logo.png`
-
-## Expected physical result
-1. No decorative top line.
-2. Benedict logo + copy fade in calmly; one cyan sweep runs on the lower accent.
-3. Benedict stage dissolves into a large Dr. Bear / Bearagnostic hero stage.
-4. Bearagnostic remains clearly visible before Main; launch duration is at least ~3 seconds.
-5. The old WebView launch layer never appears or overlaps.
-6. Main fades in softly.
-7. Home gear keeps its full touch target but has no visible square/circular tile — only the approved silver gear remains.
-
-## Rollback
-`144ff818b71cdd39baf205fc49b34c414c760c4a`
+Upload steps:
+1. Open the `bearagnostic-android` repository locally.
+2. Overwrite the existing files with the files from this package, preserving the same repo-relative paths.
+3. Commit and push.
+4. Wait for GitHub Actions to build the APK.
+5. Install/update on the Android test device.
+6. Verify: Benedict stage visible, centered Bearagnostic thinker hero visible long enough, smooth fade into Main, and the Home settings gear has no square container.
