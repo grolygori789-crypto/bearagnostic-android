@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const SCRIPT_STATE = '__bearagnosticShareCard61';
+  const SCRIPT_STATE = '__bearagnosticShareCard62';
   if (window[SCRIPT_STATE]) return;
   window[SCRIPT_STATE] = true;
 
@@ -142,6 +142,46 @@
     return cleaned ? Number(cleaned[0]) : 0;
   }
 
+  function visiblePageText() {
+    const root = document.querySelector('main') || document.body;
+    return normalizeSpaces(root?.innerText || root?.textContent || '');
+  }
+
+  function collectCleanupImpactMetrics(pageText) {
+    if (!/cleanup impact|verified cleanup|cleanup complete|space reclaimed|files? removed/i.test(pageText)) return [];
+
+    const results = [];
+    const seen = new Set();
+    const add = (label, value) => {
+      const cleanValue = normalizeSpaces(value);
+      if (!cleanValue || seen.has(label)) return;
+      seen.add(label);
+      results.push({ label, value: cleanValue });
+    };
+
+    const reclaimed = pageText.match(/(?:cleanup impact|space reclaimed|verified space reclaimed)[^0-9]{0,90}(\d+(?:[.,]\d+)?\s?(?:TB|GB|MB|KB))/i)
+      || pageText.match(/\b(\d+(?:[.,]\d+)?\s?(?:TB|GB|MB|KB))\b/i);
+    if (reclaimed) add('Space reclaimed', reclaimed[1]);
+
+    const removed = pageText.match(/\b(\d+)\s+files?\s+removed\b/i)
+      || pageText.match(/files?\s+removed[^0-9]{0,24}(\d+)/i);
+    if (removed) add('Files removed', removed[1]);
+
+    const freeStorage = pageText.match(/(\d+(?:[.,]\d+)?%\s*(?:→|->|to)\s*\d+(?:[.,]\d+)?%)\s*free storage/i)
+      || pageText.match(/free storage[^0-9]{0,28}(\d+(?:[.,]\d+)?%\s*(?:→|->|to)\s*\d+(?:[.,]\d+)?%)/i);
+    if (freeStorage) add('Free storage', freeStorage[1]);
+
+    const duplicateResolved = pageText.match(/\b(\d+)\s+duplicate copies resolved\b/i)
+      || pageText.match(/duplicate copies resolved[^0-9]{0,24}(\d+)/i);
+    if (duplicateResolved) add('Duplicate copies resolved', duplicateResolved[1]);
+
+    const reviewMode = pageText.match(/\b(Manual review|Automatic cleanup|Auto cleanup)\b[^.]{0,80}low-risk cleanup resolved/i)
+      || pageText.match(/low-risk cleanup resolved[^.]{0,80}\b(Manual review|Automatic cleanup|Auto cleanup)\b/i);
+    if (reviewMode) add('Cleanup resolution', reviewMode[1]);
+
+    return results.slice(0, 5);
+  }
+
   function chooseTone(heading, metrics) {
     const text = `${heading} ${metrics.map((item) => `${item.label} ${item.value}`).join(' ')}`.toLowerCase();
     const issues = metrics.find((item) => /issues? found/i.test(item.label));
@@ -173,16 +213,30 @@
 
   function gatherResultModel() {
     const entries = findAllVisibleTextElements();
+    const pageText = visiblePageText();
     const heading = pickHeading(entries);
-    const metrics = collectMetrics(entries);
-    const tone = chooseTone(heading, metrics);
+    const cleanupMetrics = collectCleanupImpactMetrics(pageText);
+    const genericMetrics = collectMetrics(entries);
+    const merged = [...cleanupMetrics];
+    const used = new Set(merged.map((item) => item.label.toLowerCase()));
+    genericMetrics.forEach((item) => {
+      if (merged.length >= 6) return;
+      const key = item.label.toLowerCase();
+      if (!used.has(key)) {
+        used.add(key);
+        merged.push(item);
+      }
+    });
+    const tone = /cleanup impact|verified cleanup|cleanup complete|verified space reclaimed/i.test(pageText)
+      ? 'success'
+      : chooseTone(heading, merged);
     const status = STATUS[tone];
     return {
       heading,
       tone,
       status,
-      metrics: metrics.slice(0, 6),
-      insights: buildInsights(metrics, tone),
+      metrics: merged.slice(0, 6),
+      insights: buildInsights(merged, tone),
       generatedAt: new Date(),
     };
   }
@@ -408,33 +462,50 @@
   }
 
   function isShareButton(element) {
+    if (!(element instanceof Element)) return false;
     const text = normalizeSpaces(element.textContent).toLowerCase();
     const aria = normalizeSpaces(element.getAttribute('aria-label')).toLowerCase();
     const cls = String(element.className || '').toLowerCase();
-    return /share/.test(text) || /share/.test(aria) || /share/.test(cls);
+    const action = `${element.getAttribute('data-action') || ''} ${element.getAttribute('data-share') || ''}`.toLowerCase();
+
+    const explicitResultShare = /^(share result|share results|share summary|share cleanup result)$/i.test(text)
+      || /share result|share summary|share cleanup/i.test(aria)
+      || /share[-_ ]?result|result[-_ ]?share/.test(`${cls} ${action}`);
+    if (explicitResultShare) return true;
+
+    const looksLikeShare = /\bshare\b/.test(text) || /\bshare\b/.test(aria) || /share/.test(`${cls} ${action}`);
+    if (!looksLikeShare) return false;
+
+    const pageText = visiblePageText().toLowerCase();
+    return /cleanup impact|cleanup complete|verified cleanup|result summary|checkup complete|file health result|scan result/.test(pageText);
   }
 
-  function bindShareButtons() {
-    const candidates = Array.from(document.querySelectorAll('button, [role="button"], a'));
-    candidates.forEach((element) => {
-      if (!(element instanceof HTMLElement)) return;
-      if (!isVisible(element) || !isShareButton(element) || element.dataset.bearagnosticShareCardBound === '1') return;
-      element.dataset.bearagnosticShareCardBound = '1';
-      element.addEventListener('click', async (event) => {
-        try {
-          event.preventDefault();
-          event.stopImmediatePropagation();
-        } catch (_) {}
-        await delay(32);
-        shareCurrentResultCard();
-      }, true);
-    });
+  let shareBusy = false;
+
+  async function interceptResultShare(event) {
+    const origin = event.target instanceof Element ? event.target : null;
+    const control = origin?.closest?.('button, [role="button"], a');
+    if (!control || !isShareButton(control)) return;
+
+    // Capture before the legacy text-share handler reaches the control.
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+
+    if (shareBusy) return;
+    shareBusy = true;
+    if (control instanceof HTMLButtonElement) control.disabled = true;
+    try {
+      await shareCurrentResultCard();
+    } finally {
+      window.setTimeout(() => {
+        shareBusy = false;
+        if (control instanceof HTMLButtonElement) control.disabled = false;
+      }, 650);
+    }
   }
 
-  const observer = new MutationObserver(() => bindShareButtons());
-  observer.observe(document.documentElement, { childList: true, subtree: true });
-  document.addEventListener('DOMContentLoaded', bindShareButtons, { once: true });
-  window.addEventListener('load', bindShareButtons);
-  window.addEventListener('bearagnostic:navigation', bindShareButtons);
-  bindShareButtons();
+  // Delegation is intentional: Result panels are commonly created hidden and revealed later
+  // without inserting a new Share button. Binding only currently-visible buttons misses that case.
+  window.addEventListener('click', interceptResultShare, true);
 })();

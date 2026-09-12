@@ -1,40 +1,39 @@
-# Bearagnostic B61 premium share result card
+# Bearagnostic B62 premium share interception fix
 
-This package supersedes B60.
+This package supersedes B61.
 
-## What changed
-- Added a premium **image-based Result Share Card** for the Android app.
-- The visible Result share action is intercepted and converted into a styled Bearagnostic card instead of plain text only.
-- The card is generated from the current visible result summary on screen.
-- The card uses Bearagnostic branding, a matched Dr.Bear pose, clean premium typography, and key visible metrics from the active result screen.
-- Added a dedicated Android JS bridge to share generated PNG cards through the native Android share sheet.
-- Kept the existing text-sharing fallback path in the web layer if native image sharing is unavailable.
-- Preserved the launch sequence, scan-motion polish, and other earlier fixes.
-- Bumped version/build/cache to **B61**.
+## Root cause confirmed from B61 behavior
+B61 installed and built correctly, but the premium share adapter only attached listeners to Share controls that were already visible when binding ran. The Cleanup Impact / Result UI can exist hidden and later be revealed without inserting a new Share button. In that path, the premium listener never attached and the original plain-text share handler remained in control.
+
+## Fix
+- Replaced per-button visibility-time binding with one delegated **window capture-phase** share interceptor.
+- The premium handler now catches dynamically revealed `Share result` controls before the legacy text handler runs.
+- Kept the native PNG share bridge already introduced in B61.
+- Added Cleanup Impact-specific metric extraction for:
+  - space reclaimed;
+  - files removed;
+  - free storage before/after;
+  - duplicate copies resolved;
+  - cleanup resolution mode.
+- Cleanup Impact now maps to the success Dr.Bear/share-card tone.
+- Added double-tap protection while a card is being generated.
+- Bumped build/cache to B62.
 
 ## Changed-file allowlist
 - `app/build.gradle.kts`
-- `app/src/main/java/com/benedictinteractive/bearagnostic/MainActivity.kt`
-- `app/src/main/java/com/benedictinteractive/bearagnostic/ShareCardBridge.kt`
 - `app/src/main/legacy-adapter/android-share-card.js`
 - `UPLOAD_INSTRUCTIONS.md`
 
-## Upload
-1. Overwrite/add the repo-relative files from this package.
-2. Commit and push to `main`.
-3. Wait for GitHub Actions to build the debug APK.
-4. Install/update on the Android test device.
-5. Open a Result screen in Bearagnostic.
-6. Tap the visible share button/action.
-7. Verify the Android share sheet opens with an image card instead of plain text only.
-8. Verify the shared image looks premium, readable, and includes the expected visible metrics.
+## QA status
+- B61 baseline GitHub Actions run #67: SUCCESS.
+- B61 physical evidence: app works, but Share Result still opens text-only share (reported by P'Benz).
+- JavaScript syntax check for B62: PASS.
+- Static build/cache wiring check: PASS.
+- B62 Android CI: NOT RUN until uploaded.
+- B62 physical image-share flow: NOT YET VERIFIED.
 
-## QA truthfulness
-- Static file-assembly QA: PASS.
-- JavaScript syntax check: PASS.
-- Kotlin compile/build in Android environment: NOT run here.
-- Physical Android share flow: NOT verified here.
-- Result DOM extraction accuracy depends on the pinned legacy UI structure and should be validated on device.
+## Risk
+Low. The patch is restricted to the result-share interception/extraction layer and build cache/version. Cleanup deletion logic, scan logic, results, billing, launch sequence, and scan animation are untouched.
 
 ## Rollback
-Restore B60 versions of the changed files and remove `ShareCardBridge.kt` plus `android-share-card.js`.
+Restore B61 `app/build.gradle.kts` and `app/src/main/legacy-adapter/android-share-card.js` from commit `a22a8e82870f52f73fa4e8c5ed7c0d88571b6b74`.
