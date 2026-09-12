@@ -1,18 +1,15 @@
-# Bearagnostic B65 final premium share card redesign
+# Bearagnostic B66 final share-card fix
 
-This package supersedes B64.
+Baseline: GitHub main commit `6d45424e5c4523c3f93962f3121ec3d5595c3047` (`Final premium share card redesign`).
 
-## What changed
-- Rebuilt the cleanup result share card as a true redesign instead of another light polish.
-- Preserved the working native share pipeline from B63/B64.
-- Introduced a new visual hierarchy:
-  - stronger hero section
-  - three distinct “What changed” stat cards
-  - dedicated “Session notes” section for method, verification, generated time, and storage note
-  - clearer footer branding
-- Continued to use only values linked from the real cleanup result payload, plus static Bearagnostic branding text.
-- Added small payload refinements for `detailsLine` and `deltaNote`.
-- Bumped version/build/cache to B65.
+## Fixes
+- Fixes B65's washed-out Dr.Bear by forcing full alpha before drawing the mascot.
+- Removes the decorative mascot circles that contributed to the obscured look.
+- Re-spaces the hero so the chips never overlap text.
+- Fixes Verification bottom clipping with larger safe padding.
+- Adds a real Scan context strip from completed-result values: Scan mode, Files reviewed, Coverage.
+- Uses app-language timestamp formatting rather than unrelated device-locale formatting.
+- Keeps the working native PNG share pipeline.
 
 ## Changed-file allowlist
 - `app/build.gradle.kts`
@@ -20,23 +17,16 @@ This package supersedes B64.
 - `app/src/main/legacy-adapter/android-share-card.js`
 - `UPLOAD_INSTRUCTIONS.md`
 
-## Upload
-1. Overwrite/add the repo-relative files from this package.
-2. Commit and push to `main`.
-3. Wait for GitHub Actions to build the debug APK.
-4. Install/update on the Android test device.
-5. Open Cleanup Impact and tap `Share result`.
-6. Verify the generated share card now has the redesigned layout and still shares successfully.
-
 ## Commit name
-`Final premium share card redesign`
+`Fix share card spacing and mascot`
 
 ## QA truthfulness
-- Static assembly checks: PASS.
-- JavaScript syntax check: PASS.
-- Version/cache bump check: PASS.
-- Kotlin was reviewed carefully for syntax and structure but was not compiled here.
-- Native device render/share flow still requires validation on P'Benz's Android device.
+- JavaScript syntax: PASS.
+- Version/cache wiring: PASS.
+- Static layout-boundary audit: PASS.
+- Mascot full-alpha guard: PASS.
+- Kotlin parser-level sanity: no malformed-token pattern detected; Android SDK compile not run here.
+- Physical-device rendering: NOT YET VERIFIED.
 
 ## Rollback
-Restore the B64 versions of the changed files.
+Restore B65 versions of the changed files.
