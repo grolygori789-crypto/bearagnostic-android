@@ -36,6 +36,7 @@ class MainActivity : Activity() {
     private lateinit var rootView: FrameLayout
     private lateinit var webView: WebView
     private lateinit var nativeBridge: NativeBridge
+    private lateinit var shareCardBridge: ShareCardBridge
     private lateinit var scanner: FileHealthScanner
     private lateinit var reviewMediaProvider: ReviewMediaProvider
 
@@ -114,7 +115,9 @@ class MainActivity : Activity() {
         }
 
         nativeBridge = NativeBridge(this)
+        shareCardBridge = ShareCardBridge(this)
         webView.addJavascriptInterface(nativeBridge, NativeBridge.JS_INTERFACE_NAME)
+        webView.addJavascriptInterface(shareCardBridge, ShareCardBridge.JS_INTERFACE_NAME)
 
         launchOverlay = createLaunchOverlay()
         rootView.addView(webView)
@@ -765,6 +768,7 @@ class MainActivity : Activity() {
         if (::scanner.isInitialized) scanner.shutdown()
         if (::webView.isInitialized) {
             webView.removeJavascriptInterface(NativeBridge.JS_INTERFACE_NAME)
+            webView.removeJavascriptInterface(ShareCardBridge.JS_INTERFACE_NAME)
             webView.destroy()
         }
         super.onDestroy()
