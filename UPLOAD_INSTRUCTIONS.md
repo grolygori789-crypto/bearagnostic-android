@@ -1,12 +1,11 @@
-# Bearagnostic B56 centered hero launch package
+# Bearagnostic B57 exact hero launch package
 
-This package supersedes the earlier B55 launch package.
+This package supersedes the earlier B56 launch package.
 
 Intent:
 - Keep the premium Benedict studio intro.
-- Replace the previous pre-main hero with the user-approved Bearagnostic thinker artwork.
-- Center the Bearagnostic hero composition professionally with a reduced visual scale for better balance.
-- Keep the total intro long enough to be clearly visible before entering Main.
+- Use the user-approved exact Bearagnostic hero appearance before Main.
+- Replace the previous transparent-cutout hero with a clean centered hero composition to eliminate edge/fringe artifacts.
 - Keep the Home settings gear without the boxed background.
 
 Upload steps:
@@ -15,4 +14,4 @@ Upload steps:
 3. Commit and push.
 4. Wait for GitHub Actions to build the APK.
 5. Install/update on the Android test device.
-6. Verify: Benedict stage visible, centered Bearagnostic thinker hero visible long enough, smooth fade into Main, and the Home settings gear has no square container.
+6. Verify: Benedict stage visible, exact Bearagnostic hero appears centered and clean with no edge artifacts, smooth fade into Main, and the Home settings gear has no square container.

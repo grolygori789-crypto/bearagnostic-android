@@ -262,8 +262,8 @@ class MainActivity : Activity() {
                 FrameLayout.LayoutParams.WRAP_CONTENT,
                 Gravity.CENTER,
             ).apply {
-                leftMargin = dp(26)
-                rightMargin = dp(26)
+                leftMargin = dp(18)
+                rightMargin = dp(18)
             }
         }
 
@@ -271,10 +271,10 @@ class MainActivity : Activity() {
             setImageResource(R.drawable.bearagnostic_launch_hero)
             adjustViewBounds = true
             alpha = 0f
-            scaleX = 0.978f
-            scaleY = 0.978f
-            translationY = dp(10).toFloat()
-            layoutParams = LinearLayout.LayoutParams(dp(248), LinearLayout.LayoutParams.WRAP_CONTENT)
+            scaleX = 0.992f
+            scaleY = 0.992f
+            translationY = dp(8).toFloat()
+            layoutParams = LinearLayout.LayoutParams(dp(304), LinearLayout.LayoutParams.WRAP_CONTENT)
         }
 
         productStage.addView(productHero)
