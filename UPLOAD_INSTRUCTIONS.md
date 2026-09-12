@@ -1,17 +1,16 @@
-# Bearagnostic B57 exact hero launch package
+# Bearagnostic B58 transparent hero fix
 
-This package supersedes the earlier B56 launch package.
+This package supersedes B57.
 
-Intent:
-- Keep the premium Benedict studio intro.
-- Use the user-approved exact Bearagnostic hero appearance before Main.
-- Replace the previous transparent-cutout hero with a clean centered hero composition to eliminate edge/fringe artifacts.
-- Keep the Home settings gear without the boxed background.
+What changed:
+- Replaced the pre-Main Bearagnostic hero with a true transparent PNG.
+- Removed the white rectangular image background entirely.
+- Kept the approved hero size, centering, timing, Benedict intro, and frameless Home settings gear unchanged.
+- Bumped build/version cache to B58.
 
-Upload steps:
-1. Open the `bearagnostic-android` repository locally.
-2. Overwrite the existing files with the files from this package, preserving the same repo-relative paths.
-3. Commit and push.
-4. Wait for GitHub Actions to build the APK.
-5. Install/update on the Android test device.
-6. Verify: Benedict stage visible, exact Bearagnostic hero appears centered and clean with no edge artifacts, smooth fade into Main, and the Home settings gear has no square container.
+Upload:
+1. Overwrite the same repo-relative files from this package.
+2. Commit and push to `main`.
+3. Wait for GitHub Actions to build the debug APK.
+4. Install/update on the Android device.
+5. Verify the Bearagnostic hero floats cleanly on the app background with no rectangular box.
