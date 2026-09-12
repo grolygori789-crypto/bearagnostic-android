@@ -8,6 +8,7 @@ import android.app.DownloadManager
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.net.Uri
 import android.os.Build
@@ -15,11 +16,14 @@ import android.os.Bundle
 import android.os.Environment
 import android.os.StatFs
 import android.os.SystemClock
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.style.ForegroundColorSpan
+import android.text.style.StyleSpan
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.DecelerateInterpolator
 import android.webkit.WebSettings
 import android.webkit.WebView
@@ -39,11 +43,19 @@ class MainActivity : Activity() {
     private lateinit var nativeBridge: NativeBridge
     private lateinit var scanner: FileHealthScanner
     private lateinit var reviewMediaProvider: ReviewMediaProvider
+
     private lateinit var launchOverlay: FrameLayout
-    private lateinit var launchPulse: View
-    private lateinit var launchLogo: ImageView
-    private lateinit var launchLabel: TextView
-    private lateinit var launchPromise: TextView
+    private lateinit var studioStage: LinearLayout
+    private lateinit var productStage: LinearLayout
+    private lateinit var studioLogo: ImageView
+    private lateinit var studioAccentBase: View
+    private lateinit var studioAccentSweep: View
+    private lateinit var studioLaunchLabel: TextView
+    private lateinit var studioPromise: TextView
+    private lateinit var productBear: ImageView
+    private lateinit var productWordmark: TextView
+    private lateinit var productTagline: LinearLayout
+
     private val reviewMediaExecutor = Executors.newSingleThreadExecutor { runnable ->
         Thread(runnable, "BearagnosticReviewMedia").apply { priority = Thread.NORM_PRIORITY - 1 }
     }
@@ -148,122 +160,305 @@ class MainActivity : Activity() {
             isFocusable = true
         }
 
-        val content = LinearLayout(this).apply {
+        studioStage = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER_HORIZONTAL
-            alpha = 1f
             layoutParams = FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT,
                 FrameLayout.LayoutParams.WRAP_CONTENT,
                 Gravity.CENTER,
             ).apply {
-                leftMargin = dp(28)
-                rightMargin = dp(28)
+                leftMargin = dp(30)
+                rightMargin = dp(30)
             }
         }
 
-        launchPulse = View(this).apply {
-            alpha = 0f
-            scaleX = 0.35f
-            background = GradientDrawable(
-                GradientDrawable.Orientation.LEFT_RIGHT,
-                intArrayOf(Color.parseColor("#0B56FF"), Color.parseColor("#44C9F7"), Color.parseColor("#A9E8F7")),
-            ).apply {
-                cornerRadius = dp(999).toFloat()
-            }
-            layoutParams = LinearLayout.LayoutParams(dp(60), dp(4)).apply {
-                bottomMargin = dp(22)
-            }
-        }
-
-        launchLogo = ImageView(this).apply {
+        studioLogo = ImageView(this).apply {
             setImageResource(R.drawable.benedict_interactive_launch_logo)
             adjustViewBounds = true
             alpha = 0f
             scaleX = 0.985f
             scaleY = 0.985f
-            translationY = dp(10).toFloat()
-            layoutParams = LinearLayout.LayoutParams(dp(262), LinearLayout.LayoutParams.WRAP_CONTENT)
+            translationY = dp(9).toFloat()
+            layoutParams = LinearLayout.LayoutParams(dp(260), LinearLayout.LayoutParams.WRAP_CONTENT)
         }
 
-        launchLabel = TextView(this).apply {
-            text = "Launching Bearagnostic"
-            setTextColor(Color.parseColor("#11395E"))
-            setTextSize(TypedValue.COMPLEX_UNIT_SP, 11f)
-            letterSpacing = 0.16f
-            gravity = Gravity.CENTER
+        val accentHolder = FrameLayout(this).apply {
             alpha = 0f
             translationY = dp(6).toFloat()
+            layoutParams = LinearLayout.LayoutParams(dp(92), dp(5)).apply {
+                topMargin = dp(12)
+            }
+        }
+        studioAccentBase = View(this).apply {
+            background = GradientDrawable(
+                GradientDrawable.Orientation.LEFT_RIGHT,
+                intArrayOf(
+                    Color.parseColor("#001A8FEA"),
+                    Color.parseColor("#552DAFEA"),
+                    Color.parseColor("#001A8FEA"),
+                ),
+            ).apply { cornerRadius = dp(999).toFloat() }
+            layoutParams = FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                dp(2),
+                Gravity.CENTER_VERTICAL,
+            )
+        }
+        studioAccentSweep = View(this).apply {
+            alpha = 0f
+            translationX = -dp(38).toFloat()
+            background = GradientDrawable(
+                GradientDrawable.Orientation.LEFT_RIGHT,
+                intArrayOf(
+                    Color.parseColor("#00168FEA"),
+                    Color.parseColor("#BB258FF4"),
+                    Color.parseColor("#FF53DBFF"),
+                    Color.parseColor("#D8B7F3FF"),
+                    Color.parseColor("#00168FEA"),
+                ),
+            ).apply { cornerRadius = dp(999).toFloat() }
+            layoutParams = FrameLayout.LayoutParams(dp(34), dp(3), Gravity.START or Gravity.CENTER_VERTICAL)
+        }
+        accentHolder.addView(studioAccentBase)
+        accentHolder.addView(studioAccentSweep)
+
+        studioLaunchLabel = TextView(this).apply {
+            text = "Launching Bearagnostic"
+            setTextColor(Color.parseColor("#334F70"))
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, 13.5f)
+            letterSpacing = 0.055f
+            gravity = Gravity.CENTER
+            alpha = 0f
+            translationY = dp(7).toFloat()
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT,
-            ).apply {
-                topMargin = dp(18)
-            }
+            ).apply { topMargin = dp(18) }
         }
 
-        launchPromise = TextView(this).apply {
+        studioPromise = TextView(this).apply {
             text = "Find clutter. Explain the risk. Clean with confidence."
-            setTextColor(Color.parseColor("#4A728B"))
-            setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f)
+            setTextColor(Color.parseColor("#7B8DA0"))
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, 12.5f)
             gravity = Gravity.CENTER
             alpha = 0f
-            translationY = dp(6).toFloat()
+            translationY = dp(7).toFloat()
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT,
             ).apply {
-                topMargin = dp(10)
+                topMargin = dp(11)
+                leftMargin = dp(10)
+                rightMargin = dp(10)
             }
         }
 
-        content.addView(launchPulse)
-        content.addView(launchLogo)
-        content.addView(launchLabel)
-        content.addView(launchPromise)
-        overlay.addView(content)
+        studioStage.addView(studioLogo)
+        studioStage.addView(accentHolder)
+        studioStage.addView(studioLaunchLabel)
+        studioStage.addView(studioPromise)
+
+        productStage = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            gravity = Gravity.CENTER_HORIZONTAL
+            alpha = 0f
+            visibility = View.INVISIBLE
+            layoutParams = FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.WRAP_CONTENT,
+                Gravity.CENTER,
+            ).apply {
+                leftMargin = dp(24)
+                rightMargin = dp(24)
+            }
+        }
+
+        productBear = ImageView(this).apply {
+            setImageResource(R.drawable.bearagnostic_launch_bear)
+            adjustViewBounds = true
+            alpha = 0f
+            scaleX = 0.972f
+            scaleY = 0.972f
+            translationY = dp(10).toFloat()
+            layoutParams = LinearLayout.LayoutParams(dp(278), LinearLayout.LayoutParams.WRAP_CONTENT)
+        }
+
+        productWordmark = TextView(this).apply {
+            text = bearagnosticWordmark()
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, 38f)
+            letterSpacing = -0.035f
+            typeface = Typeface.create("sans-serif", Typeface.BOLD)
+            gravity = Gravity.CENTER
+            alpha = 0f
+            translationY = dp(7).toFloat()
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+            ).apply { topMargin = dp(7) }
+        }
+
+        productTagline = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER
+            alpha = 0f
+            translationY = dp(6).toFloat()
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+            ).apply { topMargin = dp(7) }
+        }
+        productTagline.addView(productTagText("DEVICE HEALTH"))
+        productTagline.addView(View(this).apply {
+            background = GradientDrawable(
+                GradientDrawable.Orientation.LEFT_RIGHT,
+                intArrayOf(Color.parseColor("#27C2EC"), Color.parseColor("#248DF0")),
+            ).apply { cornerRadius = dp(999).toFloat() }
+            layoutParams = LinearLayout.LayoutParams(dp(35), dp(2)).apply {
+                leftMargin = dp(9)
+                rightMargin = dp(9)
+            }
+        })
+        productTagline.addView(productTagText("BETTER DAYS"))
+
+        productStage.addView(productBear)
+        productStage.addView(productWordmark)
+        productStage.addView(productTagline)
+
+        overlay.addView(studioStage)
+        overlay.addView(productStage)
         return overlay
+    }
+
+    private fun productTagText(value: String): TextView = TextView(this).apply {
+        text = value
+        setTextColor(Color.parseColor("#33435A"))
+        setTextSize(TypedValue.COMPLEX_UNIT_SP, 8.5f)
+        letterSpacing = 0.22f
+        typeface = Typeface.create("sans-serif-medium", Typeface.NORMAL)
+        gravity = Gravity.CENTER
+    }
+
+    private fun bearagnosticWordmark(): SpannableString {
+        val value = "Bearagnostic"
+        return SpannableString(value).apply {
+            setSpan(
+                ForegroundColorSpan(Color.parseColor("#13233A")),
+                0,
+                4,
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE,
+            )
+            setSpan(
+                ForegroundColorSpan(Color.parseColor("#168FEA")),
+                4,
+                value.length,
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE,
+            )
+            setSpan(StyleSpan(Typeface.BOLD), 0, value.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        }
     }
 
     private fun startNativeLaunchIntro() {
         launchStartedAt = SystemClock.uptimeMillis()
-        launchPulse.animate()
-            .alpha(1f)
-            .scaleX(1f)
-            .setDuration(240L)
-            .setInterpolator(AccelerateDecelerateInterpolator())
-            .withEndAction {
-                launchPulse.animate()
-                    .alpha(0.78f)
-                    .setDuration(180L)
-                    .setInterpolator(DecelerateInterpolator())
-                    .start()
-            }
-            .start()
 
-        launchLogo.animate()
+        studioLogo.animate()
             .alpha(1f)
             .translationY(0f)
             .scaleX(1f)
             .scaleY(1f)
             .setStartDelay(120L)
+            .setDuration(390L)
+            .setInterpolator(DecelerateInterpolator())
+            .start()
+
+        studioLaunchLabel.animate()
+            .alpha(1f)
+            .translationY(0f)
+            .setStartDelay(330L)
+            .setDuration(300L)
+            .setInterpolator(DecelerateInterpolator())
+            .start()
+
+        studioPromise.animate()
+            .alpha(1f)
+            .translationY(0f)
+            .setStartDelay(455L)
             .setDuration(320L)
             .setInterpolator(DecelerateInterpolator())
             .start()
 
-        launchLabel.animate()
+        (studioAccentBase.parent as View).animate()
             .alpha(1f)
             .translationY(0f)
-            .setStartDelay(210L)
+            .setStartDelay(430L)
+            .setDuration(220L)
+            .setInterpolator(DecelerateInterpolator())
+            .withEndAction { playStudioAccentSweep() }
+            .start()
+
+        launchOverlay.postDelayed({
+            if (!isFinishing && !isDestroyed && !launchDismissed) transitionToProductStage()
+        }, STUDIO_STAGE_MILLIS)
+    }
+
+    private fun playStudioAccentSweep() {
+        studioAccentSweep.alpha = 0f
+        studioAccentSweep.translationX = -dp(38).toFloat()
+        studioAccentSweep.animate()
+            .alpha(1f)
+            .translationX(dp(96).toFloat())
+            .setDuration(470L)
+            .setInterpolator(DecelerateInterpolator())
+            .withEndAction {
+                studioAccentSweep.animate()
+                    .alpha(0f)
+                    .setDuration(110L)
+                    .setInterpolator(DecelerateInterpolator())
+                    .start()
+            }
+            .start()
+    }
+
+    private fun transitionToProductStage() {
+        productStage.visibility = View.VISIBLE
+        productStage.alpha = 0f
+
+        studioStage.animate()
+            .alpha(0f)
+            .translationY(-dp(5).toFloat())
             .setDuration(250L)
             .setInterpolator(DecelerateInterpolator())
             .start()
 
-        launchPromise.animate()
+        productStage.animate()
+            .alpha(1f)
+            .setDuration(330L)
+            .setInterpolator(DecelerateInterpolator())
+            .start()
+
+        productBear.animate()
             .alpha(1f)
             .translationY(0f)
-            .setStartDelay(280L)
-            .setDuration(250L)
+            .scaleX(1f)
+            .scaleY(1f)
+            .setStartDelay(70L)
+            .setDuration(360L)
+            .setInterpolator(DecelerateInterpolator())
+            .start()
+
+        productWordmark.animate()
+            .alpha(1f)
+            .translationY(0f)
+            .setStartDelay(180L)
+            .setDuration(280L)
+            .setInterpolator(DecelerateInterpolator())
+            .start()
+
+        productTagline.animate()
+            .alpha(1f)
+            .translationY(0f)
+            .setStartDelay(270L)
+            .setDuration(260L)
             .setInterpolator(DecelerateInterpolator())
             .start()
     }
@@ -311,14 +506,13 @@ class MainActivity : Activity() {
         webView.visibility = View.VISIBLE
         webView.animate()
             .alpha(1f)
-            .setDuration(220L)
+            .setDuration(260L)
             .setInterpolator(DecelerateInterpolator())
             .start()
 
         launchOverlay.animate()
             .alpha(0f)
-            .translationY(-dp(10).toFloat())
-            .setDuration(220L)
+            .setDuration(280L)
             .setInterpolator(DecelerateInterpolator())
             .setListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationEnd(animation: Animator) {
@@ -662,7 +856,8 @@ class MainActivity : Activity() {
     }
     companion object {
         private const val SUPPORT_QR_WRITE_REQUEST_CODE = 9418
-        private const val MINIMUM_BRAND_REVEAL_MILLIS = 480L
+        private const val STUDIO_STAGE_MILLIS = 1_120L
+        private const val MINIMUM_BRAND_REVEAL_MILLIS = 3_000L
         private const val PROMPTPAY_QR_URL =
             "https://raw.githubusercontent.com/grolygori789-crypto/little-ganesha-tarot/f21e6a4c81812276d661d6ebb0a3e6c86c6cf48b/assets/support/promptpay-qr.png"
         private const val WEB_LAUNCH_BYPASS_SCRIPT =
