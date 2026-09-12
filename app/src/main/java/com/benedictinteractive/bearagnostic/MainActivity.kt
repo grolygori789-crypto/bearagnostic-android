@@ -68,11 +68,10 @@ class MainActivity : Activity() {
             )
         }
 
-        webView = WebView(this)
-        nativeBridge = NativeBridge(this)
-        webView.apply {
+        webView = WebView(this).apply {
             setBackgroundColor(Color.rgb(246, 249, 253))
             alpha = 0f
+            visibility = View.INVISIBLE
             layoutParams = FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT,
                 FrameLayout.LayoutParams.MATCH_PARENT,
@@ -87,7 +86,7 @@ class MainActivity : Activity() {
                 override fun onPageFinished(view: WebView?, url: String?) {
                     super.onPageFinished(view, url)
                     webView.postDelayed({ forceAppVisibleIfLaunchStalled() }, 6_500L)
-                    markWebContentReady()
+                    prepareWebContentForNativeLaunch()
                 }
             }
             settings.apply {
@@ -103,6 +102,8 @@ class MainActivity : Activity() {
                 mediaPlaybackRequiresUserGesture = true
             }
         }
+
+        nativeBridge = NativeBridge(this)
         webView.addJavascriptInterface(nativeBridge, NativeBridge.JS_INTERFACE_NAME)
 
         launchOverlay = createLaunchOverlay()
@@ -267,9 +268,20 @@ class MainActivity : Activity() {
             .start()
     }
 
-    private fun markWebContentReady() {
-        webContentReady = true
-        dismissLaunchOverlayWhenAppropriate(force = false)
+    private fun prepareWebContentForNativeLaunch() {
+        if (!::webView.isInitialized || isFinishing || isDestroyed) return
+        webView.evaluateJavascript(WEB_LAUNCH_BYPASS_SCRIPT) {
+            webContentReady = true
+            reinforceWebLaunchBypass()
+            dismissLaunchOverlayWhenAppropriate(force = false)
+        }
+    }
+
+    private fun reinforceWebLaunchBypass() {
+        if (!::webView.isInitialized) return
+        webView.post { webView.evaluateJavascript(WEB_LAUNCH_BYPASS_SCRIPT, null) }
+        webView.postDelayed({ webView.evaluateJavascript(WEB_LAUNCH_BYPASS_SCRIPT, null) }, 120L)
+        webView.postDelayed({ webView.evaluateJavascript(WEB_LAUNCH_BYPASS_SCRIPT, null) }, 380L)
     }
 
     private fun dismissLaunchOverlayWhenAppropriate(force: Boolean) {
@@ -295,7 +307,8 @@ class MainActivity : Activity() {
             pendingLaunchDismiss = null
         }
 
-        ensureWebAppVisible()
+        reinforceWebLaunchBypass()
+        webView.visibility = View.VISIBLE
         webView.animate()
             .alpha(1f)
             .setDuration(220L)
@@ -319,17 +332,10 @@ class MainActivity : Activity() {
             .start()
     }
 
-    private fun ensureWebAppVisible() {
-        if (!::webView.isInitialized || isFinishing || isDestroyed) return
-        webView.evaluateJavascript(
-            "(function(){var l=document.getElementById('launch');var a=document.getElementById('appRoot');" +
-                "if(a&&a.hidden){a.hidden=false;}if(l&&!l.hidden){l.hidden=true;}return true;})()",
-            null,
-        )
-    }
-
     private fun forceAppVisibleIfLaunchStalled() {
-        ensureWebAppVisible()
+        if (!::webView.isInitialized || isFinishing || isDestroyed) return
+        webContentReady = true
+        reinforceWebLaunchBypass()
         dismissLaunchOverlayWhenAppropriate(force = true)
     }
 
@@ -659,6 +665,8 @@ class MainActivity : Activity() {
         private const val MINIMUM_BRAND_REVEAL_MILLIS = 480L
         private const val PROMPTPAY_QR_URL =
             "https://raw.githubusercontent.com/grolygori789-crypto/little-ganesha-tarot/f21e6a4c81812276d661d6ebb0a3e6c86c6cf48b/assets/support/promptpay-qr.png"
+        private const val WEB_LAUNCH_BYPASS_SCRIPT =
+            "(function(){try{var l=document.getElementById('launch');if(l){l.hidden=true;l.setAttribute('hidden','hidden');l.style.display='none';l.style.visibility='hidden';l.style.opacity='0';if(l.parentNode){l.parentNode.removeChild(l);}}var a=document.getElementById('appRoot');if(a){a.hidden=false;a.removeAttribute('hidden');a.style.display='';a.style.visibility='visible';a.style.opacity='1';}if(document.documentElement){document.documentElement.setAttribute('data-native-launch-bypass','1');}if(document.body){document.body.setAttribute('data-native-launch-bypass','1');}return true;}catch(e){return false;}})();"
 
         private val ALLOWED_EXTERNAL_HOSTS = setOf(
             "ko-fi.com",
