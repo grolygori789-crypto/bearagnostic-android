@@ -88,6 +88,11 @@ class MainActivity : Activity() {
                     return true
                 }
 
+                override fun onPageCommitVisible(view: WebView?, url: String?) {
+                    super.onPageCommitVisible(view, url)
+                    prepareWebContentForNativeLaunch()
+                }
+
                 override fun onPageFinished(view: WebView?, url: String?) {
                     super.onPageFinished(view, url)
                     webView.postDelayed({ forceAppVisibleIfLaunchStalled() }, 6_500L)
@@ -767,7 +772,7 @@ class MainActivity : Activity() {
     companion object {
         private const val SUPPORT_QR_WRITE_REQUEST_CODE = 9418
         private const val STUDIO_STAGE_MILLIS = 980L
-        private const val MINIMUM_BRAND_REVEAL_MILLIS = 3_050L
+        private const val MINIMUM_BRAND_REVEAL_MILLIS = 2_650L
         private const val PROMPTPAY_QR_URL =
             "https://raw.githubusercontent.com/grolygori789-crypto/little-ganesha-tarot/f21e6a4c81812276d661d6ebb0a3e6c86c6cf48b/assets/support/promptpay-qr.png"
         private const val WEB_LAUNCH_BYPASS_SCRIPT =
