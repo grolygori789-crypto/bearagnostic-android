@@ -6,7 +6,6 @@ import java.security.MessageDigest
 plugins {
     id("com.android.application")
 }
-
 val legacyCommit = "78a31c7752e171c0eafb63c0d0859f4072a193d6"
 val generatedLegacyAssetsDir = layout.buildDirectory.dir("generated/legacyAssets").get().asFile
 val generatedLegacyResDir = layout.buildDirectory.dir("generated/legacyRes").get().asFile
@@ -42,7 +41,6 @@ val androidStabilization = layout.projectDirectory.file("src/main/legacy-adapter
 val androidLocalePolish = layout.projectDirectory.file("src/main/legacy-adapter/android-locale-polish.js").asFile
 val androidBuildTruth = layout.projectDirectory.file("src/main/legacy-adapter/android-build-truth.js").asFile
 val nativeAssetsDir = layout.projectDirectory.dir("src/main/native-assets").asFile
-
 fun gitBlobSha1(file: File): String {
     val bytes = file.readBytes()
     val digest = MessageDigest.getInstance("SHA-1")
@@ -50,7 +48,6 @@ fun gitBlobSha1(file: File): String {
     digest.update(bytes)
     return digest.digest().joinToString("") { "%02x".format(it) }
 }
-
 val legacyCriticalBlobs = mapOf(
     "index.html" to "b750e29c2ce2903ee6fc067d8ba37aceffcaca26",
     "css/app.css" to "c49dad3dbba48526a4df694965cd308e2def7ffb",
@@ -75,7 +72,6 @@ val legacyCriticalBlobs = mapOf(
     "assets/brand/home-editorial-still-life.webp" to "bb8ea99512ff9bc7c1e140ae7b39b1ae734549aa",
     "assets/brand/scanning-clinical-scene.webp" to "85461dd8d74e353a09b4a848c8adfddbcbf5c061",
 )
-
 val prepareLegacyFrontend by tasks.registering {
     group = "bearagnostic"
     description = "Imports the approved Bearagnostic PWA byte-for-byte, then overlays Android integration modules."
@@ -84,7 +80,6 @@ val prepareLegacyFrontend by tasks.registering {
     inputs.property("legacyCommit", legacyCommit)
     outputs.dir(generatedLegacyAssetsDir)
     outputs.dir(generatedLegacyResDir)
-
     doLast {
         if (!legacyArchive.exists()) {
             legacyArchive.parentFile.mkdirs()
@@ -97,7 +92,6 @@ val prepareLegacyFrontend by tasks.registering {
                 legacyArchive.outputStream().use { output -> input.copyTo(output) }
             }
         }
-
         delete(legacyExtractDir, generatedLegacyAssetsDir, generatedLegacyResDir)
         legacyExtractDir.mkdirs()
         copy {
@@ -108,7 +102,6 @@ val prepareLegacyFrontend by tasks.registering {
         val sourceRoot = legacyExtractDir.listFiles()
             ?.firstOrNull { it.isDirectory && File(it, "index.html").isFile }
             ?: error("Pinned legacy Bearagnostic archive did not contain index.html")
-
         legacyCriticalBlobs.forEach { (relativePath, expectedSha) ->
             val sourceFile = File(sourceRoot, relativePath)
             check(sourceFile.isFile) { "Missing approved legacy asset: $relativePath" }
@@ -117,7 +110,6 @@ val prepareLegacyFrontend by tasks.registering {
                 "Legacy source drift detected for $relativePath. Expected $expectedSha, got $actualSha"
             }
         }
-
         val uiRoot = File(generatedLegacyAssetsDir, "ui")
         uiRoot.mkdirs()
         copy {
@@ -125,45 +117,53 @@ val prepareLegacyFrontend by tasks.registering {
             into(uiRoot)
             exclude(".git/**", "docs/**", "README.md")
         }
-
         val generatedIndex = File(uiRoot, "index.html")
         val originalHtml = generatedIndex.readText(StandardCharsets.UTF_8)
         val androidTags = buildString {
             // Entitlement loads first so its capture guard can protect Pro-only actions
-            // before the Android interaction adapter handles them. Hidden-item privacy loads before dedicated review tools; Quick Clean, Exact Duplicates, Large Files, Older Files, Downloads Review, APK Installers, Archives, Zero-byte Files, Empty Folders, and Advanced Media Review capture their dedicated entries before generic tool handling; Billing presentation loads after Pro UI; Pro plan status follows billing; readability loads late; Custom Scan owns its responsive composition; Insights owns aggregate local-history presentation; shell-ux owns app-wide scroll cues and Checkup root-navigation consistency; stabilization applies late product-truth, legal, File Health, preferences, and localization contracts without changing scan/history logic; locale-polish owns final multilingual typography, privacy geometry, and semantic icon contrast; build-truth loads last so visible version labels always resolve from native BuildConfig.
-            append("  <script src=\"./js/android-entitlement.js?v=52\"></script>\n")
-            append("  <script src=\"./js/android-hidden-items.js?v=52\"></script>\n")
-            append("  <script src=\"./js/android-cleanup.js?v=52\"></script>\n")
-            append("  <script src=\"./js/android-duplicates.js?v=52\"></script>\n")
-            append("  <script src=\"./js/android-large-files.js?v=52\"></script>\n")
-            append("  <script src=\"./js/android-older-files.js?v=52\"></script>\n")
-            append("  <script src=\"./js/android-downloads.js?v=52\"></script>\n")
-            append("  <script src=\"./js/android-installers.js?v=52\"></script>\n")
-            append("  <script src=\"./js/android-archives.js?v=52\"></script>\n")
-            append("  <script src=\"./js/android-zero.js?v=52\"></script>\n")
-            append("  <script src=\"./js/android-empty-folders.js?v=52\"></script>\n")
-            append("  <script src=\"./js/android-advanced-media.js?v=52\"></script>\n")
-            append("  <script src=\"./js/android-native.js?v=52\"></script>\n")
-            append("  <script src=\"./js/android-review.js?v=52\"></script>\n")
-            append("  <script src=\"./js/android-support.js?v=52\"></script>\n")
-            append("  <script src=\"./js/android-scan-trust.js?v=52\"></script>\n")
-            append("  <script src=\"./js/android-live-scan.js?v=52\"></script>\n")
-            append("  <script src=\"./js/android-review-media.js?v=52\"></script>\n")
-            append("  <script src=\"./js/android-premium-color.js?v=52\"></script>\n")
-            append("  <script src=\"./js/android-pro-ui.js?v=52\"></script>\n")
-            append("  <script src=\"./js/android-billing.js?v=52\"></script>\n")
-            append("  <script src=\"./js/android-plan-status.js?v=52\"></script>\n")
-            append("  <script src=\"./js/android-readability.js?v=52\"></script>\n")
-            append("  <script src=\"./js/android-custom-scan.js?v=52\"></script>\n")
-            append("  <script src=\"./js/android-insights.js?v=52\"></script>\n")
-            append("  <script src=\"./js/android-shell-ux.js?v=52\"></script>\n")
-            append("  <script src=\"./js/android-stabilization.js?v=52\"></script>\n")
-            append("  <script src=\"./js/android-locale-polish.js?v=52\"></script>\n")
-            append("  <script src=\"./js/android-build-truth.js?v=52\"></script>\n")
+            // before the Android interaction adapter handles them.
+            // Hidden-item privacy loads before dedicated review tools; Quick Clean, Exact Duplicates,
+            // Large Files, Older Files, Downloads Review, APK Installers, Archives, Zero-byte Files,
+            // Empty Folders, and Advanced Media Review capture their dedicated entries before generic
+            // tool handling; Billing presentation loads after Pro UI; Pro plan status follows billing;
+            // readability loads late; Custom Scan owns its responsive composition; Insights owns
+            // aggregate local-history presentation; shell-ux owns app-wide scroll cues and Checkup
+            // root-navigation consistency; stabilization applies late product-truth, legal, File Health,
+            // preferences, and localization contracts without changing scan/history logic; locale-polish
+            // owns final multilingual typography, privacy geometry, and semantic icon contrast;
+            // build-truth loads last so visible version labels always resolve from native BuildConfig.
+            append("  <script src=\"./js/android-entitlement.js?v=53\"></script>\n")
+            append("  <script src=\"./js/android-hidden-items.js?v=53\"></script>\n")
+            append("  <script src=\"./js/android-cleanup.js?v=53\"></script>\n")
+            append("  <script src=\"./js/android-duplicates.js?v=53\"></script>\n")
+            append("  <script src=\"./js/android-large-files.js?v=53\"></script>\n")
+            append("  <script src=\"./js/android-older-files.js?v=53\"></script>\n")
+            append("  <script src=\"./js/android-downloads.js?v=53\"></script>\n")
+            append("  <script src=\"./js/android-installers.js?v=53\"></script>\n")
+            append("  <script src=\"./js/android-archives.js?v=53\"></script>\n")
+            append("  <script src=\"./js/android-zero.js?v=53\"></script>\n")
+            append("  <script src=\"./js/android-empty-folders.js?v=53\"></script>\n")
+            append("  <script src=\"./js/android-advanced-media.js?v=53\"></script>\n")
+            append("  <script src=\"./js/android-native.js?v=53\"></script>\n")
+            append("  <script src=\"./js/android-review.js?v=53\"></script>\n")
+            append("  <script src=\"./js/android-support.js?v=53\"></script>\n")
+            append("  <script src=\"./js/android-scan-trust.js?v=53\"></script>\n")
+            append("  <script src=\"./js/android-live-scan.js?v=53\"></script>\n")
+            append("  <script src=\"./js/android-review-media.js?v=53\"></script>\n")
+            append("  <script src=\"./js/android-premium-color.js?v=53\"></script>\n")
+            append("  <script src=\"./js/android-pro-ui.js?v=53\"></script>\n")
+            append("  <script src=\"./js/android-billing.js?v=53\"></script>\n")
+            append("  <script src=\"./js/android-plan-status.js?v=53\"></script>\n")
+            append("  <script src=\"./js/android-readability.js?v=53\"></script>\n")
+            append("  <script src=\"./js/android-custom-scan.js?v=53\"></script>\n")
+            append("  <script src=\"./js/android-insights.js?v=53\"></script>\n")
+            append("  <script src=\"./js/android-shell-ux.js?v=53\"></script>\n")
+            append("  <script src=\"./js/android-stabilization.js?v=53\"></script>\n")
+            append("  <script src=\"./js/android-locale-polish.js?v=53\"></script>\n")
+            append("  <script src=\"./js/android-build-truth.js?v=53\"></script>\n")
         }
         check(originalHtml.contains("</body>")) { "Legacy index.html is missing </body>" }
         generatedIndex.writeText(originalHtml.replace("</body>", androidTags + "</body>"), StandardCharsets.UTF_8)
-
         val jsRoot = File(uiRoot, "js")
         jsRoot.mkdirs()
         androidAdapter.copyTo(File(jsRoot, "android-native.js"), overwrite = true)
@@ -195,7 +195,6 @@ val prepareLegacyFrontend by tasks.registering {
         androidStabilization.copyTo(File(jsRoot, "android-stabilization.js"), overwrite = true)
         androidLocalePolish.copyTo(File(jsRoot, "android-locale-polish.js"), overwrite = true)
         androidBuildTruth.copyTo(File(jsRoot, "android-build-truth.js"), overwrite = true)
-
         if (nativeAssetsDir.isDirectory) {
             copy {
                 from(nativeAssetsDir)
@@ -209,7 +208,6 @@ val prepareLegacyFrontend by tasks.registering {
             .copyTo(File(launcherDir, "bearagnostic_pwa_app_icon.png"), overwrite = true)
     }
 }
-
 android {
     namespace = "com.benedictinteractive.bearagnostic"
     compileSdk = 36
@@ -218,10 +216,9 @@ android {
         applicationId = "com.benedictinteractive.bearagnostic"
         minSdk = 26
         targetSdk = 36
-        versionCode = 52
-        versionName = "0.35.4-alpha52"
+        versionCode = 53
+        versionName = "0.35.5-alpha53"
     }
-
     sourceSets {
         getByName("main") {
             // The WebView frontend is generated exclusively from the pinned, verified
@@ -234,7 +231,6 @@ android {
     buildFeatures {
         buildConfig = true
     }
-
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
@@ -248,7 +244,6 @@ android {
             keyPassword = "android"
         }
     }
-
     buildTypes {
         debug {
             applicationIdSuffix = ".debug"
@@ -256,13 +251,11 @@ android {
             signingConfig = signingConfigs.getByName("debug")
         }
         release {
-            // B52 intentionally does not enable minification yet. R8/resource shrinking is
-            // deferred until the stabilization/localization passes are physically verified,
-            // so release-hardening does not introduce a hard-to-isolate regression here.
+            // B53 intentionally still leaves minification disabled so the new native launch
+            // presentation can be physically verified before any release hardening changes.
             isMinifyEnabled = false
         }
     }
-
     packaging {
         resources {
             excludes += setOf("META-INF/AL2.0", "META-INF/LGPL2.1")
