@@ -9,7 +9,6 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.LinearGradient
 import android.graphics.Paint
-import android.graphics.Path
 import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.Shader
@@ -72,115 +71,125 @@ class ShareCardBridge(
         val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
         val paint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.SUBPIXEL_TEXT_FLAG).apply { isDither = true }
+
         val regular = Typeface.create("sans-serif", Typeface.NORMAL)
         val medium = Typeface.create("sans-serif-medium", Typeface.NORMAL)
         val bold = Typeface.create("sans-serif", Typeface.BOLD)
 
-        val navy = Color.rgb(18, 47, 78)
-        val slate = Color.rgb(99, 121, 141)
-        val steel = Color.rgb(150, 167, 182)
-        val blue = Color.rgb(30, 154, 227)
-        val cyan = Color.rgb(73, 196, 239)
-        val mint = Color.rgb(59, 171, 142)
-        val bgTop = Color.rgb(246, 251, 255)
-        val bgBottom = Color.rgb(236, 247, 253)
-        val cardStroke = Color.argb(16, 21, 63, 92)
-        val paleBlue = Color.rgb(244, 249, 253)
-        val paleMint = Color.rgb(238, 249, 245)
+        val ink = Color.rgb(20, 47, 76)
+        val blue = Color.rgb(32, 160, 234)
+        val cyan = Color.rgb(91, 211, 246)
+        val mint = Color.rgb(60, 173, 145)
+        val mintSoft = Color.rgb(234, 248, 243)
+        val surface = Color.rgb(255, 255, 255)
+        val panel = Color.rgb(246, 250, 253)
+        val panel2 = Color.rgb(241, 248, 252)
+        val border = Color.argb(16, 24, 58, 88)
+        val subtle = Color.rgb(105, 125, 144)
+        val verySubtle = Color.rgb(149, 164, 178)
+        val bgTop = Color.rgb(245, 251, 255)
+        val bgBottom = Color.rgb(232, 246, 253)
 
-        paint.shader = LinearGradient(
-            0f, 0f, 0f, height.toFloat(),
-            intArrayOf(bgTop, bgBottom),
-            floatArrayOf(0f, 1f),
-            Shader.TileMode.CLAMP,
-        )
+        // Background
+        paint.shader = LinearGradient(0f, 0f, 0f, height.toFloat(), bgTop, bgBottom, Shader.TileMode.CLAMP)
         canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), paint)
         paint.shader = null
+        paint.color = Color.argb(22, 108, 197, 243)
+        canvas.drawCircle(990f, 86f, 240f, paint)
+        paint.color = Color.argb(16, 83, 204, 221)
+        canvas.drawCircle(48f, 1290f, 230f, paint)
 
-        paint.color = Color.argb(22, 58, 178, 230)
-        canvas.drawCircle(1000f, 104f, 250f, paint)
-        paint.color = Color.argb(20, 99, 212, 230)
-        canvas.drawCircle(66f, 1284f, 220f, paint)
-
-        val outer = RectF(48f, 46f, 1032f, 1298f)
-        paint.setShadowLayer(28f, 0f, 18f, Color.argb(28, 22, 56, 86))
-        paint.color = Color.WHITE
-        canvas.drawRoundRect(outer, 44f, 44f, paint)
+        // Main sheet
+        val sheet = RectF(44f, 44f, 1036f, 1306f)
+        paint.setShadowLayer(32f, 0f, 18f, Color.argb(26, 17, 44, 69))
+        paint.color = surface
+        canvas.drawRoundRect(sheet, 44f, 44f, paint)
         paint.clearShadowLayer()
         paint.style = Paint.Style.STROKE
         paint.strokeWidth = 2f
-        paint.color = cardStroke
-        canvas.drawRoundRect(outer, 44f, 44f, paint)
+        paint.color = border
+        canvas.drawRoundRect(sheet, 44f, 44f, paint)
         paint.style = Paint.Style.FILL
 
         // Header
         paint.typeface = bold
         paint.textSize = 58f
-        paint.color = navy
-        canvas.drawText("Bear", 94f, 128f, paint)
+        paint.color = ink
+        canvas.drawText("Bear", 92f, 124f, paint)
         val bearWidth = paint.measureText("Bear")
         paint.color = blue
-        canvas.drawText("agnostic", 94f + bearWidth + 4f, 128f, paint)
+        canvas.drawText("agnostic", 92f + bearWidth + 4f, 124f, paint)
 
         paint.typeface = medium
         paint.textSize = 18f
         paint.letterSpacing = 0.14f
-        paint.color = slate
-        canvas.drawText(payload.optString("brandLine", "FILE HEALTH • BRIGHTER DAYS"), 96f, 168f, paint)
+        paint.color = subtle
+        canvas.drawText(payload.optString("brandLine", "FILE HEALTH • BRIGHTER DAYS"), 94f, 166f, paint)
         paint.letterSpacing = 0f
 
-        val pillRect = RectF(782f, 86f, 949f, 146f)
-        paint.color = Color.rgb(234, 248, 242)
-        canvas.drawRoundRect(pillRect, 30f, 30f, paint)
+        val verifiedRect = RectF(790f, 84f, 954f, 144f)
+        paint.color = mintSoft
+        canvas.drawRoundRect(verifiedRect, 32f, 32f, paint)
         paint.typeface = medium
         paint.textSize = 18f
         paint.color = mint
-        drawCenteredText(canvas, "VERIFIED", pillRect, paint)
+        drawCenteredText(canvas, "VERIFIED", verifiedRect, paint)
 
-        // Hero card
-        val hero = RectF(92f, 214f, 988f, 508f)
-        paint.shader = LinearGradient(
-            hero.left, hero.top, hero.right, hero.bottom,
-            intArrayOf(paleMint, Color.WHITE, Color.rgb(239, 248, 253)),
-            floatArrayOf(0f, 0.52f, 1f),
-            Shader.TileMode.CLAMP,
-        )
-        canvas.drawRoundRect(hero, 38f, 38f, paint)
+        // Hero
+        val hero = RectF(72f, 198f, 1008f, 516f)
+        paint.setShadowLayer(18f, 0f, 10f, Color.argb(12, 21, 62, 91))
+        paint.shader = LinearGradient(hero.left, hero.top, hero.right, hero.bottom, intArrayOf(Color.rgb(240, 250, 246), Color.WHITE, Color.rgb(240, 248, 253)), floatArrayOf(0f, 0.55f, 1f), Shader.TileMode.CLAMP)
+        canvas.drawRoundRect(hero, 40f, 40f, paint)
+        paint.clearShadowLayer()
         paint.shader = null
         paint.style = Paint.Style.STROKE
-        paint.strokeWidth = 2f
-        paint.color = Color.argb(18, 36, 121, 149)
-        canvas.drawRoundRect(hero, 38f, 38f, paint)
+        paint.strokeWidth = 1.8f
+        paint.color = Color.argb(20, 36, 127, 153)
+        canvas.drawRoundRect(hero, 40f, 40f, paint)
         paint.style = Paint.Style.FILL
 
+        val accentRail = RectF(92f, 224f, 106f, 490f)
+        paint.shader = LinearGradient(accentRail.left, accentRail.top, accentRail.left, accentRail.bottom, mint, blue, Shader.TileMode.CLAMP)
+        canvas.drawRoundRect(accentRail, 7f, 7f, paint)
+        paint.shader = null
+
         paint.typeface = medium
-        paint.textSize = 20f
+        paint.textSize = 21f
         paint.letterSpacing = 0.18f
-        paint.color = Color.rgb(63, 143, 121)
-        canvas.drawText(payload.optString("kicker", "Cleanup impact").uppercase(), 132f, 272f, paint)
+        paint.color = mint
+        canvas.drawText(payload.optString("kicker", "Cleanup impact").uppercase(), 132f, 258f, paint)
         paint.letterSpacing = 0f
 
         val reclaimed = payload.optString("reclaimed", "—")
         paint.typeface = bold
-        paint.textSize = fitTextSize(paint, reclaimed, 470f, 82f, 46f)
-        paint.shader = LinearGradient(132f, 0f, 520f, 0f, cyan, blue, Shader.TileMode.CLAMP)
-        canvas.drawText(reclaimed, 132f, 368f, paint)
+        paint.textSize = fitTextSize(paint, reclaimed, 470f, 88f, 46f)
+        paint.shader = LinearGradient(132f, 0f, 510f, 0f, cyan, blue, Shader.TileMode.CLAMP)
+        canvas.drawText(reclaimed, 132f, 352f, paint)
         paint.shader = null
 
         paint.typeface = bold
         paint.textSize = 26f
-        paint.color = navy
-        canvas.drawText(payload.optString("title", "Cleanup impact"), 134f, 420f, paint)
+        paint.color = ink
+        canvas.drawText(payload.optString("title", "Cleanup impact"), 132f, 402f, paint)
 
         paint.typeface = medium
-        paint.textSize = 21f
-        paint.color = slate
-        canvas.drawText(payload.optString("resultLine", "—"), 134f, 456f, paint)
+        paint.textSize = 22f
+        paint.color = subtle
+        canvas.drawText(payload.optString("resultLine", "—"), 132f, 440f, paint)
 
         paint.typeface = regular
         paint.textSize = 18f
-        paint.color = slate
-        drawWrappedText(canvas, payload.optString("verifiedSpace", "Verified space reclaimed"), 134f, 488f, 460f, 24f, paint, 2)
+        paint.color = subtle
+        drawWrappedText(canvas, payload.optString("verifiedSpace", "Verified space reclaimed"), 132f, 476f, 446f, 24f, paint, 2)
+
+        val chipTop = 470f
+        drawChip(canvas, paint, RectF(132f, chipTop, 302f, chipTop + 40f), payload.optString("methodValue", "Manual review"), Color.rgb(236, 245, 252), ink, medium)
+        drawChip(canvas, paint, RectF(316f, chipTop, 520f, chipTop + 40f), "On-device verified", Color.rgb(238, 249, 245), mint, medium)
+
+        paint.color = Color.argb(18, 86, 198, 243)
+        canvas.drawCircle(848f, 356f, 118f, paint)
+        paint.color = Color.argb(14, 58, 170, 232)
+        canvas.drawCircle(888f, 394f, 138f, paint)
 
         val mascot = try {
             activity.assets.open("ui/assets/native/mascot/drbear-success.png").use { BitmapFactory.decodeStream(it) }
@@ -189,80 +198,113 @@ class ShareCardBridge(
         }
         mascot?.let {
             val src = Rect(0, 0, it.width, it.height)
-            val dest = fitCenterRect(it.width, it.height, RectF(654f, 220f, 948f, 502f))
+            val dest = fitCenterRect(it.width, it.height, RectF(640f, 220f, 970f, 512f))
             canvas.drawBitmap(it, src, dest, paint)
             it.recycle()
         }
 
-        // Section label
+        // What changed
         paint.typeface = bold
-        paint.textSize = 24f
-        paint.color = navy
-        canvas.drawText("Verified cleanup summary", 92f, 562f, paint)
+        paint.textSize = 28f
+        paint.color = ink
+        canvas.drawText("What changed", 72f, 582f, paint)
 
-        // metric cards
-        val metricTop = 606f
-        val metricW = 428f
-        val metricH = 154f
-        val gapX = 28f
-        val gapY = 24f
-
-        drawMetricCard(canvas, paint, regular, medium, bold, RectF(92f, metricTop, 92f + metricW, metricTop + metricH), payload.optString("filesValue", "0"), payload.optString("filesLabel", "Files removed"), null, navy, slate, paleBlue, cardStroke)
-        drawMetricCard(canvas, paint, regular, medium, bold, RectF(92f + metricW + gapX, metricTop, 92f + metricW + gapX + metricW, metricTop + metricH), payload.optString("duplicatesValue", "0"), payload.optString("duplicatesLabel", "Duplicate copies resolved"), null, navy, slate, paleBlue, cardStroke)
-
-        val methodValue = payload.optString("methodValue", "—")
-        val methodLabel = payload.optString("methodLabel", "Cleanup method")
-        drawMetricCard(canvas, paint, regular, medium, bold, RectF(92f, metricTop + metricH + gapY, 92f + metricW, metricTop + metricH + gapY + metricH), methodValue, methodLabel, null, navy, slate, paleBlue, cardStroke)
+        val cardTop = 614f
+        val cardHeight = 176f
+        val cardWidth = 300f
+        val gap = 18f
+        drawMiniStatCard(canvas, paint, RectF(72f, cardTop, 72f + cardWidth, cardTop + cardHeight), payload.optString("filesValue", "0"), payload.optString("filesLabel", "Files removed"), payload.optString("resultLine", ""), ink, subtle, panel, border, bold, medium, regular)
+        drawMiniStatCard(canvas, paint, RectF(72f + cardWidth + gap, cardTop, 72f + cardWidth * 2 + gap, cardTop + cardHeight), payload.optString("duplicatesValue", "0"), payload.optString("duplicatesLabel", "Duplicate copies resolved"), payload.optString("detailsLine", ""), ink, subtle, panel, border, bold, medium, regular)
 
         val freeBefore = payload.optString("freeBefore", "—")
         val freeAfter = payload.optString("freeAfter", freeBefore)
         val freeChanged = payload.optBoolean("freeChanged", false)
         val freeDisplay = if (freeChanged && freeBefore.isNotBlank() && freeAfter.isNotBlank()) "$freeBefore → $freeAfter" else freeAfter.ifBlank { payload.optString("freeValue", "—") }
-        val freeDetail = if (freeChanged) "Before cleanup → after cleanup" else "No visible percentage change after cleanup"
-        drawMetricCard(canvas, paint, regular, medium, bold, RectF(92f + metricW + gapX, metricTop + metricH + gapY, 92f + metricW + gapX + metricW, metricTop + metricH + gapY + metricH), freeDisplay, payload.optString("freeLabel", "Free storage"), freeDetail, navy, slate, paleBlue, cardStroke)
+        drawMiniStatCard(canvas, paint, RectF(72f + (cardWidth + gap) * 2, cardTop, 72f + cardWidth * 3 + gap * 2, cardTop + cardHeight), freeDisplay, payload.optString("freeLabel", "Free storage"), payload.optString("deltaNote", ""), ink, subtle, panel, border, bold, medium, regular)
 
-        // proof / details card
-        val proofRect = RectF(92f, 962f, 988f, 1116f)
-        paint.color = Color.rgb(248, 251, 253)
-        canvas.drawRoundRect(proofRect, 28f, 28f, paint)
+        // Context section
+        paint.typeface = bold
+        paint.textSize = 28f
+        paint.color = ink
+        canvas.drawText("Session notes", 72f, 834f, paint)
+
+        val notes = RectF(72f, 862f, 1008f, 1128f)
+        paint.setShadowLayer(12f, 0f, 8f, Color.argb(10, 17, 44, 69))
+        paint.color = Color.WHITE
+        canvas.drawRoundRect(notes, 34f, 34f, paint)
+        paint.clearShadowLayer()
         paint.style = Paint.Style.STROKE
-        paint.strokeWidth = 1.5f
-        paint.color = cardStroke
-        canvas.drawRoundRect(proofRect, 28f, 28f, paint)
+        paint.strokeWidth = 1.6f
+        paint.color = border
+        canvas.drawRoundRect(notes, 34f, 34f, paint)
         paint.style = Paint.Style.FILL
 
-        paint.color = mint
-        canvas.drawCircle(130f, 1020f, 10f, paint)
+        // left column
+        paint.color = blue
+        canvas.drawCircle(110f, 918f, 10f, paint)
         paint.typeface = medium
-        paint.textSize = 20f
-        paint.color = navy
-        canvas.drawText("Verification", 158f, 1026f, paint)
+        paint.textSize = 18f
+        paint.color = verySubtle
+        canvas.drawText("Cleanup method", 130f, 924f, paint)
+        paint.typeface = bold
+        paint.textSize = 34f
+        paint.color = ink
+        canvas.drawText(payload.optString("methodValue", "Manual review"), 108f, 976f, paint)
         paint.typeface = regular
         paint.textSize = 18f
-        paint.color = slate
-        drawWrappedText(canvas, payload.optString("proof", "Only files Android confirmed as deleted are counted."), 158f, 1060f, 784f, 25f, paint, 2)
+        paint.color = subtle
+        drawWrappedText(canvas, payload.optString("methodLabel", "Low-risk cleanup resolved"), 108f, 1008f, 330f, 24f, paint, 2)
 
-        paint.color = steel
-        canvas.drawRect(156f, 1088f, 924f, 1090f, paint)
+        paint.color = mint
+        canvas.drawCircle(110f, 1070f, 10f, paint)
         paint.typeface = medium
-        paint.textSize = 17f
-        paint.color = slate
-        canvas.drawText("Generated", 158f, 1148f, paint)
+        paint.textSize = 18f
+        paint.color = verySubtle
+        canvas.drawText("Verification", 130f, 1076f, paint)
         paint.typeface = regular
-        paint.textSize = 17f
-        drawRightAlignedText(canvas, payload.optString("generatedAt", ""), 922f, 1148f, paint)
+        paint.textSize = 19f
+        paint.color = subtle
+        drawWrappedText(canvas, payload.optString("proof", "Only files Android confirmed as deleted are counted."), 108f, 1108f, 330f, 24f, paint, 3)
+
+        // divider
+        paint.color = Color.argb(18, 24, 58, 88)
+        canvas.drawRect(518f, 896f, 520f, 1096f, paint)
+
+        // right column
+        paint.color = mint
+        canvas.drawCircle(560f, 918f, 10f, paint)
+        paint.typeface = medium
+        paint.textSize = 18f
+        paint.color = verySubtle
+        canvas.drawText("Generated", 580f, 924f, paint)
+        paint.typeface = bold
+        paint.textSize = 28f
+        paint.color = ink
+        drawWrappedText(canvas, payload.optString("generatedAt", ""), 558f, 970f, 370f, 34f, paint, 2)
+
+        paint.color = blue
+        canvas.drawCircle(560f, 1048f, 10f, paint)
+        paint.typeface = medium
+        paint.textSize = 18f
+        paint.color = verySubtle
+        canvas.drawText("Storage note", 580f, 1054f, paint)
+        paint.typeface = regular
+        paint.textSize = 19f
+        paint.color = subtle
+        drawWrappedText(canvas, payload.optString("deltaNote", ""), 558f, 1088f, 370f, 24f, paint, 3)
 
         // footer
-        paint.color = Color.argb(20, 18, 47, 78)
-        canvas.drawRect(92f, 1188f, 988f, 1190f, paint)
+        paint.color = Color.argb(18, 24, 58, 88)
+        canvas.drawRect(72f, 1178f, 1008f, 1180f, paint)
         paint.typeface = bold
         paint.textSize = 18f
-        paint.color = navy
-        canvas.drawText("Bearagnostic", 92f, 1242f, paint)
+        paint.color = ink
+        canvas.drawText("Bearagnostic", 72f, 1236f, paint)
         paint.typeface = regular
         paint.textSize = 16f
-        paint.color = slate
-        canvas.drawText("Benedict Interactive · On-device verified result", 92f, 1272f, paint)
+        paint.color = subtle
+        canvas.drawText("Benedict Interactive · On-device verified result", 72f, 1266f, paint)
+        drawChip(canvas, paint, RectF(734f, 1212f, 1008f, 1254f), "Private by design", panel2, subtle, medium)
 
         val output = ByteArrayOutputStream()
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, output)
@@ -270,46 +312,63 @@ class ShareCardBridge(
         return output.toByteArray()
     }
 
-    private fun drawMetricCard(
+    private fun drawMiniStatCard(
         canvas: Canvas,
         paint: Paint,
-        regular: Typeface,
-        medium: Typeface,
-        bold: Typeface,
         rect: RectF,
         value: String,
         label: String,
-        detail: String?,
-        navy: Int,
-        slate: Int,
+        detail: String,
+        ink: Int,
+        subtle: Int,
         fill: Int,
-        stroke: Int,
+        border: Int,
+        bold: Typeface,
+        medium: Typeface,
+        regular: Typeface,
     ) {
         paint.color = fill
-        canvas.drawRoundRect(rect, 28f, 28f, paint)
+        canvas.drawRoundRect(rect, 30f, 30f, paint)
         paint.style = Paint.Style.STROKE
         paint.strokeWidth = 1.5f
-        paint.color = stroke
-        canvas.drawRoundRect(rect, 28f, 28f, paint)
+        paint.color = border
+        canvas.drawRoundRect(rect, 30f, 30f, paint)
         paint.style = Paint.Style.FILL
 
         paint.typeface = bold
-        val numericLike = value.any { it.isDigit() }
-        paint.textSize = fitTextSize(paint, value, rect.width() - 52f, if (numericLike) 34f else 30f, 20f)
-        paint.color = navy
-        canvas.drawText(value, rect.left + 28f, rect.top + 60f, paint)
+        val preferredSize = if (value.length > 12) 31f else 39f
+        paint.textSize = fitTextSize(paint, value, rect.width() - 44f, preferredSize, 22f)
+        paint.color = ink
+        canvas.drawText(value, rect.left + 22f, rect.top + 58f, paint)
 
         paint.typeface = medium
         paint.textSize = 18f
-        paint.color = slate
-        drawWrappedText(canvas, label, rect.left + 28f, rect.top + 92f, rect.width() - 56f, 22f, paint, 2)
+        paint.color = subtle
+        drawWrappedText(canvas, label, rect.left + 22f, rect.top + 92f, rect.width() - 44f, 22f, paint, 2)
 
-        if (!detail.isNullOrBlank()) {
+        if (detail.isNotBlank()) {
             paint.typeface = regular
             paint.textSize = 15f
-            paint.color = slate
-            drawWrappedText(canvas, detail, rect.left + 28f, rect.top + 126f, rect.width() - 56f, 20f, paint, 2)
+            paint.color = subtle
+            drawWrappedText(canvas, detail, rect.left + 22f, rect.top + 130f, rect.width() - 44f, 20f, paint, 2)
         }
+    }
+
+    private fun drawChip(
+        canvas: Canvas,
+        paint: Paint,
+        rect: RectF,
+        label: String,
+        fill: Int,
+        textColor: Int,
+        typeface: Typeface,
+    ) {
+        paint.color = fill
+        canvas.drawRoundRect(rect, rect.height() / 2f, rect.height() / 2f, paint)
+        paint.typeface = typeface
+        paint.textSize = 16f
+        paint.color = textColor
+        drawCenteredText(canvas, label, rect, paint)
     }
 
     private fun drawCenteredText(canvas: Canvas, text: String, rect: RectF, paint: Paint) {
@@ -317,10 +376,6 @@ class ShareCardBridge(
         val x = rect.centerX() - paint.measureText(text) / 2f
         val y = rect.centerY() - (metrics.ascent + metrics.descent) / 2f
         canvas.drawText(text, x, y, paint)
-    }
-
-    private fun drawRightAlignedText(canvas: Canvas, text: String, right: Float, baseline: Float, paint: Paint) {
-        canvas.drawText(text, right - paint.measureText(text), baseline, paint)
     }
 
     private fun drawWrappedText(

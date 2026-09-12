@@ -1,21 +1,18 @@
-# Bearagnostic B64 premium share card refinement
+# Bearagnostic B65 final premium share card redesign
 
-This package supersedes B63.
+This package supersedes B64.
 
 ## What changed
-- Redesigned the native premium cleanup share card to be denser, cleaner, and more editorial.
-- Kept the same native share path that already works on device.
-- Reframed the result hierarchy so the most important facts are clearer:
-  - reclaimed space
-  - files removed
-  - duplicate copies resolved
-  - cleanup method
-  - free storage after cleanup
-  - verification rule
-  - generated timestamp
-- The share card still uses only values linked from the real cleanup result payload plus static product branding.
-- Improved handling of free-storage strings with before/after parsing when an arrow value is present.
-- Bumped version/build/cache to B64.
+- Rebuilt the cleanup result share card as a true redesign instead of another light polish.
+- Preserved the working native share pipeline from B63/B64.
+- Introduced a new visual hierarchy:
+  - stronger hero section
+  - three distinct “What changed” stat cards
+  - dedicated “Session notes” section for method, verification, generated time, and storage note
+  - clearer footer branding
+- Continued to use only values linked from the real cleanup result payload, plus static Bearagnostic branding text.
+- Added small payload refinements for `detailsLine` and `deltaNote`.
+- Bumped version/build/cache to B65.
 
 ## Changed-file allowlist
 - `app/build.gradle.kts`
@@ -27,16 +24,19 @@ This package supersedes B63.
 1. Overwrite/add the repo-relative files from this package.
 2. Commit and push to `main`.
 3. Wait for GitHub Actions to build the debug APK.
-4. Install/update on the Android device.
+4. Install/update on the Android test device.
 5. Open Cleanup Impact and tap `Share result`.
-6. Confirm the shared image uses the refined premium layout and still shares successfully.
+6. Verify the generated share card now has the redesigned layout and still shares successfully.
+
+## Commit name
+`Final premium share card redesign`
 
 ## QA truthfulness
-- Static assembly/version checks: PASS.
+- Static assembly checks: PASS.
 - JavaScript syntax check: PASS.
-- Kotlin syntax was reviewed carefully but not compiled in Android Studio here.
-- Native share flow already worked in B63; this patch only refines payload extraction and native rendering.
-- Physical-device rendering and final visual approval still require P'Benz's device test.
+- Version/cache bump check: PASS.
+- Kotlin was reviewed carefully for syntax and structure but was not compiled here.
+- Native device render/share flow still requires validation on P'Benz's Android device.
 
 ## Rollback
-Restore the B63 versions of the changed files.
+Restore the B64 versions of the changed files.
