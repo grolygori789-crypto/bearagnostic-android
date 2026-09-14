@@ -100,8 +100,13 @@
       .ba-support-primary:active{transform:scale(.992)}
       .ba-support-boundary{margin:12px 2px 0;font-size:9.8px;line-height:1.48;text-align:center;color:#97a3af}
       .ba-support-signoff{margin:9px 0 0;text-align:center;font-size:11px;font-weight:720;letter-spacing:.01em;color:#61788e}
-      #supportProjectRow .soft-icon{background:linear-gradient(145deg,#fff9ee,#eef9fb)!important;color:#a57c3f!important}
-      #supportProjectRow .soft-icon::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 0 0 1px rgba(183,145,76,.08);pointer-events:none}
+      #kofiSupportRow .soft-icon{background:linear-gradient(145deg,#fff9ee,#eef9fb)!important;color:#a57c3f!important}
+      #kofiSupportRow .soft-icon::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 0 0 1px rgba(183,145,76,.08);pointer-events:none}
+      #kofiSupportRow{--tone:181,143,73!important;background:linear-gradient(112deg,#fff 34%,rgba(202,169,104,.085) 78%,rgba(69,174,203,.052) 100%)!important;border-color:rgba(181,143,73,.115)!important;box-shadow:0 10px 26px rgba(95,79,52,.065),inset 0 1px 0 #fff!important}
+      #kofiSupportRow:after{background:radial-gradient(circle,rgba(200,168,104,.12),transparent 68%)!important}
+      #kofiSupportRow b{color:#9c7a42!important}
+      #kofiSupportRow small{color:#7c8998!important}
+      #kofiSupportRow:active{transform:translateY(1px) scale(.994)}
       @media (prefers-reduced-motion:reduce){.ba-support-overlay,.ba-support-sheet{transition:none!important}}
       html[data-motion="reduced"] .ba-support-overlay,html[data-motion="reduced"] .ba-support-sheet{transition:none!important}
     `;
@@ -167,18 +172,48 @@
     openOverlay();
   }
 
+  function supportRowMarkup() {
+    return `<span class="soft-icon amber" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10Z"/><path d="M17.5 4.2v3.2M15.9 5.8h3.2"/></svg></span><span><strong id="kofiSupportTitle"></strong><small id="kofiSupportSub"></small></span><b>›</b>`;
+  }
+
+  function ensureSupportRow() {
+    const list = document.querySelector('#moreScreen .settings-list');
+    if (!list) return null;
+
+    let row = document.getElementById('kofiSupportRow');
+    if (!row) {
+      row = document.createElement('button');
+      row.className = 'setting-link ba-kofi-support-row';
+      row.id = 'kofiSupportRow';
+      row.type = 'button';
+      row.innerHTML = supportRowMarkup();
+
+      // The legacy #supportProjectRow is intentionally owned by Bearagnostic Pro
+      // on Android. Keep voluntary support as a separate sibling so entitlement
+      // interception can never steal this action.
+      const proRow = document.getElementById('supportProjectRow');
+      const aboutRow = list.querySelector('[data-open="about"]');
+      if (proRow?.parentElement === list) proRow.insertAdjacentElement('afterend', row);
+      else if (aboutRow?.parentElement === list) list.insertBefore(row, aboutRow);
+      else list.appendChild(row);
+    }
+
+    localizeRow();
+    return row;
+  }
+
   function localizeRow() {
     const t = c();
-    const title = document.getElementById('supportProjectTitle');
-    const sub = document.getElementById('supportProjectSub');
+    const title = document.getElementById('kofiSupportTitle');
+    const sub = document.getElementById('kofiSupportSub');
     if (title) title.textContent = t.rowTitle;
     if (sub) sub.textContent = t.rowSub;
   }
 
-  // Android owns the Support entry. The legacy voluntary-support module is removed
-  // from the generated runtime in B67 so Ko-fi is the only support channel exposed.
+  // Ko-fi support owns a dedicated row. Never reuse #supportProjectRow: Android
+  // entitlement intentionally repurposes that legacy element for Bearagnostic Pro.
   document.addEventListener('click', (event) => {
-    const target = event.target?.closest?.('#supportProjectRow,#openKofi');
+    const target = event.target?.closest?.('#kofiSupportRow,#openKofi');
     if (!target) return;
     event.preventDefault();
     event.stopPropagation();
@@ -192,7 +227,7 @@
   });
 
   const langObserver = new MutationObserver(() => {
-    localizeRow();
+    ensureSupportRow();
     if (overlay?.classList.contains('is-open')) renderSupport();
   });
   langObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['lang'] });
@@ -203,5 +238,8 @@
   });
 
   addStyles();
-  localizeRow();
+  ensureSupportRow();
+  // Pro UI runs after this adapter in the Android overlay order. Re-assert the
+  // independent sibling once the current script turn completes, without polling.
+  setTimeout(ensureSupportRow, 0);
 })();
