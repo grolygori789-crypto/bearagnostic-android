@@ -7,51 +7,56 @@
   const KOFI_URL = 'https://ko-fi.com/benedictinteractive';
   const toast = (message) => window.BearagnosticAppAPI?.showToast?.(message);
 
+  const ICON = '<path d="M5 8.5h11v4.7a5 5 0 0 1-5 5h-1a5 5 0 0 1-5-5Z"/><path d="M16 10h1.6a2.5 2.5 0 0 1 0 5H16"/><path d="M8.5 11.7c.7-.9 2.1-.55 2.5.35.4-.9 1.8-1.25 2.5-.35.8 1.05-.25 2.35-2.5 3.7-2.25-1.35-3.3-2.65-2.5-3.7Z"/>';
+
   const COPY = {
     en: {
       rowTitle: 'Support Bearagnostic',
-      rowSub: 'Support independent development via Ko-fi',
+      rowSub: 'Independent support via Ko-fi',
       openFailed: 'No compatible browser was available for this link.',
       close: 'Close',
-      eyebrow: 'INDEPENDENTLY BUILT · WITH CARE',
-      title: 'If Bearagnostic makes things a little lighter, you can help us keep making it better.',
-      lead: 'Bearagnostic is built independently, with a lot of care for the little things that make software useful, trustworthy, and pleasant to live with. If it has earned a place on your phone, support at any level gives us more room to keep refining it — thoughtfully, independently, and one good release at a time.',
-      note: 'Give what feels right. There is no pressure, and no feature is held back for supporters.',
+      kicker: 'SUPPORT BEARAGNOSTIC',
+      title: 'Keep Bearagnostic moving forward.',
+      lead: 'Bearagnostic is built independently and refined with care. If it has earned a place on your phone, support at any level gives us more room to maintain it, improve it and keep each release thoughtful.',
+      storyTitle: 'A little support goes a long way.',
+      storyBody: 'Give whatever feels right. Every contribution helps create the time and space to polish the details, solve the next problem well and keep the project growing on its own terms.',
       provider: 'Ko-fi · Benedict Interactive',
-      providerBody: 'Ko-fi opens securely in your browser. Payment and account details are handled there, outside Bearagnostic.',
+      providerBody: 'Opens securely in your browser. Payment and account details are handled by Ko-fi, outside Bearagnostic.',
       cta: 'Support on Ko-fi',
-      boundary: 'Support is completely separate from Free and Pro. It never changes scan quality, safety, or your existing access.',
-      optional: 'Completely optional. Always appreciated.'
+      boundary: 'Completely optional and separate from Free and Pro. Support never changes scan quality, safety or your existing access.',
+      signoff: 'Thank you for helping independent software stay independent.'
     },
     th: {
       rowTitle: 'สนับสนุน Bearagnostic',
-      rowSub: 'ร่วมสนับสนุนการพัฒนาอย่างอิสระผ่าน Ko-fi',
+      rowSub: 'สนับสนุนการพัฒนาอิสระผ่าน Ko-fi',
       openFailed: 'ไม่พบเบราว์เซอร์ที่รองรับสำหรับเปิดลิงก์นี้',
       close: 'ปิด',
-      eyebrow: 'สร้างอย่างอิสระ · ใส่ใจทุกดีเทล',
-      title: 'ถ้า Bearagnostic ช่วยให้ชีวิตดิจิทัลของคุณเบาลงอีกนิด คุณก็ช่วยให้เราพามันไปได้ไกลขึ้นอีกหน่อย',
-      lead: 'Bearagnostic ถูกพัฒนาขึ้นอย่างอิสระ ด้วยความตั้งใจในรายละเอียดเล็กๆ ที่ทำให้ซอฟต์แวร์หนึ่งตัวน่าใช้ น่าไว้วางใจ และอยู่กับเราได้อย่างสบายใจ ถ้ามันมีประโยชน์กับคุณ การสนับสนุนตามกำลังจะช่วยให้เรามีพื้นที่ดูแล ขัดเกลา และพามันไปสู่เวอร์ชันถัดไปอย่างที่ควรเป็น',
-      note: 'สนับสนุนเท่าที่รู้สึกสบายใจ ไม่มีแรงกดดัน และไม่มีฟีเจอร์ใดถูกกั๊กไว้เพื่อแลกกับการสนับสนุน',
+      kicker: 'สนับสนุน BEARAGNOSTIC',
+      title: 'ช่วยให้ Bearagnostic เดินหน้าต่อไป',
+      lead: 'Bearagnostic ถูกพัฒนาขึ้นอย่างอิสระ และขัดเกลาทุกรายละเอียดด้วยความตั้งใจ ถ้ามันเป็นแอปที่คุณอยากเก็บไว้บนเครื่อง การสนับสนุนตามกำลังจะช่วยให้เรามีพื้นที่ดูแล พัฒนา และทำทุกเวอร์ชันให้ดีขึ้นอย่างที่ควรเป็น',
+      storyTitle: 'ทุกการสนับสนุนมีความหมาย',
+      storyBody: 'สนับสนุนเท่าที่รู้สึกสบายใจ ทุกการสนับสนุนช่วยเพิ่มเวลาและพื้นที่ให้เราเก็บรายละเอียด แก้ปัญหาถัดไปให้ดี และพาโปรเจกต์เติบโตต่อในแบบของตัวเอง',
       provider: 'Ko-fi · Benedict Interactive',
-      providerBody: 'ระบบจะเปิด Ko-fi อย่างปลอดภัยในเบราว์เซอร์ การชำระเงินและข้อมูลบัญชีดำเนินการบน Ko-fi โดยตรง ไม่ได้อยู่ใน Bearagnostic',
+      providerBody: 'ระบบจะเปิด Ko-fi ในเบราว์เซอร์อย่างปลอดภัย การชำระเงินและข้อมูลบัญชีดำเนินการโดย Ko-fi โดยตรง ไม่ได้อยู่ใน Bearagnostic',
       cta: 'สนับสนุนผ่าน Ko-fi',
-      boundary: 'การสนับสนุนแยกจาก Free และ Pro โดยสิ้นเชิง ไม่มีผลต่อคุณภาพการตรวจ ความปลอดภัย หรือสิทธิ์ที่คุณมีอยู่',
-      optional: 'ไม่จำเป็นเลย แต่เราขอบคุณจากใจเสมอ'
+      boundary: 'เป็นทางเลือกโดยสมบูรณ์และแยกจาก Free กับ Pro การสนับสนุนไม่มีผลต่อคุณภาพการตรวจ ความปลอดภัย หรือสิทธิ์ที่คุณมีอยู่',
+      signoff: 'ขอบคุณที่ช่วยให้งานอิสระยังคงเดินหน้าต่อได้อย่างอิสระ'
     },
     ja: {
       rowTitle: 'Bearagnostic を支援',
       rowSub: 'Ko-fi から独立開発を応援',
       openFailed: 'このリンクを開けるブラウザが見つかりませんでした。',
       close: '閉じる',
-      eyebrow: '独立開発 · 細部まで丁寧に',
-      title: 'Bearagnostic が少しでも毎日を軽くできたなら、その先の改善を支えていただけます。',
-      lead: 'Bearagnostic は、使いやすさと信頼につながる小さなディテールを大切にしながら、独立して開発しています。役に立ったと感じたときだけ、無理のない範囲でのサポートが、丁寧な改善と次のリリースに取り組む余力につながります。',
-      note: '支援は無理のない範囲で。支援の有無によって機能を制限することはありません。',
+      kicker: 'BEARAGNOSTIC を支援',
+      title: 'Bearagnostic の次の一歩を支える',
+      lead: 'Bearagnostic は独立して開発し、細かな部分まで丁寧に磨き続けています。手元に置いておきたいアプリだと感じたときだけ、無理のない範囲での支援が、保守・改善・次のリリースに取り組む余力につながります。',
+      storyTitle: '小さな支援も、大きな力になります。',
+      storyBody: '金額は無理のない範囲で十分です。いただいた支援は、細部を整え、次の課題をきちんと解決し、このプロジェクトを独立したまま育てていく時間につながります。',
       provider: 'Ko-fi · Benedict Interactive',
       providerBody: 'Ko-fi はブラウザで安全に開きます。支払い・アカウント情報は Ko-fi 側で扱われ、Bearagnostic には送られません。',
       cta: 'Ko-fi で支援',
-      boundary: '支援は Free / Pro とは完全に別です。解析品質、安全性、現在の利用権には影響しません。',
-      optional: '完全に任意です。いつも感謝しています。'
+      boundary: '支援は完全に任意で、Free / Pro とは別です。解析品質、安全性、現在の利用権には影響しません。',
+      signoff: '独立したソフトウェアづくりを支えていただき、ありがとうございます。'
     }
   };
 
@@ -64,8 +69,8 @@
   }
 
   function lang() {
-    const v = (document.documentElement.lang || 'en').toLowerCase();
-    return v.startsWith('th') ? 'th' : v.startsWith('ja') ? 'ja' : 'en';
+    const value = (document.documentElement.lang || 'en').toLowerCase();
+    return value.startsWith('th') ? 'th' : value.startsWith('ja') ? 'ja' : 'en';
   }
 
   function c() { return COPY[lang()] || COPY.en; }
@@ -80,35 +85,54 @@
     const style = document.createElement('style');
     style.id = 'baPremiumSupportStyles';
     style.textContent = `
-      .ba-support-overlay{position:fixed;inset:0;z-index:1720;display:grid;align-items:end;padding:14px 14px calc(14px + env(safe-area-inset-bottom,0px));background:rgba(12,25,42,.34);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);opacity:0;pointer-events:none;transition:opacity .22s ease}
+      .ba-support-overlay{position:fixed;inset:0;z-index:2200;display:grid;align-items:end;padding:0 10px max(10px,env(safe-area-inset-bottom));background:rgba(14,25,44,.34);backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px);opacity:0;pointer-events:none;transition:opacity .18s ease;font-family:var(--ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif)}
       .ba-support-overlay.is-open{opacity:1;pointer-events:auto}
-      .ba-support-sheet{position:relative;isolation:isolate;width:min(100%,540px);max-height:min(90dvh,790px);margin:0 auto;overflow:auto;overscroll-behavior:contain;padding:10px 18px 18px;border-radius:30px;background:linear-gradient(180deg,rgba(255,255,255,.995) 0%,rgba(249,252,255,.995) 68%,rgba(247,250,252,.995) 100%);border:1px solid rgba(255,255,255,.96);box-shadow:0 30px 80px rgba(15,39,65,.26),inset 0 1px 0 rgba(255,255,255,1);transform:translateY(16px) scale(.988);transition:transform .26s cubic-bezier(.2,.82,.2,1)}
-      .ba-support-overlay.is-open .ba-support-sheet{transform:translateY(0) scale(1)}
-      .ba-support-sheet::before{content:"";position:absolute;z-index:-1;right:-70px;top:-95px;width:240px;height:240px;border-radius:50%;background:radial-gradient(circle,rgba(206,174,112,.18),rgba(77,173,232,.06) 45%,transparent 70%);pointer-events:none}
-      .ba-support-handle{width:42px;height:4px;margin:1px auto 14px;border-radius:99px;background:linear-gradient(90deg,#dce4eb,#cbd6e0,#dce4eb)}
-      .ba-support-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
-      .ba-support-eyebrow{margin:0 0 7px;font-size:9px;line-height:1.2;font-weight:820;letter-spacing:.18em;text-transform:uppercase;color:#9a7942}
-      .ba-support-head h2{margin:0;max-width:14.5ch;font-family:"Iowan Old Style",Baskerville,"Palatino Linotype","Book Antiqua",Georgia,serif;font-size:clamp(25px,7vw,33px);line-height:1.04;letter-spacing:-.035em;font-weight:500;color:#122a43;text-wrap:balance}
-      .ba-support-close{flex:0 0 auto;width:40px;height:40px;border:0;border-radius:50%;display:grid;place-items:center;background:rgba(232,241,248,.88);color:#506980;font-size:23px;line-height:1}
-      .ba-support-lead{margin:16px 0 0;max-width:46em;font-size:12.5px;line-height:1.62;color:#6f8091}
-      .ba-support-note{position:relative;margin:14px 0 0;padding:13px 14px 13px 38px;border-radius:17px;background:linear-gradient(135deg,#fffaf0,#fbfdff 64%);border:1px solid rgba(185,145,75,.14);color:#6f6352;font-size:11px;line-height:1.5}
-      .ba-support-note::before{content:"✦";position:absolute;left:15px;top:12px;color:#b68b45;font-size:14px}
-      .ba-support-provider{margin-top:15px;padding:15px 16px;border-radius:19px;background:linear-gradient(145deg,#fbfdff,#f1f8fc);border:1px solid rgba(47,136,197,.12);box-shadow:0 9px 24px rgba(53,83,114,.05)}
-      .ba-support-provider strong{display:block;font-size:14px;color:#213b55}
-      .ba-support-provider p{margin:5px 0 0;font-size:11px;line-height:1.52;color:#7a8998}
-      .ba-support-primary{width:100%;min-height:52px;margin-top:14px;border:0;border-radius:17px;color:#fff;background:linear-gradient(120deg,#258fd8,#176fb7);box-shadow:0 11px 24px rgba(24,112,183,.20);font-size:13px;font-weight:780}
-      .ba-support-primary:active{transform:scale(.992)}
-      .ba-support-boundary{margin:12px 2px 0;font-size:9.8px;line-height:1.48;text-align:center;color:#97a3af}
-      .ba-support-signoff{margin:9px 0 0;text-align:center;font-size:11px;font-weight:720;letter-spacing:.01em;color:#61788e}
-      #kofiSupportRow .soft-icon{background:linear-gradient(145deg,#fff9ee,#eef9fb)!important;color:#a57c3f!important}
-      #kofiSupportRow .soft-icon::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 0 0 1px rgba(183,145,76,.08);pointer-events:none}
-      #kofiSupportRow{--tone:181,143,73!important;background:linear-gradient(112deg,#fff 34%,rgba(202,169,104,.085) 78%,rgba(69,174,203,.052) 100%)!important;border-color:rgba(181,143,73,.115)!important;box-shadow:0 10px 26px rgba(95,79,52,.065),inset 0 1px 0 #fff!important}
-      #kofiSupportRow:after{background:radial-gradient(circle,rgba(200,168,104,.12),transparent 68%)!important}
-      #kofiSupportRow b{color:#9c7a42!important}
-      #kofiSupportRow small{color:#7c8998!important}
+      .ba-support-panel{width:min(100%,540px);max-height:min(88dvh,790px);margin:0 auto;overflow:auto;overscroll-behavior:contain;border-radius:31px 31px 24px 24px;background:radial-gradient(circle at 88% 0%,rgba(40,188,233,.12),transparent 27%),radial-gradient(circle at 4% 18%,rgba(103,95,208,.06),transparent 24%),linear-gradient(180deg,#fdfefe,#f5f9fd);border:1px solid rgba(255,255,255,.98);box-shadow:0 -24px 70px rgba(24,48,78,.25),inset 0 1px 0 #fff;padding:11px 15px 16px;color:#172a40;transform:translateY(12px);transition:transform .22s cubic-bezier(.2,.8,.2,1)}
+      .ba-support-overlay.is-open .ba-support-panel{transform:translateY(0)}
+      .ba-support-handle{width:43px;height:4px;margin:0 auto 12px;border-radius:999px;background:linear-gradient(90deg,#dfe7ef,#c8d5e2,#dfe7ef)}
+      .ba-support-head{display:grid;grid-template-columns:50px minmax(0,1fr) 36px;gap:10px;align-items:center}
+      .ba-support-mark{position:relative;width:50px;height:50px;border-radius:17px;display:grid;place-items:center;color:#fff;background:linear-gradient(145deg,#31b9e8 0%,#258edc 58%,#645fd0 118%);box-shadow:0 12px 28px rgba(45,118,187,.21),inset 0 1px 0 rgba(255,255,255,.36);overflow:visible}
+      .ba-support-mark::before{content:"";position:absolute;inset:1px 4px auto;height:46%;border-radius:15px 15px 50% 50%;background:linear-gradient(180deg,rgba(255,255,255,.30),rgba(255,255,255,0));pointer-events:none}
+      .ba-support-mark::after{content:"";position:absolute;right:-3px;top:-3px;width:13px;height:13px;border-radius:50%;background:linear-gradient(145deg,#ff9a73,#e65b79);box-shadow:0 0 0 3px rgba(255,255,255,.94),0 4px 10px rgba(190,73,103,.22)}
+      .ba-support-mark svg{position:relative;z-index:1;width:27px;height:27px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 1px 1px rgba(21,73,122,.18))}
+      .ba-support-kicker{display:block;font-size:8px;line-height:1.15;letter-spacing:.19em;color:#527f9d;font-weight:850;text-transform:uppercase}
+      .ba-support-title{margin:4px 0 0;font-size:20px;line-height:1.1;letter-spacing:-.032em;font-weight:760;color:#172b43;text-wrap:balance}
+      .ba-support-close{width:36px;height:36px;border:0;border-radius:13px;background:#edf3f8;color:#718294;font-size:19px;line-height:1;display:grid;place-items:center}
+      .ba-support-lead{font-size:10.8px;line-height:1.5;color:#6e8091;margin:11px 2px 12px}
+      .ba-support-story{display:grid;grid-template-columns:34px minmax(0,1fr);gap:10px;align-items:start;padding:12px;border-radius:19px;background:linear-gradient(135deg,#fffaf0 0%,#fffefb 48%,#f5fbfe 100%);border:1px solid rgba(190,146,65,.10);box-shadow:0 7px 20px rgba(78,75,58,.045),inset 0 1px 0 #fff}
+      .ba-support-story-icon{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;color:#a97528;background:linear-gradient(145deg,#fff3cc,#fffaee);box-shadow:inset 0 0 0 1px rgba(180,130,49,.08)}
+      .ba-support-story-icon svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+      .ba-support-story strong{display:block;font-size:11.5px;line-height:1.25;color:#4d4029}
+      .ba-support-story p{margin:4px 0 0;font-size:9.2px;line-height:1.5;color:#82745e}
+      .ba-support-provider{margin-top:9px;padding:11px;border-radius:19px;background:linear-gradient(145deg,#fff,#eff8fd);border:1px solid rgba(39,145,210,.10);box-shadow:0 7px 20px rgba(53,83,114,.05)}
+      .ba-support-provider-row{display:grid;grid-template-columns:37px minmax(0,1fr);gap:10px;align-items:center}
+      .ba-support-provider-mark{width:37px;height:37px;border-radius:12px;display:grid;place-items:center;color:#fff;background:linear-gradient(145deg,#35b9ea,#2087dc);box-shadow:0 7px 16px rgba(33,132,203,.18),inset 0 1px 0 rgba(255,255,255,.30)}
+      .ba-support-provider-mark svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.65;stroke-linecap:round;stroke-linejoin:round}
+      .ba-support-provider strong{display:block;font-size:11.5px;color:#233a52}
+      .ba-support-provider p{margin:3px 0 0;font-size:8.8px;line-height:1.42;color:#7b8c9b}
+      .ba-support-primary{width:100%;height:46px;margin-top:10px;border:0;border-radius:16px;background:linear-gradient(118deg,#24b6e8 0%,#168fdc 48%,#1878e8 100%);color:#fff;font-size:11px;font-weight:800;letter-spacing:.005em;box-shadow:0 10px 22px rgba(17,132,222,.19),inset 0 1px 0 rgba(255,255,255,.24)}
+      .ba-support-primary:active{transform:translateY(1px) scale(.995)}
+      .ba-support-boundary{margin:9px 4px 0;font-size:8.3px;line-height:1.42;text-align:center;color:#8b9aa8}
+      .ba-support-signoff{margin:7px 4px 0;font-size:9.2px;line-height:1.4;text-align:center;color:#526b82;font-weight:700}
+
+      #kofiSupportRow{--tone:39,145,215!important;background:linear-gradient(112deg,#fff 34%,rgba(39,145,215,.105) 79%,rgba(103,95,208,.06) 100%)!important;border-color:rgba(39,145,215,.13)!important;box-shadow:0 11px 28px rgba(44,103,153,.085),inset 0 1px 0 #fff!important}
+      #kofiSupportRow:after{background:radial-gradient(circle,rgba(39,145,215,.15),transparent 68%)!important}
+      #kofiSupportRow .ba-support-row-icon{position:relative;overflow:visible;background:linear-gradient(145deg,#38bceb 0%,#2489dc 58%,#665fd0 118%)!important;color:#fff!important;box-shadow:0 10px 22px rgba(38,126,198,.20),inset 0 1px 0 rgba(255,255,255,.35)!important}
+      #kofiSupportRow .ba-support-row-icon::before{content:"";position:absolute;inset:1px 3px auto;height:43%;border-radius:12px 12px 50% 50%;background:linear-gradient(180deg,rgba(255,255,255,.34),rgba(255,255,255,0));pointer-events:none}
+      #kofiSupportRow .ba-support-row-icon::after{content:"";position:absolute;right:-3px;top:-3px;width:11px;height:11px;border-radius:50%;background:linear-gradient(145deg,#ff9972,#e75c78);box-shadow:0 0 0 2px rgba(255,255,255,.95),0 3px 8px rgba(184,69,99,.20);pointer-events:none}
+      #kofiSupportRow .ba-support-row-icon svg{position:relative;z-index:1;width:23px;height:23px;fill:none!important;stroke:#fff!important;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 1px 1px rgba(20,72,119,.18))}
+      #kofiSupportRow strong{color:#213248!important}
+      #kofiSupportRow small{color:#6f8193!important}
+      #kofiSupportRow>b{color:#4f86b5!important}
       #kofiSupportRow:active{transform:translateY(1px) scale(.994)}
-      @media (prefers-reduced-motion:reduce){.ba-support-overlay,.ba-support-sheet{transition:none!important}}
-      html[data-motion="reduced"] .ba-support-overlay,html[data-motion="reduced"] .ba-support-sheet{transition:none!important}
+
+      html[lang^="th"] .ba-support-kicker{letter-spacing:.055em}html[lang^="ja"] .ba-support-kicker{letter-spacing:.09em}
+      html[lang^="th"] .ba-support-title,html[lang^="ja"] .ba-support-title{line-height:1.22;letter-spacing:-.018em}
+      html[lang^="th"] .ba-support-lead,html[lang^="ja"] .ba-support-lead{line-height:1.58}
+      @media(max-width:360px){.ba-support-panel{padding-left:12px;padding-right:12px}.ba-support-title{font-size:18px}.ba-support-lead{font-size:10.2px}.ba-support-story p,.ba-support-provider p{font-size:8.3px}}
+      @media(max-height:690px){.ba-support-panel{max-height:92dvh}.ba-support-lead{margin:8px 2px 9px}.ba-support-story{padding:10px}.ba-support-provider{padding:10px}.ba-support-primary{height:43px;margin-top:8px}.ba-support-boundary{margin-top:7px}.ba-support-signoff{margin-top:5px}}
+      @media(prefers-reduced-motion:reduce){.ba-support-overlay,.ba-support-panel{transition:none!important}}
+      html[data-motion="reduced"] .ba-support-overlay,html[data-motion="reduced"] .ba-support-panel{transition:none!important}
     `;
     document.head.appendChild(style);
   }
@@ -151,21 +175,30 @@
     const t = c();
     ensureOverlay();
     overlay.innerHTML = `
-      <section class="ba-support-sheet" role="dialog" aria-modal="true" aria-labelledby="baSupportTitle">
+      <section class="ba-support-panel" role="dialog" aria-modal="true" aria-labelledby="baSupportTitle">
         <div class="ba-support-handle" aria-hidden="true"></div>
         <div class="ba-support-head">
+          <div class="ba-support-mark" aria-hidden="true"><svg viewBox="0 0 24 24">${ICON}</svg></div>
           <div>
-            <div class="ba-support-eyebrow">${t.eyebrow}</div>
-            <h2 id="baSupportTitle">${t.title}</h2>
+            <span class="ba-support-kicker">${t.kicker}</span>
+            <h2 class="ba-support-title" id="baSupportTitle">${t.title}</h2>
           </div>
           <button class="ba-support-close" type="button" data-ba-support-close aria-label="${t.close}">×</button>
         </div>
         <p class="ba-support-lead">${t.lead}</p>
-        <div class="ba-support-note">${t.note}</div>
-        <div class="ba-support-provider"><strong>${t.provider}</strong><p>${t.providerBody}</p></div>
+        <div class="ba-support-story">
+          <span class="ba-support-story-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M18.4 5.6l-2.8 2.8M8.4 15.6l-2.8 2.8"/><circle cx="12" cy="12" r="2.5"/></svg></span>
+          <div><strong>${t.storyTitle}</strong><p>${t.storyBody}</p></div>
+        </div>
+        <div class="ba-support-provider">
+          <div class="ba-support-provider-row">
+            <span class="ba-support-provider-mark" aria-hidden="true"><svg viewBox="0 0 24 24">${ICON}</svg></span>
+            <div><strong>${t.provider}</strong><p>${t.providerBody}</p></div>
+          </div>
+        </div>
         <button class="ba-support-primary" type="button" data-ba-open-kofi>${t.cta} <span aria-hidden="true">↗</span></button>
         <p class="ba-support-boundary">${t.boundary}</p>
-        <p class="ba-support-signoff">${t.optional}</p>
+        <p class="ba-support-signoff">${t.signoff}</p>
       </section>`;
     overlay.querySelector('[data-ba-support-close]')?.addEventListener('click', closeOverlay);
     overlay.querySelector('[data-ba-open-kofi]')?.addEventListener('click', () => openExternal(KOFI_URL));
@@ -173,7 +206,7 @@
   }
 
   function supportRowMarkup() {
-    return `<span class="soft-icon amber" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10Z"/><path d="M17.5 4.2v3.2M15.9 5.8h3.2"/></svg></span><span><strong id="kofiSupportTitle"></strong><small id="kofiSupportSub"></small></span><b>›</b>`;
+    return `<span class="soft-icon ba-support-row-icon" aria-hidden="true"><svg viewBox="0 0 24 24">${ICON}</svg></span><span><strong id="kofiSupportTitle"></strong><small id="kofiSupportSub"></small></span><b>›</b>`;
   }
 
   function ensureSupportRow() {
@@ -188,9 +221,8 @@
       row.type = 'button';
       row.innerHTML = supportRowMarkup();
 
-      // The legacy #supportProjectRow is intentionally owned by Bearagnostic Pro
-      // on Android. Keep voluntary support as a separate sibling so entitlement
-      // interception can never steal this action.
+      // Android uses the legacy #supportProjectRow for Bearagnostic Pro.
+      // Voluntary Ko-fi support is deliberately a separate sibling.
       const proRow = document.getElementById('supportProjectRow');
       const aboutRow = list.querySelector('[data-open="about"]');
       if (proRow?.parentElement === list) proRow.insertAdjacentElement('afterend', row);
@@ -210,8 +242,6 @@
     if (sub) sub.textContent = t.rowSub;
   }
 
-  // Ko-fi support owns a dedicated row. Never reuse #supportProjectRow: Android
-  // entitlement intentionally repurposes that legacy element for Bearagnostic Pro.
   document.addEventListener('click', (event) => {
     const target = event.target?.closest?.('#kofiSupportRow,#openKofi');
     if (!target) return;
@@ -239,7 +269,5 @@
 
   addStyles();
   ensureSupportRow();
-  // Pro UI runs after this adapter in the Android overlay order. Re-assert the
-  // independent sibling once the current script turn completes, without polling.
   setTimeout(ensureSupportRow, 0);
 })();
