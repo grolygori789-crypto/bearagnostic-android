@@ -17,10 +17,10 @@
   const COPY = Object.freeze({
     en: {
       back:'Back',
-      supportFallbackKicker:'SUPPORT', supportFallbackTitle:'Support Bearagnostic',
-      helpFallbackKicker:'HELP & FEEDBACK', helpFallbackTitle:'How can Dr. Bear help?',
-      proFallbackKicker:'BEARAGNOSTIC PRO', proFallbackTitle:'Go deeper. See more. Stay in control.',
-      legalFallbackKicker:'LEGAL', legalFallbackTitle:'Legal & Licenses',
+      supportFallbackKicker:'SUPPORT', supportFallbackTitle:'Support Bearagnostic', supportIntro:'Keep Bearagnostic moving forward.',
+      helpFallbackKicker:'HELP & FEEDBACK', helpFallbackTitle:'Help & Feedback', helpIntro:'How can Dr. Bear help?',
+      proFallbackKicker:'BEARAGNOSTIC PRO', proFallbackTitle:'Bearagnostic Pro', proIntro:'Go deeper. See more. Stay in control.',
+      legalFallbackKicker:'LEGAL', legalFallbackTitle:'Legal & Licenses', legalIntro:'Clear ownership. Clear terms.',
       aboutFallbackKicker:'ABOUT', aboutFallbackTitle:'About Bearagnostic',
       supportAction:'Support on Ko-fi', supportActionSub:'Ko-fi · Benedict Interactive',
       diagnosticsCopied:'Diagnostic info copied.', copyFailed:'Could not copy automatically.',
@@ -29,10 +29,10 @@
     },
     th: {
       back:'ย้อนกลับ',
-      supportFallbackKicker:'สนับสนุน', supportFallbackTitle:'สนับสนุน Bearagnostic',
-      helpFallbackKicker:'ช่วยเหลือและข้อเสนอแนะ', helpFallbackTitle:'ให้ Dr. Bear ช่วยอะไรดี?',
-      proFallbackKicker:'BEARAGNOSTIC PRO', proFallbackTitle:'ตรวจได้ลึกขึ้น เห็นมากขึ้น และยังควบคุมทุกอย่างเอง',
-      legalFallbackKicker:'LEGAL', legalFallbackTitle:'กฎหมายและสิทธิ์การใช้งาน',
+      supportFallbackKicker:'สนับสนุน', supportFallbackTitle:'สนับสนุน Bearagnostic', supportIntro:'ช่วยให้ Bearagnostic เดินหน้าต่อไป',
+      helpFallbackKicker:'ช่วยเหลือและข้อเสนอแนะ', helpFallbackTitle:'ช่วยเหลือและข้อเสนอแนะ', helpIntro:'ให้ Dr. Bear ช่วยอะไรดี?',
+      proFallbackKicker:'BEARAGNOSTIC PRO', proFallbackTitle:'Bearagnostic Pro', proIntro:'ตรวจได้ลึกขึ้น เห็นมากขึ้น และยังควบคุมทุกอย่างเอง',
+      legalFallbackKicker:'LEGAL', legalFallbackTitle:'กฎหมายและสิทธิ์การใช้งาน', legalIntro:'สิทธิ์ชัดเจน เงื่อนไขชัดเจน',
       aboutFallbackKicker:'เกี่ยวกับ', aboutFallbackTitle:'เกี่ยวกับ Bearagnostic',
       supportAction:'สนับสนุนผ่าน Ko-fi', supportActionSub:'Ko-fi · Benedict Interactive',
       diagnosticsCopied:'คัดลอกข้อมูลทางเทคนิคแล้ว', copyFailed:'ไม่สามารถคัดลอกให้อัตโนมัติได้',
@@ -41,10 +41,10 @@
     },
     ja: {
       back:'戻る',
-      supportFallbackKicker:'サポート', supportFallbackTitle:'Bearagnostic を支援',
-      helpFallbackKicker:'ヘルプ・フィードバック', helpFallbackTitle:'Dr. Bear にご相談ください',
-      proFallbackKicker:'BEARAGNOSTIC PRO', proFallbackTitle:'より深く確認し、もっと把握し、操作は自分の手に。',
-      legalFallbackKicker:'LEGAL', legalFallbackTitle:'法的情報とライセンス',
+      supportFallbackKicker:'サポート', supportFallbackTitle:'Bearagnostic を支援', supportIntro:'Bearagnostic の次の一歩を支える',
+      helpFallbackKicker:'ヘルプ・フィードバック', helpFallbackTitle:'ヘルプ・フィードバック', helpIntro:'Dr. Bear にご相談ください',
+      proFallbackKicker:'BEARAGNOSTIC PRO', proFallbackTitle:'Bearagnostic Pro', proIntro:'より深く確認し、もっと把握し、操作は自分の手に。',
+      legalFallbackKicker:'LEGAL', legalFallbackTitle:'法的情報とライセンス', legalIntro:'権利と条件を、分かりやすく。',
       aboutFallbackKicker:'ABOUT', aboutFallbackTitle:'Bearagnostic について',
       supportAction:'Ko-fi で支援', supportActionSub:'Ko-fi · Benedict Interactive',
       diagnosticsCopied:'診断情報をコピーしました。', copyFailed:'自動でコピーできませんでした。',
@@ -69,9 +69,19 @@
     const style = document.createElement('style');
     style.id = 'baUnifiedSettingsDetailStyles';
     style.textContent = `
-      #baUnifiedSettingsDetail{padding-top:clamp(8px,1.2dvh,14px);padding-bottom:clamp(8px,1.2dvh,14px);overflow:hidden}
-      #baUnifiedSettingsDetail .settings-title-row{align-items:flex-start}
-      #baUnifiedSettingsDetail .settings-scroll{padding-top:8px}
+      #baUnifiedSettingsDetail{padding-top:clamp(8px,1.2dvh,14px);padding-bottom:clamp(8px,1.2dvh,14px);overflow:hidden;--ba-detail-accent:#25a9e6}
+      #baUnifiedSettingsDetail[data-detail-kind=help]{--ba-detail-accent:#8064de}
+      #baUnifiedSettingsDetail[data-detail-kind=pro]{--ba-detail-accent:#6f63d4}
+      #baUnifiedSettingsDetail[data-detail-kind=support]{--ba-detail-accent:#199fe7}
+      #baUnifiedSettingsDetail[data-detail-kind=legal]{--ba-detail-accent:#279dc7}
+      #baUnifiedSettingsDetail[data-detail-kind=about]{--ba-detail-accent:#d79a24}
+      #baUnifiedSettingsDetail .settings-title-row{align-items:flex-start!important;height:auto!important;min-height:74px!important;margin-bottom:14px!important}
+      #baUnifiedSettingsDetail .settings-title-row>div:last-child{min-width:0!important;padding-top:4px!important}
+      #baUnifiedSettingsDetail .settings-title-row span{color:var(--ba-detail-accent)!important;font-weight:820!important;letter-spacing:.19em!important}
+      #baUnifiedSettingsDetail .settings-title-row h2{margin:5px 0 0!important;font-size:clamp(28px,7.1vw,34px)!important;line-height:1.06!important;letter-spacing:-.035em!important;max-width:100%!important;white-space:normal!important;text-wrap:balance!important;overflow-wrap:normal!important}
+      #baUnifiedSettingsDetail .settings-scroll{padding-top:0!important}
+      #baUnifiedSettingsDetail .settings-group>h3{color:var(--ba-detail-accent)!important;letter-spacing:.14em!important;font-size:10px!important;font-weight:820!important;text-transform:uppercase!important}
+      #baUnifiedSettingsDetail .ba-detail-action-group .setting-link b{color:var(--ba-detail-accent)!important}
       #baUnifiedSettingsDetail .ba-detail-principle{margin-bottom:12px}
       #baUnifiedSettingsDetail .ba-detail-principle__icon{flex:none}
       #baUnifiedSettingsDetail .ba-detail-principle__icon.is-support{background:linear-gradient(145deg,#71dbff 0%,#299ff3 48%,#107be6 100%)!important}
@@ -104,7 +114,7 @@
       #baUnifiedSettingsDetail .ba-detail-about-appicon{padding:0!important;background:transparent!important;overflow:hidden!important}
       #baUnifiedSettingsDetail .ba-detail-about-appicon::before{display:none!important}
       #baUnifiedSettingsDetail .ba-detail-about-appicon img{width:100%;height:100%;object-fit:cover;border-radius:inherit}
-      @media(max-width:360px){#baUnifiedSettingsDetail .settings-title-row h2{font-size:26px}#baUnifiedSettingsDetail .privacy-principle-card{padding:14px;grid-template-columns:43px minmax(0,1fr);gap:11px}#baUnifiedSettingsDetail .privacy-principle-card__icon{width:43px;height:43px}}
+      @media(max-width:360px){#baUnifiedSettingsDetail .settings-title-row h2{font-size:27px!important}#baUnifiedSettingsDetail .privacy-principle-card{padding:14px;grid-template-columns:43px minmax(0,1fr);gap:11px}#baUnifiedSettingsDetail .privacy-principle-card__icon{width:43px;height:43px}}
     `;
     document.head.appendChild(style);
   }
@@ -141,6 +151,7 @@
     const current = currentVisibleScreen();
     if (current?.dataset?.screen) returnScreen = current.dataset.screen;
     activeKind = kind;
+    s.dataset.detailKind = kind || '';
     const back = byId('baUnifiedDetailBack');
     if (back) back.setAttribute('aria-label', c().back);
     byId('baUnifiedDetailKicker').textContent = kicker || '';
@@ -174,6 +185,7 @@
       window.dispatchEvent(new CustomEvent('bearagnostic:screenchange', {detail:{screen:target.dataset.screen || 'more'}}));
     }
     activeKind = null;
+    delete screen.dataset.detailKind;
   }
 
   function principle(kind, heading, bodyHtml, extra = '') {
@@ -223,12 +235,13 @@
       }
       closeLegacyOverlay('#androidPremiumSupportOverlay', '[data-ba-support-close]');
     } catch (_) {}
+    const legacyTagline = title && title !== t.supportFallbackTitle ? title : t.supportIntro;
     const body = `${lead ? `<p>${esc(lead)}</p>` : ''}${panelBody ? `<p>${esc(panelBody)}</p>` : ''}`;
-    const html = principle('support', panelTitle, body) + actionGroup([{action:'support-kofi', title:t.supportAction, sub:provider}]) +
+    const html = principle('support', legacyTagline || panelTitle, body) + actionGroup([{action:'support-kofi', title:t.supportAction, sub:provider}]) +
       (providerBody ? `<p class="ba-detail-footnote">${esc(providerBody)}</p>` : '') +
       (boundary ? `<p class="ba-detail-footnote">${esc(boundary)}</p>` : '') +
       (signoff ? `<p class="ba-detail-footnote"><strong>${esc(signoff)}</strong></p>` : '');
-    showDetail('support', kicker, title, html);
+    showDetail('support', kicker, t.supportFallbackTitle, html);
   }
 
   function renderHelp() {
@@ -254,13 +267,14 @@
       }
       closeLegacyOverlay('#helpFeedbackOverlay', '[data-bx-close]');
     } catch (_) {}
-    const intro = principle('help', title, lead ? `<p>${esc(lead)}</p>` : '');
+    const introHeading = title && title !== t.helpFallbackTitle ? title : t.helpIntro;
+    const intro = principle('help', introHeading, lead ? `<p>${esc(lead)}</p>` : '');
     const html = intro + actionGroup(actions.length ? actions : [
       {action:'help-report', title:'Report a Problem'},
       {action:'help-feedback', title:'Send Feedback'},
       {action:'help-diagnostics', title:'Copy Diagnostic Info'}
     ]);
-    showDetail('help', kicker, title, html);
+    showDetail('help', kicker, t.helpFallbackTitle, html);
   }
 
   function extractLegacyLegal() {
@@ -282,10 +296,10 @@
 
   function renderLegal() {
     const data = extractLegacyLegal();
-    const principleHtml = principle('legal', data.title, data.lead ? `<p>${esc(data.lead)}</p>` : '');
+    const principleHtml = principle('legal', c().legalIntro, data.lead ? `<p>${esc(data.lead)}</p>` : '');
     const sections = data.cards.map((card) => `<article class="ba-detail-section"><strong>${esc(card.title)}</strong><p>${esc(card.body)}</p></article>`).join('');
     const html = principleHtml + `<section class="settings-group">${sections}</section>` + (data.footer ? `<p class="ba-detail-footnote">${esc(data.footer)}</p>` : '');
-    showDetail('legal', data.kicker, data.title, html);
+    showDetail('legal', data.kicker, c().legalFallbackTitle, html);
   }
 
   function renderAbout(row) {
@@ -310,7 +324,7 @@
     const build = $('.app-footer__build')?.textContent?.trim() || row?.querySelector('small')?.textContent?.trim() || '';
     const brandCopy = `${build ? `<p><strong>${esc(build)}</strong></p>` : ''}<p>${esc(location)}</p><p>${esc(privacy)}</p>`;
     const html = `<section class="privacy-principle-card ba-detail-principle ba-detail-about-principle"><span class="privacy-principle-card__icon ba-detail-about-appicon" aria-hidden="true"><img src="./assets/icons/app-icon-192.png" alt=""></span><div><strong>Bearagnostic</strong><div class="privacy-principle-card__copy">${brandCopy}</div></div></section>`;
-    showDetail('about', kicker, title, html);
+    showDetail('about', kicker, t.aboutFallbackTitle, html);
   }
 
   function renderPro(source = 'more') {
@@ -342,14 +356,15 @@
       window.BearagnosticProUI?.close?.();
     } catch (_) {}
 
+    const legacyTagline = title && title !== t.proFallbackTitle ? title : t.proIntro;
     const introBody = `${lead ? `<p>${esc(lead)}</p>` : ''}${status ? `<p><strong>${esc(status)}</strong></p>` : ''}`;
-    const intro = principle('pro', title, introBody);
+    const intro = principle('pro', legacyTagline, introBody);
     const featureSections = features.map((f) => `<article class="ba-detail-section"><strong>${esc(f.title)}</strong><p>${esc(f.body)}</p></article>`).join('');
     const trustSections = trust.map((f) => `<article class="ba-detail-section"><strong>${esc(f.title)}</strong><p>${esc(f.body)}</p></article>`).join('');
     const html = intro +
       (featureSections ? `<section class="settings-group"><h3>${esc(t.proAvailable)}</h3>${featureSections}</section>` : '') +
       (trustSections || purchaseNode || debugNode ? `<section class="settings-group" id="baUnifiedProActions"><h3>${esc(t.proSafety)}</h3>${trustSections}</section>` : '');
-    showDetail('pro', kicker, title, html);
+    showDetail('pro', kicker, t.proFallbackTitle, html);
     const target = byId('baUnifiedProActions');
     if (target && purchaseNode) target.appendChild(purchaseNode);
     if (target && debugNode) target.appendChild(debugNode);
