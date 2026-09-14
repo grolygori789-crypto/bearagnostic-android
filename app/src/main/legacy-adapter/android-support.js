@@ -7,7 +7,8 @@
   const KOFI_URL = 'https://ko-fi.com/benedictinteractive';
   const toast = (message) => window.BearagnosticAppAPI?.showToast?.(message);
 
-  const ICON = '<path d="M5 8.5h11v4.7a5 5 0 0 1-5 5h-1a5 5 0 0 1-5-5Z"/><path d="M16 10h1.6a2.5 2.5 0 0 1 0 5H16"/><path d="M8.5 11.7c.7-.9 2.1-.55 2.5.35.4-.9 1.8-1.25 2.5-.35.8 1.05-.25 2.35-2.5 3.7-2.25-1.35-3.3-2.65-2.5-3.7Z"/>';
+  const KOFI_ICON = '<path class="ba-kofi-cup" d="M5.2 8.4h10.7v4.8a5 5 0 0 1-5 5h-.7a5 5 0 0 1-5-5Z"/><path class="ba-kofi-cup" d="M15.9 10h1.55a2.45 2.45 0 0 1 0 4.9H15.9"/><path class="ba-kofi-heart" d="M8.45 11.65c.68-.93 2.1-.72 2.55.28.45-1 1.87-1.21 2.55-.28.88 1.2-.24 2.55-2.55 3.98-2.31-1.43-3.43-2.78-2.55-3.98Z"/>';
+  const SPARK_ICON = '<path d="M12 3v3.2M12 17.8V21M3 12h3.2M17.8 12H21M5.7 5.7l2.3 2.3M16 16l2.3 2.3M18.3 5.7 16 8M8 16l-2.3 2.3"/><circle cx="12" cy="12" r="2.65"/>';
 
   const COPY = {
     en: {
@@ -17,11 +18,11 @@
       close: 'Close',
       kicker: 'SUPPORT BEARAGNOSTIC',
       title: 'Keep Bearagnostic moving forward.',
-      lead: 'Bearagnostic is built independently and refined with care. If it has earned a place on your phone, support at any level gives us more room to maintain it, improve it and keep each release thoughtful.',
-      storyTitle: 'A little support goes a long way.',
-      storyBody: 'Give whatever feels right. Every contribution helps create the time and space to polish the details, solve the next problem well and keep the project growing on its own terms.',
+      lead: 'Bearagnostic is built independently and refined with care.',
+      panelTitle: 'Built slowly. Maintained thoughtfully.',
+      panelBody: 'If Bearagnostic has earned a place on your phone, support at any level gives us more room to maintain it, improve it and keep each release careful, useful and independent.',
       provider: 'Ko-fi · Benedict Interactive',
-      providerBody: 'Opens securely in your browser. Payment and account details are handled by Ko-fi, outside Bearagnostic.',
+      providerBody: 'Ko-fi opens securely in your browser. Payment and account details stay with Ko-fi, outside Bearagnostic.',
       cta: 'Support on Ko-fi',
       boundary: 'Completely optional and separate from Free and Pro. Support never changes scan quality, safety or your existing access.',
       signoff: 'Thank you for helping independent software stay independent.'
@@ -33,9 +34,9 @@
       close: 'ปิด',
       kicker: 'สนับสนุน BEARAGNOSTIC',
       title: 'ช่วยให้ Bearagnostic เดินหน้าต่อไป',
-      lead: 'Bearagnostic ถูกพัฒนาขึ้นอย่างอิสระ และขัดเกลาทุกรายละเอียดด้วยความตั้งใจ ถ้ามันเป็นแอปที่คุณอยากเก็บไว้บนเครื่อง การสนับสนุนตามกำลังจะช่วยให้เรามีพื้นที่ดูแล พัฒนา และทำทุกเวอร์ชันให้ดีขึ้นอย่างที่ควรเป็น',
-      storyTitle: 'ทุกการสนับสนุนมีความหมาย',
-      storyBody: 'สนับสนุนเท่าที่รู้สึกสบายใจ ทุกการสนับสนุนช่วยเพิ่มเวลาและพื้นที่ให้เราเก็บรายละเอียด แก้ปัญหาถัดไปให้ดี และพาโปรเจกต์เติบโตต่อในแบบของตัวเอง',
+      lead: 'Bearagnostic ถูกพัฒนาขึ้นอย่างอิสระ และขัดเกลาทุกรายละเอียดด้วยความตั้งใจ',
+      panelTitle: 'ค่อยๆ สร้าง ค่อยๆ ดูแล ให้ดีขึ้นทุกเวอร์ชัน',
+      panelBody: 'ถ้ามันเป็นแอปที่คุณอยากเก็บไว้บนเครื่อง การสนับสนุนตามกำลังจะช่วยให้เรามีพื้นที่ดูแล พัฒนา และพาแต่ละเวอร์ชันไปข้างหน้าอย่างรอบคอบ มีประโยชน์ และยังคงความเป็นอิสระของโปรเจกต์เอาไว้',
       provider: 'Ko-fi · Benedict Interactive',
       providerBody: 'ระบบจะเปิด Ko-fi ในเบราว์เซอร์อย่างปลอดภัย การชำระเงินและข้อมูลบัญชีดำเนินการโดย Ko-fi โดยตรง ไม่ได้อยู่ใน Bearagnostic',
       cta: 'สนับสนุนผ่าน Ko-fi',
@@ -49,9 +50,9 @@
       close: '閉じる',
       kicker: 'BEARAGNOSTIC を支援',
       title: 'Bearagnostic の次の一歩を支える',
-      lead: 'Bearagnostic は独立して開発し、細かな部分まで丁寧に磨き続けています。手元に置いておきたいアプリだと感じたときだけ、無理のない範囲での支援が、保守・改善・次のリリースに取り組む余力につながります。',
-      storyTitle: '小さな支援も、大きな力になります。',
-      storyBody: '金額は無理のない範囲で十分です。いただいた支援は、細部を整え、次の課題をきちんと解決し、このプロジェクトを独立したまま育てていく時間につながります。',
+      lead: 'Bearagnostic は独立して開発し、細かな部分まで丁寧に磨き続けています。',
+      panelTitle: '丁寧につくり、丁寧に育てる。',
+      panelBody: 'このアプリを手元に置いておきたいと感じたときだけ、無理のない範囲での支援が、保守・改善・次のリリースを落ち着いて進める余力につながります。',
       provider: 'Ko-fi · Benedict Interactive',
       providerBody: 'Ko-fi はブラウザで安全に開きます。支払い・アカウント情報は Ko-fi 側で扱われ、Bearagnostic には送られません。',
       cta: 'Ko-fi で支援',
@@ -91,50 +92,50 @@
       .ba-support-overlay.is-open .ba-support-panel{transform:translateY(0)}
       .ba-support-handle{width:43px;height:4px;margin:0 auto 12px;border-radius:999px;background:linear-gradient(90deg,#dfe7ef,#c8d5e2,#dfe7ef)}
       .ba-support-head{display:grid;grid-template-columns:50px minmax(0,1fr) 36px;gap:10px;align-items:center}
-      .ba-support-mark{position:relative;width:50px;height:50px;border-radius:17px;display:grid;place-items:center;color:#fff;background:linear-gradient(145deg,#31b9e8 0%,#258edc 58%,#645fd0 118%);box-shadow:0 12px 28px rgba(45,118,187,.21),inset 0 1px 0 rgba(255,255,255,.36);overflow:visible}
+      .ba-support-mark{position:relative;width:50px;height:50px;border-radius:17px;display:grid;place-items:center;color:#fff;background:linear-gradient(145deg,#39c2ee 0%,#28a7e4 52%,#2388d8 100%);box-shadow:0 12px 28px rgba(45,118,187,.21),inset 0 1px 0 rgba(255,255,255,.36);overflow:visible}
       .ba-support-mark::before{content:"";position:absolute;inset:1px 4px auto;height:46%;border-radius:15px 15px 50% 50%;background:linear-gradient(180deg,rgba(255,255,255,.30),rgba(255,255,255,0));pointer-events:none}
-      .ba-support-mark::after{content:"";position:absolute;right:-3px;top:-3px;width:13px;height:13px;border-radius:50%;background:linear-gradient(145deg,#ff9a73,#e65b79);box-shadow:0 0 0 3px rgba(255,255,255,.94),0 4px 10px rgba(190,73,103,.22)}
-      .ba-support-mark svg{position:relative;z-index:1;width:27px;height:27px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 1px 1px rgba(21,73,122,.18))}
+      .ba-support-mark svg{position:relative;z-index:1;width:27px;height:27px;filter:drop-shadow(0 1px 1px rgba(21,73,122,.18))}
+      .ba-support-mark .ba-kofi-cup{fill:none;stroke:#fff;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}.ba-support-mark .ba-kofi-heart{fill:#ff5f73;stroke:#fff;stroke-width:.42;stroke-linejoin:round}
       .ba-support-kicker{display:block;font-size:8px;line-height:1.15;letter-spacing:.19em;color:#527f9d;font-weight:850;text-transform:uppercase}
       .ba-support-title{margin:4px 0 0;font-size:20px;line-height:1.1;letter-spacing:-.032em;font-weight:760;color:#172b43;text-wrap:balance}
       .ba-support-close{width:36px;height:36px;border:0;border-radius:13px;background:#edf3f8;color:#718294;font-size:19px;line-height:1;display:grid;place-items:center}
-      .ba-support-lead{font-size:10.8px;line-height:1.5;color:#6e8091;margin:11px 2px 12px}
-      .ba-support-story{width:calc(100% - 2px);margin-inline:auto;display:grid;grid-template-columns:36px minmax(0,1fr) 36px;gap:10px;align-items:center;padding:12px 13px;border-radius:19px;background:linear-gradient(135deg,#fffaf0 0%,#fffefb 48%,#f5fbfe 100%);border:1px solid rgba(190,146,65,.10);box-shadow:0 7px 20px rgba(78,75,58,.045),inset 0 1px 0 #fff}
-      .ba-support-story::after{content:"";width:36px;height:36px;display:block;pointer-events:none}
-      .ba-support-story-icon{width:36px;height:36px;border-radius:12px;display:grid;place-items:center;color:#a97528;background:linear-gradient(145deg,#fff3cc,#fffaee);box-shadow:inset 0 0 0 1px rgba(180,130,49,.08)}
-      .ba-support-story-icon svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
-      .ba-support-story>div{min-width:0}
-      .ba-support-story strong{display:block;font-size:11.5px;line-height:1.25;color:#4d4029}
-      .ba-support-story p{margin:4px 0 0;font-size:9.2px;line-height:1.5;color:#82745e}
-      .ba-support-provider{width:calc(100% - 2px);margin:9px auto 0;padding:11px 13px;border-radius:19px;background:linear-gradient(145deg,#fff,#eff8fd);border:1px solid rgba(39,145,210,.10);box-shadow:0 7px 20px rgba(53,83,114,.05)}
-      .ba-support-provider-row{display:grid;grid-template-columns:38px minmax(0,1fr) 38px;gap:10px;align-items:center}
-      .ba-support-provider-row::after{content:"";width:38px;height:38px;display:block;pointer-events:none}
-      .ba-support-provider-mark{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;color:#fff;background:linear-gradient(145deg,#35b9ea,#2087dc);box-shadow:0 7px 16px rgba(33,132,203,.18),inset 0 1px 0 rgba(255,255,255,.30)}
-      .ba-support-provider-mark svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.65;stroke-linecap:round;stroke-linejoin:round}
-      .ba-support-provider-row>div{min-width:0}
-      .ba-support-provider strong{display:block;font-size:11.5px;color:#233a52}
-      .ba-support-provider p{margin:3px 0 0;font-size:8.8px;line-height:1.42;color:#7b8c9b}
-      .ba-support-primary{width:100%;height:46px;margin-top:10px;border:0;border-radius:16px;background:linear-gradient(118deg,#24b6e8 0%,#168fdc 48%,#1878e8 100%);color:#fff;font-size:11px;font-weight:800;letter-spacing:.005em;box-shadow:0 10px 22px rgba(17,132,222,.19),inset 0 1px 0 rgba(255,255,255,.24)}
-      .ba-support-primary:active{transform:translateY(1px) scale(.995)}
-      .ba-support-boundary{margin:9px 4px 0;font-size:8.3px;line-height:1.42;text-align:center;color:#8b9aa8}
-      .ba-support-signoff{margin:7px 4px 0;font-size:9.2px;line-height:1.4;text-align:center;color:#526b82;font-weight:700}
+      .ba-support-lead{font-size:10.8px;line-height:1.52;color:#6e8091;margin:11px 2px 12px}
+      .ba-support-surface{display:grid;grid-template-columns:58px minmax(0,1fr);gap:13px;align-items:start;padding:16px 15px 17px;border-radius:24px;background:linear-gradient(180deg,rgba(255,255,255,.96),rgba(244,249,253,.92));border:1px solid rgba(141,167,191,.13);box-shadow:0 12px 28px rgba(56,89,122,.06),inset 0 1px 0 rgba(255,255,255,.98)}
+      .ba-support-surface-icon{width:52px;height:52px;border-radius:18px;display:grid;place-items:center;color:#fff;background:linear-gradient(145deg,#34c8d6 0%,#1fbba4 52%,#1aa8b6 100%);box-shadow:0 11px 24px rgba(39,183,169,.18),inset 0 1px 0 rgba(255,255,255,.30)}
+      .ba-support-surface-icon svg{width:27px;height:27px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+      .ba-support-surface-copy strong{display:block;font-size:11.9px;line-height:1.3;color:#20364e}
+      .ba-support-surface-copy p{margin:6px 0 0;font-size:10px;line-height:1.58;color:#6e8192}
+      .ba-support-divider{height:1px;margin:14px 8px 10px;background:linear-gradient(90deg,rgba(188,202,214,0),rgba(188,202,214,.7),rgba(188,202,214,0))}
+      .ba-support-action{width:100%;display:grid;grid-template-columns:46px minmax(0,1fr) 18px;gap:12px;align-items:center;padding:12px 6px 12px 4px;border:0;background:transparent;color:inherit;text-align:left}
+      .ba-support-action:active{transform:translateY(1px)}
+      .ba-support-action-icon{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;color:#fff;background:linear-gradient(145deg,#39c2ee,#2388d8);box-shadow:0 8px 20px rgba(33,132,203,.16),inset 0 1px 0 rgba(255,255,255,.30)}
+      .ba-support-action-icon svg{width:23px;height:23px;filter:drop-shadow(0 1px 1px rgba(21,73,122,.16))}
+      .ba-support-action-icon .ba-kofi-cup{fill:none;stroke:#fff;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}.ba-support-action-icon .ba-kofi-heart{fill:#ff5f73;stroke:#fff;stroke-width:.42;stroke-linejoin:round}
+      .ba-support-action-copy{min-width:0}
+      .ba-support-action-copy strong{display:block;font-size:11.6px;line-height:1.22;color:#213248}
+      .ba-support-action-copy small{display:block;margin-top:4px;font-size:8.8px;line-height:1.42;color:#7a8d9d}
+      .ba-support-action-chevron{justify-self:end;color:#9aaaba;font-size:18px;line-height:1}
+      .ba-support-provider-note{margin:2px 4px 0 58px;font-size:8.6px;line-height:1.45;color:#7e8f9e}
+      .ba-support-boundary{margin:12px 4px 0;font-size:8.4px;line-height:1.44;color:#8899a8}
+      .ba-support-signoff{margin:8px 4px 0;font-size:9.2px;line-height:1.4;color:#526b82;font-weight:700}
 
       #kofiSupportRow{--tone:39,145,215!important;background:linear-gradient(112deg,#fff 34%,rgba(39,145,215,.105) 79%,rgba(103,95,208,.06) 100%)!important;border-color:rgba(39,145,215,.13)!important;box-shadow:0 11px 28px rgba(44,103,153,.085),inset 0 1px 0 #fff!important}
       #kofiSupportRow:after{background:radial-gradient(circle,rgba(39,145,215,.15),transparent 68%)!important}
-      #kofiSupportRow .ba-support-row-icon{position:relative;overflow:visible;background:linear-gradient(145deg,#38bceb 0%,#2489dc 58%,#665fd0 118%)!important;color:#fff!important;box-shadow:0 10px 22px rgba(38,126,198,.20),inset 0 1px 0 rgba(255,255,255,.35)!important}
+      #kofiSupportRow .ba-support-row-icon{position:relative;overflow:visible;background:linear-gradient(145deg,#39c2ee 0%,#28a7e4 52%,#2388d8 100%)!important;color:#fff!important;box-shadow:0 10px 22px rgba(38,126,198,.20),inset 0 1px 0 rgba(255,255,255,.35)!important}
       #kofiSupportRow .ba-support-row-icon::before{content:"";position:absolute;inset:1px 3px auto;height:43%;border-radius:12px 12px 50% 50%;background:linear-gradient(180deg,rgba(255,255,255,.34),rgba(255,255,255,0));pointer-events:none}
-      #kofiSupportRow .ba-support-row-icon::after{content:"";position:absolute;right:-3px;top:-3px;width:11px;height:11px;border-radius:50%;background:linear-gradient(145deg,#ff9972,#e75c78);box-shadow:0 0 0 2px rgba(255,255,255,.95),0 3px 8px rgba(184,69,99,.20);pointer-events:none}
-      #kofiSupportRow .ba-support-row-icon svg{position:relative;z-index:1;width:23px;height:23px;fill:none!important;stroke:#fff!important;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 1px 1px rgba(20,72,119,.18))}
+      #kofiSupportRow .ba-support-row-icon svg{position:relative;z-index:1;width:23px;height:23px;filter:drop-shadow(0 1px 1px rgba(20,72,119,.18))}
+      #kofiSupportRow .ba-support-row-icon .ba-kofi-cup{fill:none!important;stroke:#fff!important;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}#kofiSupportRow .ba-support-row-icon .ba-kofi-heart{fill:#ff5f73!important;stroke:#fff!important;stroke-width:.42;stroke-linejoin:round}
       #kofiSupportRow strong{color:#213248!important}
       #kofiSupportRow small{color:#6f8193!important}
       #kofiSupportRow>b{color:#4f86b5!important}
       #kofiSupportRow:active{transform:translateY(1px) scale(.994)}
 
-      html[lang^="th"] .ba-support-kicker{letter-spacing:.055em}html[lang^="ja"] .ba-support-kicker{letter-spacing:.09em}
+      html[lang^="th"] .ba-support-kicker{letter-spacing:.055em}
+      html[lang^="ja"] .ba-support-kicker{letter-spacing:.09em}
       html[lang^="th"] .ba-support-title,html[lang^="ja"] .ba-support-title{line-height:1.22;letter-spacing:-.018em}
       html[lang^="th"] .ba-support-lead,html[lang^="ja"] .ba-support-lead{line-height:1.58}
-      @media(max-width:360px){.ba-support-panel{padding-left:12px;padding-right:12px}.ba-support-title{font-size:18px}.ba-support-lead{font-size:10.2px}.ba-support-story p,.ba-support-provider p{font-size:8.3px}}
-      @media(max-height:690px){.ba-support-panel{max-height:92dvh}.ba-support-lead{margin:8px 2px 9px}.ba-support-story{padding:10px}.ba-support-provider{padding:10px}.ba-support-primary{height:43px;margin-top:8px}.ba-support-boundary{margin-top:7px}.ba-support-signoff{margin-top:5px}}
+      @media(max-width:360px){.ba-support-panel{padding-left:12px;padding-right:12px}.ba-support-title{font-size:18px}.ba-support-lead{font-size:10.2px}.ba-support-surface{grid-template-columns:48px minmax(0,1fr);padding:14px}.ba-support-surface-icon{width:46px;height:46px;border-radius:16px}.ba-support-surface-copy p{font-size:9.4px}.ba-support-provider-note{margin-left:52px}}
+      @media(max-height:690px){.ba-support-panel{max-height:92dvh}.ba-support-lead{margin:8px 2px 10px}.ba-support-surface{padding:14px 13px 15px}.ba-support-divider{margin-top:12px}.ba-support-action{padding-top:10px;padding-bottom:10px}.ba-support-boundary{margin-top:10px}}
       @media(prefers-reduced-motion:reduce){.ba-support-overlay,.ba-support-panel{transition:none!important}}
       html[data-motion="reduced"] .ba-support-overlay,html[data-motion="reduced"] .ba-support-panel{transition:none!important}
     `;
@@ -182,7 +183,7 @@
       <section class="ba-support-panel" role="dialog" aria-modal="true" aria-labelledby="baSupportTitle">
         <div class="ba-support-handle" aria-hidden="true"></div>
         <div class="ba-support-head">
-          <div class="ba-support-mark" aria-hidden="true"><svg viewBox="0 0 24 24">${ICON}</svg></div>
+          <div class="ba-support-mark" aria-hidden="true"><svg viewBox="0 0 24 24">${KOFI_ICON}</svg></div>
           <div>
             <span class="ba-support-kicker">${t.kicker}</span>
             <h2 class="ba-support-title" id="baSupportTitle">${t.title}</h2>
@@ -190,17 +191,17 @@
           <button class="ba-support-close" type="button" data-ba-support-close aria-label="${t.close}">×</button>
         </div>
         <p class="ba-support-lead">${t.lead}</p>
-        <div class="ba-support-story">
-          <span class="ba-support-story-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M18.4 5.6l-2.8 2.8M8.4 15.6l-2.8 2.8"/><circle cx="12" cy="12" r="2.5"/></svg></span>
-          <div><strong>${t.storyTitle}</strong><p>${t.storyBody}</p></div>
-        </div>
-        <div class="ba-support-provider">
-          <div class="ba-support-provider-row">
-            <span class="ba-support-provider-mark" aria-hidden="true"><svg viewBox="0 0 24 24">${ICON}</svg></span>
-            <div><strong>${t.provider}</strong><p>${t.providerBody}</p></div>
-          </div>
-        </div>
-        <button class="ba-support-primary" type="button" data-ba-open-kofi>${t.cta} <span aria-hidden="true">↗</span></button>
+        <section class="ba-support-surface" aria-label="${t.panelTitle}">
+          <span class="ba-support-surface-icon" aria-hidden="true"><svg viewBox="0 0 24 24">${SPARK_ICON}</svg></span>
+          <div class="ba-support-surface-copy"><strong>${t.panelTitle}</strong><p>${t.panelBody}</p></div>
+        </section>
+        <div class="ba-support-divider" aria-hidden="true"></div>
+        <button class="ba-support-action" type="button" data-ba-open-kofi>
+          <span class="ba-support-action-icon" aria-hidden="true"><svg viewBox="0 0 24 24">${KOFI_ICON}</svg></span>
+          <span class="ba-support-action-copy"><strong>${t.cta}</strong><small>${t.provider}</small></span>
+          <span class="ba-support-action-chevron" aria-hidden="true">›</span>
+        </button>
+        <p class="ba-support-provider-note">${t.providerBody}</p>
         <p class="ba-support-boundary">${t.boundary}</p>
         <p class="ba-support-signoff">${t.signoff}</p>
       </section>`;
@@ -210,7 +211,7 @@
   }
 
   function supportRowMarkup() {
-    return `<span class="soft-icon ba-support-row-icon" aria-hidden="true"><svg viewBox="0 0 24 24">${ICON}</svg></span><span><strong id="kofiSupportTitle"></strong><small id="kofiSupportSub"></small></span><b>›</b>`;
+    return `<span class="soft-icon ba-support-row-icon" aria-hidden="true"><svg viewBox="0 0 24 24">${KOFI_ICON}</svg></span><span><strong id="kofiSupportTitle"></strong><small id="kofiSupportSub"></small></span><b>›</b>`;
   }
 
   function ensureSupportRow() {
@@ -225,8 +226,6 @@
       row.type = 'button';
       row.innerHTML = supportRowMarkup();
 
-      // Android uses the legacy #supportProjectRow for Bearagnostic Pro.
-      // Voluntary Ko-fi support is deliberately a separate sibling.
       const proRow = document.getElementById('supportProjectRow');
       const aboutRow = list.querySelector('[data-open="about"]');
       if (proRow?.parentElement === list) proRow.insertAdjacentElement('afterend', row);
