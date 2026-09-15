@@ -16,6 +16,8 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.nio.file.Files
+import java.nio.file.LinkOption
+import java.nio.file.attribute.BasicFileAttributes
 import java.security.MessageDigest
 import java.util.ArrayDeque
 import java.util.LinkedHashMap
@@ -149,6 +151,8 @@ class FileHealthScanner(private val context: Context) {
         var reasonCode: String = "review",
         var duplicateGroupId: String? = null,
         var duplicateKeepSuggested: Boolean = false,
+        var identityKey: String? = null,
+        var duplicateContentSha256: String? = null,
     )
 
     private data class ReviewCandidate(
@@ -166,6 +170,8 @@ class FileHealthScanner(private val context: Context) {
         val reasonCode: String,
         val duplicateGroupId: String?,
         val duplicateKeepSuggested: Boolean,
+        val identityKey: String?,
+        val duplicateContentSha256: String?,
     )
 
     private data class ReviewSnapshot(
@@ -193,6 +199,8 @@ class FileHealthScanner(private val context: Context) {
             reasonCode: String,
             duplicateGroupId: String? = null,
             duplicateKeepSuggested: Boolean = false,
+            identityKey: String? = null,
+            duplicateContentSha256: String? = null,
         ) {
             val existing = items[path]
             if (existing == null && items.size >= MAX_REVIEW_CANDIDATES) {
@@ -200,8 +208,13 @@ class FileHealthScanner(private val context: Context) {
                 return
             }
             val item = existing ?: CandidateBuilder(
-                path = path, name = name, location = location,
-                sizeBytes = sizeBytes, modifiedMs = modifiedMs,
+                path = path,
+                name = name,
+                location = location,
+                sizeBytes = sizeBytes,
+                modifiedMs = modifiedMs,
+                identityKey = identityKey,
+                duplicateContentSha256 = duplicateContentSha256,
             ).also { items[path] = it }
             item.sizeBytes = maxOf(item.sizeBytes, sizeBytes)
             if (modifiedMs > 0L) item.modifiedMs = modifiedMs
@@ -213,6 +226,8 @@ class FileHealthScanner(private val context: Context) {
             if (junkConfidence >= item.junkConfidence || item.reasonCode == "review") item.reasonCode = reasonCode
             if (duplicateGroupId != null) item.duplicateGroupId = duplicateGroupId
             if (duplicateKeepSuggested) item.duplicateKeepSuggested = true
+            if (!identityKey.isNullOrBlank()) item.identityKey = identityKey
+            if (!duplicateContentSha256.isNullOrBlank()) item.duplicateContentSha256 = duplicateContentSha256
         }
 
         fun snapshot(mode: ScanMode): ReviewSnapshot {
@@ -221,13 +236,22 @@ class FileHealthScanner(private val context: Context) {
             for (builder in items.values) {
                 val id = "r${index++}"
                 out[id] = ReviewCandidate(
-                    id = id, path = builder.path, name = builder.name, location = builder.location,
-                    sizeBytes = builder.sizeBytes, modifiedMs = builder.modifiedMs,
-                    categories = builder.categories.toSet(), riskLevel = builder.riskLevel,
-                    junkConfidence = builder.junkConfidence, suggestedSelected = builder.suggestedSelected,
-                    autoCleanEligible = builder.autoCleanEligible, reasonCode = builder.reasonCode,
+                    id = id,
+                    path = builder.path,
+                    name = builder.name,
+                    location = builder.location,
+                    sizeBytes = builder.sizeBytes,
+                    modifiedMs = builder.modifiedMs,
+                    categories = builder.categories.toSet(),
+                    riskLevel = builder.riskLevel,
+                    junkConfidence = builder.junkConfidence,
+                    suggestedSelected = builder.suggestedSelected,
+                    autoCleanEligible = builder.autoCleanEligible,
+                    reasonCode = builder.reasonCode,
                     duplicateGroupId = builder.duplicateGroupId,
                     duplicateKeepSuggested = builder.duplicateKeepSuggested,
+                    identityKey = builder.identityKey,
+                    duplicateContentSha256 = builder.duplicateContentSha256,
                 )
             }
             return ReviewSnapshot(System.currentTimeMillis(), mode.wireName, out, truncated)
@@ -320,34 +344,99 @@ class FileHealthScanner(private val context: Context) {
         }
         if (ids.isEmpty()) return JSONObject().apply { put("accepted", false); put("reason", "empty_selection") }.toString()
 
+        // Exact-duplicate deletion is re-proven at destructive time. Only members whose
+        // path identity, size, mtime, file key and full SHA-256 still match the review
+        // snapshot can count as surviving copies. If every still-valid member was selected,
+        // keep one verified copy regardless of the UI selection.
         val protectedIds = LinkedHashSet<String>()
         val groups = snapshot.items.values.filter { it.duplicateGroupId != null }.groupBy { it.duplicateGroupId!! }
-        for ((_, members) in groups) {
-            val existing = members.filter { File(it.path).exists() }
-            if (existing.isNotEmpty() && existing.all { it.id in ids }) {
-                val keep = existing.firstOrNull { it.duplicateKeepSuggested } ?: existing.first()
+        val touchedGroups = ids.mapNotNull { snapshot.items[it]?.duplicateGroupId }.toSet()
+        val duplicateKeeperByGroup = HashMap<String, String>()
+        for (groupId in touchedGroups) {
+            val members = groups[groupId].orEmpty()
+            val validMembers = members.filter { validateDeleteIdentity(it, verifyDuplicateHash = true) == null }
+            if (validMembers.isEmpty()) continue
+
+            // Prefer a verified member the user did not select. If every verified member
+            // was selected, force-protect one copy. This keeps duplicate cleanup from ever
+            // becoming a delete-all operation merely because another copy changed or vanished.
+            val unselected = validMembers.filter { it.id !in ids }
+            val keep = unselected.firstOrNull { it.duplicateKeepSuggested }
+                ?: unselected.firstOrNull()
+                ?: validMembers.firstOrNull { it.duplicateKeepSuggested }
+                ?: validMembers.first()
+            if (keep.id in ids && validMembers.all { it.id in ids }) {
                 ids.remove(keep.id)
                 protectedIds += keep.id
             }
+            duplicateKeeperByGroup[groupId] = keep.id
         }
 
         var deletedCount = 0
         var reclaimedBytes = 0L
+        var changedSinceReviewCount = 0
         val deletedIds = JSONArray()
         val failed = JSONArray()
         val remaining = LinkedHashMap(snapshot.items)
+        val duplicateHashRevalidationPerformed = touchedGroups.isNotEmpty()
+
         for (id in ids) {
             val candidate = snapshot.items[id] ?: continue
+            val validationFailure = validateDeleteIdentity(
+                candidate,
+                verifyDuplicateHash = candidate.duplicateGroupId != null,
+            )
+            if (validationFailure != null) {
+                if (validationFailure == "changed_since_review") changedSinceReviewCount++
+                failed.put(JSONObject().apply {
+                    put("id", id)
+                    put("name", candidate.name)
+                    put("reason", validationFailure)
+                })
+                continue
+            }
+
+            // A duplicate may be deleted only while a separately verified keeper still
+            // exists. Recheck the keeper's lightweight identity immediately before each
+            // destructive operation so an external delete/replace cannot silently turn
+            // a duplicate cleanup into removal of the last known verified copy.
+            val duplicateGroupId = candidate.duplicateGroupId
+            if (duplicateGroupId != null) {
+                val keeperId = duplicateKeeperByGroup[duplicateGroupId]
+                val keeper = keeperId?.let(snapshot.items::get)
+                val keeperFailure = if (keeper == null || keeper.id == id) {
+                    "duplicate_keeper_unavailable"
+                } else {
+                    validateDeleteIdentity(keeper, verifyDuplicateHash = false)
+                }
+                if (keeperFailure != null) {
+                    failed.put(JSONObject().apply {
+                        put("id", id)
+                        put("name", candidate.name)
+                        put("reason", "duplicate_keeper_unavailable")
+                    })
+                    continue
+                }
+            }
+
             val file = File(candidate.path)
-            val before = safeLength(file) ?: candidate.sizeBytes
-            val deleted = try { file.exists() && file.isFile && file.delete() && !file.exists() } catch (_: Exception) { false }
+            val before = candidate.sizeBytes
+            val deleted = try {
+                file.delete() && !file.exists()
+            } catch (_: Exception) {
+                false
+            }
             if (deleted) {
                 deletedCount++
                 reclaimedBytes = safeAdd(reclaimedBytes, before)
                 deletedIds.put(id)
                 remaining.remove(id)
             } else {
-                failed.put(JSONObject().apply { put("id", id); put("name", candidate.name); put("reason", "delete_failed") })
+                failed.put(JSONObject().apply {
+                    put("id", id)
+                    put("name", candidate.name)
+                    put("reason", "delete_failed")
+                })
             }
         }
         reviewSnapshot = snapshot.copy(items = remaining)
@@ -359,6 +448,9 @@ class FileHealthScanner(private val context: Context) {
             put("deletedIds", deletedIds)
             put("protectedIds", JSONArray(protectedIds.toList()))
             put("failed", failed)
+            put("revalidationPerformed", true)
+            put("duplicateHashRevalidationPerformed", duplicateHashRevalidationPerformed)
+            put("changedSinceReviewCount", changedSinceReviewCount)
             put("reviewSummary", reviewSummaryObject(reviewSnapshot))
         }.toString()
     }
@@ -561,6 +653,7 @@ class FileHealthScanner(private val context: Context) {
                                     suggestedSelected = member != keep, autoCleanEligible = false,
                                     reasonCode = "verified_duplicate", duplicateGroupId = groupId,
                                     duplicateKeepSuggested = member == keep,
+                                    duplicateContentSha256 = digest,
                                 )
                             }
                         }
@@ -793,6 +886,7 @@ class FileHealthScanner(private val context: Context) {
         duplicateGroupId: String? = null,
         duplicateKeepSuggested: Boolean = false,
         modifiedMs: Long = safeModified(file),
+        duplicateContentSha256: String? = null,
     ) {
         val canonical = canonicalFile(file)
         review.add(
@@ -801,11 +895,16 @@ class FileHealthScanner(private val context: Context) {
             location = displayLocation(canonical),
             sizeBytes = size.coerceAtLeast(0L),
             modifiedMs = modifiedMs,
-            category = category, riskLevel = riskLevel.coerceIn(0, 4),
+            category = category,
+            riskLevel = riskLevel.coerceIn(0, 4),
             junkConfidence = junkConfidence.coerceIn(0, 100),
-            suggestedSelected = suggestedSelected, autoCleanEligible = autoCleanEligible,
-            reasonCode = reasonCode, duplicateGroupId = duplicateGroupId,
+            suggestedSelected = suggestedSelected,
+            autoCleanEligible = autoCleanEligible,
+            reasonCode = reasonCode,
+            duplicateGroupId = duplicateGroupId,
             duplicateKeepSuggested = duplicateKeepSuggested,
+            identityKey = fileIdentityKey(canonical),
+            duplicateContentSha256 = duplicateContentSha256,
         )
     }
 
@@ -1091,6 +1190,7 @@ class FileHealthScanner(private val context: Context) {
     private fun isTemporaryArtifact(name: String, ext: String, path: String): Boolean =
         ext in STRONG_TEMP_EXTENSIONS || name.endsWith(".download") || name.endsWith(".opdownload") || (ext in WEAK_TEMP_EXTENSIONS && isDownloadPath(path))
     private fun isScreenshot(name: String, path: String): Boolean = path.contains("/screenshots/") || name.contains("screenshot") || name.contains("screen_shot")
+
     private fun fileKind(file: File): String {
         val ext = file.extension.lowercase(Locale.ROOT)
         return when {
@@ -1103,8 +1203,82 @@ class FileHealthScanner(private val context: Context) {
             else -> "other"
         }
     }
+
     private fun canonicalFile(file: File): File = try { file.canonicalFile } catch (_: Exception) { file.absoluteFile }
     private fun isSymbolicLink(file: File): Boolean = try { Files.isSymbolicLink(file.toPath()) } catch (_: Exception) { false }
+
+    private fun fileIdentityKey(file: File): String? = try {
+        val attributes = Files.readAttributes(
+            file.toPath(),
+            BasicFileAttributes::class.java,
+            LinkOption.NOFOLLOW_LINKS,
+        )
+        attributes.fileKey()?.toString()?.take(MAX_IDENTITY_KEY_CHARS)
+    } catch (_: Exception) {
+        null
+    }
+
+    private fun validateDeleteIdentity(candidate: ReviewCandidate, verifyDuplicateHash: Boolean): String? {
+        val file = File(candidate.path)
+        if (!file.exists()) return "item_missing"
+        if (!file.isFile) return "not_regular_file"
+        if (isSymbolicLink(file)) return "symbolic_link_refused"
+
+        val canonical = canonicalFile(file)
+        if (canonical.absolutePath != candidate.path) return "changed_since_review"
+
+        val currentSize = safeLength(file) ?: return "identity_unavailable"
+        if (currentSize != candidate.sizeBytes) return "changed_since_review"
+
+        val currentModified = safeModified(file)
+        if (candidate.modifiedMs > 0L && currentModified != candidate.modifiedMs) {
+            return "changed_since_review"
+        }
+
+        val expectedIdentityKey = candidate.identityKey
+        if (!expectedIdentityKey.isNullOrBlank()) {
+            val currentIdentityKey = fileIdentityKey(file) ?: return "changed_since_review"
+            if (currentIdentityKey != expectedIdentityKey) return "changed_since_review"
+        } else if (candidate.modifiedMs <= 0L && !verifyDuplicateHash) {
+            // Without either a usable timestamp, stable filesystem identity, or duplicate
+            // content proof, the path alone is insufficient evidence for destructive work.
+            return "identity_unavailable"
+        }
+
+        if (verifyDuplicateHash) {
+            val expectedHash = candidate.duplicateContentSha256 ?: return "duplicate_identity_unavailable"
+            val currentHash = hashFileForDelete(file) ?: return "identity_unavailable"
+            if (!currentHash.equals(expectedHash, ignoreCase = true)) return "changed_since_review"
+
+            // Hashing can take time for large files. Recheck metadata after the stream so a
+            // file changed while it was being hashed cannot pass on a stale pre-hash identity.
+            val finalSize = safeLength(file) ?: return "identity_unavailable"
+            if (finalSize != candidate.sizeBytes) return "changed_since_review"
+            val finalModified = safeModified(file)
+            if (candidate.modifiedMs > 0L && finalModified != candidate.modifiedMs) return "changed_since_review"
+            if (!expectedIdentityKey.isNullOrBlank()) {
+                val finalIdentityKey = fileIdentityKey(file) ?: return "changed_since_review"
+                if (finalIdentityKey != expectedIdentityKey) return "changed_since_review"
+            }
+        }
+        return null
+    }
+
+    private fun hashFileForDelete(file: File): String? = try {
+        val digest = MessageDigest.getInstance("SHA-256")
+        FileInputStream(file).use { input ->
+            val buffer = ByteArray(HASH_BUFFER_BYTES)
+            while (true) {
+                val read = input.read(buffer)
+                if (read < 0) break
+                if (read == 0) continue
+                digest.update(buffer, 0, read)
+            }
+        }
+        digest.digest().joinToString(separator = "") { byte -> "%02x".format(byte) }
+    } catch (_: Exception) {
+        null
+    }
 
     private fun hashFile(file: File, onBytes: (Long) -> Unit): String? = try {
         val digest = MessageDigest.getInstance("SHA-256")
@@ -1254,6 +1428,7 @@ class FileHealthScanner(private val context: Context) {
         const val PROGRESS_INTERVAL_MS = 160L
         const val MAX_ACTIVE_ITEM_CHARS = 96
         const val MAX_ACTIVE_LOCATION_CHARS = 120
+        const val MAX_IDENTITY_KEY_CHARS = 256
         const val MAX_REVIEW_CANDIDATES = 10_000
         const val MAX_REVIEW_PAGE_SIZE = 250
         const val MAX_DELETE_SELECTION = 500

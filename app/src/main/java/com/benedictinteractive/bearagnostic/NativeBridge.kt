@@ -46,7 +46,6 @@ class NativeBridge(private val activity: MainActivity) {
         return result
     }
 
-
     @JavascriptInterface
     fun getDebugBillingSandboxState(): String = sandboxCall("stateJson")
 
@@ -253,9 +252,6 @@ class NativeBridge(private val activity: MainActivity) {
     fun openExternalUrl(url: String): String = activity.openExternalUrl(url)
 
     @JavascriptInterface
-    fun saveSupportQr(): String = activity.saveSupportQr()
-
-    @JavascriptInterface
     fun shareText(title: String, body: String): String = activity.shareText(title, body)
 
     fun statusJson(): String = JSONObject().apply {
@@ -271,17 +267,15 @@ class NativeBridge(private val activity: MainActivity) {
         put("scanScope", "accessible_shared_storage")
         put("scanModes", "smart,quick,deep,custom")
         put("analysisRulesVersion", FileHealthScanner.ANALYSIS_RULES_VERSION)
-        put("supportNetwork", "user_initiated_only")
-        put("supportQrSave", "native_download_manager")
+        put("supportNetwork", "user_initiated_kofi_only")
         put("shareAvailable", true)
         put("entitlement", entitlement.stateJsonObject())
         put("proProductId", EntitlementManager.PRO_PRODUCT_ID)
         put("billingReady", billing.stateJsonObject().optBoolean("billingReady", false))
         put("billing", billing.stateJsonObject())
         put("debugBillingSandbox", JSONObject(getDebugBillingSandboxState()))
-        put("scannerCapabilities", "multi_pass,metadata,content_probe,categories,old,large,temp,apk,archives,zero_byte,empty_folders,empty_folder_review,verified_empty_folder_delete,screenshots,media,downloads,sha256_duplicates,review_candidates,live_activity,local_review_previews,verified_delete,aggregate_local_history,insights,what_changed,verified_cleanup_history,play_billing_foundation")
+        put("scannerCapabilities", "multi_pass,metadata,content_probe,categories,old,large,temp,apk,archives,zero_byte,empty_folders,empty_folder_review,verified_empty_folder_delete,screenshots,media,downloads,sha256_duplicates,review_candidates,live_activity,local_review_previews,identity_revalidated_delete,aggregate_local_history,insights,what_changed,verified_cleanup_history,play_billing_foundation")
     }.toString()
-
 
     private fun createDebugBillingSandbox(): Any? {
         if (!BuildConfig.DEBUG) return null
@@ -334,6 +328,6 @@ class NativeBridge(private val activity: MainActivity) {
 
     companion object {
         const val JS_INTERFACE_NAME = "BearagnosticNative"
-        const val BRIDGE_VERSION = 16
+        const val BRIDGE_VERSION = 17
     }
 }

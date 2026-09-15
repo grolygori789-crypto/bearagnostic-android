@@ -1,16 +1,12 @@
 package com.benedictinteractive.bearagnostic
 
-import android.Manifest
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.app.Activity
-import android.app.DownloadManager
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.os.StatFs
@@ -53,7 +49,6 @@ class MainActivity : Activity() {
     private val reviewMediaExecutor = Executors.newSingleThreadExecutor { runnable ->
         Thread(runnable, "BearagnosticReviewMedia").apply { priority = Thread.NORM_PRIORITY - 1 }
     }
-    private var pendingSupportQrSave = false
     private var launchStartedAt = 0L
     private var launchDismissed = false
     private var webContentReady = false
@@ -464,22 +459,6 @@ class MainActivity : Activity() {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == StorageAccessController.LEGACY_READ_REQUEST_CODE) pushNativeStateToWeb()
-        if (requestCode == SUPPORT_QR_WRITE_REQUEST_CODE) {
-            val granted = grantResults.firstOrNull() == PackageManager.PERMISSION_GRANTED
-            val shouldSave = pendingSupportQrSave
-            pendingSupportQrSave = false
-            if (granted && shouldSave) {
-                val result = enqueueSupportQrDownload()
-                val ok = JSONObject(result).optBoolean("accepted", false)
-                Toast.makeText(
-                    this,
-                    if (ok) "Bearagnostic PromptPay QR is saving to Downloads." else "Could not save the PromptPay QR.",
-                    Toast.LENGTH_LONG,
-                ).show()
-            } else if (shouldSave) {
-                Toast.makeText(this, "File access is required to save the PromptPay QR on this Android version.", Toast.LENGTH_LONG).show()
-            }
-        }
     }
 
     fun pushNativeStateToWeb() {
@@ -536,6 +515,7 @@ class MainActivity : Activity() {
         customScopesJson = "[]",
         verifyDuplicates = true,
     )
+
     fun cancelOneTapScan(): String {
         val wasRunning = isScannerRunning()
         if (wasRunning && ::scanner.isInitialized) scanner.cancel()
@@ -544,21 +524,25 @@ class MainActivity : Activity() {
             if (!wasRunning) put("reason", "no_scan_running")
         }.toString()
     }
+
     fun reviewSummaryJson(): String = if (::scanner.isInitialized) {
         scanner.reviewSummaryJson()
     } else {
         JSONObject().apply { put("available", false); put("candidateCount", 0) }.toString()
     }
+
     fun reviewCandidatesJson(category: String, offset: Int, limit: Int): String = if (::scanner.isInitialized) {
         scanner.reviewCandidatesJson(category, offset, limit)
     } else {
         JSONObject().apply { put("available", false); put("items", JSONArray()); put("totalCount", 0) }.toString()
     }
+
     fun deleteReviewCandidates(idsJson: String): String = if (::scanner.isInitialized) {
         scanner.deleteReviewCandidates(idsJson)
     } else {
         JSONObject().apply { put("accepted", false); put("reason", "no_review_snapshot") }.toString()
     }
+
     fun requestReviewMedia(id: String, variant: String, requestId: String): String {
         if (!::scanner.isInitialized) {
             return JSONObject().apply { put("accepted", false); put("reason", "no_review_snapshot") }.toString()
@@ -585,6 +569,7 @@ class MainActivity : Activity() {
             put("requestId", safeRequestId)
         }.toString()
     }
+
     fun storageSnapshotJson(): String = try {
         @Suppress("DEPRECATION")
         val root = Environment.getExternalStorageDirectory()
@@ -607,6 +592,7 @@ class MainActivity : Activity() {
             put("scope", "primary_shared_storage")
         }.toString()
     }
+
     fun openExternalUrl(rawUrl: String): String {
         val uri = try { Uri.parse(rawUrl.trim()) } catch (_: Exception) { null }
             ?: return JSONObject().apply {
@@ -636,57 +622,7 @@ class MainActivity : Activity() {
             put("queued", true)
         }.toString()
     }
-    fun saveSupportQr(): String {
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P &&
-            checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
-        ) {
-            pendingSupportQrSave = true
-            runOnUiThread {
-                if (!isFinishing && !isDestroyed) {
-                    requestPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), SUPPORT_QR_WRITE_REQUEST_CODE)
-                }
-            }
-            return JSONObject().apply {
-                put("accepted", true)
-                put("permissionRequested", true)
-            }.toString()
-        }
-        return enqueueSupportQrDownload()
-    }
-    private fun enqueueSupportQrDownload(): String {
-        return try {
-            val manager = getSystemService(DOWNLOAD_SERVICE) as? DownloadManager
-                ?: return JSONObject().apply {
-                    put("accepted", false)
-                    put("reason", "download_manager_unavailable")
-                }.toString()
-            val fileName = "Bearagnostic-PromptPay-QR-${System.currentTimeMillis()}.png"
-            val request = DownloadManager.Request(Uri.parse(PROMPTPAY_QR_URL)).apply {
-                setTitle("Bearagnostic PromptPay QR")
-                setDescription("Verified PromptPay QR for Bearagnostic support")
-                setMimeType("image/png")
-                setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-                setAllowedOverMetered(true)
-                setAllowedOverRoaming(true)
-                @Suppress("DEPRECATION")
-                setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName)
-            }
-            val downloadId = manager.enqueue(request)
-            JSONObject().apply {
-                put("accepted", true)
-                put("queued", true)
-                put("downloadId", downloadId)
-                put("fileName", fileName)
-                put("destination", "Downloads")
-            }.toString()
-        } catch (error: Exception) {
-            JSONObject().apply {
-                put("accepted", false)
-                put("reason", "download_failed")
-                put("error", error.javaClass.simpleName)
-            }.toString()
-        }
-    }
+
     fun shareText(title: String, body: String): String {
         if (body.isBlank()) {
             return JSONObject().apply {
@@ -714,9 +650,11 @@ class MainActivity : Activity() {
             put("queued", true)
         }.toString()
     }
+
     private fun ensureScanner() {
         if (!::scanner.isInitialized) scanner = FileHealthScanner(applicationContext)
     }
+
     private fun parseCustomScopes(raw: String): Set<String> {
         val allowed = setOf("downloads", "photos", "videos", "documents", "music")
         return try {
@@ -731,6 +669,7 @@ class MainActivity : Activity() {
             emptySet()
         }
     }
+
     private fun pushScanEvent(callback: String, json: String) {
         if (!::webView.isInitialized) return
         runOnUiThread {
@@ -742,6 +681,7 @@ class MainActivity : Activity() {
             }
         }
     }
+
     private fun pushReviewMediaEvent(requestId: String, json: String) {
         if (!::webView.isInitialized) return
         val requestIdJson = JSONObject.quote(requestId)
@@ -754,6 +694,7 @@ class MainActivity : Activity() {
             }
         }
     }
+
     private fun pushNativeStateToWebOnUiThread() {
         if (!::webView.isInitialized) return
         runOnUiThread { pushNativeStateToWeb() }
@@ -773,19 +714,16 @@ class MainActivity : Activity() {
         }
         super.onDestroy()
     }
+
     companion object {
-        private const val SUPPORT_QR_WRITE_REQUEST_CODE = 9418
         private const val STUDIO_STAGE_MILLIS = 980L
         private const val MINIMUM_BRAND_REVEAL_MILLIS = 2_650L
-        private const val PROMPTPAY_QR_URL =
-            "https://raw.githubusercontent.com/grolygori789-crypto/little-ganesha-tarot/f21e6a4c81812276d661d6ebb0a3e6c86c6cf48b/assets/support/promptpay-qr.png"
         private const val WEB_LAUNCH_BYPASS_SCRIPT =
             "(function(){try{var l=document.getElementById('launch');if(l){l.hidden=true;l.setAttribute('hidden','hidden');l.style.display='none';l.style.visibility='hidden';l.style.opacity='0';if(l.parentNode){l.parentNode.removeChild(l);}}var a=document.getElementById('appRoot');if(a){a.hidden=false;a.removeAttribute('hidden');a.style.display='';a.style.visibility='visible';a.style.opacity='1';}if(document.documentElement){document.documentElement.setAttribute('data-native-launch-bypass','1');}if(document.body){document.body.setAttribute('data-native-launch-bypass','1');}return true;}catch(e){return false;}})();"
 
         private val ALLOWED_EXTERNAL_HOSTS = setOf(
             "ko-fi.com",
             "www.ko-fi.com",
-            "raw.githubusercontent.com",
         )
     }
 }

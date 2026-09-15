@@ -1,17 +1,18 @@
 #!/usr/bin/env python3
-"""Deterministic source-level safety checks for Bearagnostic runtime contracts.
+"""Deterministic source-level safety checks for Bearagnostic Android.
 
-This suite is intentionally narrow and truthful. It does not claim runtime/device
-coverage; it prevents known high-risk invariants from silently disappearing.
+This suite is intentionally focused on durable runtime invariants rather than historical
+batch numbers. It is a CI source gate, not a substitute for Android build, runtime, or
+physical-device QA.
 """
 from __future__ import annotations
 
 import argparse
 import re
-import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+PARTIAL_STAGING = False
 
 
 def read(relative: str, *, required: bool = True) -> str:
@@ -30,463 +31,137 @@ def require(condition: bool, message: str) -> None:
 
 def check_build_contracts() -> None:
     gradle = read("app/build.gradle.kts")
-    require('versionCode = 44' in gradle, "B44 versionCode must be 44")
-    require('versionName = "0.33.0-alpha44"' in gradle, "B44 versionName mismatch")
+    code_match = re.search(r"versionCode\s*=\s*(\d+)", gradle)
+    name_match = re.search(r'versionName\s*=\s*"([^"]+)"', gradle)
+    require(code_match is not None, "versionCode missing")
+    require(name_match is not None, "versionName missing")
+    version_code = int(code_match.group(1))
+    version_name = name_match.group(1)
+    require(version_code >= 75, f"runtime must be B75 or newer, got {version_code}")
+    require(version_name.endswith(f"alpha{version_code}"), f"versionName/versionCode drift: {version_name} vs {version_code}")
 
     cache_versions = re.findall(r'android-[a-z-]+\.js\?v=(\d+)', gradle)
     require(cache_versions, "no Android adapter cache versions found")
-    require(set(cache_versions) == {"44"}, f"adapter cache versions are not coherent: {sorted(set(cache_versions))}")
+    require(set(cache_versions) == {str(version_code)}, f"adapter cache versions drifted: {sorted(set(cache_versions))}")
+    require(len(cache_versions) >= 30, f"unexpectedly low Android adapter count: {len(cache_versions)}")
 
-    require("androidDownloads" in gradle, "Downloads Review adapter is not registered")
-    require("androidInstallers" in gradle, "APK Installers adapter is not registered")
-    require("androidArchives" in gradle, "Archives adapter is not registered")
-    require("androidZero" in gradle, "Zero-byte Files adapter is not registered")
-    require("androidEmptyFolders" in gradle, "Empty Folders adapter is not registered")
-    require("androidAdvancedMedia" in gradle, "Advanced Media Review adapter is not registered")
-    require("androidBilling" in gradle, "Google Play Billing adapter is not registered")
-    require("androidInsights" in gradle, "Insights adapter is not registered")
-    require("androidShellUx" in gradle, "Shell UX adapter is not registered")
-    require('android-downloads.js?v=44' in gradle, "Downloads Review adapter is not loaded at B44")
-    require('android-installers.js?v=44' in gradle, "APK Installers adapter is not loaded at B44")
-    require('android-archives.js?v=44' in gradle, "Archives adapter is not loaded at B44")
-    require('android-zero.js?v=44' in gradle, "Zero-byte Files adapter is not loaded at B44")
-    require('android-empty-folders.js?v=44' in gradle, "Empty Folders adapter is not loaded at B44")
-    require('android-advanced-media.js?v=44' in gradle, "Advanced Media Review adapter is not loaded at B44")
-    require('android-billing.js?v=44' in gradle, "Google Play Billing adapter is not loaded at B44")
-    require('android-insights.js?v=44' in gradle, "Insights adapter is not loaded at B44")
-    require('android-shell-ux.js?v=44' in gradle, "Shell UX adapter is not loaded at B44")
-    require('android-build-truth.js?v=44' in gradle, "build-truth adapter is not loaded at B44")
-
-    downloads_pos = gradle.find('android-downloads.js?v=44')
-    installers_pos = gradle.find('android-installers.js?v=44')
-    archives_pos = gradle.find('android-archives.js?v=44')
-    zero_pos = gradle.find('android-zero.js?v=44')
-    empty_pos = gradle.find('android-empty-folders.js?v=44')
-    media_pos = gradle.find('android-advanced-media.js?v=44')
-    native_pos = gradle.find('android-native.js?v=44')
-    pro_pos = gradle.find('android-pro-ui.js?v=44')
-    billing_pos = gradle.find('android-billing.js?v=44')
-    plan_pos = gradle.find('android-plan-status.js?v=44')
-    custom_pos = gradle.find('android-custom-scan.js?v=44')
-    insights_pos = gradle.find('android-insights.js?v=44')
-    shell_pos = gradle.find('android-shell-ux.js?v=44')
-    truth_pos = gradle.find('android-build-truth.js?v=44')
-    require(0 <= downloads_pos < installers_pos < archives_pos < zero_pos < empty_pos < media_pos < native_pos < pro_pos < billing_pos < plan_pos < custom_pos < insights_pos < shell_pos < truth_pos,
-            "adapter ownership/load order is unsafe for B44 Phase A / Advanced Media / Billing / Insights / shell UX")
-
-
-
-def check_native_guard_contracts() -> None:
-    bridge = read("app/src/main/java/com/benedictinteractive/bearagnostic/NativeBridge.kt")
-    guard = read("app/src/main/java/com/benedictinteractive/bearagnostic/RuntimeContractGuard.kt")
-
-    require("RuntimeContractGuard.normalizeScanMode(mode)" in bridge, "scan mode is not validated at native bridge")
-    require('return rejected("invalid_scan_mode")' in bridge, "invalid scan mode is not rejected")
-    require("RuntimeContractGuard.validateCustomScopes(customScopesJson)" in bridge, "Custom scopes are not validated")
-    require("RuntimeContractGuard.hasAccessibleCustomTarget(activity, scopeDecision.scopes)" in bridge, "Custom target existence is not validated")
-    require('return rejected("no_matching_scan_locations")' in bridge, "missing Custom targets are not rejected")
-    require("JSONArray(scopeDecision.scopes.toList()).toString()" in bridge, "Custom scopes are not canonicalized before scanning")
-    require("RuntimeContractGuard.isReviewSnapshotFresh(generatedAtMs)" in bridge, "native stale-review guard is missing")
-    require('put("reason", "stale_review_snapshot")' in bridge, "native stale-review rejection reason is missing")
-    require("const val BRIDGE_VERSION = 14" in bridge, "B44 NativeBridge version must be 14")
-
-    require("const val REVIEW_SNAPSHOT_MAX_AGE_MS = 15L * 60L * 1000L" in guard, "15-minute native review age limit changed")
-    for mode in ("smart", "quick", "deep", "custom"):
-        require(f'"{mode}"' in guard, f"allowed scan mode missing: {mode}")
-    for scope in ("downloads", "photos", "videos", "documents", "music"):
-        require(f'"{scope}"' in guard, f"allowed Custom scope missing: {scope}")
-    require('reason = "no_custom_scope_selected"' in guard, "empty Custom selection is not rejected")
-    require('reason = "invalid_custom_scope"' in guard, "invalid Custom scope is not rejected")
-    require("nowMs < generatedAtMs" in guard, "future/clock-skewed review timestamps are not rejected conservatively")
-
-
-def check_downloads_review_contracts() -> None:
-    scanner = read("app/src/main/java/com/benedictinteractive/bearagnostic/FileHealthScanner.kt")
-    ui = read("app/src/main/legacy-adapter/android-downloads.js")
-
-    require("const val ANALYSIS_RULES_VERSION = 8" in scanner, "Downloads review analysis rules must remain v8")
-    require('"downloads" -> "downloads" in candidate.categories' in scanner, "Downloads review category matcher is missing")
-    require('"archives", "zero", "downloads"' in scanner, "Downloads aggregate is missing from review summary")
-    require('reviewCandidates, file, size, "downloads", 2, 0' in scanner, "Downloads files are not surfaced as Review First candidates")
-    require('suggestedSelected = false, autoCleanEligible = false' in scanner, "Downloads candidates must never be auto-selected or auto-cleaned")
-    require('reasonCode = "download_location"' in scanner, "Downloads candidates need an explicit location-only reason")
-
-    require("const BUILD = 36;" in ui, "Downloads adapter source marker unexpectedly changed")
-    require("const CATEGORY = 'downloads';" in ui, "Downloads adapter category mismatch")
-    require("const MAX_DELETE_SELECTION = 500;" in ui, "Downloads UI deletion cap changed")
-    require("const STALE_REVIEW_MS = 15 * 60 * 1000;" in ui, "Downloads UI stale-review guard changed")
-    require("HIDDEN.filter" in ui, "Downloads review does not honor Hidden Items privacy")
-    require("NATIVE.deleteReviewCandidates" in ui, "Downloads deletion is not routed through native verified deletion")
-
-
-def check_apk_installers_contracts(*, patch_only: bool = False) -> None:
-    ui = read("app/src/main/legacy-adapter/android-installers.js")
-    provider = read("app/src/main/java/com/benedictinteractive/bearagnostic/ReviewMediaProvider.kt")
-    scanner = read("app/src/main/java/com/benedictinteractive/bearagnostic/FileHealthScanner.kt", required=not patch_only)
-    manifest = read("app/src/main/AndroidManifest.xml", required=not patch_only)
-
-    if scanner:
-        require('if (ext == "apk") addReviewCandidate(review, file, size, "installers", 2, 62, false, false, "apk_installer"' in scanner,
-                "APK installers are no longer surfaced as Review First candidates")
-        require('"installers" -> "installers" in candidate.categories' in scanner, "APK installer category matcher is missing")
-        require('"temporary", "installers", "archives"' in scanner, "APK installer aggregate is missing from review summary")
-        require("const val ANALYSIS_RULES_VERSION = 8" in scanner, "B37 must not silently alter scan classification rules")
-
-    require("const BUILD = 37;" in ui, "APK Installers adapter build marker mismatch")
-    require("const CATEGORY = 'installers';" in ui, "APK Installers category mismatch")
-    require("const REVIEW_PAGE_SIZE = 250;" in ui, "APK Installers review page size contract changed")
-    require("const MAX_DELETE_SELECTION = 500;" in ui, "APK Installers UI deletion cap changed")
-    require("const STALE_REVIEW_MS = 15 * 60 * 1000;" in ui, "APK Installers UI stale-review guard changed")
-    require("HIDDEN.filter" in ui, "APK Installers does not honor Hidden Items privacy")
-    require("NATIVE.getReviewCandidates?.(CATEGORY, offset, REVIEW_PAGE_SIZE)" in ui, "APK Installers is not reading native review candidates")
-    require("NATIVE.requestReviewMedia?.(item.id, 'compact', requestId)" in ui, "APK metadata is not requested through the authorized review-ID bridge")
-    require("NATIVE.startScan?.('quick', '[]', false)" in ui, "APK Installers refresh must use the Free metadata-only Quick Scan")
-    require("NATIVE.deleteReviewCandidates" in ui, "APK Installer deletion is not routed through native verified deletion")
-    require('data-tool="installers"' in ui, "APK Installers first-class Tools entry is missing")
-    require("ba-tools-expandable" in ui and "overflow-y:auto" in ui, "Tools screen growth is not handled by natural scrolling")
-    require("does not uninstall" in ui, "APK deletion/uninstall distinction is missing")
-    require("จะไม่เลือกไฟล์ APK ให้ลบอัตโนมัติ" in ui, "Thai no-auto-selection disclosure is missing")
-    require("package visibility" in ui.lower(), "package visibility limitation is not disclosed")
-    for status in (
-        "older_installer", "same_version_installed", "newer_installer", "installed_confirmed",
-        "installed_unverified_identity", "identity_mismatch", "not_installed", "not_confirmed",
-        "metadata_unavailable",
+    for adapter in (
+        "android-entitlement.js", "android-cleanup.js", "android-duplicates.js",
+        "android-native.js", "android-review.js", "android-settings-detail.js",
+        "android-support.js", "android-share-card.js", "android-billing.js",
+        "android-insights.js", "android-locale-polish.js", "android-build-truth.js",
     ):
-        require(status in ui, f"APK UI status missing: {status}")
+        require(f'{adapter}?v={version_code}' in gradle, f"missing/coherence failure: {adapter}")
 
-    require('json.put("installStatus", "metadata_unavailable")' in provider, "APK metadata failure is not represented conservatively")
-    require('json.put("packageVisibilityLimited", visibilityLimited)' in provider, "APK package-visibility evidence is missing")
-    require('if (visibilityLimited) "not_confirmed" else "not_installed"' in provider, "APK package visibility is not handled conservatively")
-    require('"identity_mismatch"' in provider, "APK signing-identity mismatch state is missing")
-    require('"installed_unverified_identity"' in provider, "APK unverified signing state is missing")
-    require('"older_installer"' in provider and '"same_version_installed"' in provider and '"newer_installer"' in provider,
-            "APK installed-version comparison states are incomplete")
-    require("PackageManager.GET_SIGNING_CERTIFICATES" in provider, "modern APK signing identity is not inspected")
-    require("PackageManager.GET_SIGNATURES" in provider, "legacy APK signing identity fallback is missing")
-    require('MessageDigest.getInstance("SHA-256")' in provider, "APK signing identity comparison is not digest-backed")
-    require('json.put("archiveSigningAvailable", true)' in provider, "APK signing availability evidence is missing")
-    # The digest is computed only for equality and never serialized. Reject common digest-key names.
-    require('"signingDigest"' not in provider and '"signatureDigest"' not in provider and '"sha256"' not in provider.lower().replace('messageDigest.getInstance("SHA-256")'.lower(), ''),
-            "raw signing digest appears to be exposed")
-
-    if manifest:
-        require("QUERY_ALL_PACKAGES" not in manifest, "B37 must not add broad package visibility permission")
-
-
-def check_archives_contracts(*, patch_only: bool = False) -> None:
-    ui = read("app/src/main/legacy-adapter/android-archives.js")
-    scanner = read("app/src/main/java/com/benedictinteractive/bearagnostic/FileHealthScanner.kt", required=not patch_only)
-
-    if scanner:
-        require('if (ext in ARCHIVE_EXTENSIONS) addReviewCandidate(review, file, size, "archives", 2, 20, false, false, "archive_file"' in scanner,
-                "Archives are no longer surfaced as Review First candidates")
-        require('"archives" -> "archives" in candidate.categories' in scanner, "Archives category matcher is missing")
-        require('"temporary", "installers", "archives"' in scanner, "Archives aggregate is missing from review summary")
-        require("const val ANALYSIS_RULES_VERSION = 8" in scanner, "B38 must not silently alter scan classification rules")
-
-    require("const BUILD = 38;" in ui, "Archives adapter build marker mismatch")
-    require("const CATEGORY = 'archives';" in ui, "Archives category mismatch")
-    require("const REVIEW_PAGE_SIZE = 250;" in ui, "Archives review page size contract changed")
-    require("const MAX_DELETE_SELECTION = 500;" in ui, "Archives UI deletion cap changed")
-    require("const STALE_REVIEW_MS = 15 * 60 * 1000;" in ui, "Archives UI stale-review guard changed")
-    require("HIDDEN.filter" in ui, "Archives does not honor Hidden Items privacy")
-    require("NATIVE.getReviewCandidates?.(CATEGORY, offset, REVIEW_PAGE_SIZE)" in ui, "Archives is not reading native review candidates")
-    require("NATIVE.startScan?.('quick', '[]', false)" in ui, "Archives refresh must use the Free metadata-only Quick Scan")
-    require("NATIVE.deleteReviewCandidates" in ui, "Archive deletion is not routed through native verified deletion")
-    require('data-tool="archives"' in ui, "Archives first-class Tools entry is missing")
-    require("ba-tools-expandable" in ui and "overflow-y:auto" in ui, "Tools screen growth is not handled by natural scrolling")
-    require("archiveFormat(item)" in ui, "Archive type classification is missing")
-    for ext in ("zip", "rar", "7z", "tar", "gz", "tgz", "bz2", "xz"):
-        require(f"'{ext}'" in ui, f"Archive format support missing: {ext}")
-    require("Nothing here is selected automatically." in ui, "English no-auto-selection disclosure is missing")
-    require("จะไม่เลือกไฟล์เหล่านี้ให้ลบอัตโนมัติ" in ui, "Thai no-auto-selection disclosure is missing")
-    require("自動選択は行いません" in ui, "Japanese no-auto-selection disclosure is missing")
-    require("An archive can be the only copy" in ui, "Archive backup-risk explanation is missing")
-    require("does not inspect or assume the contents are replaceable" in ui, "Archive deletion uncertainty disclosure is missing")
-    require("anchor = list.querySelector('[data-tool=\"installers\"]')" in ui, "Archives is not positioned after APK Installers")
-
-
-def check_zero_byte_contracts() -> None:
-    ui = read("app/src/main/legacy-adapter/android-zero.js")
-
-    require("const BUILD = 39;" in ui, "Zero-byte Files adapter build marker mismatch")
-    require("const CATEGORY = 'zero';" in ui, "Zero-byte Files category mismatch")
-    require("const REVIEW_PAGE_SIZE = 250;" in ui, "Zero-byte Files review page size contract changed")
-    require("const MAX_DELETE_SELECTION = 500;" in ui, "Zero-byte Files UI deletion cap changed")
-    require("const STALE_REVIEW_MS = 15 * 60 * 1000;" in ui, "Zero-byte Files UI stale-review guard changed")
-    require("HIDDEN.filter" in ui, "Zero-byte Files does not honor Hidden Items privacy")
-    require("NATIVE.getReviewCandidates?.(CATEGORY, offset, REVIEW_PAGE_SIZE)" in ui, "Zero-byte Files is not reading native review candidates")
-    require("NATIVE.startScan?.('quick', '[]', false)" in ui, "Zero-byte Files refresh must use the Free metadata-only Quick Scan")
-    require("NATIVE.deleteReviewCandidates" in ui, "Zero-byte Files deletion is not routed through native verified deletion")
-    require('data-tool="zero"' in ui, "Zero-byte Files first-class Tools entry is missing")
-    require("ba-tools-expandable" in ui and "overflow-y:auto" in ui, "Tools screen growth is not handled by natural scrolling")
-    require("zeroKind(item)" in ui, "Zero-byte file type classification is missing")
-    require("Nothing here is selected automatically." in ui, "English no-auto-selection disclosure is missing for Zero-byte Files")
-    require("จะไม่เลือกไฟล์เหล่านี้ให้ลบอัตโนมัติ" in ui, "Thai no-auto-selection disclosure is missing for Zero-byte Files")
-    require("自動選択は行いません" in ui, "Japanese no-auto-selection disclosure is missing for Zero-byte Files")
-    require("0 B" in ui, "Zero-byte rationale is missing")
-    require("does not assume every 0 B file is disposable" in ui, "Zero-byte deletion uncertainty disclosure is missing")
-    require("anchor = list.querySelector('[data-tool=\"archives\"]')" in ui, "Zero-byte Files is not positioned after Archives")
-
-
-
-def check_empty_folder_contracts() -> None:
-    manager = read("app/src/main/java/com/benedictinteractive/bearagnostic/EmptyFolderManager.kt")
-    bridge = read("app/src/main/java/com/benedictinteractive/bearagnostic/NativeBridge.kt")
-    ui = read("app/src/main/legacy-adapter/android-empty-folders.js")
-
-    require("class EmptyFolderManager" in manager, "dedicated Empty Folders native manager is missing")
-    require("const val MAX_DELETE_SELECTION = 100" in manager, "Empty Folders deletion cap must remain 100")
-    require("const val MAX_CANDIDATES = 2_000" in manager, "Empty Folders candidate bound changed")
-    require("RuntimeContractGuard.isReviewSnapshotFresh(current.generatedAtMs)" in manager,
-            "Empty Folders native stale-snapshot guard is missing")
-    require("Files.isSymbolicLink(file.toPath())" in manager, "Empty Folders does not conservatively reject symbolic links")
-    require("snapshotPathIsLink = isSymbolicLink(snapshotPath)" in manager and "isSymbolicLink(snapshotPath)" in manager,
-            "Empty Folders does not re-check the original snapshot path against symlink replacement")
-    require("if (relativeSegments.size < 2) return false" in manager,
-            "shared-storage root/top-level Empty Folder deletion protection is missing")
-    require('lower.firstOrNull() == "android"' in manager and 'lower.firstOrNull() == "lost.dir"' in manager,
-            "Android/LOST.DIR directory protection is missing")
-    require("relativeSegments.any { it.startsWith('.') }" in manager,
-            "hidden/control directory protection is missing")
-    list_pos = manager.find("val children = try { snapshotPath.listFiles() }")
-    nonempty_pos = manager.find('children.isNotEmpty() -> "folder_not_empty"', list_pos)
-    delete_pos = manager.find("snapshotPath.delete() && !snapshotPath.exists()", nonempty_pos)
-    require(0 <= list_pos < nonempty_pos < delete_pos,
-            "Empty Folders must re-check emptiness immediately before verified deletion")
-    require('put("becameNonEmptyCount", becameNonEmptyCount)' in manager,
-            "became-non-empty refusal evidence is not reported")
-    require('put("reclaimedBytes"' not in manager,
-            "Empty Folders must not fabricate reclaimed-space bytes")
-
-    require("private val emptyFolders = EmptyFolderManager" in bridge, "NativeBridge does not own EmptyFolderManager")
-    for fn in ("startEmptyFolderScan", "getEmptyFolderSummary", "getEmptyFolderCandidates", "deleteEmptyFolderCandidates"):
-        require(f"fun {fn}" in bridge, f"NativeBridge missing Empty Folders API: {fn}")
-    require('return rejected("storage_access_required")' in bridge, "Empty Folders does not require storage access")
-    require('if (activity.isScannerRunning()) return rejected("scan_running")' in bridge,
-            "Empty Folders does not refuse destructive/workflow overlap with the file scanner")
-    require("const val BRIDGE_VERSION = 14" in bridge, "B44 bridge version mismatch")
-
-    require("const BUILD = 40;" in ui, "Empty Folders adapter build marker mismatch")
-    require("const MAX_SELECTION = 100;" in ui, "Empty Folders UI deletion cap changed")
-    require("const STALE_MS = 15 * 60 * 1000;" in ui, "Empty Folders UI stale-review guard changed")
-    require("NATIVE.startEmptyFolderScan" in ui, "Empty Folders UI does not use dedicated native scan")
-    require("NATIVE.getEmptyFolderSummary" in ui and "NATIVE.getEmptyFolderCandidates" in ui,
-            "Empty Folders UI does not read dedicated native evidence")
-    require("NATIVE.deleteEmptyFolderCandidates" in ui, "Empty Folders deletion bypasses dedicated native verification")
-    require('data-tool="empty-folders"' in ui, "Empty Folders first-class Tools entry is missing")
-    require("[data-tool=\"zero\"]" in ui, "Empty Folders must be positioned after Zero-byte Files")
-    require("Nothing is selected automatically" in ui, "English Empty Folders review-first disclosure is missing")
-    require("ระบบจะไม่เลือกให้อัตโนมัติ" in ui, "Thai Empty Folders no-auto-selection disclosure is missing")
-    require("自動選択せず" in ui, "Japanese Empty Folders no-auto-selection disclosure is missing")
-    require("No reclaimed-space estimate" in ui, "Empty Folders no-space-claim disclosure is missing")
-    require("If a file appears" in ui, "deletion-time non-empty refusal is not explained")
-
-
-def check_shell_ux_contracts() -> None:
-    ui = read("app/src/main/legacy-adapter/android-shell-ux.js")
-    require("const BUILD = 41;" in ui, "Shell UX adapter B41 build marker mismatch")
-    require("scrollHeight > element.clientHeight + OVERFLOW_EPSILON" in ui,
-            "Scroll continuation cue is not conditioned on real overflow")
-    require("scroller.scrollTop + scroller.clientHeight >= scroller.scrollHeight - BOTTOM_EPSILON" in ui,
-            "Scroll continuation cue does not disappear at the real bottom")
-    require("bearagnostic.scrollCue.seen.v1" in ui and "localStorage.setItem" in ui,
-            "one-time scroll micro-hint contract is missing")
-    require("#nativeHomeButton{display:none!important}" in ui,
-            "redundant Checkup header Home button is not suppressed")
-    require("ba-checkup-root" in ui, "Checkup root shell state is missing")
-    require(".app-shell.is-checkup.ba-checkup-root .bottom-nav{display:grid!important}" in ui,
-            "Checkup root does not restore the primary bottom navigation")
-    require("grid-template-rows:auto minmax(0,1fr) auto auto!important" in ui,
-            "Checkup root shell does not reserve the normal footer row")
-    require(".app-shell.is-checkup.ba-checkup-root .app-footer{display:flex!important}" in ui,
-            "Checkup root does not restore the standard Benedict Interactive footer")
-    require(".app-shell.is-checkup.ba-checkup-root .app-footer{display:none!important}" not in ui,
-            "Checkup root still suppresses the standard footer")
-    require("state === 'running'" in ui and "state === 'idle' || state === 'complete'" in ui,
-            "Checkup bottom navigation is not limited to non-running root states")
-    require("#nativeModeSheet:not([hidden])" in ui, "Checkup mode-picker focused state is not detected")
-    require("button.dataset.nav === 'checkup'" in ui, "Checkup tab is not highlighted on its root landing")
-    require(ui.count("new MutationObserver") == 1,
-            "Shell UX must use one centralized MutationObserver, not per-surface observers")
-    for surface in ("ba-qc-scroll", "ba-dup-scroll", "ba-large-scroll", "ba-old-scroll",
-                    "baDownloadsSurface", "baInstallersSurface", "baArchivesSurface", "baZeroSurface", "baEmptySurface",
-                    "nativeModeSheet", "nativeResultsSheet", "nativeReviewSheet"):
-        require(surface in ui, f"Scroll continuation coverage missing for {surface}")
-
-def check_insights_contracts() -> None:
-    ui = read("app/src/main/legacy-adapter/android-insights.js")
-    store = read("app/src/main/java/com/benedictinteractive/bearagnostic/LocalHistoryStore.kt")
-    bridge = read("app/src/main/java/com/benedictinteractive/bearagnostic/NativeBridge.kt")
-    entitlement = read("app/src/main/java/com/benedictinteractive/bearagnostic/EntitlementManager.kt")
-
-    require("const BUILD = 42;" in ui, "Insights adapter build marker mismatch")
-    require("NATIVE.getInsightsHistory" in ui, "Insights UI does not read native local history")
-    require("NATIVE.recordInsightsScan" in ui, "completed scans are not captured into local history")
-    require("NATIVE.clearInsightsHistory" in ui, "Insights does not expose a user-controlled history reset")
-    require("__insightsHistoryWrapped" in ui and "onScanComplete(raw)" in ui,
-            "Insights does not wrap the real scan-complete callback")
-    require("scope === FULL_SCOPE" in ui and "coverageStatus === COMPLETE_COVERAGE" in ui,
-            "What Changed is not limited to comparable complete full-scope scans")
-    require("No invented score." in ui, "Insights truthfulness copy no longer rejects invented scoring")
-    require("aggregate-only" in ui.lower() and "file names" in ui.lower() and "paths" in ui.lower(),
-            "Insights privacy disclosure is incomplete")
-    require("ba-insights-screen" in ui and "overflow-y:auto" in ui,
-            "Insights screen is not a natural scrollable workspace")
-    require("patchProSheet" in ui and "plannedInsights" in ui and "plannedCleanup" in ui,
-            "Pro roadmap is not reconciled after Insights implementation")
-
-    require("class LocalHistoryStore" in store, "native aggregate LocalHistoryStore is missing")
-    require("AtomicFile" in store, "local history persistence is not atomic")
-    require("MAX_SCAN_RECORDS = 30" in store, "scan-history bound changed")
-    require("MAX_CLEANUP_RECORDS = 50" in store, "cleanup-history bound changed")
-    require("aggregate-only" in store.lower(), "aggregate-only storage contract is undocumented")
-    require('put("capturedAtMs"' in store and 'put("totalBytes"' in store and 'put("reviewedFiles"' in store,
-            "scan aggregate evidence is incomplete")
-    require('put("name"' not in store and 'put("path"' not in store and 'put("deletedIds"' not in store and 'put("fingerprint"' not in store,
-            "local history must never persist file identity, deletion IDs, or synthetic fingerprints")
-    require('history_write_failed' in store and 'private fun saveRoot(root: JSONObject): Boolean' in store,
-            "local history must report persistence failures truthfully")
-    require("recordFileCleanup" in store and "recordEmptyFolderCleanup" in store,
-            "verified cleanup history is incomplete")
-    require("FULL_SCOPE = \"accessible_shared_storage\"" in store and 'put("comparable", scan.optString("scope") == FULL_SCOPE)' in store,
-            "history does not distinguish full-scope comparable scans")
-
-    require("private val history = LocalHistoryStore" in bridge, "NativeBridge does not own local history")
-    require("fun recordInsightsScan" in bridge and "history.recordScan(scanJson, activity.storageSnapshotJson())" in bridge,
-            "NativeBridge scan-history capture is missing")
-    require("fun getInsightsHistory" in bridge and "history.historyJson(entitlement)" in bridge,
-            "NativeBridge Insights history API is missing")
-    require("history.recordFileCleanup(result)" in bridge and "history.recordEmptyFolderCleanup(result)" in bridge,
-            "native verified deletions are not recorded in history")
-    require("try { history.recordFileCleanup(result) }" in bridge and "try { history.recordEmptyFolderCleanup(result) }" in bridge,
-            "history logging must never be able to block a verified deletion result")
-    require("fun clearInsightsHistory" in bridge, "native history clear API is missing")
-    require("const val BRIDGE_VERSION = 14" in bridge, "B44 bridge version mismatch")
-
-    for capability in ("INSIGHTS_HISTORY", "WHAT_CHANGED", "FULL_CLEANUP_HISTORY"):
-        require(f"Capability.{capability}.wireName" in entitlement,
-                f"implemented Pro Insights capability missing: {capability}")
-    implemented_block = entitlement.split('put("implementedProCapabilities"', 1)[1].split('put("plannedProCapabilities"', 1)[0]
-    planned_block = entitlement.split('put("plannedProCapabilities"', 1)[1].split(')', 1)[0]
-    for capability in ("INSIGHTS_HISTORY", "WHAT_CHANGED", "FULL_CLEANUP_HISTORY"):
-        require(f"Capability.{capability}.wireName" in implemented_block,
-                f"{capability} is not marked implemented")
-        require(f"Capability.{capability}.wireName" not in planned_block,
-                f"{capability} is still marked planned after implementation")
-
-
-def check_advanced_media_contracts() -> None:
-    ui = read("app/src/main/legacy-adapter/android-advanced-media.js")
-    entitlement = read("app/src/main/java/com/benedictinteractive/bearagnostic/EntitlementManager.kt")
-
-    require("const BUILD = 43;" in ui, "Advanced Media Review build marker mismatch")
-    require("const CAPABILITY = 'advanced_media_review';" in ui, "Advanced Media Review capability mismatch")
-    require("const CATEGORY = 'all';" in ui, "Advanced Media Review must use the existing bounded review snapshot")
-    require("const MAX_DELETE_SELECTION = 500;" in ui, "Advanced Media Review deletion cap changed")
-    require("const STALE_REVIEW_MS = 15 * 60 * 1000;" in ui, "Advanced Media Review stale-review guard changed")
-    require("ENT.can?.(CAPABILITY)" in ui, "Advanced Media Review is not entitlement-gated")
-    require("ENT.requestPro?.('advanced_media_review',CAPABILITY)" in ui, "Free state does not route Advanced Media Review to Pro")
-    require("NATIVE.getReviewSummary" in ui, "Advanced Media Review does not read review snapshot evidence")
-    require("NATIVE.getReviewCandidates?.(CATEGORY,offset,PAGE_SIZE)" in ui, "Advanced Media Review bypasses existing review candidates")
-    require("NATIVE.startScan?.('quick','[]',false)" in ui, "Advanced Media Review refresh must use truthful Quick Scan")
-    require("NATIVE.requestReviewMedia?.(id,'preview',token)" in ui, "Advanced Media Review does not use authorized local preview IDs")
-    require("NATIVE.deleteReviewCandidates" in ui, "Advanced Media Review deletion bypasses native verified deletion")
-    require("HIDDEN?.filter" in ui, "Advanced Media Review does not honor Hidden Items privacy")
-    require('data-tool="advanced-media"' in ui, "Advanced Media Review first-class Tools entry is missing")
-    require("[data-tool=\"empty-folders\"]" in ui, "Advanced Media Review is not positioned after Empty Folders")
-    require("This is not a full gallery" in ui, "Advanced Media Review overstates gallery coverage")
-    require("does not claim this is your complete photo, video, or music library" in ui, "Review-set scope disclosure is missing")
-    require("Nothing is selected automatically" in ui, "English no-auto-selection disclosure is missing")
-    require("ไม่มีการเลือกให้อัตโนมัติ" in ui, "Thai no-auto-selection disclosure is missing")
-    require("自動選択は行いません" in ui, "Japanese no-auto-selection disclosure is missing")
-    for kind in ("image", "video", "audio"):
-        require(f"'{kind}'" in ui, f"Advanced Media Review kind missing: {kind}")
-    for filter_name in ("screenshots", "over10", "over100", "recent30", "olderYear"):
-        require(filter_name in ui, f"Advanced Media Review filter missing: {filter_name}")
-    require("patchProPresentation" in ui and "Advanced media review & filters" in ui,
-            "Pro presentation is not reconciled after Advanced Media Review implementation")
-
-    implemented_block = entitlement.split('put("implementedProCapabilities"', 1)[1].split('put("plannedProCapabilities"', 1)[0]
-    planned_block = entitlement.split('put("plannedProCapabilities"', 1)[1].split(')', 1)[0]
-    require("Capability.ADVANCED_MEDIA_REVIEW.wireName" in implemented_block,
-            "Advanced Media Review is not marked implemented in the native entitlement source")
-    require("Capability.ADVANCED_MEDIA_REVIEW.wireName" not in planned_block,
-            "Advanced Media Review is still marked planned after implementation")
-
-
-def check_billing_contracts() -> None:
-    gradle = read("app/build.gradle.kts")
-    manager = read("app/src/main/java/com/benedictinteractive/bearagnostic/PlayBillingManager.kt")
-    entitlement = read("app/src/main/java/com/benedictinteractive/bearagnostic/EntitlementManager.kt")
-    bridge = read("app/src/main/java/com/benedictinteractive/bearagnostic/NativeBridge.kt")
-    ui = read("app/src/main/legacy-adapter/android-billing.js")
-
+    require('val legacyCommit = "78a31c7752e171c0eafb63c0d0859f4072a193d6"' in gradle,
+            "approved legacy/PWA commit changed")
+    require('"assets/icons/app-icon-192.png" to "f9cff58fc54e6b0525c7f74922b0588aca6a9a9d"' in gradle,
+            "approved launcher icon blob changed")
     require('implementation("com.android.billingclient:billing:9.1.0")' in gradle,
-            "B44 must use current Google Play Billing Library 9.1.0")
-    require('android-billing.js?v=44' in gradle and 'androidBilling.copyTo' in gradle,
-            "Billing presentation adapter is not assembled into the runtime")
-
-    require('PendingPurchasesParams.newBuilder()' in manager and '.enableOneTimeProducts()' in manager,
-            "one-time pending purchases are not explicitly enabled")
-    require('.enableAutoServiceReconnection()' in manager,
-            "Play Billing automatic service reconnection is not enabled")
-    require('QueryProductDetailsParams.Product.newBuilder()' in manager and 'BillingClient.ProductType.INAPP' in manager,
-            "Pro is not queried as a one-time INAPP product")
-    require('oneTimePurchaseOfferDetailsList' in manager and 'rentalDetails == null' in manager,
-            "Billing does not select a non-rental one-time purchase offer")
-    require('.setOfferToken(selectedOfferToken)' in manager,
-            "purchase flow does not use the exact Play offer token shown to the user")
-    require('QueryPurchasesParams.newBuilder()' in manager and 'queryPurchasesAsync' in manager,
-            "Play ownership restore/query path is missing")
-    require('Purchase.PurchaseState.PURCHASED' in manager and 'Purchase.PurchaseState.PENDING' in manager,
-            "PURCHASED/PENDING states are not distinguished")
-    require('entitlement.updatePlayOwnership(true' in manager,
-            "PURCHASED does not feed the entitlement source of truth")
-    require('AcknowledgePurchaseParams.newBuilder()' in manager and 'acknowledgePurchase' in manager,
-            "non-consumable Play purchases are not acknowledged")
-    require('if (!pending)' in manager and 'entitlement.updatePlayOwnership(false' in manager,
-            "successful ownership refresh cannot revoke stale cached ownership")
-    require('put("tokensExposedToWeb", false)' in manager and 'put("serverVerification", false)' in manager,
-            "billing state must be explicit about token privacy and client-side foundation scope")
-    state_block = manager.split('fun stateJsonObject()', 1)[1].split('fun refresh()', 1)[0]
-    for forbidden in ('purchaseToken', 'orderId', 'originalJson', 'signature'):
-        require(forbidden not in state_block, f"sensitive Play field leaked to WebView state: {forbidden}")
-
-    require('KEY_PLAY_OWNED' in entitlement and 'KEY_PLAY_VERIFIED_AT_MS' in entitlement,
-            "Play ownership cache is missing")
-    require('if (debugTier != null) return debugTier' in entitlement and 'isPlayOwnedCached()' in entitlement,
-            "release entitlement is not sourced from Play ownership while preserving debug QA override")
-    require('put("formattedPrice", billing.formattedPrice ?: JSONObject.NULL)' in entitlement,
-            "localized Play price is not passed through entitlement state")
-    require('put("purchaseModel", "one_time_lifetime")' in entitlement,
-            "Pro purchase model changed from one-time lifetime")
-
-    for method in ('getBillingState', 'refreshBilling', 'purchasePro', 'restoreProPurchase'):
-        require(f'fun {method}' in bridge, f"Native billing bridge method missing: {method}")
-    require('private val billing = PlayBillingManager' in bridge,
-            "NativeBridge does not share Billing with the entitlement source of truth")
-    require('const val BRIDGE_VERSION = 14' in bridge, "B44 billing bridge version mismatch")
-
-    require('NATIVE.getBillingState' in ui and 'NATIVE.purchasePro' in ui and 'NATIVE.restoreProPurchase' in ui,
-            "Billing UI is not connected to native Play Billing")
-    require('billing.formattedPrice' in ui and 'price = typeof billing.formattedPrice' in ui,
-            "Billing UI does not use Play-localized price")
-    require('purchasePending' in ui and 'PURCHASED' in ui,
-            "Billing UI does not explain pending purchase semantics")
-    require('test track' in ui.lower(), "Billing UI does not disclose Play test-track requirement")
-    # Never silently introduce a hard-coded currency/price into the billing adapter.
-    require(not re.search(r'[$€£¥฿]\s*\d|\d+[.,]\d{2}\s*(USD|EUR|GBP|JPY|THB)', ui),
-            "Billing UI contains a hard-coded price or currency amount")
+            "Billing Library foundation changed unexpectedly")
 
 
-def check_build_truth_contract() -> None:
-    js = read("app/src/main/legacy-adapter/android-build-truth.js")
-    require("NATIVE.getNativeState" in js, "visible build labels are not sourced from native state")
-    require("state.versionName" in js and "state.versionCode" in js, "native build version/code are not consumed")
-    require(".app-footer__build" in js, "footer build label is not synchronized")
-    require("__buildTruthWrapped" in js, "native callback synchronization guard is missing")
-    require(not re.search(r'v0\.\d+\.\d+\s*·\s*B\d+', js), "build-truth adapter contains a hard-coded visible build label")
+def check_scanner_truth_and_delete_safety() -> None:
+    scanner = read("app/src/main/java/com/benedictinteractive/bearagnostic/FileHealthScanner.kt")
+
+    for invariant in (
+        'const val ANALYSIS_RULES_VERSION = 8',
+        'const val MAX_DELETE_SELECTION = 500',
+        'ScanMode.QUICK -> ScanPlan(',
+        'verifyDuplicates = false',
+        'contentReadMode = ContentReadMode.NONE',
+        'ScanMode.DEEP -> ScanPlan(',
+        'contentReadMode = ContentReadMode.FULL',
+        'normalized.endsWith("/android/data")',
+        'normalized.endsWith("/android/obb")',
+    ):
+        require(invariant in scanner, f"scanner truth/scope invariant missing: {invariant}")
+
+    # B75 destructive identity contract.
+    for invariant in (
+        'var identityKey: String? = null',
+        'var duplicateContentSha256: String? = null',
+        'val identityKey: String?',
+        'val duplicateContentSha256: String?',
+        'identityKey = fileIdentityKey(canonical)',
+        'duplicateContentSha256 = digest',
+        'private fun fileIdentityKey(file: File): String?',
+        'LinkOption.NOFOLLOW_LINKS',
+        'BasicFileAttributes::class.java',
+        'private fun validateDeleteIdentity(candidate: ReviewCandidate, verifyDuplicateHash: Boolean): String?',
+        'if (isSymbolicLink(file)) return "symbolic_link_refused"',
+        'if (canonical.absolutePath != candidate.path) return "changed_since_review"',
+        'if (currentSize != candidate.sizeBytes) return "changed_since_review"',
+        'currentModified != candidate.modifiedMs',
+        'if (currentIdentityKey != expectedIdentityKey) return "changed_since_review"',
+        'val expectedHash = candidate.duplicateContentSha256',
+        'private fun hashFileForDelete(file: File): String?',
+        'if (!currentHash.equals(expectedHash, ignoreCase = true)) return "changed_since_review"',
+        'validateDeleteIdentity(it, verifyDuplicateHash = true)',
+        'duplicateKeeperByGroup',
+        'validMembers.filter { it.id !in ids }',
+        'duplicate_keeper_unavailable',
+        'validateDeleteIdentity(keeper, verifyDuplicateHash = false)',
+        'val finalSize = safeLength(file)',
+        'val finalModified = safeModified(file)',
+        'revalidationPerformed',
+        'duplicateHashRevalidationPerformed',
+    ):
+        require(invariant in scanner, f"destructive revalidation invariant missing: {invariant}")
+
+    # Do not leak the private identity proof to JavaScript payloads.
+    candidate_json = scanner.split('private fun candidateJson', 1)[1].split('private fun reviewSummaryObject', 1)[0]
+    require('identityKey' not in candidate_json, "file identity key leaked to WebView")
+    require('duplicateContentSha256' not in candidate_json, "duplicate SHA-256 leaked to WebView")
+
+
+def check_bridge_and_support_boundary() -> None:
+    bridge = read("app/src/main/java/com/benedictinteractive/bearagnostic/NativeBridge.kt")
+    activity = read("app/src/main/java/com/benedictinteractive/bearagnostic/MainActivity.kt")
+    support = read("app/src/main/legacy-adapter/android-support.js", required=not PARTIAL_STAGING)
+
+    require('const val BRIDGE_VERSION = 17' in bridge, "B75 native bridge contract version must be 17")
+    require('RuntimeContractGuard.isReviewSnapshotFresh(generatedAtMs)' in bridge,
+            "native stale-review guard missing")
+    require('put("reason", "stale_review_snapshot")' in bridge,
+            "stale review rejection reason missing")
+    require('supportNetwork", "user_initiated_kofi_only"' in bridge,
+            "native support boundary is not Ko-fi-only")
+    require('identity_revalidated_delete' in bridge,
+            "native capability report does not advertise identity-revalidated deletion")
+
+    combined = "\n".join((bridge, activity))
+    for forbidden in (
+        "PromptPay", "PROMPTPAY_QR_URL", "saveSupportQr", "SUPPORT_QR_WRITE_REQUEST_CODE",
+        "pendingSupportQrSave", "raw.githubusercontent.com",
+    ):
+        require(forbidden not in combined, f"retired PromptPay/native support residue remains: {forbidden}")
+
+    require('"ko-fi.com"' in activity and '"www.ko-fi.com"' in activity,
+            "Ko-fi hosts missing from native external URL allowlist")
+    allowlist_match = re.search(r'ALLOWED_EXTERNAL_HOSTS\s*=\s*setOf\((.*?)\)\s*\n', activity, re.S)
+    require(allowlist_match is not None, "native external URL allowlist not found")
+    allowlist = allowlist_match.group(1)
+    require('"ko-fi.com"' in allowlist and '"www.ko-fi.com"' in allowlist,
+            "Ko-fi allowlist entries missing")
+    require('raw.githubusercontent.com' not in allowlist,
+            "raw GitHub host must not remain in support allowlist")
+
+    if support:
+        require("const KOFI_URL = 'https://ko-fi.com/benedictinteractive';" in support,
+                "support adapter is not pinned to Benedict Interactive Ko-fi")
+        require("saveSupportQr" not in support and "PromptPay" not in support,
+                "support adapter contains retired PromptPay path")
+    elif PARTIAL_STAGING:
+        print("SKIP unchanged android-support.js (partial local staging; CI remains strict)")
+
+
+def check_manifest_privacy_boundary() -> None:
+    manifest = read("app/src/main/AndroidManifest.xml")
+    require('android:allowBackup="false"' in manifest, "allowBackup must remain false")
+    require('android:usesCleartextTraffic="false"' in manifest, "cleartext traffic must remain disabled")
+    require('android.permission.MANAGE_EXTERNAL_STORAGE' in manifest, "broad storage permission unexpectedly removed")
+    require('QUERY_ALL_PACKAGES' not in manifest, "broad package visibility permission must not be added")
 
 
 def check_ci_contract() -> None:
@@ -495,64 +170,32 @@ def check_ci_contract() -> None:
     build_pos = workflow.find(":app:assembleDebug")
     require(verify_pos >= 0, "CI does not run runtime contract verification")
     require(build_pos > verify_pos, "runtime contracts must be checked before APK assembly")
+    require("contents: read" in workflow, "debug CI permissions unexpectedly broadened")
 
 
-def check_existing_destructive_invariants(*, patch_only: bool) -> None:
-    scanner_path = "app/src/main/java/com/benedictinteractive/bearagnostic/FileHealthScanner.kt"
-    scanner = read(scanner_path, required=not patch_only)
-    if not scanner:
-        return
-
-    require("MAX_DELETE_SELECTION = 500" in scanner, "native deletion cap is no longer 500")
-    require("existing.all { it.id in ids }" in scanner, "duplicate keep-one group protection is missing")
-    require("ids.remove(keep.id)" in scanner, "duplicate keeper is not removed from deletion selection")
-    require("file.delete() && !file.exists()" in scanner, "deletion is not verified by absence")
-
-    delete_pos = scanner.find("if (deleted) {")
-    reclaim_pos = scanner.find("reclaimedBytes = safeAdd(reclaimedBytes, before)")
-    require(delete_pos >= 0 and reclaim_pos > delete_pos, "reclaimed bytes are not gated by verified deletion")
-
-
-def main() -> int:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--patch-only", action="store_true", help="Run checks possible from the repo-relative patch package only.")
+def main() -> None:
+    global PARTIAL_STAGING
+    parser = argparse.ArgumentParser(description="Verify Bearagnostic Android runtime contracts")
+    parser.add_argument(
+        "--partial-staging",
+        action="store_true",
+        help="Allow unchanged files omitted from a local handoff staging tree. CI must not use this flag.",
+    )
     args = parser.parse_args()
+    PARTIAL_STAGING = args.partial_staging
 
-    if args.patch_only:
-        checks = [
-            ("build/version/cache", check_build_contracts),
-            ("Google Play Billing foundation", check_billing_contracts),
-        ]
-    else:
-        checks = [
-            ("build/version/cache", check_build_contracts),
-            ("native request/deletion guards", check_native_guard_contracts),
-            ("Downloads Review contracts", check_downloads_review_contracts),
-            ("APK Installers contracts", lambda: check_apk_installers_contracts(patch_only=False)),
-            ("Archives contracts", lambda: check_archives_contracts(patch_only=False)),
-            ("Zero-byte Files contracts", check_zero_byte_contracts),
-            ("Empty Folders contracts", check_empty_folder_contracts),
-            ("Phase B Insights / local history", check_insights_contracts),
-            ("Advanced Media Review", check_advanced_media_contracts),
-            ("Google Play Billing foundation", check_billing_contracts),
-            ("app-shell / scroll UX contracts", check_shell_ux_contracts),
-            ("native-sourced visible build labels", check_build_truth_contract),
-            ("CI contract verification", check_ci_contract),
-        ]
-
-    try:
-        for label, check in checks:
-            check()
-            print(f"PASS: {label}")
-        check_existing_destructive_invariants(patch_only=args.patch_only)
-        print("PASS: existing destructive invariants" + (" (deferred to full CI)" if args.patch_only else ""))
-    except AssertionError as exc:
-        print(f"FAIL: {exc}", file=sys.stderr)
-        return 1
-
-    print("Bearagnostic runtime contract verification passed.")
-    return 0
+    checks = (
+        check_build_contracts,
+        check_scanner_truth_and_delete_safety,
+        check_bridge_and_support_boundary,
+        check_manifest_privacy_boundary,
+        check_ci_contract,
+    )
+    for check in checks:
+        check()
+        print(f"PASS {check.__name__}")
+    print("PASS runtime contracts" + (" (partial staging)" if PARTIAL_STAGING else ""))
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    main()
