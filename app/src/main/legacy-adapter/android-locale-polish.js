@@ -9,6 +9,8 @@
     const value = (document.documentElement.lang || 'en').toLowerCase();
     if (value.startsWith('th')) return 'th';
     if (value.startsWith('ja')) return 'ja';
+    if (value.startsWith('es')) return 'es';
+    if (value === 'pt-br' || value.startsWith('pt-br') || value.startsWith('pt_')) return 'pt-BR';
     return 'en';
   }
 

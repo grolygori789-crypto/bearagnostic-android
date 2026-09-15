@@ -6,11 +6,9 @@
   let observerQueued = false;
   let healthClickBound = false;
 
-  // B45 localization contract. Only fully translated locales are exposed in the UI.
-  // ES and PT-BR are launch targets, but remain intentionally hidden until every
-  // first-class Android adapter has native-quality copy and regression coverage.
+  // B76 localization contract. All five production locales have first-class Android copy.
   const LAUNCH_LOCALES = Object.freeze(['en', 'th', 'ja', 'es', 'pt-BR']);
-  const SHIPPING_LOCALES = Object.freeze(['en', 'th', 'ja']);
+  const SHIPPING_LOCALES = Object.freeze(['en', 'th', 'ja', 'es', 'pt-BR']);
 
   function normalizeLanguage(value = document.documentElement.lang || 'en') {
     const v = String(value).trim().toLowerCase();
@@ -163,7 +161,7 @@
     return String(value ?? '').replace(/[&<>"']/g, (ch) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
   }
   function formatNumber(value) {
-    const locale = activeLanguage() === 'th' ? 'th-TH' : activeLanguage() === 'ja' ? 'ja-JP' : 'en-US';
+    const locale = activeLanguage() === 'th' ? 'th-TH' : activeLanguage() === 'ja' ? 'ja-JP' : activeLanguage() === 'es' ? 'es-ES' : activeLanguage() === 'pt-BR' ? 'pt-BR' : 'en-US';
     try { return new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).format(Math.max(0, Number(value) || 0)); }
     catch (_) { return String(Math.max(0, Number(value) || 0)); }
   }
@@ -222,7 +220,9 @@
   const implementedRoadmapLabels = new Set([
     'Advanced exact duplicate workflow','Advanced media review & filters','Historical Insights & What Changed','Full cleanup history',
     'ระบบจัดการไฟล์ซ้ำแบบ exact ขั้นสูง','Media Review และตัวกรองขั้นสูง','Insights ย้อนหลังและ What Changed','ประวัติการทำความสะอาดแบบเต็ม',
-    '高度な完全一致重複ワークフロー','高度なメディアレビューとフィルター','履歴 Insights と What Changed','完全なクリーンアップ履歴'
+    '高度な完全一致重複ワークフロー','高度なメディアレビューとフィルター','履歴 Insights と What Changed','完全なクリーンアップ履歴',
+    'Flujo avanzado de duplicados exactos','Revisión multimedia y filtros avanzados','Insights históricos y What Changed','Historial completo de limpiezas',
+    'Fluxo avançado de duplicados exatos','Revisão de mídia e filtros avançados','Insights históricos e What Changed','Histórico completo de limpezas'
   ]);
 
   function addProFeature(grid, key, title, body, path) {

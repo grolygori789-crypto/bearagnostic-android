@@ -40,6 +40,22 @@
       noDuplicateRemoved: 'この処理では重複コピーを削除していません', freeAfter: '処理後の空き容量',
       noVisibleChange: '空き容量率に目立つ変化はありません', beforeCleanup: '処理前'
     };
+    if (language.startsWith('es')) return {
+      whatChanged: 'Qué cambió', scanContext: 'Contexto del análisis', sessionNotes: 'Detalles del resultado', cleanupMethod: 'Método de limpieza',
+      verification: 'Verificación', generated: 'Generado', privacy: 'Límite de privacidad', privateByDesign: 'Privacidad desde el diseño',
+      onDeviceVerified: 'Verificado en el dispositivo', filesReviewed: 'Archivos revisados', scanMode: 'Modo de análisis', coverage: 'Cobertura',
+      privacyValue: 'Analizado en el dispositivo · no se sube el contenido de los archivos', androidConfirmed: 'Eliminación confirmada por Android',
+      noDuplicateRemoved: 'No se eliminó ninguna copia duplicada en esta limpieza', freeAfter: 'Espacio libre tras la limpieza',
+      noVisibleChange: 'Sin cambio porcentual visible tras la limpieza', beforeCleanup: 'Antes de la limpieza'
+    };
+    if (language === 'pt-br' || language.startsWith('pt-br') || language.startsWith('pt_')) return {
+      whatChanged: 'O que mudou', scanContext: 'Contexto da verificação', sessionNotes: 'Detalhes do resultado', cleanupMethod: 'Método de limpeza',
+      verification: 'Verificação', generated: 'Gerado', privacy: 'Limite de privacidade', privateByDesign: 'Privacidade desde o design',
+      onDeviceVerified: 'Verificado no dispositivo', filesReviewed: 'Arquivos revisados', scanMode: 'Modo de verificação', coverage: 'Cobertura',
+      privacyValue: 'Analisado no dispositivo · nenhum conteúdo de arquivo é enviado', androidConfirmed: 'Exclusão confirmada pelo Android',
+      noDuplicateRemoved: 'Nenhuma cópia duplicada foi removida nesta limpeza', freeAfter: 'Espaço livre após a limpeza',
+      noVisibleChange: 'Sem alteração percentual visível após a limpeza', beforeCleanup: 'Antes da limpeza'
+    };
     return {
       whatChanged: 'What changed', scanContext: 'Scan context', sessionNotes: 'Result details', cleanupMethod: 'Cleanup method',
       verification: 'Verification', generated: 'Generated', privacy: 'Privacy boundary', privateByDesign: 'Private by design',
@@ -51,7 +67,7 @@
   }
 
   function formatGeneratedAt(language) {
-    const locale = language.startsWith('th') ? 'th-TH' : language.startsWith('ja') ? 'ja-JP' : 'en-GB';
+    const locale = language.startsWith('th') ? 'th-TH' : language.startsWith('ja') ? 'ja-JP' : language.startsWith('es') ? 'es-ES' : (language === 'pt-br' || language.startsWith('pt-br') || language.startsWith('pt_')) ? 'pt-BR' : 'en-GB';
     try {
       return new Intl.DateTimeFormat(locale, {
         year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
@@ -64,9 +80,14 @@
   function buildCleanupPayload() {
     const language = (document.documentElement.lang || 'en').toLowerCase();
     const c = localeCopy(language);
-    const title = text('nativeCleanTitle', language.startsWith('th') ? 'ผลการทำความสะอาด' : language.startsWith('ja') ? 'クリーンアップ結果' : 'Cleanup impact');
+    const isTh = language.startsWith('th');
+    const isJa = language.startsWith('ja');
+    const isEs = language.startsWith('es');
+    const isPt = language === 'pt-br' || language.startsWith('pt-br') || language.startsWith('pt_');
+    const localized = (en, th, ja, es, pt) => isTh ? th : isJa ? ja : isEs ? es : isPt ? pt : en;
+    const title = text('nativeCleanTitle', localized('Cleanup impact', 'ผลการทำความสะอาด', 'クリーンアップ結果', 'Impacto de la limpieza', 'Impacto da limpeza'));
     const reclaimed = text('nativeCleanBytes', '—');
-    const verifiedSpace = text('nativeImpactSub', language.startsWith('th') ? 'พื้นที่ที่คืนได้ซึ่งยืนยันแล้ว' : language.startsWith('ja') ? '確認済みの解放容量' : 'Verified space reclaimed');
+    const verifiedSpace = text('nativeImpactSub', localized('Verified space reclaimed', 'พื้นที่ที่คืนได้ซึ่งยืนยันแล้ว', '確認済みの解放容量', 'Espacio recuperado verificado', 'Espaço recuperado verificado'));
     const freeRaw = text('nativeImpactFree', '—');
     const freeSplit = splitArrowPair(freeRaw);
     const freeChanged = Boolean(freeSplit.before && freeSplit.after && freeSplit.before !== freeSplit.after);
@@ -78,14 +99,14 @@
       language,
       shareTitle: `Bearagnostic — ${title}`,
       title,
-      kicker: text('nativeImpactKicker', language.startsWith('th') ? 'ผลการทำความสะอาด' : language.startsWith('ja') ? 'クリーンアップ結果' : 'Cleanup impact'),
+      kicker: text('nativeImpactKicker', localized('Cleanup impact', 'ผลการทำความสะอาด', 'クリーンアップ結果', 'Impacto de la limpieza', 'Impacto da limpeza')),
       reclaimed,
       verifiedSpace,
       filesValue,
-      filesLabel: text('nativeImpactFilesLabel', language.startsWith('th') ? 'ไฟล์ที่ลบ' : language.startsWith('ja') ? '削除したファイル' : 'Files removed'),
+      filesLabel: text('nativeImpactFilesLabel', localized('Files removed', 'ไฟล์ที่ลบ', '削除したファイル', 'Archivos eliminados', 'Arquivos removidos')),
       filesDetail: c.androidConfirmed,
       duplicatesValue,
-      duplicatesLabel: text('nativeImpactDuplicatesLabel', language.startsWith('th') ? 'สำเนาซ้ำที่จัดการแล้ว' : language.startsWith('ja') ? '解決した重複コピー' : 'Duplicate copies resolved'),
+      duplicatesLabel: text('nativeImpactDuplicatesLabel', localized('Duplicate copies resolved', 'สำเนาซ้ำที่จัดการแล้ว', '解決した重複コピー', 'Copias duplicadas resueltas', 'Cópias duplicadas resolvidas')),
       duplicatesDetail: duplicatesValue === '0' ? c.noDuplicateRemoved : c.androidConfirmed,
       freeValue: freeRaw,
       freeBefore: freeSplit.before,
@@ -95,7 +116,7 @@
       freeDetail: freeChanged && freeSplit.before ? `${c.beforeCleanup}: ${freeSplit.before}` : c.noVisibleChange,
       methodValue,
       methodLabel: c.cleanupMethod,
-      proof: text('nativeImpactProof', language.startsWith('th') ? 'นับเฉพาะไฟล์ที่ Android ยืนยันว่าลบแล้วเท่านั้น' : language.startsWith('ja') ? 'Android が削除を確認したファイルのみを集計します。' : 'Only files Android confirmed as deleted are counted.'),
+      proof: text('nativeImpactProof', localized('Only files Android confirmed as deleted are counted.', 'นับเฉพาะไฟล์ที่ Android ยืนยันว่าลบแล้วเท่านั้น', 'Android が削除を確認したファイルのみを集計します。', 'Solo se cuentan los archivos cuya eliminación confirmó Android.', 'Só são contabilizados os arquivos cuja exclusão foi confirmada pelo Android.')),
       filesReviewed: text('nativeFilesFact', ''),
       scanMode: text('nativeModeFact', ''),
       coverage: text('nativeCoverageFact', ''),
@@ -111,11 +132,11 @@
       filesReviewedLabel: c.filesReviewed,
       scanModeLabel: c.scanMode,
       coverageLabel: c.coverage,
-      brandLine: language.startsWith('th') ? 'สุขภาพไฟล์ที่ชัดเจนขึ้น' : language.startsWith('ja') ? 'ファイルを、もっと健やかに。' : 'FILE HEALTH • BRIGHTER DAYS',
+      brandLine: localized('FILE HEALTH • BRIGHTER DAYS', 'สุขภาพไฟล์ที่ชัดเจนขึ้น', 'ファイルを、もっと健やかに。', 'SALUD DE ARCHIVOS • DÍAS MÁS LIGEROS', 'SAÚDE DOS ARQUIVOS • DIAS MAIS LEVES'),
       generatedAt: formatGeneratedAt(language),
       resultLine: filesValue === '1'
-        ? (language.startsWith('th') ? 'ลบสำเร็จ 1 ไฟล์' : language.startsWith('ja') ? '1 件のファイルを削除' : '1 file removed')
-        : (language.startsWith('th') ? `ลบสำเร็จ ${filesValue} ไฟล์` : language.startsWith('ja') ? `${filesValue} 件のファイルを削除` : `${filesValue} files removed`)
+        ? localized('1 file removed', 'ลบสำเร็จ 1 ไฟล์', '1 件のファイルを削除', '1 archivo eliminado', '1 arquivo removido')
+        : localized(`${filesValue} files removed`, `ลบสำเร็จ ${filesValue} ไฟล์`, `${filesValue} 件のファイルを削除`, `${filesValue} archivos eliminados`, `${filesValue} arquivos removidos`)
     };
   }
 

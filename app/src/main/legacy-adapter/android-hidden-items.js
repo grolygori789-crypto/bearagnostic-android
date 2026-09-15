@@ -9,13 +9,40 @@
 
   const lang = () => {
     const value=(document.documentElement.lang||'en').toLowerCase();
-    return value.startsWith('th')?'th':value.startsWith('ja')?'ja':'en';
+    return value.startsWith('th') ? 'th' : value.startsWith('ja') ? 'ja' : value.startsWith('es') ? 'es' : (value === 'pt-br' || value.startsWith('pt-br') || value.startsWith('pt_')) ? 'pt-BR' : 'en';
   };
   const COPY = {
-    en:{title:'Include hidden items',body:'Show accessible filesystem-hidden items and common private-folder labels in review lists. Off by default; protected app storage and vaults are never bypassed.',on:'ON',off:'OFF'},
-    th:{title:'รวมรายการที่ซ่อนไว้',body:'แสดงรายการที่ระบบไฟล์ซ่อนไว้และโฟลเดอร์ที่มีชื่อสื่อถึงความเป็นส่วนตัว เฉพาะส่วนที่ Android อนุญาตให้เข้าถึง ปิดไว้เป็นค่าเริ่มต้น และไม่ข้ามระบบป้องกันหรือห้องนิรภัยของแอป',on:'เปิด',off:'ปิด'},
-    ja:{title:'非表示項目を含める',body:'Android がアクセスを許可している範囲で、ファイルシステム上の非表示項目や一般的なプライベートフォルダー名をレビュー一覧に表示します。初期設定はオフで、保護領域や保管庫を回避しません。',on:'オン',off:'オフ'}
-  };
+  "en": {
+    "title": "Include hidden items",
+    "body": "Show accessible filesystem-hidden items and common private-folder labels in review lists. Off by default; protected app storage and vaults are never bypassed.",
+    "on": "ON",
+    "off": "OFF"
+  },
+  "th": {
+    "title": "รวมรายการที่ซ่อนไว้",
+    "body": "แสดงรายการที่ระบบไฟล์ซ่อนไว้และโฟลเดอร์ที่มีชื่อสื่อถึงความเป็นส่วนตัว เฉพาะส่วนที่ Android อนุญาตให้เข้าถึง ปิดไว้เป็นค่าเริ่มต้น และไม่ข้ามระบบป้องกันหรือห้องนิรภัยของแอป",
+    "on": "เปิด",
+    "off": "ปิด"
+  },
+  "ja": {
+    "title": "非表示項目を含める",
+    "body": "Android がアクセスを許可している範囲で、ファイルシステム上の非表示項目や一般的なプライベートフォルダー名をレビュー一覧に表示します。初期設定はオフで、保護領域や保管庫を回避しません。",
+    "on": "オン",
+    "off": "オフ"
+  },
+  "es": {
+    "title": "Incluir elementos ocultos",
+    "body": "Muestra en las listas de revisión elementos ocultos accesibles del sistema de archivos y nombres habituales de carpetas privadas. Está desactivado por defecto; nunca se eluden el almacenamiento protegido de apps ni las bóvedas.",
+    "on": "ACTIVADO",
+    "off": "DESACTIVADO"
+  },
+  "pt-BR": {
+    "title": "Incluir itens ocultos",
+    "body": "Mostra nas listas de revisão itens ocultos acessíveis do sistema de arquivos e nomes comuns de pastas privadas. Desativado por padrão; o armazenamento protegido de apps e cofres nunca é contornado.",
+    "on": "ATIVADO",
+    "off": "DESATIVADO"
+  }
+};
   const c = () => COPY[lang()] || COPY.en;
   const esc=(value)=>String(value??'').replace(/[&<>"']/g,(ch)=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 

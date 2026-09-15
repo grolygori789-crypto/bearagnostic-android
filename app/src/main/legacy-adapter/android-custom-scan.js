@@ -12,47 +12,73 @@
     const lang = String(document.documentElement.lang || 'en').toLowerCase();
     if (lang.startsWith('th')) return 'th';
     if (lang.startsWith('ja')) return 'ja';
+    if (lang.startsWith('es')) return 'es';
+    if (lang === 'pt-br' || lang.startsWith('pt-br') || lang.startsWith('pt_')) return 'pt-BR';
     return 'en';
   }
 
   const COPY = Object.freeze({
-    en: {
-      locationsTitle: 'SCAN LOCATIONS',
-      locationsSub: 'Choose one or more shared-storage locations.',
-      duplicateTitle: 'DUPLICATE CHECK',
-      duplicateSub: 'Choose whether exact duplicate verification is part of this scan.',
-      verifyHelp: 'Checks file content only inside the locations you selected.',
-      selectedOne: '1 location selected',
-      selectedMany: '{count} locations selected',
-      noneSelected: 'Select at least one location',
-      verifyOn: 'Exact duplicates on',
-      verifyOff: 'Exact duplicates off',
-    },
-    th: {
-      locationsTitle: 'ตำแหน่งที่จะสแกน',
-      locationsSub: 'เลือกอย่างน้อยหนึ่งตำแหน่งในพื้นที่จัดเก็บร่วม',
-      duplicateTitle: 'ตรวจไฟล์ซ้ำ',
-      duplicateSub: 'เลือกว่าจะรวมการยืนยันไฟล์ซ้ำแบบ exact ในการสแกนครั้งนี้หรือไม่',
-      verifyHelp: 'ตรวจเนื้อหาไฟล์เฉพาะภายในตำแหน่งที่คุณเลือก',
-      selectedOne: 'เลือกแล้ว 1 ตำแหน่ง',
-      selectedMany: 'เลือกแล้ว {count} ตำแหน่ง',
-      noneSelected: 'เลือกอย่างน้อย 1 ตำแหน่ง',
-      verifyOn: 'ตรวจไฟล์ซ้ำแบบ exact: เปิด',
-      verifyOff: 'ตรวจไฟล์ซ้ำแบบ exact: ปิด',
-    },
-    ja: {
-      locationsTitle: 'スキャン対象',
-      locationsSub: '共有ストレージから1つ以上選択してください。',
-      duplicateTitle: '重複チェック',
-      duplicateSub: '完全一致の重複確認をこのスキャンに含めるか選べます。',
-      verifyHelp: '選択した場所の中だけでファイル内容を確認します。',
-      selectedOne: '1か所を選択中',
-      selectedMany: '{count}か所を選択中',
-      noneSelected: '1か所以上選択してください',
-      verifyOn: '完全一致の重複チェック: オン',
-      verifyOff: '完全一致の重複チェック: オフ',
-    },
-  });
+  "en": {
+    "locationsTitle": "SCAN LOCATIONS",
+    "locationsSub": "Choose one or more shared-storage locations.",
+    "duplicateTitle": "DUPLICATE CHECK",
+    "duplicateSub": "Choose whether exact duplicate verification is part of this scan.",
+    "verifyHelp": "Checks file content only inside the locations you selected.",
+    "selectedOne": "1 location selected",
+    "selectedMany": "{count} locations selected",
+    "noneSelected": "Select at least one location",
+    "verifyOn": "Exact duplicates on",
+    "verifyOff": "Exact duplicates off"
+  },
+  "th": {
+    "locationsTitle": "ตำแหน่งที่จะสแกน",
+    "locationsSub": "เลือกอย่างน้อยหนึ่งตำแหน่งในพื้นที่จัดเก็บร่วม",
+    "duplicateTitle": "ตรวจไฟล์ซ้ำ",
+    "duplicateSub": "เลือกว่าจะรวมการยืนยันไฟล์ซ้ำแบบ exact ในการสแกนครั้งนี้หรือไม่",
+    "verifyHelp": "ตรวจเนื้อหาไฟล์เฉพาะภายในตำแหน่งที่คุณเลือก",
+    "selectedOne": "เลือกแล้ว 1 ตำแหน่ง",
+    "selectedMany": "เลือกแล้ว {count} ตำแหน่ง",
+    "noneSelected": "เลือกอย่างน้อย 1 ตำแหน่ง",
+    "verifyOn": "ตรวจไฟล์ซ้ำแบบ exact: เปิด",
+    "verifyOff": "ตรวจไฟล์ซ้ำแบบ exact: ปิด"
+  },
+  "ja": {
+    "locationsTitle": "スキャン対象",
+    "locationsSub": "共有ストレージから1つ以上選択してください。",
+    "duplicateTitle": "重複チェック",
+    "duplicateSub": "完全一致の重複確認をこのスキャンに含めるか選べます。",
+    "verifyHelp": "選択した場所の中だけでファイル内容を確認します。",
+    "selectedOne": "1か所を選択中",
+    "selectedMany": "{count}か所を選択中",
+    "noneSelected": "1か所以上選択してください",
+    "verifyOn": "完全一致の重複チェック: オン",
+    "verifyOff": "完全一致の重複チェック: オフ"
+  },
+  "es": {
+    "locationsTitle": "UBICACIONES DEL ANÁLISIS",
+    "locationsSub": "Elige una o más ubicaciones del almacenamiento compartido.",
+    "duplicateTitle": "COMPROBACIÓN DE DUPLICADOS",
+    "duplicateSub": "Elige si la verificación de duplicados exactos formará parte de este análisis.",
+    "verifyHelp": "Comprueba el contenido de archivos solo dentro de las ubicaciones seleccionadas.",
+    "selectedOne": "1 ubicación seleccionada",
+    "selectedMany": "{count} ubicaciones seleccionadas",
+    "noneSelected": "Selecciona al menos una ubicación",
+    "verifyOn": "Duplicados exactos activados",
+    "verifyOff": "Duplicados exactos desactivados"
+  },
+  "pt-BR": {
+    "locationsTitle": "LOCAIS DO SCAN",
+    "locationsSub": "Escolha um ou mais locais do armazenamento compartilhado.",
+    "duplicateTitle": "VERIFICAÇÃO DE DUPLICADOS",
+    "duplicateSub": "Escolha se a verificação de duplicados exatos fará parte deste scan.",
+    "verifyHelp": "Verifica o conteúdo dos arquivos apenas nos locais selecionados.",
+    "selectedOne": "1 local selecionado",
+    "selectedMany": "{count} locais selecionados",
+    "noneSelected": "Selecione pelo menos um local",
+    "verifyOn": "Duplicados exatos ativados",
+    "verifyOff": "Duplicados exatos desativados"
+  }
+});
 
   function t() { return COPY[language()] || COPY.en; }
 

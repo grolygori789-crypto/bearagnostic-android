@@ -220,7 +220,7 @@ class MainActivity : Activity() {
         accentHolder.addView(studioAccentSweep)
 
         studioLaunchLabel = TextView(this).apply {
-            text = "Launching Bearagnostic"
+            text = nativeText("launching")
             setTextColor(Color.parseColor("#334F70"))
             setTextSize(TypedValue.COMPLEX_UNIT_SP, 13.5f)
             letterSpacing = 0.055f
@@ -234,7 +234,7 @@ class MainActivity : Activity() {
         }
 
         studioPromise = TextView(this).apply {
-            text = "Find clutter. Explain the risk. Clean with confidence."
+            text = nativeText("promise")
             setTextColor(Color.parseColor("#7B8DA0"))
             setTextSize(TypedValue.COMPLEX_UNIT_SP, 12.5f)
             gravity = Gravity.CENTER
@@ -613,7 +613,7 @@ class MainActivity : Activity() {
                 try {
                     startActivity(intent)
                 } catch (_: Exception) {
-                    Toast.makeText(this, "No compatible browser is available for this link.", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, nativeText("browser_unavailable"), Toast.LENGTH_LONG).show()
                 }
             }
         }
@@ -641,7 +641,7 @@ class MainActivity : Activity() {
                 try {
                     startActivity(chooser)
                 } catch (_: Exception) {
-                    Toast.makeText(this, "Android could not open the share sheet.", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, nativeText("share_unavailable"), Toast.LENGTH_LONG).show()
                 }
             }
         }
@@ -649,6 +649,39 @@ class MainActivity : Activity() {
             put("accepted", true)
             put("queued", true)
         }.toString()
+    }
+
+    fun setAppLanguage(rawLanguage: String): Boolean {
+        val language = normalizeAppLanguage(rawLanguage)
+        getSharedPreferences(UI_PREFS, MODE_PRIVATE).edit().putString(UI_LANGUAGE_KEY, language).apply()
+        runOnUiThread {
+            if (::studioLaunchLabel.isInitialized) studioLaunchLabel.text = nativeText("launching", language)
+            if (::studioPromise.isInitialized) studioPromise.text = nativeText("promise", language)
+        }
+        return true
+    }
+
+    fun currentAppLanguage(): String {
+        val stored = getSharedPreferences(UI_PREFS, MODE_PRIVATE).getString(UI_LANGUAGE_KEY, null)
+        val systemLanguage = resources.configuration.locales.get(0)?.toLanguageTag() ?: "en"
+        return normalizeAppLanguage(stored ?: systemLanguage)
+    }
+
+    fun nativeText(key: String, languageOverride: String? = null): String {
+        val language = normalizeAppLanguage(languageOverride ?: currentAppLanguage())
+        val copy = NATIVE_COPY[language] ?: NATIVE_COPY.getValue("en")
+        return copy[key] ?: NATIVE_COPY.getValue("en")[key] ?: key
+    }
+
+    private fun normalizeAppLanguage(value: String): String {
+        val v = value.trim().lowercase()
+        return when {
+            v.startsWith("th") -> "th"
+            v.startsWith("ja") -> "ja"
+            v.startsWith("es") -> "es"
+            v == "pt-br" || v.startsWith("pt-br") || v.startsWith("pt_") -> "pt-BR"
+            else -> "en"
+        }
     }
 
     private fun ensureScanner() {
@@ -716,6 +749,40 @@ class MainActivity : Activity() {
     }
 
     companion object {
+        private const val UI_PREFS = "bearagnostic_ui"
+        private const val UI_LANGUAGE_KEY = "language"
+        private val NATIVE_COPY = mapOf(
+            "en" to mapOf(
+                "launching" to "Launching Bearagnostic",
+                "promise" to "Find clutter. Explain the risk. Clean with confidence.",
+                "browser_unavailable" to "No compatible browser is available for this link.",
+                "share_unavailable" to "Android could not open the share sheet.",
+            ),
+            "th" to mapOf(
+                "launching" to "กำลังเปิด Bearagnostic",
+                "promise" to "ค้นหาไฟล์รก อธิบายความเสี่ยง แล้วจัดการอย่างมั่นใจ",
+                "browser_unavailable" to "ไม่พบเบราว์เซอร์ที่รองรับลิงก์นี้",
+                "share_unavailable" to "Android ไม่สามารถเปิดหน้าต่างแชร์ได้",
+            ),
+            "ja" to mapOf(
+                "launching" to "Bearagnostic を起動中",
+                "promise" to "不要なファイルを見つけ、リスクを説明し、安心して整理。",
+                "browser_unavailable" to "このリンクを開ける対応ブラウザがありません。",
+                "share_unavailable" to "Android で共有画面を開けませんでした。",
+            ),
+            "es" to mapOf(
+                "launching" to "Abriendo Bearagnostic",
+                "promise" to "Encuentra el desorden. Entiende el riesgo. Limpia con confianza.",
+                "browser_unavailable" to "No hay un navegador compatible disponible para este enlace.",
+                "share_unavailable" to "Android no pudo abrir el panel para compartir.",
+            ),
+            "pt-BR" to mapOf(
+                "launching" to "Abrindo Bearagnostic",
+                "promise" to "Encontre a bagunça. Entenda o risco. Limpe com confiança.",
+                "browser_unavailable" to "Nenhum navegador compatível está disponível para este link.",
+                "share_unavailable" to "O Android não conseguiu abrir a tela de compartilhamento.",
+            ),
+        )
         private const val STUDIO_STAGE_MILLIS = 980L
         private const val MINIMUM_BRAND_REVEAL_MILLIS = 2_650L
         private const val WEB_LAUNCH_BYPASS_SCRIPT =

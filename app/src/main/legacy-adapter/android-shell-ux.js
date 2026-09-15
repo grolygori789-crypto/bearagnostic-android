@@ -16,14 +16,16 @@
   let resizeObserver = null;
 
   const COPY = {
-    en: 'More below',
-    th: 'เลื่อนดูต่อด้านล่าง',
-    ja: '下に続きます',
-  };
+  "en": "More below",
+  "th": "เลื่อนดูต่อด้านล่าง",
+  "ja": "下に続きます",
+  "es": "Hay más abajo",
+  "pt-BR": "Há mais abaixo"
+};
 
   function language() {
     const value = (document.documentElement.lang || 'en').toLowerCase();
-    return value.startsWith('th') ? 'th' : value.startsWith('ja') ? 'ja' : 'en';
+    return value.startsWith('th') ? 'th' : value.startsWith('ja') ? 'ja' : value.startsWith('es') ? 'es' : (value === 'pt-br' || value.startsWith('pt-br') || value.startsWith('pt_')) ? 'pt-BR' : 'en';
   }
 
   function hintWasSeen() {

@@ -120,7 +120,7 @@ def check_bridge_and_support_boundary() -> None:
     activity = read("app/src/main/java/com/benedictinteractive/bearagnostic/MainActivity.kt")
     support = read("app/src/main/legacy-adapter/android-support.js", required=not PARTIAL_STAGING)
 
-    require('const val BRIDGE_VERSION = 17' in bridge, "B75 native bridge contract version must be 17")
+    require('const val BRIDGE_VERSION = 18' in bridge, "B76 native bridge contract version must be 18")
     require('RuntimeContractGuard.isReviewSnapshotFresh(generatedAtMs)' in bridge,
             "native stale-review guard missing")
     require('put("reason", "stale_review_snapshot")' in bridge,
@@ -129,6 +129,10 @@ def check_bridge_and_support_boundary() -> None:
             "native support boundary is not Ko-fi-only")
     require('identity_revalidated_delete' in bridge,
             "native capability report does not advertise identity-revalidated deletion")
+    require('fun setAppLanguage(language: String): Boolean' in bridge,
+            "B76 native bridge must expose app-language synchronization")
+    require('currentAppLanguage' in activity and '"pt-BR"' in activity and '"es"' in activity,
+            "B76 native five-language copy contract missing")
 
     combined = "\n".join((bridge, activity))
     for forbidden in (
@@ -154,6 +158,40 @@ def check_bridge_and_support_boundary() -> None:
                 "support adapter contains retired PromptPay path")
     elif PARTIAL_STAGING:
         print("SKIP unchanged android-support.js (partial local staging; CI remains strict)")
+
+
+
+def check_localization_contract() -> None:
+    gradle = read("app/build.gradle.kts")
+    launch = read("app/src/main/legacy-adapter/android-launch-locales.js")
+    stabilization = read("app/src/main/legacy-adapter/android-stabilization.js")
+
+    require('android-launch-locales.js?v=' in gradle, "B76 launch-locales adapter is not integrated")
+    require('coreI18nTag + launchLocaleTag' in gradle, "B76 five-language table must load before core app capture")
+    require("const SHIPPING_LOCALES = Object.freeze(['en', 'th', 'ja', 'es', 'pt-BR']);" in stabilization,
+            "B76 five-language shipping locale contract missing")
+    require("['es', 'ES', 'Español']" in launch and "['pt-BR', 'PT-BR', 'Português (Brasil)']" in launch,
+            "B76 visible Spanish/Portuguese language choices missing")
+    require("coverage: Object.freeze({ en: 111, th: 111, ja: 111, es: 111, 'pt-BR': 111 })" in launch,
+            "B76 core locale coverage contract missing")
+
+    localized_adapters = (
+        "android-advanced-media.js", "android-archives.js", "android-billing.js", "android-cleanup.js",
+        "android-custom-scan.js", "android-downloads.js", "android-duplicates.js", "android-empty-folders.js",
+        "android-hidden-items.js", "android-insights.js", "android-installers.js", "android-large-files.js",
+        "android-live-scan.js", "android-native.js", "android-older-files.js", "android-plan-status.js",
+        "android-pro-ui.js", "android-review-media.js", "android-scan-trust.js", "android-settings-detail.js",
+        "android-shell-ux.js", "android-support.js", "android-zero.js",
+    )
+    for adapter in localized_adapters:
+        source = read(f"app/src/main/legacy-adapter/{adapter}")
+        require('"es"' in source and '"pt-BR"' in source, f"B76 ES/PT-BR copy missing: {adapter}")
+        require('PromptPay' not in source and 'promptpay' not in source.lower(),
+                f"retired PromptPay residue remains in localized runtime: {adapter}")
+
+    share_card = read("app/src/main/legacy-adapter/android-share-card.js")
+    require("language.startsWith('es')" in share_card and "pt-BR" in share_card,
+            "B76 result share card is not localized for ES/PT-BR")
 
 
 def check_manifest_privacy_boundary() -> None:
@@ -188,6 +226,7 @@ def main() -> None:
         check_build_contracts,
         check_scanner_truth_and_delete_safety,
         check_bridge_and_support_boundary,
+        check_localization_contract,
         check_manifest_privacy_boundary,
         check_ci_contract,
     )

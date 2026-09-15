@@ -9,26 +9,106 @@
 
   function language() {
     const value = (document.documentElement.lang || 'en').toLowerCase();
-    return value.startsWith('th') ? 'th' : value.startsWith('ja') ? 'ja' : 'en';
+    return value.startsWith('th') ? 'th' : value.startsWith('ja') ? 'ja' : value.startsWith('es') ? 'es' : (value === 'pt-br' || value.startsWith('pt-br') || value.startsWith('pt_')) ? 'pt-BR' : 'en';
   }
 
   const COPY = {
-    en: {
-      preparing:'Discovering', file_details:'Reading', file_sizes:'Measuring', duplicates:'Verifying', modified_dates:'Checking date', finalizing:'Finalizing',
-      waiting:'Starting local scan…', final:'Building verified results…', local:'LOCAL · LIVE',
-      folder:'Folder', image:'Photo', video:'Video', audio:'Audio', document:'Document', apk:'APK', archive:'Archive', other:'File'
-    },
-    th: {
-      preparing:'กำลังค้นหา', file_details:'กำลังอ่าน', file_sizes:'กำลังวัดขนาด', duplicates:'กำลังยืนยันไฟล์ซ้ำ', modified_dates:'กำลังตรวจวันที่', finalizing:'กำลังสรุปผล',
-      waiting:'กำลังเริ่มสแกนภายในเครื่อง…', final:'กำลังสร้างผลลัพธ์ที่ยืนยันแล้ว…', local:'ภายในเครื่อง · เรียลไทม์',
-      folder:'โฟลเดอร์', image:'รูปภาพ', video:'วิดีโอ', audio:'เสียง', document:'เอกสาร', apk:'APK', archive:'ไฟล์บีบอัด', other:'ไฟล์'
-    },
-    ja: {
-      preparing:'探索中', file_details:'読み取り中', file_sizes:'サイズ確認中', duplicates:'重複確認中', modified_dates:'日付確認中', finalizing:'結果をまとめています',
-      waiting:'端末内スキャンを開始しています…', final:'検証済みの結果を作成しています…', local:'端末内 · リアルタイム',
-      folder:'フォルダ', image:'写真', video:'動画', audio:'音声', document:'書類', apk:'APK', archive:'アーカイブ', other:'ファイル'
-    }
-  };
+  "en": {
+    "preparing": "Discovering",
+    "file_details": "Reading",
+    "file_sizes": "Measuring",
+    "duplicates": "Verifying",
+    "modified_dates": "Checking date",
+    "finalizing": "Finalizing",
+    "waiting": "Starting local scan…",
+    "final": "Building verified results…",
+    "local": "LOCAL · LIVE",
+    "folder": "Folder",
+    "image": "Photo",
+    "video": "Video",
+    "audio": "Audio",
+    "document": "Document",
+    "apk": "APK",
+    "archive": "Archive",
+    "other": "File"
+  },
+  "th": {
+    "preparing": "กำลังค้นหา",
+    "file_details": "กำลังอ่าน",
+    "file_sizes": "กำลังวัดขนาด",
+    "duplicates": "กำลังยืนยันไฟล์ซ้ำ",
+    "modified_dates": "กำลังตรวจวันที่",
+    "finalizing": "กำลังสรุปผล",
+    "waiting": "กำลังเริ่มสแกนภายในเครื่อง…",
+    "final": "กำลังสร้างผลลัพธ์ที่ยืนยันแล้ว…",
+    "local": "ภายในเครื่อง · เรียลไทม์",
+    "folder": "โฟลเดอร์",
+    "image": "รูปภาพ",
+    "video": "วิดีโอ",
+    "audio": "เสียง",
+    "document": "เอกสาร",
+    "apk": "APK",
+    "archive": "ไฟล์บีบอัด",
+    "other": "ไฟล์"
+  },
+  "ja": {
+    "preparing": "探索中",
+    "file_details": "読み取り中",
+    "file_sizes": "サイズ確認中",
+    "duplicates": "重複確認中",
+    "modified_dates": "日付確認中",
+    "finalizing": "結果をまとめています",
+    "waiting": "端末内スキャンを開始しています…",
+    "final": "検証済みの結果を作成しています…",
+    "local": "端末内 · リアルタイム",
+    "folder": "フォルダ",
+    "image": "写真",
+    "video": "動画",
+    "audio": "音声",
+    "document": "書類",
+    "apk": "APK",
+    "archive": "アーカイブ",
+    "other": "ファイル"
+  },
+  "es": {
+    "preparing": "Descubriendo",
+    "file_details": "Leyendo",
+    "file_sizes": "Midiendo",
+    "duplicates": "Verificando",
+    "modified_dates": "Revisando fecha",
+    "finalizing": "Finalizando",
+    "waiting": "Iniciando análisis local…",
+    "final": "Preparando resultados verificados…",
+    "local": "LOCAL · EN VIVO",
+    "folder": "Carpeta",
+    "image": "Foto",
+    "video": "Vídeo",
+    "audio": "Audio",
+    "document": "Documento",
+    "apk": "APK",
+    "archive": "Archivo comprimido",
+    "other": "Archivo"
+  },
+  "pt-BR": {
+    "preparing": "Descobrindo",
+    "file_details": "Lendo",
+    "file_sizes": "Medindo",
+    "duplicates": "Verificando",
+    "modified_dates": "Verificando data",
+    "finalizing": "Finalizando",
+    "waiting": "Iniciando scan local…",
+    "final": "Preparando resultados verificados…",
+    "local": "LOCAL · AO VIVO",
+    "folder": "Pasta",
+    "image": "Foto",
+    "video": "Vídeo",
+    "audio": "Áudio",
+    "document": "Documento",
+    "apk": "APK",
+    "archive": "Arquivo compactado",
+    "other": "Arquivo"
+  }
+};
   const text = (key) => COPY[language()]?.[key] || COPY.en[key] || key;
 
   const ICONS = {

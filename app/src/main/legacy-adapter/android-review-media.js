@@ -12,14 +12,81 @@
 
   function language() {
     const value = (document.documentElement.lang || 'en').toLowerCase();
-    return value.startsWith('th') ? 'th' : value.startsWith('ja') ? 'ja' : 'en';
+    return value.startsWith('th') ? 'th' : value.startsWith('ja') ? 'ja' : value.startsWith('es') ? 'es' : (value === 'pt-br' || value.startsWith('pt-br') || value.startsWith('pt_')) ? 'pt-BR' : 'en';
   }
 
   const COPY = {
-    en:{display:'Display',compact:'Text',preview:'Thumbnail',large:'Large',image:'Photo',video:'Video',audio:'Audio',document:'Document',apk:'APK',archive:'Archive',other:'File',local:'Local preview'},
-    th:{display:'รูปแบบ',compact:'ข้อความ',preview:'รูปเล็ก',large:'รูปใหญ่',image:'รูปภาพ',video:'วิดีโอ',audio:'เสียง',document:'เอกสาร',apk:'APK',archive:'ไฟล์บีบอัด',other:'ไฟล์',local:'ตัวอย่างภายในเครื่อง'},
-    ja:{display:'表示',compact:'テキスト',preview:'サムネイル',large:'大きく',image:'写真',video:'動画',audio:'音声',document:'書類',apk:'APK',archive:'アーカイブ',other:'ファイル',local:'端末内プレビュー'}
-  };
+  "en": {
+    "display": "Display",
+    "compact": "Text",
+    "preview": "Thumbnail",
+    "large": "Large",
+    "image": "Photo",
+    "video": "Video",
+    "audio": "Audio",
+    "document": "Document",
+    "apk": "APK",
+    "archive": "Archive",
+    "other": "File",
+    "local": "Local preview"
+  },
+  "th": {
+    "display": "รูปแบบ",
+    "compact": "ข้อความ",
+    "preview": "รูปเล็ก",
+    "large": "รูปใหญ่",
+    "image": "รูปภาพ",
+    "video": "วิดีโอ",
+    "audio": "เสียง",
+    "document": "เอกสาร",
+    "apk": "APK",
+    "archive": "ไฟล์บีบอัด",
+    "other": "ไฟล์",
+    "local": "ตัวอย่างภายในเครื่อง"
+  },
+  "ja": {
+    "display": "表示",
+    "compact": "テキスト",
+    "preview": "サムネイル",
+    "large": "大きく",
+    "image": "写真",
+    "video": "動画",
+    "audio": "音声",
+    "document": "書類",
+    "apk": "APK",
+    "archive": "アーカイブ",
+    "other": "ファイル",
+    "local": "端末内プレビュー"
+  },
+  "es": {
+    "display": "Vista",
+    "compact": "Texto",
+    "preview": "Miniatura",
+    "large": "Grande",
+    "image": "Foto",
+    "video": "Vídeo",
+    "audio": "Audio",
+    "document": "Documento",
+    "apk": "APK",
+    "archive": "Archivo comprimido",
+    "other": "Archivo",
+    "local": "Vista previa local"
+  },
+  "pt-BR": {
+    "display": "Exibição",
+    "compact": "Texto",
+    "preview": "Miniatura",
+    "large": "Grande",
+    "image": "Foto",
+    "video": "Vídeo",
+    "audio": "Áudio",
+    "document": "Documento",
+    "apk": "APK",
+    "archive": "Arquivo compactado",
+    "other": "Arquivo",
+    "local": "Prévia local"
+  }
+};
   const text = (key) => COPY[language()]?.[key] || COPY.en[key] || key;
 
   const ICONS = {
@@ -98,7 +165,7 @@
       bar = document.createElement('div');
       bar.id = 'nativeReviewDisplaybar';
       bar.className = 'native-review-displaybar';
-      bar.innerHTML = `<strong id="nativeReviewDisplayLabel"></strong><div class="native-view-segment" role="group" aria-label="Review display"><button class="native-view-option" type="button" data-media-view="compact"></button><button class="native-view-option" type="button" data-media-view="preview"></button><button class="native-view-option" type="button" data-media-view="large"></button></div>`;
+      bar.innerHTML = `<strong id="nativeReviewDisplayLabel"></strong><div class="native-view-segment" role="group" aria-label="${window.BearagnosticLaunchLocales?.a11y?.('display') || text('display')}"><button class="native-view-option" type="button" data-media-view="compact"></button><button class="native-view-option" type="button" data-media-view="preview"></button><button class="native-view-option" type="button" data-media-view="large"></button></div>`;
       summary.insertAdjacentElement('afterend', bar);
     }
     refreshToolbarCopy();
