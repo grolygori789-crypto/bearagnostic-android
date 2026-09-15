@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const BUILD = 52;
+  const BUILD = 53;
   const byId = (id) => document.getElementById(id);
   let refreshQueued = false;
 
@@ -384,29 +384,9 @@
         line-height:1.68!important;
       }
 
-      /* B77 — locale-scoped Home hardening. EN/TH intentionally untouched. */
-      html[lang^="ja"] #homeScreen .checkup-cta,
-      html[lang^="es"] #homeScreen .checkup-cta,
-      html[lang^="pt"] #homeScreen .checkup-cta{
-        grid-template-columns:clamp(48px,14.8vw,66px) minmax(0,1fr) clamp(40px,12.8vw,54px)!important;
-        column-gap:clamp(8px,2.4vw,13px)!important;
-      }
-      html[lang^="ja"] #homeScreen .checkup-cta__icon,
-      html[lang^="es"] #homeScreen .checkup-cta__icon,
-      html[lang^="pt"] #homeScreen .checkup-cta__icon,
-      html[lang^="ja"] #homeScreen .checkup-cta__arrow,
-      html[lang^="es"] #homeScreen .checkup-cta__arrow,
-      html[lang^="pt"] #homeScreen .checkup-cta__arrow{
-        justify-self:center!important;
-        flex:none!important;
-      }
-      html[lang^="ja"] #homeScreen .checkup-cta__copy,
-      html[lang^="es"] #homeScreen .checkup-cta__copy,
-      html[lang^="pt"] #homeScreen .checkup-cta__copy{
-        min-width:0!important;
-        max-width:100%!important;
-        overflow:hidden!important;
-      }
+      /* B78 — match the approved English Home geometry.
+         Only text metrics / editorial bounds are locale-scoped; icons and card rails
+         inherit the exact shared geometry used by English. */
       html[lang^="ja"] #homeScreen .checkup-cta__copy strong{
         font-size:clamp(16.5px,4.65vw,22px)!important;
         line-height:1.16!important;
@@ -415,96 +395,17 @@
       html[lang^="pt"] #homeScreen .checkup-cta__copy strong{
         font-size:clamp(16px,4.45vw,21px)!important;
         line-height:1.16!important;
-        overflow:hidden!important;
-        text-overflow:ellipsis!important;
       }
       html[lang^="ja"] #homeScreen .checkup-cta__copy small,
       html[lang^="es"] #homeScreen .checkup-cta__copy small,
       html[lang^="pt"] #homeScreen .checkup-cta__copy small{
-        display:block!important;
-        max-width:100%!important;
         overflow:hidden!important;
         text-overflow:ellipsis!important;
         white-space:nowrap!important;
       }
 
-      /* Keep all four glass icons on one immutable visual rail; copy may wrap below it. */
-      html[lang^="ja"] #homeScreen .quick-tools,
-      html[lang^="es"] #homeScreen .quick-tools,
-      html[lang^="pt"] #homeScreen .quick-tools{
-        grid-template-columns:repeat(4,minmax(0,1fr))!important;
-        gap:clamp(5px,1.55vw,8px)!important;
-        align-items:stretch!important;
-      }
-      html[lang^="ja"] #homeScreen .tool-card,
-      html[lang^="es"] #homeScreen .tool-card,
-      html[lang^="pt"] #homeScreen .tool-card{
-        min-width:0!important;
-        width:100%!important;
-        overflow:hidden!important;
-        grid-template-rows:clamp(34px,9.8vw,44px) minmax(2.25em,2.25em) minmax(2.30em,2.30em)!important;
-        align-content:center!important;
-        justify-items:center!important;
-        row-gap:2px!important;
-        padding:clamp(5px,.75dvh,8px) 3px!important;
-      }
-      html[lang^="ja"] #homeScreen .tool-card__icon,
-      html[lang^="es"] #homeScreen .tool-card__icon,
-      html[lang^="pt"] #homeScreen .tool-card__icon{
-        grid-row:1!important;
-        align-self:center!important;
-        justify-self:center!important;
-        width:clamp(34px,9.8vw,44px)!important;
-        height:clamp(34px,9.8vw,44px)!important;
-        margin:0!important;
-        transform:none!important;
-        flex:none!important;
-      }
-      html[lang^="ja"] #homeScreen .tool-card strong,
-      html[lang^="es"] #homeScreen .tool-card strong,
-      html[lang^="pt"] #homeScreen .tool-card strong{
-        grid-row:2!important;
-        width:100%!important;
-        max-width:100%!important;
-        min-width:0!important;
-        height:2.25em!important;
-        margin:0!important;
-        display:flex!important;
-        align-items:center!important;
-        justify-content:center!important;
-        white-space:normal!important;
-        overflow:hidden!important;
-        overflow-wrap:normal!important;
-        word-break:normal!important;
-        text-align:center!important;
-        text-wrap:balance;
-        font-size:clamp(9.2px,2.55vw,11.8px)!important;
-        line-height:1.12!important;
-        letter-spacing:-.01em!important;
-      }
-      html[lang^="ja"] #homeScreen .tool-card small,
-      html[lang^="es"] #homeScreen .tool-card small,
-      html[lang^="pt"] #homeScreen .tool-card small{
-        grid-row:3!important;
-        width:100%!important;
-        max-width:100%!important;
-        min-width:0!important;
-        height:2.30em!important;
-        margin:0!important;
-        display:-webkit-box!important;
-        -webkit-box-orient:vertical!important;
-        -webkit-line-clamp:2!important;
-        white-space:normal!important;
-        overflow:hidden!important;
-        overflow-wrap:normal!important;
-        word-break:normal!important;
-        text-align:center!important;
-        font-size:clamp(7.8px,2.10vw,9.6px)!important;
-        line-height:1.15!important;
-        letter-spacing:0!important;
-      }
-
-      /* Spanish and Brazilian Portuguese get a bounded editorial zone instead of overflowing into Dr. Bear. */
+      /* Spanish / Brazilian Portuguese keep a bounded editorial zone only.
+         Dr. Bear, CTA icons, quick-tool icons, health card and nav geometry stay shared. */
       html[lang^="es"] #homeScreen .home-hero__copy,
       html[lang^="pt"] #homeScreen .home-hero__copy{
         width:46%!important;
@@ -537,56 +438,24 @@
         text-wrap:pretty!important;
       }
 
-      /* Navigation icons stay centered even when localized labels are wider. */
-      html[lang^="ja"] .bottom-nav .nav-button,
-      html[lang^="es"] .bottom-nav .nav-button,
-      html[lang^="pt"] .bottom-nav .nav-button{
-        min-width:0!important;
-        grid-template-rows:minmax(0,1fr) 1.35em!important;
-        justify-items:center!important;
-        overflow:hidden!important;
-      }
-      html[lang^="ja"] .bottom-nav .nav-button svg,
-      html[lang^="es"] .bottom-nav .nav-button svg,
-      html[lang^="pt"] .bottom-nav .nav-button svg,
-      html[lang^="ja"] .bottom-nav .nav-button img,
-      html[lang^="es"] .bottom-nav .nav-button img,
-      html[lang^="pt"] .bottom-nav .nav-button img{
-        justify-self:center!important;
-        align-self:center!important;
-        transform:none!important;
-      }
-      html[lang^="ja"] .bottom-nav .nav-button span{
-        max-width:100%!important;
-        overflow:hidden!important;
-        white-space:nowrap!important;
-        text-overflow:clip!important;
-        font-size:clamp(8.6px,2.35vw,10.8px)!important;
-        line-height:1.2!important;
-        letter-spacing:0!important;
-      }
+      /* Long Latin nav labels may use a slightly tighter label only;
+         the icon rail and active indicator are the untouched English layout. */
       html[lang^="es"] .bottom-nav .nav-button span,
       html[lang^="pt"] .bottom-nav .nav-button span{
-        max-width:100%!important;
-        overflow:hidden!important;
-        white-space:nowrap!important;
-        text-overflow:clip!important;
-        font-size:clamp(8.2px,2.18vw,10.2px)!important;
-        line-height:1.2!important;
-        letter-spacing:-.012em!important;
+        font-size:clamp(8.5px,2.28vw,10.5px)!important;
+        letter-spacing:-.01em!important;
       }
 
       @media(max-width:360px){
-        html[lang^="ja"] #homeScreen .tool-card strong,
-        html[lang^="es"] #homeScreen .tool-card strong,
-        html[lang^="pt"] #homeScreen .tool-card strong{font-size:9px!important}
-        html[lang^="ja"] #homeScreen .tool-card small,
-        html[lang^="es"] #homeScreen .tool-card small,
-        html[lang^="pt"] #homeScreen .tool-card small{font-size:7.5px!important}
         html[lang^="es"] #homeScreen .home-hero h1,
-        html[lang^="pt"] #homeScreen .home-hero h1{font-size:16.5px!important;line-height:1.24!important}
+        html[lang^="pt"] #homeScreen .home-hero h1{
+          font-size:16.5px!important;
+          line-height:1.24!important;
+        }
         html[lang^="es"] .bottom-nav .nav-button span,
-        html[lang^="pt"] .bottom-nav .nav-button span{font-size:7.9px!important}
+        html[lang^="pt"] .bottom-nav .nav-button span{
+          font-size:8.1px!important;
+        }
       }
 
       /* Narrow-device guard: preserve readability and let headers grow vertically. */
@@ -620,11 +489,49 @@
     scroll.style.removeProperty('height');
   }
 
+
+  const HOME_COMPACT_COPY = Object.freeze({
+    ja: Object.freeze({
+      cleanup:['整理','候補を確認'],
+      duplicates:['重複','重複を確認'],
+      large:['大容量','サイズ確認'],
+      older:['古いファイル','日付を確認'],
+    }),
+    es: Object.freeze({
+      cleanup:['Limpieza','Revisar'],
+      duplicates:['Duplicados','Buscar copias'],
+      large:['Grandes','Ver tamaños'],
+      older:['Antiguos','Ver fechas'],
+    }),
+    'pt-BR': Object.freeze({
+      cleanup:['Limpeza','Revisar'],
+      duplicates:['Duplicados','Buscar cópias'],
+      large:['Grandes','Ver tamanhos'],
+      older:['Antigos','Ver datas'],
+    }),
+  });
+
+  function compactHomeCopy() {
+    const copy = HOME_COMPACT_COPY[language()];
+    if (!copy) return;
+    const root = byId('homeScreen');
+    if (!root) return;
+    for (const [tool, values] of Object.entries(copy)) {
+      const card = root.querySelector(`.quick-tools [data-tool="${tool}"]`);
+      if (!card) continue;
+      const title = card.querySelector('strong');
+      const sub = card.querySelector('small');
+      if (title) title.textContent = values[0];
+      if (sub) sub.textContent = values[1];
+    }
+  }
+
   function refresh() {
     ensureStyle();
     document.documentElement.dataset.b47Language = language();
     strengthenSemanticIcons();
     protectPrivacyGeometry();
+    compactHomeCopy();
   }
 
   function queueRefresh() {

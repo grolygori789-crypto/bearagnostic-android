@@ -594,6 +594,106 @@
 };
   const text = (key) => COPY[currentLanguage()]?.[key] || COPY.en[key] || key;
 
+
+  const STATIC_SCAN_COPY = Object.freeze({
+    ja: Object.freeze({
+      kicker:'ファイルをチェック',
+      stages:Object.freeze([
+        ['準備','準備中'],
+        ['詳細','情報を確認'],
+        ['サイズ','解析中'],
+        ['重複','一致を確認'],
+        ['更新日','日付を確認'],
+        ['完了処理','あと少し'],
+      ]),
+      reviewed:'確認済みファイル',
+      duplicates:'重複候補',
+      large:'大容量ファイル',
+      older:'古いファイル',
+      tipTitle:'ご存じですか？',
+      stagesAria:'チェックの進行状況',
+    }),
+    es: Object.freeze({
+      kicker:'ANALIZANDO TUS ARCHIVOS',
+      stages:Object.freeze([
+        ['Preparando','Preparando'],
+        ['Detalles','Leyendo info'],
+        ['Tamaños','Analizando'],
+        ['Duplicados','Buscando'],
+        ['Fechas','Revisando'],
+        ['Finalizando','Casi listo'],
+      ]),
+      reviewed:'archivos revisados',
+      duplicates:'duplicados candidatos',
+      large:'archivos grandes',
+      older:'archivos antiguos',
+      tipTitle:'¿Sabías que?',
+      stagesAria:'Etapas de revisión',
+    }),
+    'pt-BR': Object.freeze({
+      kicker:'VERIFICANDO SEUS ARQUIVOS',
+      stages:Object.freeze([
+        ['Preparando','Preparando'],
+        ['Detalhes','Lendo dados'],
+        ['Tamanhos','Analisando'],
+        ['Duplicados','Buscando'],
+        ['Datas','Verificando'],
+        ['Finalizando','Quase pronto'],
+      ]),
+      reviewed:'arquivos verificados',
+      duplicates:'duplicados candidatos',
+      large:'arquivos grandes',
+      older:'arquivos antigos',
+      tipTitle:'Você sabia?',
+      stagesAria:'Etapas da verificação',
+    }),
+  });
+
+  function applyStaticScanCopy() {
+    const copy = STATIC_SCAN_COPY[currentLanguage()];
+    if (!copy) return;
+    const screen = byId('checkupScreen');
+    if (!screen) return;
+    const kicker = byId('scanKicker');
+    if (kicker) kicker.textContent = copy.kicker;
+    qsa('[data-scan-stage]', screen).forEach((stage, index) => {
+      const values = copy.stages[index];
+      if (!values) return;
+      const title = stage.querySelector('strong');
+      const sub = stage.querySelector('small');
+      if (title) title.textContent = values[0];
+      if (sub) sub.textContent = values[1];
+    });
+    const labels = [
+      ['scanReviewedLabel', copy.reviewed],
+      ['scanDuplicatesLabel', copy.duplicates],
+      ['scanLargeLabel', copy.large],
+      ['scanOlderLabel', copy.older],
+      ['scanTipTitle', copy.tipTitle],
+    ];
+    for (const [id, value] of labels) {
+      const el = byId(id);
+      if (el) el.textContent = value;
+    }
+    const rail = screen.querySelector('.scan-rail');
+    if (rail) rail.setAttribute('aria-label', copy.stagesAria);
+  }
+
+  function syncLocalizedScanSurface() {
+    const screen = byId('checkupScreen');
+    if (!screen) return;
+    const state = screen.dataset.state || (running ? 'running' : (lastProgress?.state === 'complete' ? 'complete' : 'idle'));
+    setScanState(state);
+    applyStaticScanCopy();
+    const ring = byId('scanRingLabel');
+    if (ring) ring.textContent = state === 'running' ? text('scanning') : state === 'complete' ? text('complete') : text('ready');
+  }
+
+  function scheduleLocalizedScanSurface() {
+    requestAnimationFrame(syncLocalizedScanSurface);
+    setTimeout(syncLocalizedScanSurface, 48);
+  }
+
   function trustCopy() {
     const lang=currentLanguage();
     if(lang==='th') return {
@@ -814,6 +914,7 @@
     byId('scanSubtitle').textContent = text(state==='running'?'runningSub':state==='complete'?'doneSub':'idleSub');
     byId('scanQuote').textContent = text(state==='running'?'quoteRunning':state==='complete'?'quoteDone':'quoteIdle');
     byId('scanTipBody').textContent = text('tip');
+    applyStaticScanCopy();
   }
 
   function setStage(phase, progress=null) {
@@ -1415,7 +1516,7 @@
     updateReviewSelectionUi();
   },true);
 
-  window.addEventListener('bearagnostic:screenchange',(event)=>{const screen=event.detail?.screen||'home';syncHomeButton(screen);if(screen==='preferences')ensureNativePreferences();if(screen==='more')polishMoreScreen();});
+  window.addEventListener('bearagnostic:screenchange',(event)=>{const screen=event.detail?.screen||'home';syncHomeButton(screen);if(screen==='preferences')ensureNativePreferences();if(screen==='more')polishMoreScreen();if(screen==='checkup')scheduleLocalizedScanSurface();});
 
   document.addEventListener('DOMContentLoaded',()=>{
     renderModeSheet(); ensureActionSurfaces();
@@ -1424,9 +1525,9 @@
     // Keep the original browser file picker hidden in native Android; its visual Checkup
     // surface and flying-file animation remain the approved legacy implementation.
     const picker=byId('scanPicker'); if(picker){picker.hidden=true;picker.classList.remove('is-open');}
-    setScanState('idle'); setPercent(0);
+    setScanState('idle'); setPercent(0); scheduleLocalizedScanSurface();
     NATIVE.refreshNativeState?.();
   },{once:true});
 
-  window.addEventListener('bearagnostic:languagechange',()=>{if(!byId('nativeModeSheet')?.hidden)renderModeSheet();setScanState(running?'running':lastProgress?.state==='complete'?'complete':'idle');syncHomeButton();ensureNativePreferences();polishMoreScreen();ensureTrustSurfaces();if(reviewCategory)renderReviewAdvice(reviewCategory);if(lastCompleteResult&&!byId('nativeResultsSheet')?.hidden)openResults(lastCompleteResult);});
+  window.addEventListener('bearagnostic:languagechange',()=>{if(!byId('nativeModeSheet')?.hidden)renderModeSheet();setScanState(running?'running':lastProgress?.state==='complete'?'complete':'idle');syncHomeButton();ensureNativePreferences();polishMoreScreen();ensureTrustSurfaces();if(reviewCategory)renderReviewAdvice(reviewCategory);if(lastCompleteResult&&!byId('nativeResultsSheet')?.hidden)openResults(lastCompleteResult);scheduleLocalizedScanSurface();});
 })();
