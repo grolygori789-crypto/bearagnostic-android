@@ -143,9 +143,6 @@ class NativeBridge(private val activity: MainActivity) {
     }
 
     @JavascriptInterface
-    fun setAppLanguage(language: String): Boolean = activity.setAppLanguage(language)
-
-    @JavascriptInterface
     fun startScan(mode: String, customScopesJson: String, verifyDuplicates: Boolean): String {
         val normalizedMode = RuntimeContractGuard.normalizeScanMode(mode)
             ?: return rejected("invalid_scan_mode")
@@ -331,6 +328,6 @@ class NativeBridge(private val activity: MainActivity) {
 
     companion object {
         const val JS_INTERFACE_NAME = "BearagnosticNative"
-        const val BRIDGE_VERSION = 18
+        const val BRIDGE_VERSION = 17
     }
 }

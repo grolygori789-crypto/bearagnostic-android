@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const BUILD = 53;
+  const BUILD = 52;
   const byId = (id) => document.getElementById(id);
   let refreshQueued = false;
 
@@ -9,8 +9,6 @@
     const value = (document.documentElement.lang || 'en').toLowerCase();
     if (value.startsWith('th')) return 'th';
     if (value.startsWith('ja')) return 'ja';
-    if (value.startsWith('es')) return 'es';
-    if (value === 'pt-br' || value.startsWith('pt-br') || value.startsWith('pt_')) return 'pt-BR';
     return 'en';
   }
 
@@ -384,80 +382,6 @@
         line-height:1.68!important;
       }
 
-      /* B78 — match the approved English Home geometry.
-         Only text metrics / editorial bounds are locale-scoped; icons and card rails
-         inherit the exact shared geometry used by English. */
-      html[lang^="ja"] #homeScreen .checkup-cta__copy strong{
-        font-size:clamp(16.5px,4.65vw,22px)!important;
-        line-height:1.16!important;
-      }
-      html[lang^="es"] #homeScreen .checkup-cta__copy strong,
-      html[lang^="pt"] #homeScreen .checkup-cta__copy strong{
-        font-size:clamp(16px,4.45vw,21px)!important;
-        line-height:1.16!important;
-      }
-      html[lang^="ja"] #homeScreen .checkup-cta__copy small,
-      html[lang^="es"] #homeScreen .checkup-cta__copy small,
-      html[lang^="pt"] #homeScreen .checkup-cta__copy small{
-        overflow:hidden!important;
-        text-overflow:ellipsis!important;
-        white-space:nowrap!important;
-      }
-
-      /* Spanish / Brazilian Portuguese keep a bounded editorial zone only.
-         Dr. Bear, CTA icons, quick-tool icons, health card and nav geometry stay shared. */
-      html[lang^="es"] #homeScreen .home-hero__copy,
-      html[lang^="pt"] #homeScreen .home-hero__copy{
-        width:46%!important;
-        max-width:46%!important;
-      }
-      html[lang^="es"] #homeScreen .home-hero h1,
-      html[lang^="pt"] #homeScreen .home-hero h1{
-        font-size:clamp(17px,4.75vw,21px)!important;
-        line-height:1.24!important;
-        letter-spacing:-.018em!important;
-        text-wrap:balance!important;
-      }
-      html[lang^="es"] #homeScreen .home-hero h1 em,
-      html[lang^="pt"] #homeScreen .home-hero h1 em{
-        display:block!important;
-        max-width:100%!important;
-        white-space:normal!important;
-        overflow-wrap:normal!important;
-        word-break:normal!important;
-      }
-      html[lang^="es"] #homeScreen .editorial-card__quote,
-      html[lang^="pt"] #homeScreen .editorial-card__quote{
-        width:56%!important;
-      }
-      html[lang^="es"] #homeScreen .editorial-card blockquote,
-      html[lang^="pt"] #homeScreen .editorial-card blockquote{
-        font-size:clamp(13px,3.55vw,16.5px)!important;
-        line-height:1.24!important;
-        letter-spacing:-.015em!important;
-        text-wrap:pretty!important;
-      }
-
-      /* Long Latin nav labels may use a slightly tighter label only;
-         the icon rail and active indicator are the untouched English layout. */
-      html[lang^="es"] .bottom-nav .nav-button span,
-      html[lang^="pt"] .bottom-nav .nav-button span{
-        font-size:clamp(8.5px,2.28vw,10.5px)!important;
-        letter-spacing:-.01em!important;
-      }
-
-      @media(max-width:360px){
-        html[lang^="es"] #homeScreen .home-hero h1,
-        html[lang^="pt"] #homeScreen .home-hero h1{
-          font-size:16.5px!important;
-          line-height:1.24!important;
-        }
-        html[lang^="es"] .bottom-nav .nav-button span,
-        html[lang^="pt"] .bottom-nav .nav-button span{
-          font-size:8.1px!important;
-        }
-      }
-
       /* Narrow-device guard: preserve readability and let headers grow vertically. */
       @media(max-width:360px){
         html[lang^="en"]{--ba-display-heading-size:clamp(27px,7.45vw,34px);--ba-section-heading-size:clamp(23px,6.25vw,28px);--ba-workspace-heading-size:clamp(20.5px,5.55vw,24px)}
@@ -489,49 +413,11 @@
     scroll.style.removeProperty('height');
   }
 
-
-  const HOME_COMPACT_COPY = Object.freeze({
-    ja: Object.freeze({
-      cleanup:['整理','候補を確認'],
-      duplicates:['重複','重複を確認'],
-      large:['大容量','サイズ確認'],
-      older:['古いファイル','日付を確認'],
-    }),
-    es: Object.freeze({
-      cleanup:['Limpieza','Revisar'],
-      duplicates:['Duplicados','Buscar copias'],
-      large:['Grandes','Ver tamaños'],
-      older:['Antiguos','Ver fechas'],
-    }),
-    'pt-BR': Object.freeze({
-      cleanup:['Limpeza','Revisar'],
-      duplicates:['Duplicados','Buscar cópias'],
-      large:['Grandes','Ver tamanhos'],
-      older:['Antigos','Ver datas'],
-    }),
-  });
-
-  function compactHomeCopy() {
-    const copy = HOME_COMPACT_COPY[language()];
-    if (!copy) return;
-    const root = byId('homeScreen');
-    if (!root) return;
-    for (const [tool, values] of Object.entries(copy)) {
-      const card = root.querySelector(`.quick-tools [data-tool="${tool}"]`);
-      if (!card) continue;
-      const title = card.querySelector('strong');
-      const sub = card.querySelector('small');
-      if (title) title.textContent = values[0];
-      if (sub) sub.textContent = values[1];
-    }
-  }
-
   function refresh() {
     ensureStyle();
     document.documentElement.dataset.b47Language = language();
     strengthenSemanticIcons();
     protectPrivacyGeometry();
-    compactHomeCopy();
   }
 
   function queueRefresh() {

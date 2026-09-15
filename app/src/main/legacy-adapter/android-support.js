@@ -11,87 +11,55 @@
   const SPARK_ICON = '<path d="M12 3v3.2M12 17.8V21M3 12h3.2M17.8 12H21M5.7 5.7l2.3 2.3M16 16l2.3 2.3M18.3 5.7 16 8M8 16l-2.3 2.3"/><circle cx="12" cy="12" r="2.65"/>';
 
   const COPY = {
-  "en": {
-    "rowTitle": "Support Bearagnostic",
-    "rowSub": "Independent support via Ko-fi",
-    "openFailed": "No compatible browser was available for this link.",
-    "close": "Close",
-    "kicker": "SUPPORT BEARAGNOSTIC",
-    "title": "Keep Bearagnostic moving forward.",
-    "lead": "Bearagnostic is built independently and refined with care.",
-    "panelTitle": "Built slowly. Maintained thoughtfully.",
-    "panelBody": "If Bearagnostic has earned a place on your phone, support at any level gives us more room to maintain it, improve it and keep each release careful, useful and independent.",
-    "provider": "Ko-fi · Benedict Interactive",
-    "providerBody": "Ko-fi opens securely in your browser. Payment and account details stay with Ko-fi, outside Bearagnostic.",
-    "cta": "Support on Ko-fi",
-    "boundary": "Completely optional and separate from Free and Pro. Support never changes scan quality, safety or your existing access.",
-    "signoff": "Thank you for helping independent software stay independent."
-  },
-  "th": {
-    "rowTitle": "สนับสนุน Bearagnostic",
-    "rowSub": "สนับสนุนการพัฒนาอิสระผ่าน Ko-fi",
-    "openFailed": "ไม่พบเบราว์เซอร์ที่รองรับสำหรับเปิดลิงก์นี้",
-    "close": "ปิด",
-    "kicker": "สนับสนุน BEARAGNOSTIC",
-    "title": "ช่วยให้ Bearagnostic เดินหน้าต่อไป",
-    "lead": "Bearagnostic ถูกพัฒนาขึ้นอย่างอิสระ และขัดเกลาทุกรายละเอียดด้วยความตั้งใจ",
-    "panelTitle": "ค่อยๆ สร้าง ค่อยๆ ดูแล ให้ดีขึ้นทุกเวอร์ชัน",
-    "panelBody": "ถ้ามันเป็นแอปที่คุณอยากเก็บไว้บนเครื่อง การสนับสนุนตามกำลังจะช่วยให้เรามีพื้นที่ดูแล พัฒนา และพาแต่ละเวอร์ชันไปข้างหน้าอย่างรอบคอบ มีประโยชน์ และยังคงความเป็นอิสระของโปรเจกต์เอาไว้",
-    "provider": "Ko-fi · Benedict Interactive",
-    "providerBody": "ระบบจะเปิด Ko-fi ในเบราว์เซอร์อย่างปลอดภัย การชำระเงินและข้อมูลบัญชีดำเนินการโดย Ko-fi โดยตรง ไม่ได้อยู่ใน Bearagnostic",
-    "cta": "สนับสนุนผ่าน Ko-fi",
-    "boundary": "เป็นทางเลือกโดยสมบูรณ์และแยกจาก Free กับ Pro การสนับสนุนไม่มีผลต่อคุณภาพการตรวจ ความปลอดภัย หรือสิทธิ์ที่คุณมีอยู่",
-    "signoff": "ขอบคุณที่ช่วยให้งานอิสระยังคงเดินหน้าต่อได้อย่างอิสระ"
-  },
-  "ja": {
-    "rowTitle": "Bearagnostic を支援",
-    "rowSub": "Ko-fi から独立開発を応援",
-    "openFailed": "このリンクを開けるブラウザが見つかりませんでした。",
-    "close": "閉じる",
-    "kicker": "BEARAGNOSTIC を支援",
-    "title": "Bearagnostic の次の一歩を支える",
-    "lead": "Bearagnostic は独立して開発し、細かな部分まで丁寧に磨き続けています。",
-    "panelTitle": "丁寧につくり、丁寧に育てる。",
-    "panelBody": "このアプリを手元に置いておきたいと感じたときだけ、無理のない範囲での支援が、保守・改善・次のリリースを落ち着いて進める余力につながります。",
-    "provider": "Ko-fi · Benedict Interactive",
-    "providerBody": "Ko-fi はブラウザで安全に開きます。支払い・アカウント情報は Ko-fi 側で扱われ、Bearagnostic には送られません。",
-    "cta": "Ko-fi で支援",
-    "boundary": "支援は完全に任意で、Free / Pro とは別です。解析品質、安全性、現在の利用権には影響しません。",
-    "signoff": "独立したソフトウェアづくりを支えていただき、ありがとうございます。"
-  },
-  "es": {
-    "rowTitle": "Apoyar Bearagnostic",
-    "rowSub": "Apoyo independiente mediante Ko-fi",
-    "openFailed": "No había ningún navegador compatible disponible para este enlace.",
-    "close": "Cerrar",
-    "kicker": "APOYAR BEARAGNOSTIC",
-    "title": "Ayuda a que Bearagnostic siga avanzando.",
-    "lead": "Bearagnostic se desarrolla de forma independiente y se perfecciona con cuidado.",
-    "panelTitle": "Creado sin prisas. Mantenido con cuidado.",
-    "panelBody": "Si Bearagnostic se ha ganado un lugar en tu teléfono, cualquier nivel de apoyo nos da más margen para mantenerlo, mejorarlo y conservar cada versión cuidadosa, útil e independiente.",
-    "provider": "Ko-fi · Benedict Interactive",
-    "providerBody": "Ko-fi se abre de forma segura en tu navegador. Los datos de pago y de la cuenta permanecen en Ko-fi, fuera de Bearagnostic.",
-    "cta": "Apoyar en Ko-fi",
-    "boundary": "Totalmente opcional y separado de Free y Pro. El apoyo nunca cambia la calidad del análisis, la seguridad ni tu acceso actual.",
-    "signoff": "Gracias por ayudar a que el software independiente siga siendo independiente."
-  },
-  "pt-BR": {
-    "rowTitle": "Apoiar o Bearagnostic",
-    "rowSub": "Apoio independente via Ko-fi",
-    "openFailed": "Nenhum navegador compatível estava disponível para este link.",
-    "close": "Fechar",
-    "kicker": "APOIAR O BEARAGNOSTIC",
-    "title": "Ajude o Bearagnostic a continuar evoluindo.",
-    "lead": "O Bearagnostic é desenvolvido de forma independente e refinado com cuidado.",
-    "panelTitle": "Criado sem pressa. Mantido com cuidado.",
-    "panelBody": "Se o Bearagnostic conquistou um lugar no seu celular, apoio em qualquer nível nos dá mais espaço para mantê-lo, melhorá-lo e manter cada versão cuidadosa, útil e independente.",
-    "provider": "Ko-fi · Benedict Interactive",
-    "providerBody": "O Ko-fi abre com segurança no seu navegador. Dados de pagamento e da conta permanecem no Ko-fi, fora do Bearagnostic.",
-    "cta": "Apoiar no Ko-fi",
-    "boundary": "Totalmente opcional e separado do Free e do Pro. O apoio nunca altera a qualidade do scan, a segurança ou seu acesso atual.",
-    "signoff": "Obrigado por ajudar o software independente a continuar independente."
-  }
-};
+    en: {
+      rowTitle: 'Support Bearagnostic',
+      rowSub: 'Independent support via Ko-fi',
+      openFailed: 'No compatible browser was available for this link.',
+      close: 'Close',
+      kicker: 'SUPPORT BEARAGNOSTIC',
+      title: 'Keep Bearagnostic moving forward.',
+      lead: 'Bearagnostic is built independently and refined with care.',
+      panelTitle: 'Built slowly. Maintained thoughtfully.',
+      panelBody: 'If Bearagnostic has earned a place on your phone, support at any level gives us more room to maintain it, improve it and keep each release careful, useful and independent.',
+      provider: 'Ko-fi · Benedict Interactive',
+      providerBody: 'Ko-fi opens securely in your browser. Payment and account details stay with Ko-fi, outside Bearagnostic.',
+      cta: 'Support on Ko-fi',
+      boundary: 'Completely optional and separate from Free and Pro. Support never changes scan quality, safety or your existing access.',
+      signoff: 'Thank you for helping independent software stay independent.'
+    },
+    th: {
+      rowTitle: 'สนับสนุน Bearagnostic',
+      rowSub: 'สนับสนุนการพัฒนาอิสระผ่าน Ko-fi',
+      openFailed: 'ไม่พบเบราว์เซอร์ที่รองรับสำหรับเปิดลิงก์นี้',
+      close: 'ปิด',
+      kicker: 'สนับสนุน BEARAGNOSTIC',
+      title: 'ช่วยให้ Bearagnostic เดินหน้าต่อไป',
+      lead: 'Bearagnostic ถูกพัฒนาขึ้นอย่างอิสระ และขัดเกลาทุกรายละเอียดด้วยความตั้งใจ',
+      panelTitle: 'ค่อยๆ สร้าง ค่อยๆ ดูแล ให้ดีขึ้นทุกเวอร์ชัน',
+      panelBody: 'ถ้ามันเป็นแอปที่คุณอยากเก็บไว้บนเครื่อง การสนับสนุนตามกำลังจะช่วยให้เรามีพื้นที่ดูแล พัฒนา และพาแต่ละเวอร์ชันไปข้างหน้าอย่างรอบคอบ มีประโยชน์ และยังคงความเป็นอิสระของโปรเจกต์เอาไว้',
+      provider: 'Ko-fi · Benedict Interactive',
+      providerBody: 'ระบบจะเปิด Ko-fi ในเบราว์เซอร์อย่างปลอดภัย การชำระเงินและข้อมูลบัญชีดำเนินการโดย Ko-fi โดยตรง ไม่ได้อยู่ใน Bearagnostic',
+      cta: 'สนับสนุนผ่าน Ko-fi',
+      boundary: 'เป็นทางเลือกโดยสมบูรณ์และแยกจาก Free กับ Pro การสนับสนุนไม่มีผลต่อคุณภาพการตรวจ ความปลอดภัย หรือสิทธิ์ที่คุณมีอยู่',
+      signoff: 'ขอบคุณที่ช่วยให้งานอิสระยังคงเดินหน้าต่อได้อย่างอิสระ'
+    },
+    ja: {
+      rowTitle: 'Bearagnostic を支援',
+      rowSub: 'Ko-fi から独立開発を応援',
+      openFailed: 'このリンクを開けるブラウザが見つかりませんでした。',
+      close: '閉じる',
+      kicker: 'BEARAGNOSTIC を支援',
+      title: 'Bearagnostic の次の一歩を支える',
+      lead: 'Bearagnostic は独立して開発し、細かな部分まで丁寧に磨き続けています。',
+      panelTitle: '丁寧につくり、丁寧に育てる。',
+      panelBody: 'このアプリを手元に置いておきたいと感じたときだけ、無理のない範囲での支援が、保守・改善・次のリリースを落ち着いて進める余力につながります。',
+      provider: 'Ko-fi · Benedict Interactive',
+      providerBody: 'Ko-fi はブラウザで安全に開きます。支払い・アカウント情報は Ko-fi 側で扱われ、Bearagnostic には送られません。',
+      cta: 'Ko-fi で支援',
+      boundary: '支援は完全に任意で、Free / Pro とは別です。解析品質、安全性、現在の利用権には影響しません。',
+      signoff: '独立したソフトウェアづくりを支えていただき、ありがとうございます。'
+    }
+  };
 
   let overlay = null;
   let previousFocus = null;
@@ -103,7 +71,7 @@
 
   function lang() {
     const value = (document.documentElement.lang || 'en').toLowerCase();
-    return value.startsWith('th') ? 'th' : value.startsWith('ja') ? 'ja' : value.startsWith('es') ? 'es' : (value === 'pt-br' || value.startsWith('pt-br') || value.startsWith('pt_')) ? 'pt-BR' : 'en';
+    return value.startsWith('th') ? 'th' : value.startsWith('ja') ? 'ja' : 'en';
   }
 
   function c() { return COPY[lang()] || COPY.en; }

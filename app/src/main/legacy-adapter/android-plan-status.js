@@ -7,58 +7,11 @@
   const byId = (id) => document.getElementById(id);
 
   const COPY = {
-  "en": {
-    "free": "FREE",
-    "pro": "PRO",
-    "proLifetime": "PRO · LIFETIME",
-    "current": "Current plan",
-    "open": "View Bearagnostic Pro",
-    "dupTitle": "Advanced Duplicates",
-    "dupBody": "Full-scope verification with Deep Scan plus one-tap recommended selection across duplicate groups.",
-    "plannedDup": "Advanced exact duplicate workflow"
-  },
-  "th": {
-    "free": "FREE",
-    "pro": "PRO",
-    "proLifetime": "PRO · ตลอดชีพ",
-    "current": "แผนปัจจุบัน",
-    "open": "ดู Bearagnostic Pro",
-    "dupTitle": "จัดการไฟล์ซ้ำขั้นสูง",
-    "dupBody": "ตรวจไฟล์ซ้ำเต็มขอบเขตด้วย Deep Scan และเลือกสำเนาส่วนเกินตามคำแนะนำทุกกลุ่มได้ในครั้งเดียว",
-    "plannedDup": "ระบบจัดการไฟล์ซ้ำแบบ exact ขั้นสูง"
-  },
-  "ja": {
-    "free": "FREE",
-    "pro": "PRO",
-    "proLifetime": "PRO · 買い切り",
-    "current": "現在のプラン",
-    "open": "Bearagnostic Pro を見る",
-    "dupTitle": "高度な重複整理",
-    "dupBody": "Deep Scan の全範囲検証と、全重複グループの推奨コピー一括選択が利用できます。",
-    "plannedDup": "高度な完全一致重複ワークフロー"
-  },
-  "es": {
-    "free": "GRATIS",
-    "pro": "PRO",
-    "proLifetime": "PRO · DE POR VIDA",
-    "current": "Plan actual",
-    "open": "Ver Bearagnostic Pro",
-    "dupTitle": "Duplicados avanzados",
-    "dupBody": "Verificación de ámbito completo con Deep Scan y selección recomendada con un toque en todos los grupos de duplicados.",
-    "plannedDup": "Flujo avanzado de duplicados exactos"
-  },
-  "pt-BR": {
-    "free": "GRÁTIS",
-    "pro": "PRO",
-    "proLifetime": "PRO · VITALÍCIO",
-    "current": "Plano atual",
-    "open": "Ver Bearagnostic Pro",
-    "dupTitle": "Duplicados avançados",
-    "dupBody": "Verificação de escopo completo com Deep Scan e seleção recomendada com um toque em todos os grupos de duplicados.",
-    "plannedDup": "Fluxo avançado de duplicados exatos"
-  }
-};
-  function lang(){const v=(document.documentElement.lang||'en').toLowerCase();return v.startsWith('th') ? 'th' : v.startsWith('ja') ? 'ja' : v.startsWith('es') ? 'es' : (v === 'pt-br' || v.startsWith('pt-br') || v.startsWith('pt_')) ? 'pt-BR' : 'en';}
+    en:{free:'FREE',pro:'PRO',proLifetime:'PRO · LIFETIME',current:'Current plan',open:'View Bearagnostic Pro',dupTitle:'Advanced Duplicates',dupBody:'Full-scope verification with Deep Scan plus one-tap recommended selection across duplicate groups.',plannedDup:'Advanced exact duplicate workflow'},
+    th:{free:'FREE',pro:'PRO',proLifetime:'PRO · ตลอดชีพ',current:'แผนปัจจุบัน',open:'ดู Bearagnostic Pro',dupTitle:'จัดการไฟล์ซ้ำขั้นสูง',dupBody:'ตรวจไฟล์ซ้ำเต็มขอบเขตด้วย Deep Scan และเลือกสำเนาส่วนเกินตามคำแนะนำทุกกลุ่มได้ในครั้งเดียว',plannedDup:'ระบบจัดการไฟล์ซ้ำแบบ exact ขั้นสูง'},
+    ja:{free:'FREE',pro:'PRO',proLifetime:'PRO · 買い切り',current:'現在のプラン',open:'Bearagnostic Pro を見る',dupTitle:'高度な重複整理',dupBody:'Deep Scan の全範囲検証と、全重複グループの推奨コピー一括選択が利用できます。',plannedDup:'高度な完全一致重複ワークフロー'}
+  };
+  function lang(){const v=(document.documentElement.lang||'en').toLowerCase();return v.startsWith('th')?'th':v.startsWith('ja')?'ja':'en';}
   function t(){return COPY[lang()]||COPY.en;}
   const dupIcon='<rect x="4" y="6" width="11" height="13" rx="2"/><rect x="9" y="3" width="11" height="13" rx="2"/><path d="m11.5 10.5 1.6 1.6 3.4-3.4"/>';
 
