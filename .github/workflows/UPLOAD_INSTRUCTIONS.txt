@@ -1,0 +1,14 @@
+B75 CI HOTFIX — MANUAL GITHUB EDIT
+
+Do not upload a .github folder from Android.
+
+1. Open this existing repository file in GitHub:
+   .github/workflows/android-debug-apk.yml
+2. Tap Edit (pencil).
+3. Select all existing content and replace it with the full contents of:
+   android-debug-apk.yml
+4. Commit with:
+   Fix Android SDK CI setup
+5. Wait for the new Build Android Debug APK run.
+
+This is a CI-only hotfix. No app version bump is required.
