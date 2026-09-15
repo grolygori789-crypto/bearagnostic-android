@@ -384,6 +384,211 @@
         line-height:1.68!important;
       }
 
+      /* B77 — locale-scoped Home hardening. EN/TH intentionally untouched. */
+      html[lang^="ja"] #homeScreen .checkup-cta,
+      html[lang^="es"] #homeScreen .checkup-cta,
+      html[lang^="pt"] #homeScreen .checkup-cta{
+        grid-template-columns:clamp(48px,14.8vw,66px) minmax(0,1fr) clamp(40px,12.8vw,54px)!important;
+        column-gap:clamp(8px,2.4vw,13px)!important;
+      }
+      html[lang^="ja"] #homeScreen .checkup-cta__icon,
+      html[lang^="es"] #homeScreen .checkup-cta__icon,
+      html[lang^="pt"] #homeScreen .checkup-cta__icon,
+      html[lang^="ja"] #homeScreen .checkup-cta__arrow,
+      html[lang^="es"] #homeScreen .checkup-cta__arrow,
+      html[lang^="pt"] #homeScreen .checkup-cta__arrow{
+        justify-self:center!important;
+        flex:none!important;
+      }
+      html[lang^="ja"] #homeScreen .checkup-cta__copy,
+      html[lang^="es"] #homeScreen .checkup-cta__copy,
+      html[lang^="pt"] #homeScreen .checkup-cta__copy{
+        min-width:0!important;
+        max-width:100%!important;
+        overflow:hidden!important;
+      }
+      html[lang^="ja"] #homeScreen .checkup-cta__copy strong{
+        font-size:clamp(16.5px,4.65vw,22px)!important;
+        line-height:1.16!important;
+      }
+      html[lang^="es"] #homeScreen .checkup-cta__copy strong,
+      html[lang^="pt"] #homeScreen .checkup-cta__copy strong{
+        font-size:clamp(16px,4.45vw,21px)!important;
+        line-height:1.16!important;
+        overflow:hidden!important;
+        text-overflow:ellipsis!important;
+      }
+      html[lang^="ja"] #homeScreen .checkup-cta__copy small,
+      html[lang^="es"] #homeScreen .checkup-cta__copy small,
+      html[lang^="pt"] #homeScreen .checkup-cta__copy small{
+        display:block!important;
+        max-width:100%!important;
+        overflow:hidden!important;
+        text-overflow:ellipsis!important;
+        white-space:nowrap!important;
+      }
+
+      /* Keep all four glass icons on one immutable visual rail; copy may wrap below it. */
+      html[lang^="ja"] #homeScreen .quick-tools,
+      html[lang^="es"] #homeScreen .quick-tools,
+      html[lang^="pt"] #homeScreen .quick-tools{
+        grid-template-columns:repeat(4,minmax(0,1fr))!important;
+        gap:clamp(5px,1.55vw,8px)!important;
+        align-items:stretch!important;
+      }
+      html[lang^="ja"] #homeScreen .tool-card,
+      html[lang^="es"] #homeScreen .tool-card,
+      html[lang^="pt"] #homeScreen .tool-card{
+        min-width:0!important;
+        width:100%!important;
+        overflow:hidden!important;
+        grid-template-rows:clamp(34px,9.8vw,44px) minmax(2.25em,2.25em) minmax(2.30em,2.30em)!important;
+        align-content:center!important;
+        justify-items:center!important;
+        row-gap:2px!important;
+        padding:clamp(5px,.75dvh,8px) 3px!important;
+      }
+      html[lang^="ja"] #homeScreen .tool-card__icon,
+      html[lang^="es"] #homeScreen .tool-card__icon,
+      html[lang^="pt"] #homeScreen .tool-card__icon{
+        grid-row:1!important;
+        align-self:center!important;
+        justify-self:center!important;
+        width:clamp(34px,9.8vw,44px)!important;
+        height:clamp(34px,9.8vw,44px)!important;
+        margin:0!important;
+        transform:none!important;
+        flex:none!important;
+      }
+      html[lang^="ja"] #homeScreen .tool-card strong,
+      html[lang^="es"] #homeScreen .tool-card strong,
+      html[lang^="pt"] #homeScreen .tool-card strong{
+        grid-row:2!important;
+        width:100%!important;
+        max-width:100%!important;
+        min-width:0!important;
+        height:2.25em!important;
+        margin:0!important;
+        display:flex!important;
+        align-items:center!important;
+        justify-content:center!important;
+        white-space:normal!important;
+        overflow:hidden!important;
+        overflow-wrap:normal!important;
+        word-break:normal!important;
+        text-align:center!important;
+        text-wrap:balance;
+        font-size:clamp(9.2px,2.55vw,11.8px)!important;
+        line-height:1.12!important;
+        letter-spacing:-.01em!important;
+      }
+      html[lang^="ja"] #homeScreen .tool-card small,
+      html[lang^="es"] #homeScreen .tool-card small,
+      html[lang^="pt"] #homeScreen .tool-card small{
+        grid-row:3!important;
+        width:100%!important;
+        max-width:100%!important;
+        min-width:0!important;
+        height:2.30em!important;
+        margin:0!important;
+        display:-webkit-box!important;
+        -webkit-box-orient:vertical!important;
+        -webkit-line-clamp:2!important;
+        white-space:normal!important;
+        overflow:hidden!important;
+        overflow-wrap:normal!important;
+        word-break:normal!important;
+        text-align:center!important;
+        font-size:clamp(7.8px,2.10vw,9.6px)!important;
+        line-height:1.15!important;
+        letter-spacing:0!important;
+      }
+
+      /* Spanish and Brazilian Portuguese get a bounded editorial zone instead of overflowing into Dr. Bear. */
+      html[lang^="es"] #homeScreen .home-hero__copy,
+      html[lang^="pt"] #homeScreen .home-hero__copy{
+        width:46%!important;
+        max-width:46%!important;
+      }
+      html[lang^="es"] #homeScreen .home-hero h1,
+      html[lang^="pt"] #homeScreen .home-hero h1{
+        font-size:clamp(17px,4.75vw,21px)!important;
+        line-height:1.24!important;
+        letter-spacing:-.018em!important;
+        text-wrap:balance!important;
+      }
+      html[lang^="es"] #homeScreen .home-hero h1 em,
+      html[lang^="pt"] #homeScreen .home-hero h1 em{
+        display:block!important;
+        max-width:100%!important;
+        white-space:normal!important;
+        overflow-wrap:normal!important;
+        word-break:normal!important;
+      }
+      html[lang^="es"] #homeScreen .editorial-card__quote,
+      html[lang^="pt"] #homeScreen .editorial-card__quote{
+        width:56%!important;
+      }
+      html[lang^="es"] #homeScreen .editorial-card blockquote,
+      html[lang^="pt"] #homeScreen .editorial-card blockquote{
+        font-size:clamp(13px,3.55vw,16.5px)!important;
+        line-height:1.24!important;
+        letter-spacing:-.015em!important;
+        text-wrap:pretty!important;
+      }
+
+      /* Navigation icons stay centered even when localized labels are wider. */
+      html[lang^="ja"] .bottom-nav .nav-button,
+      html[lang^="es"] .bottom-nav .nav-button,
+      html[lang^="pt"] .bottom-nav .nav-button{
+        min-width:0!important;
+        grid-template-rows:minmax(0,1fr) 1.35em!important;
+        justify-items:center!important;
+        overflow:hidden!important;
+      }
+      html[lang^="ja"] .bottom-nav .nav-button svg,
+      html[lang^="es"] .bottom-nav .nav-button svg,
+      html[lang^="pt"] .bottom-nav .nav-button svg,
+      html[lang^="ja"] .bottom-nav .nav-button img,
+      html[lang^="es"] .bottom-nav .nav-button img,
+      html[lang^="pt"] .bottom-nav .nav-button img{
+        justify-self:center!important;
+        align-self:center!important;
+        transform:none!important;
+      }
+      html[lang^="ja"] .bottom-nav .nav-button span{
+        max-width:100%!important;
+        overflow:hidden!important;
+        white-space:nowrap!important;
+        text-overflow:clip!important;
+        font-size:clamp(8.6px,2.35vw,10.8px)!important;
+        line-height:1.2!important;
+        letter-spacing:0!important;
+      }
+      html[lang^="es"] .bottom-nav .nav-button span,
+      html[lang^="pt"] .bottom-nav .nav-button span{
+        max-width:100%!important;
+        overflow:hidden!important;
+        white-space:nowrap!important;
+        text-overflow:clip!important;
+        font-size:clamp(8.2px,2.18vw,10.2px)!important;
+        line-height:1.2!important;
+        letter-spacing:-.012em!important;
+      }
+
+      @media(max-width:360px){
+        html[lang^="ja"] #homeScreen .tool-card strong,
+        html[lang^="es"] #homeScreen .tool-card strong,
+        html[lang^="pt"] #homeScreen .tool-card strong{font-size:9px!important}
+        html[lang^="ja"] #homeScreen .tool-card small,
+        html[lang^="es"] #homeScreen .tool-card small,
+        html[lang^="pt"] #homeScreen .tool-card small{font-size:7.5px!important}
+        html[lang^="es"] #homeScreen .home-hero h1,
+        html[lang^="pt"] #homeScreen .home-hero h1{font-size:16.5px!important;line-height:1.24!important}
+        html[lang^="es"] .bottom-nav .nav-button span,
+        html[lang^="pt"] .bottom-nav .nav-button span{font-size:7.9px!important}
+      }
+
       /* Narrow-device guard: preserve readability and let headers grow vertically. */
       @media(max-width:360px){
         html[lang^="en"]{--ba-display-heading-size:clamp(27px,7.45vw,34px);--ba-section-heading-size:clamp(23px,6.25vw,28px);--ba-workspace-heading-size:clamp(20.5px,5.55vw,24px)}
