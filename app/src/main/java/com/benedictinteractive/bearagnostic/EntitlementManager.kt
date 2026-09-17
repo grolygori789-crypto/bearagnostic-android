@@ -8,7 +8,11 @@ import org.json.JSONObject
  * Single source of truth for Bearagnostic Free/Pro access.
  *
  * Server-verified Benedict entitlement and optional Google Play ownership feed
- * this layer. No Developer Mode or Billing Sandbox can grant Pro.
+ * this layer in production.
+ *
+ * Debug builds may use the same proven local entitlement override that existed in
+ * the previously tested Developer Mode flow. Release builds cannot activate it:
+ * every debug entry point is hard-gated by BuildConfig.DEBUG.
  */
 class EntitlementManager(context: Context) {
     enum class Tier(val wireName: String) {
@@ -39,7 +43,11 @@ class EntitlementManager(context: Context) {
     private val serverStore = ServerEntitlementStore(context.applicationContext)
     @Volatile private var billingPresentation = BillingPresentation()
 
+    private fun debugTierOverride(): Tier? =
+        if (BuildConfig.DEBUG) Tier.fromWire(preferences.getString(KEY_DEBUG_TIER, null)) else null
+
     fun currentTier(): Tier {
+        debugTierOverride()?.let { return it }
         if (isServerOwnedCached()) return Tier.PRO
         return if (isPlayOwnedCached()) Tier.PRO else Tier.FREE
     }
@@ -59,6 +67,43 @@ class EntitlementManager(context: Context) {
 
     fun clearServerOwnership() { serverStore.clearActive() }
 
+    fun setDebugTier(rawTier: String): String {
+        if (!BuildConfig.DEBUG) {
+            return JSONObject().apply {
+                put("accepted", false)
+                put("reason", "debug_controls_unavailable")
+            }.toString()
+        }
+
+        val tier = Tier.fromWire(rawTier)
+            ?: return JSONObject().apply {
+                put("accepted", false)
+                put("reason", "invalid_tier")
+            }.toString()
+
+        preferences.edit().putString(KEY_DEBUG_TIER, tier.wireName).apply()
+        return JSONObject().apply {
+            put("accepted", true)
+            put("tier", tier.wireName)
+            put("state", stateJsonObject())
+        }.toString()
+    }
+
+    fun clearDebugTier(): String {
+        if (!BuildConfig.DEBUG) {
+            return JSONObject().apply {
+                put("accepted", false)
+                put("reason", "debug_controls_unavailable")
+            }.toString()
+        }
+
+        preferences.edit().remove(KEY_DEBUG_TIER).apply()
+        return JSONObject().apply {
+            put("accepted", true)
+            put("state", stateJsonObject())
+        }.toString()
+    }
+
     fun updatePlayOwnership(owned: Boolean, verifiedAtMs: Long = System.currentTimeMillis()) {
         preferences.edit().putBoolean(KEY_PLAY_OWNED, owned)
             .putLong(KEY_PLAY_VERIFIED_AT_MS, verifiedAtMs.coerceAtLeast(0L)).apply()
@@ -75,6 +120,7 @@ class EntitlementManager(context: Context) {
     fun stateJson(): String = stateJsonObject().toString()
 
     fun stateJsonObject(): JSONObject {
+        val debugTier = debugTierOverride()
         val tier = currentTier()
         val serverLease = serverLease()
         val serverOwned = serverLease != null
@@ -84,6 +130,7 @@ class EntitlementManager(context: Context) {
         val capabilities = JSONObject()
         Capability.values().forEach { capability -> capabilities.put(capability.wireName, has(capability)) }
         val source = when {
+            debugTier != null -> "debug_override"
             serverOwned -> "benedict_server"
             playOwned || playVerifiedAtMs > 0L -> "google_play"
             else -> "local_default"
@@ -96,7 +143,7 @@ class EntitlementManager(context: Context) {
 
         return JSONObject().apply {
             put("tier", tier.wireName); put("isPro", tier == Tier.PRO); put("source", source)
-            put("debugControlsAvailable", false)
+            put("debugControlsAvailable", BuildConfig.DEBUG)
             put("serverCommerceConfigured", CommerceConfig.isConfigured())
             put("serverOwnershipCached", serverOwned)
             put("serverEntitlementId", serverLease?.entitlementId ?: JSONObject.NULL)
@@ -123,6 +170,7 @@ class EntitlementManager(context: Context) {
     companion object {
         const val PRO_PRODUCT_ID = "bearagnostic_pro_lifetime"
         private const val PREFS_NAME = "bearagnostic_entitlement"
+        private const val KEY_DEBUG_TIER = "debug_tier"
         private const val KEY_PLAY_OWNED = "play_owned"
         private const val KEY_PLAY_VERIFIED_AT_MS = "play_verified_at_ms"
         private val FREE_CAPABILITIES = setOf(

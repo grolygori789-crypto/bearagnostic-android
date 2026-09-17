@@ -66,6 +66,20 @@ class NativeBridge(private val activity: MainActivity) {
         }
     }
 
+    @JavascriptInterface
+    fun setDebugEntitlement(tier: String): String {
+        val result = entitlement.setDebugTier(tier)
+        activity.runOnUiThread { activity.pushNativeStateToWeb() }
+        return result
+    }
+
+    @JavascriptInterface
+    fun clearDebugEntitlement(): String {
+        val result = entitlement.clearDebugTier()
+        activity.runOnUiThread { activity.pushNativeStateToWeb() }
+        return result
+    }
+
     @JavascriptInterface fun requestBroadStorageAccess() { activity.runOnUiThread { StorageAccessController.request(activity) } }
     @JavascriptInterface fun refreshNativeState() { activity.runOnUiThread { activity.pushNativeStateToWeb() } }
 

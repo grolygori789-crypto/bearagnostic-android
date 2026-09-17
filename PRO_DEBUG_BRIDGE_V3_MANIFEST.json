@@ -1,0 +1,33 @@
+{
+  "name": "Bearagnostic Pro debug bridge v3",
+  "base_repo_head_seen": "66ff7554047e93b6bb2e38731c482187336efa5c",
+  "purpose": "Restore same-app debug Pro unlock using the frozen Pro UI; no second launcher and no ADB required.",
+  "changed_files": [
+    "app/src/main/java/com/benedictinteractive/bearagnostic/EntitlementManager.kt",
+    "app/src/main/java/com/benedictinteractive/bearagnostic/NativeBridge.kt",
+    "app/src/main/legacy-adapter/android-entitlement.js"
+  ],
+  "not_changed": [
+    "MainActivity.kt",
+    "android-pro-ui.js",
+    "android-billing.js",
+    "Ko-fi backend",
+    "Cloudflare backend/functions",
+    "Resend OTP backend",
+    "Benedict Interactive web Ops/Console",
+    "scanner/review/cleanup UI and logic"
+  ],
+  "debug_behavior": {
+    "same_app": true,
+    "debug_controls_visible": true,
+    "test_as_pro": true,
+    "test_as_free": true,
+    "reset_to_real_entitlement": true,
+    "real_payment_required_for_debug_unlock": false
+  },
+  "release_behavior": {
+    "debug_controls_visible": false,
+    "debug_grant_accepted": false,
+    "production_entitlement_authority": "Benedict server / real ownership only"
+  }
+}

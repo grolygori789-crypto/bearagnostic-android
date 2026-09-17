@@ -22,6 +22,19 @@
   function can(capability){refresh();return state.capabilities?.[capability]===true}
   function requestPro(source,capability=null){refresh();window.dispatchEvent(new CustomEvent('bearagnostic:prorequest',{detail:{source:source||'unknown',capability,state:snapshot()}}))}
 
+  function setDebugTier(tier){
+    if(typeof NATIVE.setDebugEntitlement!=='function') return {accepted:false,reason:'bridge_unavailable'};
+    const result=parse(NATIVE.setDebugEntitlement(tier),{accepted:false});
+    refresh({notify:true});
+    return result;
+  }
+  function clearDebugTier(){
+    if(typeof NATIVE.clearDebugEntitlement!=='function') return {accepted:false,reason:'bridge_unavailable'};
+    const result=parse(NATIVE.clearDebugEntitlement(),{accepted:false});
+    refresh({notify:true});
+    return result;
+  }
+
   document.addEventListener('click',(event)=>{
     const target=event.target;if(!target?.closest)return;
     const proEntry=target.closest('[data-pro-entry],#supportProjectRow');
@@ -33,5 +46,5 @@
   window.addEventListener('focus',()=>refresh({notify:true}));
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh({notify:true})});
   refresh();
-  window.BearagnosticEntitlement=Object.freeze({getState:()=>snapshot(),refresh:()=>refresh({notify:true}),isPro:()=>{refresh();return state.isPro===true},can,requestPro});
+  window.BearagnosticEntitlement=Object.freeze({getState:()=>snapshot(),refresh:()=>refresh({notify:true}),isPro:()=>{refresh();return state.isPro===true},can,requestPro,setDebugTier,clearDebugTier});
 })();

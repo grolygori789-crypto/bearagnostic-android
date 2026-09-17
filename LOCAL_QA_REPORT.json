@@ -1,21 +1,14 @@
 {
-  "local_static_result": "PASS",
+  "result": "PASS",
   "checks": {
-    "billing_js_syntax": true,
-    "verifier_python_syntax": true,
-    "zero_native_calls_when_billing_js_loads": true,
-    "no_mutation_observer": true,
-    "no_domcontentloaded_autostart": true,
-    "no_dev_mode_in_production_billing_js": true,
-    "debug_qa_only_under_src_debug": true
+    "android_entitlement_js_syntax": true,
+    "does_not_replace_mainactivity": true,
+    "does_not_replace_pro_ui": true,
+    "does_not_replace_billing_ui": true,
+    "release_debug_tier_guard": true,
+    "debug_controls_build_gated": true,
+    "facade_exports_debug_methods": true,
+    "native_bridge_methods_present": true
   },
-  "important": "Full Android Debug+Release compile and release-APK exclusion proof are enforced by the included GitHub Actions workflow after upload.",
-  "revision": "v2",
-  "launcher_regression_fix": {
-    "qa_not_main": true,
-    "qa_not_launcher": true,
-    "qa_activity_still_debug_only": true,
-    "billing_js_syntax": true,
-    "verifier_python_syntax": true
-  }
+  "note": "This patch restores the previously-tested debug entitlement interaction contract. Full Android CI still verifies compilation after upload."
 }
