@@ -1,31 +1,59 @@
 package com.benedictinteractive.bearagnostic
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.os.StatFs
+import android.os.SystemClock
+import android.util.TypedValue
+import android.view.Gravity
 import android.view.View
+import android.view.ViewGroup
+import android.view.animation.DecelerateInterpolator
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.FrameLayout
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.TextView
 import android.widget.Toast
 import org.json.JSONArray
 import org.json.JSONObject
 import java.util.concurrent.Executors
 
 class MainActivity : Activity() {
+    private lateinit var rootView: FrameLayout
     private lateinit var webView: WebView
     private lateinit var nativeBridge: NativeBridge
     private lateinit var shareCardBridge: ShareCardBridge
     private lateinit var scanner: FileHealthScanner
     private lateinit var reviewMediaProvider: ReviewMediaProvider
 
+    private lateinit var launchOverlay: FrameLayout
+    private lateinit var studioStage: LinearLayout
+    private lateinit var productStage: LinearLayout
+    private lateinit var studioLogo: ImageView
+    private lateinit var studioAccentBase: View
+    private lateinit var studioAccentSweep: View
+    private lateinit var studioLaunchLabel: TextView
+    private lateinit var studioPromise: TextView
+    private lateinit var productHero: ImageView
+
     private val reviewMediaExecutor = Executors.newSingleThreadExecutor { runnable ->
         Thread(runnable, "BearagnosticReviewMedia").apply { priority = Thread.NORM_PRIORITY - 1 }
     }
+    private var launchStartedAt = 0L
+    private var launchDismissed = false
+    private var webContentReady = false
+    private var pendingLaunchDismiss: Runnable? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -33,8 +61,22 @@ class MainActivity : Activity() {
         window.statusBarColor = Color.TRANSPARENT
         window.navigationBarColor = Color.TRANSPARENT
 
+        rootView = FrameLayout(this).apply {
+            setBackgroundColor(Color.rgb(247, 250, 253))
+            layoutParams = ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT,
+            )
+        }
+
         webView = WebView(this).apply {
             setBackgroundColor(Color.rgb(246, 249, 253))
+            alpha = 0f
+            visibility = View.INVISIBLE
+            layoutParams = FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT,
+            )
             webViewClient = object : WebViewClient() {
                 override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
                     if (url?.startsWith("file:///android_asset/") == true) return false
@@ -42,9 +84,15 @@ class MainActivity : Activity() {
                     return true
                 }
 
+                override fun onPageCommitVisible(view: WebView?, url: String?) {
+                    super.onPageCommitVisible(view, url)
+                    prepareWebContentForNativeLaunch()
+                }
+
                 override fun onPageFinished(view: WebView?, url: String?) {
                     super.onPageFinished(view, url)
                     webView.postDelayed({ forceAppVisibleIfLaunchStalled() }, 6_500L)
+                    prepareWebContentForNativeLaunch()
                 }
             }
             settings.apply {
@@ -66,8 +114,12 @@ class MainActivity : Activity() {
         webView.addJavascriptInterface(nativeBridge, NativeBridge.JS_INTERFACE_NAME)
         webView.addJavascriptInterface(shareCardBridge, ShareCardBridge.JS_INTERFACE_NAME)
 
-        setContentView(webView)
+        launchOverlay = createLaunchOverlay()
+        rootView.addView(webView)
+        rootView.addView(launchOverlay)
+        setContentView(rootView)
         applyImmersiveMode()
+        startNativeLaunchIntro()
         webView.loadUrl("file:///android_asset/ui/index.html")
     }
 
@@ -93,14 +145,310 @@ class MainActivity : Activity() {
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE
     }
 
+    private fun createLaunchOverlay(): FrameLayout {
+        val overlay = FrameLayout(this).apply {
+            layoutParams = FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT,
+            )
+            setBackgroundColor(Color.rgb(247, 250, 253))
+            isClickable = true
+            isFocusable = true
+        }
+
+        studioStage = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            gravity = Gravity.CENTER_HORIZONTAL
+            layoutParams = FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.WRAP_CONTENT,
+                Gravity.CENTER,
+            ).apply {
+                leftMargin = dp(30)
+                rightMargin = dp(30)
+            }
+        }
+
+        studioLogo = ImageView(this).apply {
+            setImageResource(R.drawable.benedict_interactive_launch_logo)
+            adjustViewBounds = true
+            alpha = 0f
+            scaleX = 0.985f
+            scaleY = 0.985f
+            translationY = dp(9).toFloat()
+            layoutParams = LinearLayout.LayoutParams(dp(260), LinearLayout.LayoutParams.WRAP_CONTENT)
+        }
+
+        val accentHolder = FrameLayout(this).apply {
+            alpha = 0f
+            translationY = dp(6).toFloat()
+            layoutParams = LinearLayout.LayoutParams(dp(92), dp(5)).apply {
+                topMargin = dp(12)
+            }
+        }
+        studioAccentBase = View(this).apply {
+            background = GradientDrawable(
+                GradientDrawable.Orientation.LEFT_RIGHT,
+                intArrayOf(
+                    Color.parseColor("#001A8FEA"),
+                    Color.parseColor("#552DAFEA"),
+                    Color.parseColor("#001A8FEA"),
+                ),
+            ).apply { cornerRadius = dp(999).toFloat() }
+            layoutParams = FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                dp(2),
+                Gravity.CENTER_VERTICAL,
+            )
+        }
+        studioAccentSweep = View(this).apply {
+            alpha = 0f
+            translationX = -dp(38).toFloat()
+            background = GradientDrawable(
+                GradientDrawable.Orientation.LEFT_RIGHT,
+                intArrayOf(
+                    Color.parseColor("#00168FEA"),
+                    Color.parseColor("#BB258FF4"),
+                    Color.parseColor("#FF53DBFF"),
+                    Color.parseColor("#D8B7F3FF"),
+                    Color.parseColor("#00168FEA"),
+                ),
+            ).apply { cornerRadius = dp(999).toFloat() }
+            layoutParams = FrameLayout.LayoutParams(dp(34), dp(3), Gravity.START or Gravity.CENTER_VERTICAL)
+        }
+        accentHolder.addView(studioAccentBase)
+        accentHolder.addView(studioAccentSweep)
+
+        studioLaunchLabel = TextView(this).apply {
+            text = "Launching Bearagnostic"
+            setTextColor(Color.parseColor("#334F70"))
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, 13.5f)
+            letterSpacing = 0.055f
+            gravity = Gravity.CENTER
+            alpha = 0f
+            translationY = dp(7).toFloat()
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+            ).apply { topMargin = dp(18) }
+        }
+
+        studioPromise = TextView(this).apply {
+            text = "Find clutter. Explain the risk. Clean with confidence."
+            setTextColor(Color.parseColor("#7B8DA0"))
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, 12.5f)
+            gravity = Gravity.CENTER
+            alpha = 0f
+            translationY = dp(7).toFloat()
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+            ).apply {
+                topMargin = dp(11)
+                leftMargin = dp(10)
+                rightMargin = dp(10)
+            }
+        }
+
+        studioStage.addView(studioLogo)
+        studioStage.addView(accentHolder)
+        studioStage.addView(studioLaunchLabel)
+        studioStage.addView(studioPromise)
+
+        productStage = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            gravity = Gravity.CENTER
+            alpha = 0f
+            visibility = View.INVISIBLE
+            layoutParams = FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.WRAP_CONTENT,
+                Gravity.CENTER,
+            ).apply {
+                leftMargin = dp(18)
+                rightMargin = dp(18)
+            }
+        }
+
+        productHero = ImageView(this).apply {
+            setImageResource(R.drawable.bearagnostic_launch_hero)
+            adjustViewBounds = true
+            alpha = 0f
+            scaleX = 0.992f
+            scaleY = 0.992f
+            translationY = dp(8).toFloat()
+            layoutParams = LinearLayout.LayoutParams(dp(304), LinearLayout.LayoutParams.WRAP_CONTENT)
+        }
+
+        productStage.addView(productHero)
+
+        overlay.addView(studioStage)
+        overlay.addView(productStage)
+        return overlay
+    }
+
+    private fun startNativeLaunchIntro() {
+        launchStartedAt = SystemClock.uptimeMillis()
+
+        studioLogo.animate()
+            .alpha(1f)
+            .translationY(0f)
+            .scaleX(1f)
+            .scaleY(1f)
+            .setStartDelay(120L)
+            .setDuration(390L)
+            .setInterpolator(DecelerateInterpolator())
+            .start()
+
+        studioLaunchLabel.animate()
+            .alpha(1f)
+            .translationY(0f)
+            .setStartDelay(330L)
+            .setDuration(300L)
+            .setInterpolator(DecelerateInterpolator())
+            .start()
+
+        studioPromise.animate()
+            .alpha(1f)
+            .translationY(0f)
+            .setStartDelay(455L)
+            .setDuration(320L)
+            .setInterpolator(DecelerateInterpolator())
+            .start()
+
+        (studioAccentBase.parent as View).animate()
+            .alpha(1f)
+            .translationY(0f)
+            .setStartDelay(430L)
+            .setDuration(220L)
+            .setInterpolator(DecelerateInterpolator())
+            .withEndAction { playStudioAccentSweep() }
+            .start()
+
+        launchOverlay.postDelayed({
+            if (!isFinishing && !isDestroyed && !launchDismissed) transitionToProductStage()
+        }, STUDIO_STAGE_MILLIS)
+    }
+
+    private fun playStudioAccentSweep() {
+        studioAccentSweep.alpha = 0f
+        studioAccentSweep.translationX = -dp(38).toFloat()
+        studioAccentSweep.animate()
+            .alpha(1f)
+            .translationX(dp(96).toFloat())
+            .setDuration(470L)
+            .setInterpolator(DecelerateInterpolator())
+            .withEndAction {
+                studioAccentSweep.animate()
+                    .alpha(0f)
+                    .setDuration(110L)
+                    .setInterpolator(DecelerateInterpolator())
+                    .start()
+            }
+            .start()
+    }
+
+    private fun transitionToProductStage() {
+        productStage.visibility = View.VISIBLE
+        productStage.alpha = 0f
+
+        studioStage.animate()
+            .alpha(0f)
+            .translationY(-dp(5).toFloat())
+            .setDuration(240L)
+            .setInterpolator(DecelerateInterpolator())
+            .start()
+
+        productStage.animate()
+            .alpha(1f)
+            .setDuration(320L)
+            .setInterpolator(DecelerateInterpolator())
+            .start()
+
+        productHero.animate()
+            .alpha(1f)
+            .translationY(0f)
+            .scaleX(1f)
+            .scaleY(1f)
+            .setStartDelay(90L)
+            .setDuration(420L)
+            .setInterpolator(DecelerateInterpolator())
+            .start()
+    }
+
+    private fun prepareWebContentForNativeLaunch() {
+        if (!::webView.isInitialized || isFinishing || isDestroyed) return
+        webView.evaluateJavascript(WEB_LAUNCH_BYPASS_SCRIPT) {
+            webContentReady = true
+            reinforceWebLaunchBypass()
+            dismissLaunchOverlayWhenAppropriate(force = false)
+        }
+    }
+
+    private fun reinforceWebLaunchBypass() {
+        if (!::webView.isInitialized) return
+        webView.post { webView.evaluateJavascript(WEB_LAUNCH_BYPASS_SCRIPT, null) }
+        webView.postDelayed({ webView.evaluateJavascript(WEB_LAUNCH_BYPASS_SCRIPT, null) }, 120L)
+        webView.postDelayed({ webView.evaluateJavascript(WEB_LAUNCH_BYPASS_SCRIPT, null) }, 380L)
+    }
+
+    private fun dismissLaunchOverlayWhenAppropriate(force: Boolean) {
+        if (launchDismissed || !::launchOverlay.isInitialized) return
+        if (!force && !webContentReady) return
+
+        val elapsed = SystemClock.uptimeMillis() - launchStartedAt
+        val remaining = (MINIMUM_BRAND_REVEAL_MILLIS - elapsed).coerceAtLeast(0L)
+        if (!force && remaining > 0L) {
+            if (pendingLaunchDismiss == null) {
+                val runnable = Runnable {
+                    pendingLaunchDismiss = null
+                    dismissLaunchOverlayWhenAppropriate(force = false)
+                }
+                pendingLaunchDismiss = runnable
+                launchOverlay.postDelayed(runnable, remaining)
+            }
+            return
+        }
+
+        pendingLaunchDismiss?.let {
+            launchOverlay.removeCallbacks(it)
+            pendingLaunchDismiss = null
+        }
+
+        reinforceWebLaunchBypass()
+
+        /*
+         * Physical-device fail-safe:
+         * never leave the native launch surface attached above the WebView once
+         * Home is ready. A transparent/cancelled ViewPropertyAnimator can remain
+         * touchable even though the WebView underneath is fully visible.
+         */
+        launchOverlay.isClickable = false
+        launchOverlay.isFocusable = false
+        launchOverlay.animate().cancel()
+        launchOverlay.visibility = View.GONE
+        if (launchOverlay.parent === rootView) {
+            rootView.removeView(launchOverlay)
+        }
+        launchDismissed = true
+
+        webView.animate().cancel()
+        webView.visibility = View.VISIBLE
+        webView.alpha = 1f
+    }
+
     private fun forceAppVisibleIfLaunchStalled() {
         if (!::webView.isInitialized || isFinishing || isDestroyed) return
-        webView.evaluateJavascript(
-            "(function(){var l=document.getElementById('launch');var a=document.getElementById('appRoot');" +
-                "if(a&&a.hidden){a.hidden=false;}if(l&&!l.hidden){l.hidden=true;}return true;})()",
-            null,
-        )
+        webContentReady = true
+        reinforceWebLaunchBypass()
+        dismissLaunchOverlayWhenAppropriate(force = true)
     }
+
+    private fun dp(value: Int): Int = TypedValue.applyDimension(
+        TypedValue.COMPLEX_UNIT_DIP,
+        value.toFloat(),
+        resources.displayMetrics,
+    ).toInt()
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
@@ -351,6 +699,10 @@ class MainActivity : Activity() {
     }
 
     override fun onDestroy() {
+        pendingLaunchDismiss?.let {
+            if (::launchOverlay.isInitialized) launchOverlay.removeCallbacks(it)
+            pendingLaunchDismiss = null
+        }
         reviewMediaExecutor.shutdownNow()
         if (::scanner.isInitialized) scanner.shutdown()
         if (::webView.isInitialized) {
@@ -362,6 +714,11 @@ class MainActivity : Activity() {
     }
 
     companion object {
+        private const val STUDIO_STAGE_MILLIS = 980L
+        private const val MINIMUM_BRAND_REVEAL_MILLIS = 2_650L
+        private const val WEB_LAUNCH_BYPASS_SCRIPT =
+            "(function(){try{var l=document.getElementById('launch');if(l){l.hidden=true;l.setAttribute('hidden','hidden');l.style.display='none';l.style.visibility='hidden';l.style.opacity='0';if(l.parentNode){l.parentNode.removeChild(l);}}var a=document.getElementById('appRoot');if(a){a.hidden=false;a.removeAttribute('hidden');a.style.display='';a.style.visibility='visible';a.style.opacity='1';}if(document.documentElement){document.documentElement.setAttribute('data-native-launch-bypass','1');}if(document.body){document.body.setAttribute('data-native-launch-bypass','1');}return true;}catch(e){return false;}})();"
+
         private val ALLOWED_EXTERNAL_HOSTS = setOf(
             "ko-fi.com",
             "www.ko-fi.com",
