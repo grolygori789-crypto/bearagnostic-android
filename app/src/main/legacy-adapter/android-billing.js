@@ -1,15 +1,16 @@
 (() => {
   'use strict';
 
-  // Release-safe customer commerce + debug-only QA adapter.
-  //
-  // IMPORTANT:
-  // - no startup purchase call;
-  // - no startup polling loop;
-  // - no MutationObserver;
-  // - customer commerce activates only after the existing Pro sheet is opened;
-  // - QA controls render only when native getCommerceQaState() reports available=true.
-
+  /*
+   * Production Benedict commerce adapter.
+   *
+   * It is intentionally dormant at app startup. It activates only after the
+   * existing Pro sheet is opened through bearagnostic:prorequest.
+   *
+   * Developer QA is NOT implemented in this file and is NOT part of the
+   * release runtime. QA lives only under Android src/debug as a separate
+   * launcher activity.
+   */
   const NATIVE = window.BearagnosticNative;
   if (!NATIVE) return;
 
@@ -27,76 +28,70 @@
       title:'Unlock Bearagnostic Pro',
       sub:'One-time lifetime upgrade through Benedict Interactive · ฿249 · No subscription.',
       email:'Email for purchase or restore',
+      emailPlaceholder:'you@example.com',
       buy:'Continue to buy · ฿249',
       restore:'Restore Pro',
       sending:'Sending verification code…',
-      otp:'Enter the 6-digit code from Benedict Interactive',
+      otp:'Verify your email',
+      otpSub:'Enter the 6-digit code from Benedict Interactive.',
       verify:'Verify code',
-      waiting:'Waiting for verified Ko-fi payment confirmation…',
+      verifying:'Verifying code…',
+      waiting:'Waiting for payment confirmation',
+      waitingSub:'Bearagnostic unlocks Pro only after Benedict confirms a verified Ko-fi Shop Order.',
       active:'Bearagnostic Pro is active',
       activeSub:'Lifetime access is verified for this installation.',
       retry:'Check again',
       reset:'Start over',
       invalidEmail:'Enter a valid email address.',
       invalidCode:'Enter the 6-digit verification code.',
-      generic:'Benedict could not complete this step.',
-      qa:'Developer QA',
-      qaSuccess:'Success',
-      qaPending:'Pending',
-      qaFailed:'Failed',
-      qaRestore:'Restore',
-      qaRevoke:'Revoke',
-      qaReset:'Reset'
+      noEntitlement:'No active Pro purchase was found for that email.',
+      generic:'Benedict could not complete this step.'
     },
     th: {
       title:'ปลดล็อก Bearagnostic Pro',
       sub:'อัปเกรดตลอดชีพครั้งเดียวผ่าน Benedict Interactive · ฿249 · ไม่มีรายเดือน',
       email:'อีเมลสำหรับซื้อหรือกู้คืนสิทธิ์',
+      emailPlaceholder:'you@example.com',
       buy:'ดำเนินการซื้อ · ฿249',
       restore:'กู้คืน Pro',
       sending:'กำลังส่งรหัสยืนยัน…',
-      otp:'กรอกรหัส 6 หลักจาก Benedict Interactive',
+      otp:'ยืนยันอีเมล',
+      otpSub:'กรอกรหัส 6 หลักจาก Benedict Interactive',
       verify:'ยืนยันรหัส',
-      waiting:'กำลังรอการยืนยันการชำระเงินจาก Ko-fi…',
+      verifying:'กำลังตรวจสอบรหัส…',
+      waiting:'กำลังรอการยืนยันการชำระเงิน',
+      waitingSub:'Bearagnostic จะปลดล็อก Pro หลัง Benedict ยืนยัน Ko-fi Shop Order ที่ตรวจสอบแล้วเท่านั้น',
       active:'Bearagnostic Pro เปิดใช้งานแล้ว',
       activeSub:'ยืนยันสิทธิ์ตลอดชีพสำหรับการติดตั้งนี้แล้ว',
       retry:'ตรวจสอบอีกครั้ง',
       reset:'เริ่มใหม่',
       invalidEmail:'กรุณากรอกอีเมลให้ถูกต้อง',
       invalidCode:'กรุณากรอกรหัสยืนยัน 6 หลัก',
-      generic:'Benedict ไม่สามารถดำเนินขั้นตอนนี้ได้',
-      qa:'Developer QA',
-      qaSuccess:'สำเร็จ',
-      qaPending:'รอดำเนินการ',
-      qaFailed:'ล้มเหลว',
-      qaRestore:'กู้คืน',
-      qaRevoke:'เพิกถอน',
-      qaReset:'รีเซ็ต'
+      noEntitlement:'ไม่พบสิทธิ์ Pro ที่ยังใช้งานอยู่สำหรับอีเมลนี้',
+      generic:'Benedict ไม่สามารถดำเนินขั้นตอนนี้ได้'
     },
     ja: {
       title:'Bearagnostic Pro を解除',
       sub:'Benedict Interactive 経由の買い切りアップグレード · ฿249 · サブスクなし',
       email:'購入または復元に使うメール',
+      emailPlaceholder:'you@example.com',
       buy:'購入へ進む · ฿249',
       restore:'Pro を復元',
       sending:'確認コードを送信中…',
-      otp:'Benedict Interactive から届いた6桁コードを入力',
+      otp:'メールを確認',
+      otpSub:'Benedict Interactive から届いた6桁コードを入力してください。',
       verify:'コードを確認',
-      waiting:'Ko-fi の検証済み支払い確認を待っています…',
+      verifying:'コードを確認中…',
+      waiting:'支払い確認を待っています',
+      waitingSub:'Benedict が検証済み Ko-fi Shop Order を確認した後にだけ Pro を有効化します。',
       active:'Bearagnostic Pro は有効です',
       activeSub:'このインストールの買い切り権利を確認しました。',
       retry:'再確認',
       reset:'最初から',
       invalidEmail:'有効なメールアドレスを入力してください。',
       invalidCode:'6桁の確認コードを入力してください。',
-      generic:'Benedict でこの処理を完了できませんでした',
-      qa:'Developer QA',
-      qaSuccess:'成功',
-      qaPending:'保留',
-      qaFailed:'失敗',
-      qaRestore:'復元',
-      qaRevoke:'取消',
-      qaReset:'リセット'
+      noEntitlement:'このメールに有効な Pro 購入が見つかりません。',
+      generic:'Benedict でこの処理を完了できませんでした'
     }
   };
 
@@ -104,7 +99,6 @@
   let timer = null;
   let selectedEmail = '';
   let localError = '';
-  let qaMessage = '';
   let lastSignature = '';
 
   const language = () => {
@@ -123,11 +117,6 @@
     catch (_) { return {}; }
   }
 
-  function qaState() {
-    try { return parse(NATIVE.getCommerceQaState?.(), { available:false }); }
-    catch (_) { return { available:false }; }
-  }
-
   function overlayOpen() {
     const overlay = $('#bearagnosticProOverlay');
     return !!overlay && overlay.hidden !== true;
@@ -138,9 +127,9 @@
   }
 
   function ensureStyle() {
-    if ($('#androidReleaseSafeCommerceStyle')) return;
+    if ($('#androidServerCommerceStyle')) return;
     const style = document.createElement('style');
-    style.id = 'androidReleaseSafeCommerceStyle';
+    style.id = 'androidServerCommerceStyle';
     style.textContent = `
       #bearagnosticProOverlay .ba-k3-input{width:100%;height:44px;box-sizing:border-box;margin-top:9px;padding:0 12px;border-radius:14px;border:1px solid rgba(91,119,147,.14);background:#fff;color:#233a52;font:650 11px/1.2 system-ui,-apple-system,sans-serif;outline:none}
       #bearagnosticProOverlay .ba-k3-input:focus{border-color:rgba(96,86,190,.38);box-shadow:0 0 0 3px rgba(96,86,190,.07)}
@@ -148,11 +137,6 @@
       #bearagnosticProOverlay .ba-k3-actions .ba-pro-primary{margin-top:0}
       #bearagnosticProOverlay .ba-k3-secondary{min-height:45px;padding:0 11px;border-radius:16px;background:#f3f7fa;border:1px solid rgba(91,119,147,.09);color:#65798c;font-size:9px;font-weight:780}
       #bearagnosticProOverlay .ba-k3-error{display:block;margin-top:7px;color:#a5535b!important}
-      #bearagnosticProOverlay .ba-k3-qa{margin-top:9px;padding:9px;border:1px dashed rgba(102,91,176,.18);border-radius:14px;background:rgba(246,244,255,.72)}
-      #bearagnosticProOverlay .ba-k3-qa strong{font-size:8px;color:#655dbd}
-      #bearagnosticProOverlay .ba-k3-qa-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:7px}
-      #bearagnosticProOverlay .ba-k3-qa button{min-height:33px;border-radius:10px;background:#fff;border:1px solid rgba(102,91,176,.09);color:#5d5a85;font-size:7.5px;font-weight:760}
-      #bearagnosticProOverlay .ba-k3-qa small{margin-top:6px!important}
       @media(max-width:360px){#bearagnosticProOverlay .ba-k3-actions{grid-template-columns:1fr}}
     `;
     document.head.appendChild(style);
@@ -163,31 +147,17 @@
     const value = String(code || '');
     if (value === 'valid_email_required') return text.invalidEmail;
     if (value === 'invalid_verification_code' || value === 'verification_code_incorrect') return text.invalidCode;
+    if (value === 'active_entitlement_not_found') return text.noEntitlement;
     return value ? `${text.generic} (${value.replaceAll('_',' ')})` : text.generic;
   }
 
-  function qaHtml() {
-    if (qaState().available !== true) return '';
-    const text = t();
-    return `<div class="ba-k3-qa"><strong>${esc(text.qa)}</strong>` +
-      `<div class="ba-k3-qa-grid">` +
-      `<button type="button" data-k3-qa="success">${esc(text.qaSuccess)}</button>` +
-      `<button type="button" data-k3-qa="pending">${esc(text.qaPending)}</button>` +
-      `<button type="button" data-k3-qa="failed">${esc(text.qaFailed)}</button>` +
-      `<button type="button" data-k3-qa="restore">${esc(text.qaRestore)}</button>` +
-      `<button type="button" data-k3-qa="revoked">${esc(text.qaRevoke)}</button>` +
-      `<button type="button" data-k3-qa="reset">${esc(text.qaReset)}</button>` +
-      `</div>${qaMessage ? `<small>${esc(qaMessage)}</small>` : ''}</div>`;
-  }
-
   function setHtml(block, html, signature) {
-    block.innerHTML = html + qaHtml();
+    block.innerHTML = html;
     block.dataset.k3Signature = signature;
   }
 
-  function refreshFacade() {
+  function refreshEntitlementFacade() {
     try { window.BearagnosticEntitlement?.refresh?.(); } catch (_) {}
-    try { NATIVE.refreshNativeState?.(); } catch (_) {}
   }
 
   function render(force = false) {
@@ -208,8 +178,8 @@
     const error = localError || String(state.lastError || '');
     const isPro = ent.isPro === true;
     const signature = JSON.stringify([
-      language(), phase, isPro, ent.source || '', error,
-      selectedEmail, qaState().available === true, qaMessage
+      language(), phase, isPro, ent.source || '', error, selectedEmail,
+      state.hasPendingSession === true, state.hasLocalServerLease === true
     ]);
 
     if (!force && signature === lastSignature && block.dataset.k3Signature === signature) return;
@@ -222,6 +192,7 @@
           `<button class="ba-pro-primary" type="button" disabled>PRO ✓</button>`,
         signature
       );
+      refreshEntitlementFacade();
       return;
     }
 
@@ -239,7 +210,7 @@
       setHtml(
         block,
         `<strong>${esc(text.title)}</strong><small>${esc(text.sub)}</small>` +
-          `<input class="ba-k3-input" data-k3-email type="email" inputmode="email" autocomplete="email" maxlength="254" placeholder="${esc(text.email)}" value="${esc(selectedEmail)}">` +
+          `<input class="ba-k3-input" data-k3-email type="email" inputmode="email" autocomplete="email" autocapitalize="none" spellcheck="false" maxlength="254" placeholder="${esc(text.emailPlaceholder)}" value="${esc(selectedEmail)}">` +
           (error ? `<small class="ba-k3-error">${esc(mapError(error))}</small>` : '') +
           `<div class="ba-k3-actions"><button class="ba-pro-primary" type="button" data-k3-action="purchase">${esc(text.buy)}</button>` +
           `<button class="ba-k3-secondary" type="button" data-k3-action="restore">${esc(text.restore)}</button></div>`,
@@ -257,8 +228,9 @@
       const disabled = phase === 'verifying_code' ? ' disabled' : '';
       setHtml(
         block,
-        `<strong>${esc(text.otp)}</strong>` +
-          `<input class="ba-k3-input" data-k3-code type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="••••••"${disabled}>` +
+        `<strong>${esc(phase === 'verifying_code' ? text.verifying : text.otp)}</strong>` +
+          `<small>${esc(text.otpSub)}</small>` +
+          `<input class="ba-k3-input" data-k3-code type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" placeholder="••••••"${disabled}>` +
           `<div class="ba-k3-actions"><button class="ba-pro-primary" type="button" data-k3-action="verify"${disabled}>${esc(text.verify)}</button>` +
           `<button class="ba-k3-secondary" type="button" data-k3-action="reset">${esc(text.reset)}</button></div>`,
         signature
@@ -269,12 +241,23 @@
     if (phase === 'opening_kofi' || phase === 'waiting_payment') {
       setHtml(
         block,
-        `<strong>${esc(text.waiting)}</strong><small>${esc(text.sub)}</small>` +
+        `<strong>${esc(text.waiting)}</strong><small>${esc(text.waitingSub)}</small>` +
           (error ? `<small class="ba-k3-error">${esc(mapError(error))}</small>` : '') +
           `<div class="ba-k3-actions"><button class="ba-pro-primary" type="button" data-k3-action="refresh">${esc(text.retry)}</button>` +
           `<button class="ba-k3-secondary" type="button" data-k3-action="reset">${esc(text.reset)}</button></div>`,
         signature
       );
+      return;
+    }
+
+    if (phase === 'active' || phase === 'offline_cached') {
+      setHtml(
+        block,
+        `<strong>${esc(text.active)}</strong><small>${esc(text.activeSub)}</small>` +
+          `<button class="ba-pro-primary" type="button" disabled>PRO ✓</button>`,
+        signature
+      );
+      refreshEntitlementFacade();
       return;
     }
 
@@ -300,7 +283,7 @@
     render(true);
   }
 
-  function handleCommerceAction(action) {
+  function handleAction(action) {
     try {
       if (action === 'purchase' || action === 'restore') {
         const email = String($('[data-k3-email]')?.value || selectedEmail || '').trim().toLowerCase();
@@ -328,22 +311,6 @@
       }
     } catch (_) {
       localError = 'network_error';
-      render(true);
-    }
-  }
-
-  function handleQaAction(scenario) {
-    if (qaState().available !== true) return;
-    try {
-      const result = parse(NATIVE.runCommerceQaScenario(String(scenario || '')), {});
-      qaMessage = result.accepted === true
-        ? `${result.scenario}: ${result.isPro === true ? 'PRO' : 'FREE'}`
-        : String(result.reason || 'qa_failed');
-      refreshFacade();
-      lastSignature = '';
-      render(true);
-    } catch (_) {
-      qaMessage = 'qa_failed';
       render(true);
     }
   }
@@ -377,20 +344,11 @@
 
   document.addEventListener('click', (event) => {
     if (!active) return;
-
-    const qaButton = event.target?.closest?.('[data-k3-qa]');
-    if (qaButton) {
-      event.preventDefault();
-      event.stopPropagation();
-      handleQaAction(String(qaButton.dataset.k3Qa || ''));
-      return;
-    }
-
     const button = event.target?.closest?.('[data-k3-action]');
     if (!button) return;
     event.preventDefault();
     event.stopPropagation();
-    handleCommerceAction(String(button.dataset.k3Action || ''));
+    handleAction(String(button.dataset.k3Action || ''));
   }, true);
 
   document.addEventListener('input', (event) => {
@@ -405,8 +363,19 @@
     }
   }, true);
 
-  // User-driven activation only. Nothing here opens commerce during application startup.
+  // The production commerce UI is activated only by the existing user-driven Pro request.
   window.addEventListener('bearagnostic:prorequest', () => setTimeout(activate, 0));
+
+  window.addEventListener('bearagnostic:entitlementchange', () => {
+    if (active) setTimeout(() => render(true), 0);
+  });
+
+  window.addEventListener('bearagnostic:languagechange', () => {
+    if (active) {
+      lastSignature = '';
+      setTimeout(() => render(true), 0);
+    }
+  });
 
   window.addEventListener('focus', () => {
     if (!active || !overlayOpen()) return;

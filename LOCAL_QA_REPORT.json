@@ -1,0 +1,13 @@
+{
+  "local_static_result": "PASS",
+  "checks": {
+    "billing_js_syntax": true,
+    "verifier_python_syntax": true,
+    "zero_native_calls_when_billing_js_loads": true,
+    "no_mutation_observer": true,
+    "no_domcontentloaded_autostart": true,
+    "no_dev_mode_in_production_billing_js": true,
+    "debug_qa_only_under_src_debug": true
+  },
+  "important": "Full Android Debug+Release compile and release-APK exclusion proof are enforced by the included GitHub Actions workflow after upload."
+}
