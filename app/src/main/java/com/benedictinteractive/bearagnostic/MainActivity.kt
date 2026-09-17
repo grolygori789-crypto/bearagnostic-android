@@ -416,27 +416,25 @@ class MainActivity : Activity() {
         }
 
         reinforceWebLaunchBypass()
-        webView.visibility = View.VISIBLE
-        webView.animate()
-            .alpha(1f)
-            .setDuration(260L)
-            .setInterpolator(DecelerateInterpolator())
-            .start()
 
-        launchOverlay.animate()
-            .alpha(0f)
-            .setDuration(280L)
-            .setInterpolator(DecelerateInterpolator())
-            .setListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator) {
-                    if (!launchDismissed) {
-                        launchDismissed = true
-                        rootView.removeView(launchOverlay)
-                    }
-                    launchOverlay.animate().setListener(null)
-                }
-            })
-            .start()
+        /*
+         * Physical-device fail-safe:
+         * never leave the native launch surface attached above the WebView once
+         * Home is ready. A transparent/cancelled ViewPropertyAnimator can remain
+         * touchable even though the WebView underneath is fully visible.
+         */
+        launchOverlay.isClickable = false
+        launchOverlay.isFocusable = false
+        launchOverlay.animate().cancel()
+        launchOverlay.visibility = View.GONE
+        if (launchOverlay.parent === rootView) {
+            rootView.removeView(launchOverlay)
+        }
+        launchDismissed = true
+
+        webView.animate().cancel()
+        webView.visibility = View.VISIBLE
+        webView.alpha = 1f
     }
 
     private fun forceAppVisibleIfLaunchStalled() {
