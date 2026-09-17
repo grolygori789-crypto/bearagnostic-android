@@ -115,6 +115,7 @@
   let selectedEmail = '';
   let localError = '';
   let lastSignature = '';
+  let debugVisualSelection = null;
 
   const language = () => {
     const value = (document.documentElement.lang || 'en').toLowerCase();
@@ -175,6 +176,22 @@
     try { window.BearagnosticEntitlement?.refresh?.(); } catch (_) {}
   }
 
+  function applyDebugVisualState(debug, ent) {
+    if (!debug) return;
+    const fallback = ent?.isPro === true ? 'pro' : 'free';
+    const selected = ['free','pro','reset'].includes(debugVisualSelection)
+      ? debugVisualSelection
+      : fallback;
+
+    debug.querySelectorAll?.('[data-k3-debug-tier],[data-debug-tier]').forEach((button) => {
+      const tier = String(button.dataset.k3DebugTier || button.dataset.debugTier || '');
+      button.classList.toggle('is-active', tier === selected);
+    });
+    debug.querySelectorAll?.('[data-k3-debug-reset],[data-debug-reset]').forEach((button) => {
+      button.classList.toggle('is-active', selected === 'reset');
+    });
+  }
+
   function ensureDebugControls(ent) {
     const overlay = $('#bearagnosticProOverlay');
     if (!overlay) return;
@@ -186,8 +203,14 @@
       typeof NATIVE.setDebugEntitlement === 'function' &&
       typeof NATIVE.clearDebugEntitlement === 'function';
 
-    if (!available || builtIn) {
+    if (!available) {
       owned?.remove?.();
+      return;
+    }
+
+    if (builtIn) {
+      owned?.remove?.();
+      applyDebugVisualState(builtIn, ent);
       return;
     }
 
@@ -205,15 +228,17 @@
 
     const isPro = ent?.isPro === true;
     const signature = `${language()}|${isPro ? 'pro' : 'free'}|${ent?.source || ''}`;
-    if (debug.dataset.k3DebugSignature === signature) return;
-    debug.dataset.k3DebugSignature = signature;
-    debug.innerHTML =
-      `<div class="ba-pro-debug__head"><strong>${esc(text.debugTitle)}</strong><small>${esc(text.debugBody)}</small></div>` +
-      `<div class="ba-pro-debug__actions">` +
-      `<button type="button" data-k3-debug-tier="free" class="${!isPro ? 'is-active' : ''}">${esc(text.debugFree)}</button>` +
-      `<button type="button" data-k3-debug-tier="pro" class="${isPro ? 'is-active' : ''}">${esc(text.debugPro)}</button>` +
-      `<button type="button" data-k3-debug-reset>${esc(text.debugReset)}</button>` +
-      `</div>`;
+    if (debug.dataset.k3DebugSignature !== signature) {
+      debug.dataset.k3DebugSignature = signature;
+      debug.innerHTML =
+        `<div class="ba-pro-debug__head"><strong>${esc(text.debugTitle)}</strong><small>${esc(text.debugBody)}</small></div>` +
+        `<div class="ba-pro-debug__actions">` +
+        `<button type="button" data-k3-debug-tier="free">${esc(text.debugFree)}</button>` +
+        `<button type="button" data-k3-debug-tier="pro">${esc(text.debugPro)}</button>` +
+        `<button type="button" data-k3-debug-reset>${esc(text.debugReset)}</button>` +
+        `</div>`;
+    }
+    applyDebugVisualState(debug, ent);
   }
 
   function handleDebugAction(target) {
@@ -236,9 +261,11 @@
       const result = parse(raw, { accepted:false });
       if (result?.accepted !== true) return true;
 
+      debugVisualSelection = tierButton ? requestedTier : 'reset';
       localError = '';
       lastSignature = '';
       refreshEntitlementFacade();
+      ensureDebugControls(entitlementState());
       setTimeout(() => render(true), 0);
       return true;
     } catch (_) {
