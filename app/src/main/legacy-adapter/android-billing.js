@@ -7,9 +7,9 @@
    * It is intentionally dormant at app startup. It activates only after the
    * existing Pro sheet is opened through bearagnostic:prorequest.
    *
-   * Developer QA is NOT implemented in this file and is NOT part of the
-   * release runtime. QA lives only under Android src/debug as a separate
-   * launcher activity.
+   * Debug entitlement controls reuse the existing Pro surface and are shown
+   * only when the native entitlement layer reports debugControlsAvailable.
+   * Release builds report that flag as false and reject debug entitlement calls.
    */
   const NATIVE = window.BearagnosticNative;
   if (!NATIVE) return;
@@ -45,7 +45,12 @@
       invalidEmail:'Enter a valid email address.',
       invalidCode:'Enter the 6-digit verification code.',
       noEntitlement:'No active Pro purchase was found for that email.',
-      generic:'Benedict could not complete this step.'
+      generic:'Benedict could not complete this step.',
+      debugTitle:'DEVELOPMENT ENTITLEMENT TEST',
+      debugBody:'Debug build only. This control never appears in a release build.',
+      debugFree:'Test as FREE',
+      debugPro:'Test as PRO',
+      debugReset:'Reset'
     },
     th: {
       title:'ปลดล็อก Bearagnostic Pro',
@@ -68,7 +73,12 @@
       invalidEmail:'กรุณากรอกอีเมลให้ถูกต้อง',
       invalidCode:'กรุณากรอกรหัสยืนยัน 6 หลัก',
       noEntitlement:'ไม่พบสิทธิ์ Pro ที่ยังใช้งานอยู่สำหรับอีเมลนี้',
-      generic:'Benedict ไม่สามารถดำเนินขั้นตอนนี้ได้'
+      generic:'Benedict ไม่สามารถดำเนินขั้นตอนนี้ได้',
+      debugTitle:'ทดสอบสิทธิ์สำหรับ DEVELOPMENT',
+      debugBody:'มีเฉพาะ Debug build เท่านั้น Release build จะไม่มีตัวควบคุมนี้',
+      debugFree:'ทดสอบแบบ FREE',
+      debugPro:'ทดสอบแบบ PRO',
+      debugReset:'รีเซ็ต'
     },
     ja: {
       title:'Bearagnostic Pro を解除',
@@ -91,7 +101,12 @@
       invalidEmail:'有効なメールアドレスを入力してください。',
       invalidCode:'6桁の確認コードを入力してください。',
       noEntitlement:'このメールに有効な Pro 購入が見つかりません。',
-      generic:'Benedict でこの処理を完了できませんでした'
+      generic:'Benedict でこの処理を完了できませんでした',
+      debugTitle:'DEVELOPMENT 権限テスト',
+      debugBody:'Debug build 専用です。Release build には表示されません。',
+      debugFree:'FREE としてテスト',
+      debugPro:'PRO としてテスト',
+      debugReset:'リセット'
     }
   };
 
@@ -160,6 +175,69 @@
     try { window.BearagnosticEntitlement?.refresh?.(); } catch (_) {}
   }
 
+  function ensureDebugControls(ent) {
+    const overlay = $('#bearagnosticProOverlay');
+    if (!overlay) return;
+
+    const owned = overlay.querySelector?.('[data-k3-debug-block]');
+    const builtIn = Array.from(overlay.querySelectorAll?.('.ba-pro-debug') || [])
+      .find((node) => !node.hasAttribute?.('data-k3-debug-block'));
+    const available = ent?.debugControlsAvailable === true &&
+      typeof NATIVE.setDebugEntitlement === 'function' &&
+      typeof NATIVE.clearDebugEntitlement === 'function';
+
+    if (!available || builtIn) {
+      owned?.remove?.();
+      return;
+    }
+
+    const purchase = purchaseBlock();
+    if (!purchase) return;
+
+    const text = t();
+    let debug = owned;
+    if (!debug) {
+      debug = document.createElement('section');
+      debug.className = 'ba-pro-debug';
+      debug.setAttribute('data-k3-debug-block', 'true');
+      purchase.insertAdjacentElement('afterend', debug);
+    }
+
+    const isPro = ent?.isPro === true;
+    const signature = `${language()}|${isPro ? 'pro' : 'free'}|${ent?.source || ''}`;
+    if (debug.dataset.k3DebugSignature === signature) return;
+    debug.dataset.k3DebugSignature = signature;
+    debug.innerHTML =
+      `<div class="ba-pro-debug__head"><strong>${esc(text.debugTitle)}</strong><small>${esc(text.debugBody)}</small></div>` +
+      `<div class="ba-pro-debug__actions">` +
+      `<button type="button" data-k3-debug-tier="free" class="${!isPro ? 'is-active' : ''}">${esc(text.debugFree)}</button>` +
+      `<button type="button" data-k3-debug-tier="pro" class="${isPro ? 'is-active' : ''}">${esc(text.debugPro)}</button>` +
+      `<button type="button" data-k3-debug-reset>${esc(text.debugReset)}</button>` +
+      `</div>`;
+  }
+
+  function handleDebugAction(target) {
+    try {
+      const tierButton = target?.closest?.('[data-k3-debug-tier]');
+      const resetButton = target?.closest?.('[data-k3-debug-reset]');
+      if (!tierButton && !resetButton) return false;
+
+      const raw = tierButton
+        ? NATIVE.setDebugEntitlement(String(tierButton.dataset.k3DebugTier || ''))
+        : NATIVE.clearDebugEntitlement();
+      const result = parse(raw, { accepted:false });
+      if (result?.accepted !== true) return true;
+
+      localError = '';
+      lastSignature = '';
+      refreshEntitlementFacade();
+      setTimeout(() => render(true), 0);
+      return true;
+    } catch (_) {
+      return true;
+    }
+  }
+
   function render(force = false) {
     if (!active) return;
     const block = purchaseBlock();
@@ -177,8 +255,21 @@
     const phase = String(state.phase || 'unconfigured');
     const error = localError || String(state.lastError || '');
     const isPro = ent.isPro === true;
+    ensureDebugControls(ent);
+    const focused = document.activeElement;
+    const editingEmail =
+      !isPro && (phase === 'ready' || phase === 'error') &&
+      focused?.matches?.('[data-k3-email]');
+    const editingCode =
+      !isPro && phase === 'otp_required' &&
+      focused?.matches?.('[data-k3-code]');
+
+    // Never replace an active text field while the user is typing.
+    // Replacing innerHTML destroys focus in Android WebView and closes the keyboard.
+    if (editingEmail || editingCode) return;
+
     const signature = JSON.stringify([
-      language(), phase, isPro, ent.source || '', error, selectedEmail,
+      language(), phase, isPro, ent.source || '', error,
       state.hasPendingSession === true, state.hasLocalServerLease === true
     ]);
 
@@ -339,11 +430,17 @@
     try { NATIVE.refreshServerEntitlement(); } catch (_) {}
     render(true);
     startTimer();
-    [0, 80, 220].forEach((delay) => setTimeout(() => render(true), delay));
   }
 
   document.addEventListener('click', (event) => {
     if (!active) return;
+
+    if (handleDebugAction(event.target)) {
+      event.preventDefault();
+      event.stopPropagation();
+      return;
+    }
+
     const button = event.target?.closest?.('[data-k3-action]');
     if (!button) return;
     event.preventDefault();
