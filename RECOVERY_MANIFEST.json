@@ -1,0 +1,23 @@
+{
+  "base_commit": "ab2f1a0f6067cd31ac9155d530c3ce45d6707761",
+  "purpose": "Surgical recovery: preserve current UI while removing Developer Mode/Billing Sandbox runtime and unstable startup/K3 DOM loops.",
+  "files": [
+    "app/src/main/java/com/benedictinteractive/bearagnostic/MainActivity.kt",
+    "app/src/main/java/com/benedictinteractive/bearagnostic/NativeBridge.kt",
+    "app/src/main/java/com/benedictinteractive/bearagnostic/EntitlementManager.kt",
+    "app/src/debug/java/com/benedictinteractive/bearagnostic/DebugBillingSandbox.kt",
+    "app/src/main/legacy-adapter/android-entitlement.js",
+    "app/src/main/legacy-adapter/android-pro-ui.js",
+    "app/src/main/legacy-adapter/android-billing.js"
+  ],
+  "qa": {
+    "main_no_native_launch_overlay": true,
+    "main_direct_webview": true,
+    "entitlement_no_k3_observer": true,
+    "entitlement_no_debug_calls": true,
+    "pro_ui_no_debug_controls": true,
+    "native_no_sandbox_bridge": true,
+    "manager_no_debug_grant": true,
+    "billing_inert": true
+  }
+}

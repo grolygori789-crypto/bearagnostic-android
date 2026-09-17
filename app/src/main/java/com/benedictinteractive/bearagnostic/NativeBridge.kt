@@ -16,7 +16,6 @@ class NativeBridge(private val activity: MainActivity) {
         onStateChanged = { activity.runOnUiThread { activity.pushNativeStateToWeb() } },
         openExternalUrl = { url -> activity.runOnUiThread { activity.openExternalUrl(url) } },
     )
-    private val debugBillingSandbox: Any? = createDebugBillingSandbox()
     private val emptyFolders = EmptyFolderManager(activity.applicationContext)
     private val history = LocalHistoryStore(activity.applicationContext)
 
@@ -33,47 +32,6 @@ class NativeBridge(private val activity: MainActivity) {
     @JavascriptInterface fun verifyKoFiCode(code: String): String = serverCommerce.verifyCode(code)
     @JavascriptInterface fun refreshServerEntitlement(): String = serverCommerce.refresh()
     @JavascriptInterface fun resetServerCommerce(): String = serverCommerce.resetFlow()
-
-    @JavascriptInterface
-    fun setDebugEntitlement(tier: String): String {
-        val result = entitlement.setDebugTier(tier)
-        activity.runOnUiThread { activity.pushNativeStateToWeb() }
-        return result
-    }
-
-    @JavascriptInterface
-    fun clearDebugEntitlement(): String {
-        val result = entitlement.clearDebugTier()
-        activity.runOnUiThread { activity.pushNativeStateToWeb() }
-        return result
-    }
-
-    @JavascriptInterface fun getDebugBillingSandboxState(): String = sandboxCall("stateJson")
-    @JavascriptInterface fun setDebugBillingSandboxEnabled(enabled: Boolean): String = sandboxCall("setEnabled", java.lang.Boolean.TYPE, enabled)
-    @JavascriptInterface fun setDebugBillingSandboxScenario(scenario: String): String = sandboxCall("setScenario", String::class.java, scenario)
-    @JavascriptInterface fun launchDebugBillingSandboxPurchase(): String = sandboxCall("launchPurchase")
-    @JavascriptInterface fun confirmDebugBillingSandboxPurchase(): String = sandboxCall("confirmCheckout")
-    @JavascriptInterface fun cancelDebugBillingSandboxPurchase(): String = sandboxCall("cancelCheckout")
-    @JavascriptInterface fun completeDebugBillingSandboxPending(): String = sandboxCall("completePending")
-    @JavascriptInterface fun restoreDebugBillingSandboxPurchase(): String = sandboxCall("restore")
-    @JavascriptInterface fun forgetDebugBillingSandboxLocalEntitlement(): String = sandboxCall("forgetLocalEntitlement")
-    @JavascriptInterface fun resetDebugBillingSandboxPurchase(): String = sandboxCall("resetPurchase")
-    @JavascriptInterface fun setDebugBillingDeveloperMode(enabled: Boolean): String = sandboxCall("setDeveloperMode", java.lang.Boolean.TYPE, enabled)
-    @JavascriptInterface fun setDebugBillingSandboxMarket(market: String): String = sandboxCall("setMarket", String::class.java, market)
-    @JavascriptInterface fun setDebugBillingSandboxNetwork(mode: String): String = sandboxCall("setNetworkMode", String::class.java, mode)
-    @JavascriptInterface fun setDebugBillingSandboxPaymentBehavior(mode: String): String = sandboxCall("setPaymentBehavior", String::class.java, mode)
-    @JavascriptInterface fun setDebugBillingSandboxAcknowledgeMode(mode: String): String = sandboxCall("setAcknowledgeMode", String::class.java, mode)
-    @JavascriptInterface fun setDebugBillingSandboxStoreAvailable(available: Boolean): String = sandboxCall("setStoreAvailable", java.lang.Boolean.TYPE, available)
-    @JavascriptInterface fun declineDebugBillingSandboxPending(): String = sandboxCall("declinePending")
-    @JavascriptInterface fun syncDebugBillingSandboxOwnership(): String = sandboxCall("syncOwnership")
-    @JavascriptInterface fun retryDebugBillingSandboxAcknowledgement(): String = sandboxCall("retryAcknowledgement")
-    @JavascriptInterface fun refundDebugBillingSandboxKeepAccess(): String = sandboxCall("refundKeepAccess")
-    @JavascriptInterface fun refundDebugBillingSandboxAndRevoke(): String = sandboxCall("refundAndRevoke")
-    @JavascriptInterface fun revokeDebugBillingSandbox(): String = sandboxCall("revoke")
-    @JavascriptInterface fun chargebackDebugBillingSandbox(): String = sandboxCall("chargeback")
-    @JavascriptInterface fun expireDebugBillingSandboxUnacknowledged(): String = sandboxCall("expireUnacknowledged")
-    @JavascriptInterface fun simulateDebugBillingSandboxReinstall(): String = sandboxCall("simulateReinstall")
-    @JavascriptInterface fun clearDebugBillingSandboxEvents(): String = sandboxCall("clearEvents")
 
     @JavascriptInterface fun requestBroadStorageAccess() { activity.runOnUiThread { StorageAccessController.request(activity) } }
     @JavascriptInterface fun refreshNativeState() { activity.runOnUiThread { activity.pushNativeStateToWeb() } }
@@ -105,8 +63,10 @@ class NativeBridge(private val activity: MainActivity) {
     @JavascriptInterface fun startOneTapScan(): String = activity.startOneTapScan()
     @JavascriptInterface fun cancelOneTapScan(): String = activity.cancelOneTapScan()
     @JavascriptInterface fun getReviewSummary(): String = activity.reviewSummaryJson()
-    @JavascriptInterface fun getReviewCandidates(category: String, offset: Int, limit: Int): String = activity.reviewCandidatesJson(category, offset, limit)
-    @JavascriptInterface fun requestReviewMedia(id: String, variant: String, requestId: String): String = activity.requestReviewMedia(id, variant, requestId)
+    @JavascriptInterface fun getReviewCandidates(category: String, offset: Int, limit: Int): String =
+        activity.reviewCandidatesJson(category, offset, limit)
+    @JavascriptInterface fun requestReviewMedia(id: String, variant: String, requestId: String): String =
+        activity.requestReviewMedia(id, variant, requestId)
 
     @JavascriptInterface
     fun deleteReviewCandidates(idsJson: String): String {
@@ -115,7 +75,8 @@ class NativeBridge(private val activity: MainActivity) {
             val generatedAtMs = summary.optLong("generatedAtMs", 0L)
             if (!RuntimeContractGuard.isReviewSnapshotFresh(generatedAtMs)) {
                 return JSONObject().apply {
-                    put("accepted", false); put("reason", "stale_review_snapshot"); put("maxAgeMs", RuntimeContractGuard.REVIEW_SNAPSHOT_MAX_AGE_MS)
+                    put("accepted", false); put("reason", "stale_review_snapshot")
+                    put("maxAgeMs", RuntimeContractGuard.REVIEW_SNAPSHOT_MAX_AGE_MS)
                 }.toString()
             }
         }
@@ -124,7 +85,8 @@ class NativeBridge(private val activity: MainActivity) {
         return result
     }
 
-    @JavascriptInterface fun recordInsightsScan(scanJson: String): String = history.recordScan(scanJson, activity.storageSnapshotJson())
+    @JavascriptInterface fun recordInsightsScan(scanJson: String): String =
+        history.recordScan(scanJson, activity.storageSnapshotJson())
     @JavascriptInterface fun getInsightsHistory(): String = history.historyJson(entitlement)
     @JavascriptInterface fun clearInsightsHistory(): String = history.clear()
 
@@ -136,7 +98,8 @@ class NativeBridge(private val activity: MainActivity) {
     }
 
     @JavascriptInterface fun getEmptyFolderSummary(): String = emptyFolders.summaryJson()
-    @JavascriptInterface fun getEmptyFolderCandidates(offset: Int, limit: Int): String = emptyFolders.candidatesJson(offset, limit)
+    @JavascriptInterface fun getEmptyFolderCandidates(offset: Int, limit: Int): String =
+        emptyFolders.candidatesJson(offset, limit)
 
     @JavascriptInterface
     fun deleteEmptyFolderCandidates(idsJson: String): String {
@@ -161,37 +124,11 @@ class NativeBridge(private val activity: MainActivity) {
         put("entitlement", entitlement.stateJsonObject()); put("proProductId", EntitlementManager.PRO_PRODUCT_ID)
         put("serverCommerce", JSONObject(serverCommerce.stateJson()))
         put("billingReady", billing.stateJsonObject().optBoolean("billingReady", false)); put("billing", billing.stateJsonObject())
-        put("debugBillingSandbox", JSONObject(getDebugBillingSandboxState()))
         put("scannerCapabilities", "multi_pass,metadata,content_probe,categories,old,large,temp,apk,archives,zero_byte,empty_folders,empty_folder_review,verified_empty_folder_delete,screenshots,media,downloads,sha256_duplicates,review_candidates,live_activity,local_review_previews,identity_revalidated_delete,aggregate_local_history,insights,what_changed,verified_cleanup_history,play_billing_foundation,server_verified_entitlement,kofi_purchase_restore")
     }.toString()
 
-    private fun createDebugBillingSandbox(): Any? {
-        if (!BuildConfig.DEBUG) return null
-        return try {
-            val type = Class.forName("com.benedictinteractive.bearagnostic.DebugBillingSandbox")
-            val constructor = type.getConstructor(android.content.Context::class.java, EntitlementManager::class.java)
-            constructor.newInstance(activity.applicationContext, entitlement)
-        } catch (_: Throwable) { null }
-    }
-
-    private fun sandboxUnavailable(): String = JSONObject().apply {
-        put("available", false); put("debugOnly", true); put("releaseIncluded", false)
-        put("reason", if (BuildConfig.DEBUG) "sandbox_not_loaded" else "debug_only")
-    }.toString()
-
-    private fun sandboxCall(method: String): String {
-        val target = debugBillingSandbox ?: return sandboxUnavailable()
-        return try { target.javaClass.getMethod(method).invoke(target) as? String ?: sandboxUnavailable() }
-        catch (_: Throwable) { JSONObject().apply { put("available", true); put("accepted", false); put("reason", "sandbox_call_failed") }.toString() }
-    }
-
-    private fun sandboxCall(method: String, parameterType: Class<*>, value: Any): String {
-        val target = debugBillingSandbox ?: return sandboxUnavailable()
-        return try { target.javaClass.getMethod(method, parameterType).invoke(target, value) as? String ?: sandboxUnavailable() }
-        catch (_: Throwable) { JSONObject().apply { put("available", true); put("accepted", false); put("reason", "sandbox_call_failed") }.toString() }
-    }
-
-    private fun rejected(reason: String): String = JSONObject().apply { put("accepted", false); put("reason", reason) }.toString()
+    private fun rejected(reason: String): String =
+        JSONObject().apply { put("accepted", false); put("reason", reason) }.toString()
 
     companion object {
         const val JS_INTERFACE_NAME = "BearagnosticNative"

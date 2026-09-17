@@ -32,7 +32,6 @@
       billingPendingSub: 'The next Billing batch will supply the local Play price, purchase, restore and ownership lifecycle to this entitlement layer.',
       activeTitle: 'Bearagnostic Pro is active', activeSub: 'This build currently has access to Pro capabilities.',
       close: 'Close',
-      debugTitle: 'DEVELOPMENT ENTITLEMENT TEST', debugBody: 'Debug build only. This control never appears in a release build.', debugFree: 'Test as FREE', debugPro: 'Test as PRO', debugReset: 'Reset',
       planTitle: 'Plan', planSub: 'Access level for this installation', planFree: 'Free', planPro: 'Pro · Lifetime', planExplore: 'Explore Pro', planView: 'View Pro',
       proTag: 'PRO', proUnlocked: 'PRO ✓'
     },
@@ -51,7 +50,6 @@
       billingPendingSub: 'Batch Billing ถัดไปจะเชื่อมราคาตามประเทศ การซื้อ การกู้คืนสิทธิ์ และวงจรสถานะเจ้าของเข้ากับ entitlement layer นี้',
       activeTitle: 'Bearagnostic Pro เปิดใช้งานแล้ว', activeSub: 'Build นี้มีสิทธิ์ใช้ความสามารถ Pro แล้ว',
       close: 'ปิด',
-      debugTitle: 'ทดสอบสิทธิ์สำหรับ DEVELOPMENT', debugBody: 'มีเฉพาะ Debug build เท่านั้น Release build จะไม่มีตัวควบคุมนี้', debugFree: 'ทดสอบแบบ FREE', debugPro: 'ทดสอบแบบ PRO', debugReset: 'รีเซ็ต',
       planTitle: 'แผนการใช้งาน', planSub: 'ระดับสิทธิ์ของการติดตั้งนี้', planFree: 'Free', planPro: 'Pro · ตลอดชีพ', planExplore: 'ดู Pro', planView: 'ดูสิทธิ์ Pro',
       proTag: 'PRO', proUnlocked: 'PRO ✓'
     },
@@ -70,7 +68,6 @@
       billingPendingSub: '次の Billing バッチで、地域別価格・購入・復元・所有権ライフサイクルをこの entitlement layer に接続します。',
       activeTitle: 'Bearagnostic Pro は有効です', activeSub: 'このビルドでは Pro 機能を利用できます。',
       close: '閉じる',
-      debugTitle: 'DEVELOPMENT 権限テスト', debugBody: 'Debug build 専用です。Release build には表示されません。', debugFree: 'FREE としてテスト', debugPro: 'PRO としてテスト', debugReset: 'リセット',
       planTitle: 'プラン', planSub: 'このインストールのアクセスレベル', planFree: 'Free', planPro: 'Pro · 買い切り', planExplore: 'Pro を見る', planView: 'Pro を確認',
       proTag: 'PRO', proUnlocked: 'PRO ✓'
     }
@@ -112,9 +109,8 @@
       .ba-pro-trust{display:grid;grid-template-columns:36px minmax(0,1fr);gap:9px;align-items:center;padding:10px 11px;border-radius:19px;background:linear-gradient(130deg,#eaf9f4,#f8fcff);border:1px solid rgba(47,169,141,.09)}.ba-pro-trust__icon{width:36px;height:36px;border-radius:12px;display:grid;place-items:center;color:#278e78;background:#dcf5ed}.ba-pro-trust__icon svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}.ba-pro-trust strong{display:block;font-size:10px;color:#255044}.ba-pro-trust small{display:block;margin-top:3px;font-size:8px;line-height:1.38;color:#718d86}
       .ba-pro-model{margin-top:8px;padding:10px 11px;border-radius:19px;background:linear-gradient(135deg,#fff9e9,#fffdf8);border:1px solid rgba(186,139,60,.09)}.ba-pro-model strong{display:block;font-size:10px;color:#6f562a}.ba-pro-model small{display:block;margin-top:3px;font-size:8px;line-height:1.4;color:#8d8068}
       .ba-pro-purchase{margin-top:10px;padding:11px;border-radius:20px;background:#fff;border:1px solid rgba(91,119,147,.09);box-shadow:0 8px 22px rgba(53,83,114,.05)}.ba-pro-purchase strong{display:block;font-size:10px;color:#233a52}.ba-pro-purchase small{display:block;margin-top:4px;font-size:8px;line-height:1.4;color:#7d8d9d}.ba-pro-primary{width:100%;height:45px;margin-top:9px;border-radius:16px;background:linear-gradient(118deg,#7764d5,#258fdc);color:#fff;font-size:10.5px;font-weight:800;box-shadow:0 10px 21px rgba(81,78,176,.17)}.ba-pro-primary:disabled{background:linear-gradient(118deg,#d8e0e8,#cbd7e2);color:#758596;box-shadow:none;opacity:1}
-      .ba-pro-debug{margin-top:10px;padding:10px;border-radius:18px;border:1px dashed rgba(104,94,205,.22);background:rgba(245,243,255,.72)}.ba-pro-debug__head strong{display:block;font-size:8px;letter-spacing:.08em;color:#665cb0}.ba-pro-debug__head small{display:block;margin-top:3px;font-size:7.5px;line-height:1.35;color:#8986a0}.ba-pro-debug__actions{display:grid;grid-template-columns:1fr 1fr auto;gap:6px;margin-top:8px}.ba-pro-debug button{height:36px;border-radius:12px;background:#fff;border:1px solid rgba(102,91,176,.10);color:#5d5a85;font-size:8px;font-weight:750}.ba-pro-debug button.is-active{background:linear-gradient(145deg,#ede9ff,#edf6ff);color:#5c52ad;box-shadow:inset 0 0 0 1px rgba(100,85,190,.07)}
       .ba-plan-card{--tone:103,95,208!important}.ba-plan-card .native-pref-orb{background:linear-gradient(145deg,#efebff,#eef6ff)!important;color:#655dbd!important}.ba-plan-cta{height:31px;padding:0 10px;border-radius:11px;background:linear-gradient(145deg,#efecff,#eef6ff);border:1px solid rgba(101,91,190,.09);color:#6159ad;font-size:8px;font-weight:790}.ba-plan-status.is-pro{color:#25856f!important}
-      @media(max-width:360px){.ba-pro-panel{padding-left:12px;padding-right:12px}.ba-pro-feature-grid{grid-template-columns:1fr}.ba-pro-title{font-size:18px}.ba-pro-debug__actions{grid-template-columns:1fr 1fr}.ba-pro-debug__actions button:last-child{grid-column:1/-1}}
+      .ba-pro-debug__actions button:last-child{grid-column:1/-1}}
       @media(prefers-reduced-motion:reduce){.ba-pro-overlay *{scroll-behavior:auto!important}}
     `;
     document.head.appendChild(style);
@@ -149,7 +145,6 @@
     const t = c();
     const state = ENT.getState();
     const isPro = state.isPro === true;
-    const debug = state.debugControlsAvailable === true;
     const roadmap = [t.planned1,t.planned2,t.planned3,t.planned4,t.planned5,t.planned6]
       .map((item) => `<span>${item}</span>`).join('');
 
@@ -157,25 +152,13 @@
       ? `<div class="ba-pro-purchase"><strong>${t.activeTitle}</strong><small>${t.activeSub}</small><button class="ba-pro-primary" type="button" disabled>${t.proBadge}</button></div>`
       : `<div class="ba-pro-purchase"><strong>${t.billingPending}</strong><small>${t.billingPendingSub}</small><button class="ba-pro-primary" type="button" disabled>${t.billingPending}</button></div>`;
 
-    const debugBlock = debug ? `<section class="ba-pro-debug"><div class="ba-pro-debug__head"><strong>${t.debugTitle}</strong><small>${t.debugBody}</small></div><div class="ba-pro-debug__actions"><button type="button" data-debug-tier="free" class="${!isPro?'is-active':''}">${t.debugFree}</button><button type="button" data-debug-tier="pro" class="${isPro?'is-active':''}">${t.debugPro}</button><button type="button" data-debug-reset>${t.debugReset}</button></div></section>` : '';
+    const debugBlock = '';
 
     overlay.innerHTML = `<div class="ba-pro-panel"><div class="ba-pro-handle"></div><header class="ba-pro-head"><span class="ba-pro-mark">${icon(ICONS.pro)}</span><div><span class="ba-pro-kicker">${t.eyebrow}</span><h2 class="ba-pro-title">${t.title}</h2></div><button class="ba-pro-close" data-pro-close type="button" aria-label="${t.close}">×</button></header><p class="ba-pro-lead">${t.lead}</p><span class="ba-pro-status ${isPro?'is-pro':''}">${isPro?t.proBadge:t.freeBadge}</span>
       <section class="ba-pro-section"><div class="ba-pro-section-head"><strong>${t.available}</strong></div><div class="ba-pro-feature-grid"><article class="ba-pro-feature"><span class="ba-pro-feature__icon">${icon(ICONS.deep)}</span><strong>${t.deep}</strong><small>${t.deepSub}</small></article><article class="ba-pro-feature"><span class="ba-pro-feature__icon">${icon(ICONS.custom)}</span><strong>${t.custom}</strong><small>${t.customSub}</small></article></div></section>
       <section class="ba-pro-section"><div class="ba-pro-section-head"><strong>${t.planned}</strong></div><div class="ba-pro-roadmap"><p>${t.plannedSub}</p><div class="ba-pro-roadmap__chips">${roadmap}</div></div></section>
       <section class="ba-pro-section"><div class="ba-pro-trust"><span class="ba-pro-trust__icon">${icon(ICONS.shield)}</span><div><strong>${t.safetyTitle}</strong><small>${t.safetyBody}</small></div></div><div class="ba-pro-model"><strong>${t.modelTitle}</strong><small>${t.modelBody}</small></div></section>${purchaseBlock}${debugBlock}</div>`;
 
-    overlay.querySelectorAll('[data-debug-tier]').forEach((button) => {
-      button.addEventListener('click', () => {
-        ENT.setDebugTier(button.dataset.debugTier);
-        renderSheet();
-        decorateAll();
-      });
-    });
-    overlay.querySelector('[data-debug-reset]')?.addEventListener('click', () => {
-      ENT.clearDebugTier();
-      renderSheet();
-      decorateAll();
-    });
   }
 
   function openSheet(source = 'more') {
