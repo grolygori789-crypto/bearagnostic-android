@@ -218,12 +218,20 @@
 
   function handleDebugAction(target) {
     try {
-      const tierButton = target?.closest?.('[data-k3-debug-tier]');
-      const resetButton = target?.closest?.('[data-k3-debug-reset]');
+      // The frozen Pro UI already owns data-debug-tier/data-debug-reset.
+      // Commerce may inject its own data-k3-* controls only as a fallback.
+      // Handle BOTH contracts here at capture phase so toggling remains reliable
+      // even when the Pro sheet is re-rendered between entitlement changes.
+      const tierButton = target?.closest?.('[data-k3-debug-tier],[data-debug-tier]');
+      const resetButton = target?.closest?.('[data-k3-debug-reset],[data-debug-reset]');
       if (!tierButton && !resetButton) return false;
 
+      const requestedTier = tierButton
+        ? String(tierButton.dataset.k3DebugTier || tierButton.dataset.debugTier || '')
+        : '';
+
       const raw = tierButton
-        ? NATIVE.setDebugEntitlement(String(tierButton.dataset.k3DebugTier || ''))
+        ? NATIVE.setDebugEntitlement(requestedTier)
         : NATIVE.clearDebugEntitlement();
       const result = parse(raw, { accepted:false });
       if (result?.accepted !== true) return true;
