@@ -9,5 +9,13 @@
     "no_dev_mode_in_production_billing_js": true,
     "debug_qa_only_under_src_debug": true
   },
-  "important": "Full Android Debug+Release compile and release-APK exclusion proof are enforced by the included GitHub Actions workflow after upload."
+  "important": "Full Android Debug+Release compile and release-APK exclusion proof are enforced by the included GitHub Actions workflow after upload.",
+  "revision": "v2",
+  "launcher_regression_fix": {
+    "qa_not_main": true,
+    "qa_not_launcher": true,
+    "qa_activity_still_debug_only": true,
+    "billing_js_syntax": true,
+    "verifier_python_syntax": true
+  }
 }

@@ -18,5 +18,11 @@
     "app/src/main/legacy-adapter/android-pro-ui.js",
     "app/src/main/legacy-adapter/android-entitlement.js"
   ],
-  "policy": "no manual retest of previously passed work"
+  "policy": "no manual retest of previously passed work",
+  "revision": "v2",
+  "launcher_regression_fix": {
+    "CommerceQaActivity_has_MAIN": false,
+    "CommerceQaActivity_has_LAUNCHER": false,
+    "normal_app_launcher_untouched": true
+  }
 }

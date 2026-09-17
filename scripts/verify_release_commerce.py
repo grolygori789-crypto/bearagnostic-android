@@ -67,6 +67,10 @@ def source_checks():
     if not qa.is_file() or not dbg_manifest.is_file():
         fail("debug-only QA source set is incomplete")
 
+    dbg_manifest_text = dbg_manifest.read_text(encoding="utf-8")
+    if "android.intent.action.MAIN" in dbg_manifest_text or "android.intent.category.LAUNCHER" in dbg_manifest_text:
+        fail("CommerceQaActivity must never be a launcher entry")
+
     node = subprocess.run(["node", "--check", str(billing_path)], capture_output=True, text=True)
     if node.returncode != 0:
         fail("android-billing.js syntax failed:\n" + node.stderr)

@@ -29,3 +29,10 @@ Only NEW commerce/Pro behavior may be manually exercised.
 ## Release rule
 
 Do not distribute a Release APK unless `Verify Release Commerce` passes.
+
+
+## V2 launcher regression fix
+
+`CommerceQaActivity` is debug-only and deliberately has **no MAIN/LAUNCHER intent filter**.
+Opening Bearagnostic normally must continue to launch the existing production `MainActivity`.
+The QA activity can only be opened explicitly for developer testing.
