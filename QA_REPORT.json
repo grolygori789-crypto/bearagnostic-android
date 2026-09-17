@@ -1,0 +1,14 @@
+{
+  "result": "PASS_STATIC",
+  "checks": {
+    "frozen_MainActivity_blob_match": true,
+    "frozen_android_pro_ui_blob_match": true,
+    "android_billing_js_syntax": true,
+    "zero_native_commerce_calls_at_js_startup": true,
+    "commerce_activation_user_driven_only": true,
+    "debug_harness_is_src_debug_only": true,
+    "release_bridge_guard_BuildConfig_DEBUG": true,
+    "debug_harness_kotlin_compile_with_stubs": true
+  },
+  "important": "Full Android assembleDebug/assembleRelease must still be run by repository CI before this patch can truthfully be called build-verified."
+}

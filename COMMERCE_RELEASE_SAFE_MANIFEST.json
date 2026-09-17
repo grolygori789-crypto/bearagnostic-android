@@ -1,0 +1,29 @@
+{
+  "patch": "Bearagnostic release-safe commerce + debug QA",
+  "base_commit": "6a435c81e64b97ee71991ebaccc6943604bf18d2",
+  "frozen_user_confirmed_package_sha256": "8850ce748792167b5fe5f4d13ad11ecc759606e4e2e09b9d82b7d16a5071bdc3",
+  "protected_baseline": {
+    "MainActivity.kt_git_blob": "61621e68babb9beaa3ff494e7ee1c6af6e6a718a",
+    "android-pro-ui.js_git_blob": "8d701891a2aa110109c17ec032317341dac6846a"
+  },
+  "changed_or_added_files": [
+    "app/src/main/java/com/benedictinteractive/bearagnostic/NativeBridge.kt",
+    "app/src/debug/java/com/benedictinteractive/bearagnostic/DebugCommerceQaHarness.kt",
+    "app/src/main/legacy-adapter/android-billing.js",
+    "scripts/verify_commerce_release_isolation.py"
+  ],
+  "explicitly_not_modified": [
+    "MainActivity.kt",
+    "android-pro-ui.js",
+    "android-entitlement.js",
+    "all logos and visual assets",
+    "Home/navigation/scan/review/cleanup adapters"
+  ],
+  "release_contract": {
+    "developer_qa_visible_in_release": false,
+    "synthetic_entitlement_available_in_release": false,
+    "runtime_dev_mode_toggle": false,
+    "customer_purchase_path": "Ko-fi -> Benedict backend -> EntitlementManager",
+    "qa_path": "src/debug synthetic verified entitlement -> same EntitlementManager capability gate"
+  }
+}

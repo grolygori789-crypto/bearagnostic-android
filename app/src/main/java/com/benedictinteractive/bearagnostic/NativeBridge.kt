@@ -33,6 +33,39 @@ class NativeBridge(private val activity: MainActivity) {
     @JavascriptInterface fun refreshServerEntitlement(): String = serverCommerce.refresh()
     @JavascriptInterface fun resetServerCommerce(): String = serverCommerce.resetFlow()
 
+    /**
+     * Build-isolated commerce QA surface.
+     *
+     * Release builds expose only an inert compatibility response. The executable
+     * QA implementation exists under src/debug and is resolved by reflection so
+     * release APKs never require or instantiate the debug harness.
+     */
+    @JavascriptInterface
+    fun getCommerceQaState(): String = JSONObject().apply {
+        put("available", BuildConfig.DEBUG)
+        put("debugOnly", true)
+        put("releaseIncluded", false)
+        put("runtimeToggleRequired", false)
+    }.toString()
+
+    @JavascriptInterface
+    fun runCommerceQaScenario(scenario: String): String {
+        if (!BuildConfig.DEBUG) return rejected("qa_unavailable")
+        return try {
+            val type = Class.forName("com.benedictinteractive.bearagnostic.DebugCommerceQaHarness")
+            val method = type.getMethod(
+                "run",
+                android.content.Context::class.java,
+                EntitlementManager::class.java,
+                String::class.java,
+            )
+            (method.invoke(null, activity.applicationContext, entitlement, scenario) as? String)
+                ?: rejected("qa_invalid_result")
+        } catch (_: Throwable) {
+            rejected("qa_unavailable")
+        }
+    }
+
     @JavascriptInterface fun requestBroadStorageAccess() { activity.runOnUiThread { StorageAccessController.request(activity) } }
     @JavascriptInterface fun refreshNativeState() { activity.runOnUiThread { activity.pushNativeStateToWeb() } }
 
