@@ -468,13 +468,17 @@
   }
 
   document.addEventListener('click', (event) => {
-    if (!active) return;
-
+    // Debug entitlement controls belong to the Pro sheet and must remain
+    // responsive even when the production commerce adapter is dormant.
+    // Handle them before the commerce-active gate so visual selection is
+    // always synchronized on every Pro-sheet entry path.
     if (handleDebugAction(event.target)) {
       event.preventDefault();
       event.stopPropagation();
       return;
     }
+
+    if (!active) return;
 
     const button = event.target?.closest?.('[data-k3-action]');
     if (!button) return;
@@ -499,6 +503,10 @@
   window.addEventListener('bearagnostic:prorequest', () => setTimeout(activate, 0));
 
   window.addEventListener('bearagnostic:entitlementchange', () => {
+    // The frozen Pro UI can rebuild its debug buttons when entitlement changes.
+    // Re-apply the last pressed FREE / PRO / Reset visual state after that rebuild,
+    // even when Benedict commerce itself is not active.
+    setTimeout(() => ensureDebugControls(entitlementState()), 0);
     if (active) setTimeout(() => render(true), 0);
   });
 
