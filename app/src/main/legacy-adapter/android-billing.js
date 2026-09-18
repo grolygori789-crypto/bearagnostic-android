@@ -38,6 +38,9 @@
       verifying:'Verifying code…',
       waiting:'Waiting for payment confirmation',
       waitingSub:'Bearagnostic unlocks Pro only after Benedict confirms a verified Ko-fi Shop Order.',
+      recovery:'Already paid? If Ko-fi used a different email at checkout, restore Pro with that email.',
+      recoveryEmail:'Email used at Ko-fi checkout',
+      recoveryAction:'Restore paid purchase',
       active:'Bearagnostic Pro is active',
       activeSub:'Lifetime access is verified for this installation.',
       retry:'Check again',
@@ -67,6 +70,9 @@
       verifying:'กำลังตรวจสอบรหัส…',
       waiting:'กำลังรอการยืนยันการชำระเงิน',
       waitingSub:'Bearagnostic จะปลดล็อก Pro หลัง Benedict ยืนยัน Ko-fi Shop Order ที่ตรวจสอบแล้วเท่านั้น',
+      recovery:'ชำระเงินแล้ว? ถ้า Ko-fi ใช้อีเมลคนละอันตอนชำระเงิน ให้กู้คืน Pro ด้วยอีเมลที่ใช้ใน Ko-fi',
+      recoveryEmail:'อีเมลที่ใช้ชำระเงินใน Ko-fi',
+      recoveryAction:'กู้คืนการซื้อที่ชำระแล้ว',
       active:'Bearagnostic Pro เปิดใช้งานแล้ว',
       activeSub:'ยืนยันสิทธิ์ตลอดชีพสำหรับการติดตั้งนี้แล้ว',
       retry:'ตรวจสอบอีกครั้ง',
@@ -96,6 +102,9 @@
       verifying:'コードを確認中…',
       waiting:'支払い確認を待っています',
       waitingSub:'Benedict が検証済み Ko-fi Shop Order を確認した後にだけ Pro を有効化します。',
+      recovery:'支払い済みですか？Ko-fi の購入時に別のメールアドレスを使った場合は、そのメールアドレスで Pro を復元してください。',
+      recoveryEmail:'Ko-fi 購入時のメール',
+      recoveryAction:'購入済み Pro を復元',
       active:'Bearagnostic Pro は有効です',
       activeSub:'このインストールの買い切り権利を確認しました。',
       retry:'再確認',
@@ -116,6 +125,7 @@
   let active = false;
   let timer = null;
   let selectedEmail = '';
+  let recoveryEmail = '';
   let localError = '';
   let lastSignature = '';
   let debugVisualSelection = null;
@@ -160,6 +170,8 @@
       #bearagnosticProOverlay .ba-k3-actions .ba-pro-primary{margin-top:0;min-height:45px;border:none;border-radius:16px;background:linear-gradient(180deg,#f3d993 0%,#d9b15a 100%);color:#4d3812;box-shadow:0 8px 18px rgba(133,98,28,.20),inset 0 1px 0 rgba(255,249,229,.9);font-weight:800}
       #bearagnosticProOverlay .ba-k3-actions .ba-pro-primary:disabled{background:linear-gradient(180deg,#eadbb0 0%,#d4be84 100%);color:#6d5723;opacity:1}
       #bearagnosticProOverlay .ba-k3-secondary{min-height:45px;padding:0 11px;border-radius:16px;background:rgba(255,255,255,.92);border:1px solid rgba(121,131,144,.16);color:#5d6b78;font-size:9px;font-weight:780}
+      #bearagnosticProOverlay .ba-k3-recovery{display:block;margin-top:10px;color:#6f6d67;font-size:9px;line-height:1.45}
+      #bearagnosticProOverlay .ba-k3-recovery-action{width:100%;margin-top:7px}
       #bearagnosticProOverlay .ba-k3-error{display:block;margin-top:8px;padding:8px 10px;border-radius:12px;background:rgba(165,83,91,.08);color:#8e4e55!important}
       @media(max-width:360px){#bearagnosticProOverlay .ba-k3-actions{grid-template-columns:1fr}}
     `;
@@ -307,10 +319,13 @@
     const editingCode =
       !isPro && phase === 'otp_required' &&
       focused?.matches?.('[data-k3-code]');
+    const editingRecoveryEmail =
+      !isPro && (phase === 'opening_kofi' || phase === 'waiting_payment') &&
+      focused?.matches?.('[data-k3-recovery-email]');
 
     // Never replace an active text field while the user is typing.
     // Replacing innerHTML destroys focus in Android WebView and closes the keyboard.
-    if (editingEmail || editingCode) return;
+    if (editingEmail || editingCode || editingRecoveryEmail) return;
 
     const signature = JSON.stringify([
       language(), phase, isPro, ent.source || '', error,
@@ -378,6 +393,9 @@
         block,
         `<strong>${esc(text.waiting)}</strong><small>${esc(text.waitingSub)}</small>` +
           (error ? `<small class="ba-k3-error">${esc(mapError(error))}</small>` : '') +
+          `<small class="ba-k3-recovery">${esc(text.recovery)}</small>` +
+          `<input class="ba-k3-input" data-k3-recovery-email type="email" inputmode="email" autocomplete="email" autocapitalize="none" spellcheck="false" maxlength="254" placeholder="${esc(text.recoveryEmail)}" value="${esc(recoveryEmail)}">` +
+          `<button class="ba-k3-secondary ba-k3-recovery-action" type="button" data-k3-action="restore-paid">${esc(text.recoveryAction)}</button>` +
           `<div class="ba-k3-actions"><button class="ba-pro-primary" type="button" data-k3-action="refresh">${esc(text.retry)}</button>` +
           `<button class="ba-k3-secondary" type="button" data-k3-action="reset">${esc(text.reset)}</button></div>`,
         signature
@@ -431,6 +449,15 @@
         actionResult(action === 'purchase'
           ? NATIVE.startKoFiPurchase(email)
           : NATIVE.startKoFiRestore(email));
+      } else if (action === 'restore-paid') {
+        const email = String($('[data-k3-recovery-email]')?.value || recoveryEmail || '').trim().toLowerCase();
+        recoveryEmail = email;
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254) {
+          localError = 'valid_email_required';
+          render(true);
+          return;
+        }
+        actionResult(NATIVE.startKoFiRestore(email));
       } else if (action === 'verify') {
         const code = String($('[data-k3-code]')?.value || '').replace(/\D/g, '').slice(0, 6);
         if (!/^\d{6}$/.test(code)) {
@@ -501,6 +528,9 @@
     const input = event.target;
     if (input?.matches?.('[data-k3-email]')) {
       selectedEmail = String(input.value || '').trim().toLowerCase();
+    }
+    if (input?.matches?.('[data-k3-recovery-email]')) {
+      recoveryEmail = String(input.value || '').trim().toLowerCase();
     }
     if (input?.matches?.('[data-k3-code]')) {
       const clean = String(input.value || '').replace(/\D/g, '').slice(0, 6);
