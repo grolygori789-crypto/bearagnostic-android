@@ -117,6 +117,10 @@ class ServerCommerceClient(
         if (email.length !in 3..254 || !Patterns.EMAIL_ADDRESS.matcher(email).matches()) return rejected("valid_email_required")
         if (nextPurpose !in setOf("purchase", "restore")) return rejected("invalid_purpose")
         if (nextPurpose == "purchase" && entitlement.currentTier() == EntitlementManager.Tier.PRO) return rejected("pro_already_active")
+        if (nextPurpose == "restore") {
+            pollFuture?.cancel(false)
+            pollFuture = null
+        }
         purpose = nextPurpose; phase = "sending_code"; lastError = null; changed()
         executor.execute {
             try {
@@ -136,11 +140,14 @@ class ServerCommerceClient(
         return accepted()
     }
 
+    private fun identityFlowOwnsPhase(): Boolean =
+        phase == "sending_code" || phase == "otp_required" || phase == "verifying_code"
+
     private fun refreshNow() {
-        // Returning from the email app triggers a focus/visibility refresh. While an
-        // OTP challenge is waiting, no purchase session exists yet by design, so the
-        // normal refresh path must not collapse the live challenge back to `ready`.
-        if (phase == "otp_required" && challengeId != null) {
+        // Identity verification owns the visible phase until it completes. Focus /
+        // visibility refreshes must never collapse a live OTP flow back to purchase
+        // waiting (or ready), including recovery restores started from a pending sale.
+        if (identityFlowOwnsPhase()) {
             changed()
             return
         }
@@ -152,6 +159,7 @@ class ServerCommerceClient(
                     put("installationId", store.installationId())
                     put("deviceCredential", active.deviceCredential)
                 })
+                if (identityFlowOwnsPhase()) return
                 val isPro = result.optBoolean("isPro", false)
                 val entitlementId = result.optString("entitlementId")
                 val verifiedAt = result.optLong("verifiedAt", System.currentTimeMillis())
@@ -164,10 +172,15 @@ class ServerCommerceClient(
                 }
                 lastError = null; lastSyncAtMs = System.currentTimeMillis(); changed(); return
             } catch (_: Exception) {
+                if (identityFlowOwnsPhase()) return
                 if (entitlement.isServerOwnedCached()) {
                     phase = "offline_cached"; lastError = "network_error"; changed(); return
                 }
             }
+        }
+        if (identityFlowOwnsPhase()) {
+            changed()
+            return
         }
         if (store.loadPending() != null) {
             phase = "waiting_payment"; changed(); pollPendingOnce(); startPolling(); return
@@ -176,11 +189,13 @@ class ServerCommerceClient(
     }
 
     private fun startPolling() {
+        if (identityFlowOwnsPhase()) return
         if (pollFuture?.isCancelled == false && pollFuture?.isDone == false) return
         pollFuture = executor.scheduleWithFixedDelay({ pollPendingOnce() }, 1, 3, TimeUnit.SECONDS)
     }
 
     private fun pollPendingOnce() {
+        if (identityFlowOwnsPhase()) return
         val pending = store.loadPending() ?: run {
             pollFuture?.cancel(false); pollFuture = null
             if (!entitlement.isServerOwnedCached()) phase = "ready"
@@ -188,6 +203,7 @@ class ServerCommerceClient(
         }
         try {
             val result = postJson("/api/commerce/sessions/status", JSONObject(), "Bearer ${pending.sessionToken}")
+            if (identityFlowOwnsPhase()) return
             when (result.optString("state")) {
                 "active" -> {
                     val entitlementId = result.optString("entitlementId")
@@ -209,8 +225,10 @@ class ServerCommerceClient(
                 }
             }
         } catch (failure: CommerceFailure) {
+            if (identityFlowOwnsPhase()) return
             phase = "waiting_payment"; lastError = failure.code; changed()
         } catch (_: Exception) {
+            if (identityFlowOwnsPhase()) return
             phase = "waiting_payment"; lastError = "network_error"; changed()
         }
     }
