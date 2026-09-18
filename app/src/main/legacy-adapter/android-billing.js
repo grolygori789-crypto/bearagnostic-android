@@ -45,6 +45,7 @@
       invalidEmail:'Enter a valid email address.',
       invalidCode:'Enter the 6-digit verification code.',
       noEntitlement:'No active Pro purchase was found for that email.',
+      rateLimited:'Too many verification attempts. Please try again in a few minutes.',
       generic:'Benedict could not complete this step.',
       debugTitle:'DEVELOPMENT ENTITLEMENT TEST',
       debugBody:'Debug build only. This control never appears in a release build.',
@@ -73,6 +74,7 @@
       invalidEmail:'กรุณากรอกอีเมลให้ถูกต้อง',
       invalidCode:'กรุณากรอกรหัสยืนยัน 6 หลัก',
       noEntitlement:'ไม่พบสิทธิ์ Pro ที่ยังใช้งานอยู่สำหรับอีเมลนี้',
+      rateLimited:'มีการขอรหัสยืนยันบ่อยเกินไป กรุณารอสักครู่แล้วลองใหม่อีกครั้ง',
       generic:'Benedict ไม่สามารถดำเนินขั้นตอนนี้ได้',
       debugTitle:'ทดสอบสิทธิ์สำหรับ DEVELOPMENT',
       debugBody:'มีเฉพาะ Debug build เท่านั้น Release build จะไม่มีตัวควบคุมนี้',
@@ -101,6 +103,7 @@
       invalidEmail:'有効なメールアドレスを入力してください。',
       invalidCode:'6桁の確認コードを入力してください。',
       noEntitlement:'このメールに有効な Pro 購入が見つかりません。',
+      rateLimited:'確認の試行回数が多すぎます。少し時間をおいてから、もう一度お試しください。',
       generic:'Benedict でこの処理を完了できませんでした',
       debugTitle:'DEVELOPMENT 権限テスト',
       debugBody:'Debug build 専用です。Release build には表示されません。',
@@ -147,12 +150,17 @@
     const style = document.createElement('style');
     style.id = 'androidServerCommerceStyle';
     style.textContent = `
-      #bearagnosticProOverlay .ba-k3-input{width:100%;height:44px;box-sizing:border-box;margin-top:9px;padding:0 12px;border-radius:14px;border:1px solid rgba(91,119,147,.14);background:#fff;color:#233a52;font:650 11px/1.2 system-ui,-apple-system,sans-serif;outline:none}
-      #bearagnosticProOverlay .ba-k3-input:focus{border-color:rgba(96,86,190,.38);box-shadow:0 0 0 3px rgba(96,86,190,.07)}
+      #bearagnosticProOverlay .ba-pro-purchase{position:relative;margin-top:10px;padding:14px 14px 13px;border-radius:20px;border:1px solid rgba(196,157,82,.28);background:linear-gradient(180deg,rgba(255,251,242,.98) 0%,rgba(251,244,227,.98) 100%);box-shadow:0 10px 24px rgba(122,94,36,.12),inset 0 1px 0 rgba(255,255,255,.88)}
+      #bearagnosticProOverlay .ba-pro-purchase::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;box-shadow:inset 0 1px 0 rgba(255,255,255,.86)}
+      #bearagnosticProOverlay .ba-pro-purchase strong{display:block;color:#6d4b12;letter-spacing:.01em}
+      #bearagnosticProOverlay .ba-pro-purchase small{display:block;color:#6f6d67}
+      #bearagnosticProOverlay .ba-k3-input{width:100%;height:44px;box-sizing:border-box;margin-top:9px;padding:0 12px;border-radius:14px;border:1px solid rgba(189,157,83,.20);background:#fffdf8;color:#233a52;font:650 11px/1.2 system-ui,-apple-system,sans-serif;outline:none}
+      #bearagnosticProOverlay .ba-k3-input:focus{border-color:rgba(187,148,68,.42);box-shadow:0 0 0 3px rgba(196,157,82,.10)}
       #bearagnosticProOverlay .ba-k3-actions{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:7px;margin-top:8px}
-      #bearagnosticProOverlay .ba-k3-actions .ba-pro-primary{margin-top:0}
-      #bearagnosticProOverlay .ba-k3-secondary{min-height:45px;padding:0 11px;border-radius:16px;background:#f3f7fa;border:1px solid rgba(91,119,147,.09);color:#65798c;font-size:9px;font-weight:780}
-      #bearagnosticProOverlay .ba-k3-error{display:block;margin-top:7px;color:#a5535b!important}
+      #bearagnosticProOverlay .ba-k3-actions .ba-pro-primary{margin-top:0;min-height:45px;border:none;border-radius:16px;background:linear-gradient(180deg,#f3d993 0%,#d9b15a 100%);color:#4d3812;box-shadow:0 8px 18px rgba(133,98,28,.20),inset 0 1px 0 rgba(255,249,229,.9);font-weight:800}
+      #bearagnosticProOverlay .ba-k3-actions .ba-pro-primary:disabled{background:linear-gradient(180deg,#eadbb0 0%,#d4be84 100%);color:#6d5723;opacity:1}
+      #bearagnosticProOverlay .ba-k3-secondary{min-height:45px;padding:0 11px;border-radius:16px;background:rgba(255,255,255,.92);border:1px solid rgba(121,131,144,.16);color:#5d6b78;font-size:9px;font-weight:780}
+      #bearagnosticProOverlay .ba-k3-error{display:block;margin-top:8px;padding:8px 10px;border-radius:12px;background:rgba(165,83,91,.08);color:#8e4e55!important}
       @media(max-width:360px){#bearagnosticProOverlay .ba-k3-actions{grid-template-columns:1fr}}
     `;
     document.head.appendChild(style);
@@ -163,6 +171,7 @@
     const value = String(code || '');
     if (value === 'valid_email_required') return text.invalidEmail;
     if (value === 'invalid_verification_code' || value === 'verification_code_incorrect') return text.invalidCode;
+    if (value === 'verification_rate_limited' || value === 'challenge_locked') return text.rateLimited;
     if (value === 'active_entitlement_not_found') return text.noEntitlement;
     return value ? `${text.generic} (${value.replaceAll('_',' ')})` : text.generic;
   }
