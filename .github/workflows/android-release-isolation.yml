@@ -1,0 +1,159 @@
+name: Build Android Release Isolation APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/android-release-isolation.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-release-isolation-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-release-isolation-apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify runtime contracts
+        run: python3 scripts/verify_runtime_contracts.py
+
+      - name: Verify release debug-isolation source gates
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          ent = Path('app/src/main/java/com/benedictinteractive/bearagnostic/EntitlementManager.kt').read_text(encoding='utf-8')
+          bridge = Path('app/src/main/java/com/benedictinteractive/bearagnostic/NativeBridge.kt').read_text(encoding='utf-8')
+          pro_ui = Path('app/src/main/legacy-adapter/android-pro-ui.js').read_text(encoding='utf-8')
+          billing = Path('app/src/main/legacy-adapter/android-billing.js').read_text(encoding='utf-8')
+
+          def between(text, start, end):
+              a = text.find(start)
+              if a < 0:
+                  raise AssertionError(f'missing section start: {start}')
+              b = text.find(end, a + len(start))
+              if b < 0:
+                  b = len(text)
+              return text[a:b]
+
+          set_debug = between(ent, 'fun setDebugTier(rawTier: String): String {', 'fun clearDebugTier(): String {')
+          clear_debug = between(ent, 'fun clearDebugTier(): String {', 'fun updatePlayOwnership(')
+          state_json = between(ent, 'fun stateJsonObject(): JSONObject {', 'companion object {')
+          qa_bridge = between(bridge, 'fun runCommerceQaScenario(scenario: String): String {', 'fun setDebugEntitlement(tier: String): String {')
+
+          assert 'if (!BuildConfig.DEBUG)' in set_debug, 'setDebugTier is not release-gated'
+          assert 'debug_controls_unavailable' in set_debug, 'setDebugTier release rejection missing'
+          assert 'if (!BuildConfig.DEBUG)' in clear_debug, 'clearDebugTier is not release-gated'
+          assert 'debug_controls_unavailable' in clear_debug, 'clearDebugTier release rejection missing'
+          assert 'put("debugControlsAvailable", BuildConfig.DEBUG)' in state_json, 'release debug visibility flag drifted'
+          assert 'if (!BuildConfig.DEBUG) return rejected("qa_unavailable")' in qa_bridge, 'commerce QA bridge is not release-gated'
+          assert 'const debug = state.debugControlsAvailable === true;' in pro_ui, 'Pro debug UI is not tied to native debug flag'
+          assert 'ent?.debugControlsAvailable === true' in billing, 'billing debug UI is not tied to native debug flag'
+
+          print('PASS release debug-isolation source gates')
+          PY
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+
+      - name: Install Android SDK packages
+        shell: bash
+        run: |
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager "platform-tools" "platforms;android-36" "build-tools;36.0.0"
+
+      - name: Set up Gradle 9.6.0
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '9.6.0'
+
+      - name: Build release APK
+        run: gradle --no-daemon --stacktrace :app:assembleRelease
+
+      - name: Test-sign release APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          BUILD_TOOLS="$ANDROID_HOME/build-tools/36.0.0"
+          UNSIGNED_APK="$(find app/build/outputs/apk/release -maxdepth 1 -type f -name '*-unsigned.apk' -print -quit)"
+          test -n "$UNSIGNED_APK"
+          mkdir -p app/build/outputs/apk/release-isolation
+          ALIGNED_APK="app/build/outputs/apk/release-isolation/bearagnostic-release-isolation-aligned.apk"
+          SIGNED_APK="app/build/outputs/apk/release-isolation/bearagnostic-release-isolation.apk"
+          "$BUILD_TOOLS/zipalign" -p -f 4 "$UNSIGNED_APK" "$ALIGNED_APK"
+          "$BUILD_TOOLS/apksigner" sign \
+            --ks signing/bearagnostic-debug.jks \
+            --ks-key-alias bearagnosticdebug \
+            --ks-pass pass:android \
+            --key-pass pass:android \
+            --out "$SIGNED_APK" \
+            "$ALIGNED_APK"
+          rm -f "$ALIGNED_APK"
+
+      - name: Verify APK is release-behavior and installable
+        shell: bash
+        run: |
+          set -euo pipefail
+          APK="app/build/outputs/apk/release-isolation/bearagnostic-release-isolation.apk"
+          BUILD_TOOLS="$ANDROID_HOME/build-tools/36.0.0"
+          APKANALYZER="$ANDROID_HOME/cmdline-tools/latest/bin/apkanalyzer"
+
+          test -f "$APK"
+          "$BUILD_TOOLS/zipalign" -c -p 4 "$APK"
+          "$BUILD_TOOLS/apksigner" verify --verbose --print-certs "$APK" | tee app/build/outputs/apk/release-isolation/apksigner-report.txt
+
+          test -x "$APKANALYZER"
+          APP_ID="$($APKANALYZER manifest application-id "$APK" | tr -d '\r\n')"
+          VERSION_NAME="$($APKANALYZER manifest version-name "$APK" | tr -d '\r\n')"
+          DEBUGGABLE="$($APKANALYZER manifest debuggable "$APK" | tr -d '\r\n' | tr '[:upper:]' '[:lower:]')"
+
+          test "$APP_ID" = "com.benedictinteractive.bearagnostic"
+          test "$DEBUGGABLE" = "false"
+          case "$VERSION_NAME" in
+            *-debug*) echo "Unexpected debug version name: $VERSION_NAME" >&2; exit 1 ;;
+          esac
+
+          {
+            echo "Release-isolation QA artifact"
+            echo "Application ID: $APP_ID"
+            echo "Version name: $VERSION_NAME"
+            echo "Debuggable: $DEBUGGABLE"
+            echo "Signing: TEST-ONLY key (not production signing)"
+            echo "Purpose: physical-device release debug-isolation proof"
+          } | tee app/build/outputs/apk/release-isolation/release-isolation-report.txt
+
+      - name: Create checksums
+        shell: bash
+        run: |
+          cd app/build/outputs/apk/release-isolation
+          sha256sum bearagnostic-release-isolation.apk > bearagnostic-release-isolation.apk.sha256
+
+      - name: Upload release-isolation APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: bearagnostic-release-isolation-${{ github.run_number }}
+          path: |
+            app/build/outputs/apk/release-isolation/bearagnostic-release-isolation.apk
+            app/build/outputs/apk/release-isolation/bearagnostic-release-isolation.apk.sha256
+            app/build/outputs/apk/release-isolation/release-isolation-report.txt
+            app/build/outputs/apk/release-isolation/apksigner-report.txt
+          if-no-files-found: error
+          retention-days: 7
