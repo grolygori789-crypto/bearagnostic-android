@@ -137,6 +137,14 @@ class ServerCommerceClient(
     }
 
     private fun refreshNow() {
+        // Returning from the email app triggers a focus/visibility refresh. While an
+        // OTP challenge is waiting, no purchase session exists yet by design, so the
+        // normal refresh path must not collapse the live challenge back to `ready`.
+        if (phase == "otp_required" && challengeId != null) {
+            changed()
+            return
+        }
+
         val active = entitlement.serverLease()
         if (active != null) {
             try {
