@@ -2,7 +2,7 @@
   'use strict';
 
   /*
-   * Bearagnostic Android B87 physical-regression corrective layer.
+   * Bearagnostic Android B88 final stabilization layer.
    * This module is intentionally loaded LAST after android-final-polish.js.
    * It owns only the defects proven on the B85 physical-device screenshots:
    * - safe scroll-cue placement (never over an actionable control/footer);
@@ -14,8 +14,8 @@
    *
    * Scanner, deletion, entitlement, Restore, history and payment truth are untouched.
    */
-  const BUILD = 87;
-  const STYLE_ID = 'androidHomePolish87Style';
+  const BUILD = 88;
+  const STYLE_ID = 'androidHomePolish88Style';
   const SUPPORT_ID = 'baFinalSupportOverlay';
   const byId = (id) => document.getElementById(id);
 
@@ -130,7 +130,6 @@
 
       /* B87: the Empty Folders action bar participates in layout instead of floating over rows.
          This guarantees the last scanned folder can always be scrolled fully above the actions. */
-      #baEmptySurface{display:grid!important;grid-template-rows:auto minmax(0,1fr) auto!important;padding-bottom:0!important}
       #baEmptySurface .ba-empty-scroll{min-height:0!important;padding-bottom:18px!important;scroll-padding-bottom:18px!important}
       #baEmptySelection{position:relative!important;z-index:130!important;min-height:0!important}
       #baEmptySelection:empty{display:none!important}
@@ -138,6 +137,16 @@
 
       /* Scroll affordance is retained only where it has neutral visual space. */
       #baScrollCue.ba-v87-collision-safe-hide{opacity:0!important;visibility:hidden!important}
+
+      /* B88 Home icon optical normalization: the amber Large Files artwork has a larger
+         visible footprint than its siblings. Normalize the artwork itself across every
+         shipping locale without changing the shared card/icon container geometry. */
+      #homeScreen .tool-card[data-tool="large"] .tool-card__icon>img{width:88%!important;height:88%!important;margin:6%!important;object-fit:contain!important}
+
+      /* B88 visibility contract: hidden always wins. The layout enhancement must never
+         override the Empty Folders surface's native hidden state. */
+      #baEmptySurface[hidden]{display:none!important}
+      #baEmptySurface:not([hidden]){display:grid!important;grid-template-rows:auto minmax(0,1fr) auto!important;padding-bottom:0!important}
 
       /* B87 Japanese Home: respect the fixed zero-scroll grid. Never grow a child beyond its row. */
       html[lang^="ja"] #homeScreen{overflow:hidden!important}
@@ -165,7 +174,6 @@
       html[lang^="ja"] #homeScreen .tool-card{grid-template-rows:42px auto auto!important;gap:2px!important;padding:5px 2px 6px!important}
       html[lang^="ja"] #homeScreen .tool-card__icon{width:42px!important;height:42px!important}
       html[lang^="ja"] #homeScreen .tool-card__icon>img{object-fit:contain!important}
-      html[lang^="ja"] #homeScreen .tool-card[data-tool="large"] .tool-card__icon>img{width:96%!important;height:96%!important;margin:2%!important}
       html[lang^="ja"] #homeScreen .tool-card>strong{font-size:clamp(8.9px,2.45vw,10.2px)!important;line-height:1.18!important;white-space:nowrap!important;overflow:visible!important;text-overflow:clip!important;letter-spacing:-.01em!important}
       html[lang^="ja"] #homeScreen .tool-card>small{font-size:clamp(7.4px,2.05vw,8.6px)!important;line-height:1.2!important;white-space:nowrap!important;overflow:visible!important;text-overflow:clip!important;letter-spacing:-.01em!important}
       html[lang^="ja"] #homeScreen .checkup-cta__copy small{font-size:clamp(8.9px,2.4vw,10.2px)!important;line-height:1.34!important;white-space:normal!important;overflow:visible!important;text-overflow:clip!important;max-height:none!important}
@@ -413,6 +421,39 @@
     return true;
   }
 
+  /* B88 dedicated Tool scan contract.
+     A Check again / Refresh launched while a dedicated Tool is open refreshes that Tool;
+     it must never surface the generic Cleanup Plan behind it. android-native intentionally
+     opens Scan Results after ordinary checkups, so this last-loaded layer suppresses that
+     presentation only while a dedicated Tool surface is visibly active. Scanner work and
+     scan results remain untouched; this controls presentation/navigation only. */
+  const TOOL_SURFACE_SELECTORS = Object.freeze([
+    '#baDuplicates','#baLargeFiles','#baOldFiles','#baDownloadsSurface','#baInstallersSurface',
+    '#baArchivesSurface','#baZeroSurface','#baEmptySurface','#baMediaSurface','.ba-qc'
+  ]);
+  function activeDedicatedToolSurface() {
+    for (const selector of TOOL_SURFACE_SELECTORS) {
+      const surface = document.querySelector(selector);
+      if (visible(surface)) return surface;
+    }
+    return null;
+  }
+  function suppressGenericResultsBehindTool() {
+    if (!activeDedicatedToolSurface()) return false;
+    const results = byId('nativeResultsSheet');
+    if (!results || results.hidden) return false;
+    results.hidden = true;
+    return true;
+  }
+  function installToolResultGuard() {
+    const results = byId('nativeResultsSheet');
+    if (!results || results.dataset.v88Guard === '1') return;
+    results.dataset.v88Guard = '1';
+    new MutationObserver(() => {
+      if (!results.hidden && activeDedicatedToolSurface()) results.hidden = true;
+    }).observe(results, {attributes:true, attributeFilter:['hidden','style','class']});
+  }
+
   function rectsNear(a, b, gap = 10) {
     return a.right + gap > b.left && a.left - gap < b.right && a.bottom + gap > b.top && a.top - gap < b.bottom;
   }
@@ -506,6 +547,8 @@
     polishJapaneseHome();
     syncUtilityStates();
     syncGenericReviewReturn();
+    installToolResultGuard();
+    suppressGenericResultsBehindTool();
     scheduleCueSafety();
   }
   function queueRefresh() {
