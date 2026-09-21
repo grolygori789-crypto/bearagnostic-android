@@ -597,21 +597,33 @@ class MainActivity : Activity() {
                 put("accepted", false)
                 put("reason", "invalid_url")
             }.toString()
+        val scheme = uri.scheme?.lowercase().orEmpty()
         val host = uri.host?.lowercase().orEmpty()
-        val allowed = uri.scheme == "https" && host in ALLOWED_EXTERNAL_HOSTS
+        val mailRecipient = if (scheme == "mailto") {
+            uri.schemeSpecificPart.substringBefore('?').trim().lowercase()
+        } else {
+            ""
+        }
+        val allowed =
+            (scheme == "https" && host in ALLOWED_EXTERNAL_HOSTS) ||
+                (scheme == "mailto" && mailRecipient == SUPPORT_EMAIL)
         if (!allowed) {
             return JSONObject().apply {
                 put("accepted", false)
                 put("reason", "url_not_allowed")
             }.toString()
         }
-        val intent = Intent(Intent.ACTION_VIEW, uri)
+        val intent = if (scheme == "mailto") {
+            Intent(Intent.ACTION_SENDTO, uri)
+        } else {
+            Intent(Intent.ACTION_VIEW, uri)
+        }
         runOnUiThread {
             if (!isFinishing && !isDestroyed) {
                 try {
                     startActivity(intent)
                 } catch (_: Exception) {
-                    Toast.makeText(this, "No compatible browser is available for this link.", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, "No compatible app is available for this link.", Toast.LENGTH_LONG).show()
                 }
             }
         }
@@ -718,6 +730,8 @@ class MainActivity : Activity() {
         private const val MINIMUM_BRAND_REVEAL_MILLIS = 2_650L
         private const val WEB_LAUNCH_BYPASS_SCRIPT =
             "(function(){try{var l=document.getElementById('launch');if(l){l.hidden=true;l.setAttribute('hidden','hidden');l.style.display='none';l.style.visibility='hidden';l.style.opacity='0';if(l.parentNode){l.parentNode.removeChild(l);}}var a=document.getElementById('appRoot');if(a){a.hidden=false;a.removeAttribute('hidden');a.style.display='';a.style.visibility='visible';a.style.opacity='1';}if(document.documentElement){document.documentElement.setAttribute('data-native-launch-bypass','1');}if(document.body){document.body.setAttribute('data-native-launch-bypass','1');}return true;}catch(e){return false;}})();"
+
+        private const val SUPPORT_EMAIL = "benedict.support@gmail.com"
 
         private val ALLOWED_EXTERNAL_HOSTS = setOf(
             "ko-fi.com",
