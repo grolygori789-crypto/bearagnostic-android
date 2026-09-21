@@ -2,7 +2,7 @@
   'use strict';
 
   /*
-   * Bearagnostic Android B86 physical-regression corrective layer.
+   * Bearagnostic Android B87 physical-regression corrective layer.
    * This module is intentionally loaded LAST after android-final-polish.js.
    * It owns only the defects proven on the B85 physical-device screenshots:
    * - safe scroll-cue placement (never over an actionable control/footer);
@@ -14,8 +14,8 @@
    *
    * Scanner, deletion, entitlement, Restore, history and payment truth are untouched.
    */
-  const BUILD = 86;
-  const STYLE_ID = 'androidHomePolish86Style';
+  const BUILD = 87;
+  const STYLE_ID = 'androidHomePolish87Style';
   const SUPPORT_ID = 'baFinalSupportOverlay';
   const byId = (id) => document.getElementById(id);
 
@@ -116,10 +116,10 @@
 
       /* Older Files date is intentionally typeset rather than accidentally wrapped. */
       #baOldFiles .ba-old-metric:nth-child(3){display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important}
-      #baOldFiles .ba-v86-oldest-value{display:flex!important;min-height:42px!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:1px!important;white-space:normal!important}
-      #baOldFiles .ba-v86-date-main{display:block;font-size:clamp(17px,4.75vw,21px)!important;line-height:1.04!important;font-weight:540!important;letter-spacing:-.025em!important;white-space:nowrap!important}
-      #baOldFiles .ba-v86-date-year{display:block;font-size:clamp(12.5px,3.65vw,15.5px)!important;line-height:1.1!important;font-weight:610!important;letter-spacing:.01em!important;white-space:nowrap!important;color:#40566c!important}
-      #baOldFiles .ba-v86-oldest-value.is-single{display:grid!important;place-items:center!important;font-size:clamp(15.5px,4.25vw,19px)!important;line-height:1.15!important;white-space:nowrap!important}
+      #baOldFiles .ba-v87-oldest-value{display:flex!important;min-height:42px!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:1px!important;white-space:normal!important}
+      #baOldFiles .ba-v87-date-main{display:block;font-size:clamp(17px,4.75vw,21px)!important;line-height:1.04!important;font-weight:540!important;letter-spacing:-.025em!important;white-space:nowrap!important}
+      #baOldFiles .ba-v87-date-year{display:block;font-size:clamp(12.5px,3.65vw,15.5px)!important;line-height:1.1!important;font-weight:610!important;letter-spacing:.01em!important;white-space:nowrap!important;color:#40566c!important}
+      #baOldFiles .ba-v87-oldest-value.is-single{display:grid!important;place-items:center!important;font-size:clamp(15.5px,4.25vw,19px)!important;line-height:1.15!important;white-space:nowrap!important}
 
       /* Empty Folders: summary, paired utilities, then one primary action. */
       #baEmptySelection .ba-empty-selection__inner{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;align-items:stretch!important}
@@ -128,10 +128,18 @@
       #baEmptySelection [data-empty-action="review"]{grid-column:1/-1!important;min-height:48px!important}
       #baEmptySelection button{width:100%!important;min-width:0!important;min-height:44px!important;border-radius:15px!important}
 
-      /* Scroll affordance is retained only where it has neutral visual space. */
-      #baScrollCue.ba-v86-collision-safe-hide{opacity:0!important;visibility:hidden!important}
+      /* B87: the Empty Folders action bar participates in layout instead of floating over rows.
+         This guarantees the last scanned folder can always be scrolled fully above the actions. */
+      #baEmptySurface{display:grid!important;grid-template-rows:auto minmax(0,1fr) auto!important;padding-bottom:0!important}
+      #baEmptySurface .ba-empty-scroll{min-height:0!important;padding-bottom:18px!important;scroll-padding-bottom:18px!important}
+      #baEmptySelection{position:relative!important;z-index:130!important;min-height:0!important}
+      #baEmptySelection:empty{display:none!important}
+      #baEmptySelection .ba-empty-selection{position:static!important;left:auto!important;right:auto!important;bottom:auto!important;width:100%!important}
 
-      /* B86 Japanese Home: respect the fixed zero-scroll grid. Never grow a child beyond its row. */
+      /* Scroll affordance is retained only where it has neutral visual space. */
+      #baScrollCue.ba-v87-collision-safe-hide{opacity:0!important;visibility:hidden!important}
+
+      /* B87 Japanese Home: respect the fixed zero-scroll grid. Never grow a child beyond its row. */
       html[lang^="ja"] #homeScreen{overflow:hidden!important}
       html[lang^="ja"] #homeScreen .checkup-cta,html[lang^="ja"] #homeScreen .tool-card,html[lang^="ja"] #homeScreen .health-card,html[lang^="ja"] #homeScreen .editorial-card{height:100%!important;min-height:0!important;max-height:100%!important;box-sizing:border-box!important}
       html[lang^="ja"] #homeScreen .checkup-cta{padding-block:8px!important}
@@ -151,30 +159,39 @@
       html[lang^="ja"] #homeScreen .editorial-card blockquote{font-size:clamp(12.5px,3.5vw,15.5px)!important;line-height:1.38!important;letter-spacing:0!important;white-space:normal!important;word-break:keep-all!important;overflow-wrap:normal!important;line-break:strict!important}
       html[lang^="ja"] #homeScreen .editorial-card small{margin-top:5px!important;font-size:clamp(7.6px,2.05vw,9px)!important;line-height:1.2!important}
       html[lang^="ja"] .nav-button span{font-size:clamp(9px,2.45vw,10.5px)!important;line-height:1.2!important;letter-spacing:0!important;white-space:nowrap!important}
-      html[lang^="ja"] .ba-v86-ja-unit{white-space:nowrap!important}
+      html[lang^="ja"] .ba-v87-ja-unit{white-space:nowrap!important}
+
+      /* B87 Japanese Home: compact native copy, equal optical icon weight, zero clipped customer text. */
+      html[lang^="ja"] #homeScreen .tool-card{grid-template-rows:42px auto auto!important;gap:2px!important;padding:5px 2px 6px!important}
+      html[lang^="ja"] #homeScreen .tool-card__icon{width:42px!important;height:42px!important}
+      html[lang^="ja"] #homeScreen .tool-card__icon>img{object-fit:contain!important}
+      html[lang^="ja"] #homeScreen .tool-card[data-tool="large"] .tool-card__icon>img{width:96%!important;height:96%!important;margin:2%!important}
+      html[lang^="ja"] #homeScreen .tool-card>strong{font-size:clamp(8.9px,2.45vw,10.2px)!important;line-height:1.18!important;white-space:nowrap!important;overflow:visible!important;text-overflow:clip!important;letter-spacing:-.01em!important}
+      html[lang^="ja"] #homeScreen .tool-card>small{font-size:clamp(7.4px,2.05vw,8.6px)!important;line-height:1.2!important;white-space:nowrap!important;overflow:visible!important;text-overflow:clip!important;letter-spacing:-.01em!important}
+      html[lang^="ja"] #homeScreen .checkup-cta__copy small{font-size:clamp(8.9px,2.4vw,10.2px)!important;line-height:1.34!important;white-space:normal!important;overflow:visible!important;text-overflow:clip!important;max-height:none!important}
 
       /* FAQ + Purchase/Restore: collapsed-by-default, compact and genuinely problem-oriented. */
       #${SUPPORT_ID} .ba-final-faq-list{gap:9px!important}
       #${SUPPORT_ID} .ba-final-faq-card{border-radius:18px!important;background:rgba(255,255,255,.91)!important;border:1px solid rgba(92,113,151,.085)!important;box-shadow:0 7px 20px rgba(54,79,109,.04),inset 0 1px 0 rgba(255,255,255,.98)!important}
       #${SUPPORT_ID} .ba-final-faq-question{min-height:58px!important;padding:11px 12px!important;grid-template-columns:36px minmax(0,1fr) 22px!important}
       #${SUPPORT_ID} .ba-final-faq-answer{padding:0 15px 14px 58px!important}
-      #${SUPPORT_ID} .ba-v86-purchase-stack{display:grid!important;gap:8px!important;margin-top:10px!important}
-      #${SUPPORT_ID} .ba-v86-purchase-card{overflow:hidden!important;border-radius:18px!important;background:rgba(255,255,255,.92)!important;border:1px solid rgba(94,113,148,.085)!important;box-shadow:0 7px 20px rgba(54,77,108,.04),inset 0 1px 0 rgba(255,255,255,.98)!important}
-      #${SUPPORT_ID} .ba-v86-purchase-toggle{width:100%!important;display:grid!important;grid-template-columns:38px minmax(0,1fr) 20px!important;gap:10px!important;align-items:center!important;padding:11px 12px!important;text-align:left!important;background:transparent!important;color:#334c62!important}
-      #${SUPPORT_ID} .ba-v86-purchase-toggle .ba-final-purchase-icon{width:38px!important;height:38px!important;border-radius:13px!important}
-      #${SUPPORT_ID} .ba-v86-purchase-toggle strong{display:block!important;font-size:11.7px!important;line-height:1.36!important;color:#354e63!important}
-      #${SUPPORT_ID} .ba-v86-purchase-toggle small{display:block!important;margin-top:3px!important;font-size:9.6px!important;line-height:1.42!important;color:#8492a0!important}
-      #${SUPPORT_ID} .ba-v86-purchase-chevron{font-size:20px!important;line-height:1!important;color:#8a77cd!important;transition:transform .18s ease!important}
-      #${SUPPORT_ID} .ba-v86-purchase-toggle[aria-expanded="true"] .ba-v86-purchase-chevron{transform:rotate(90deg)!important}
-      #${SUPPORT_ID} .ba-v86-purchase-answer{padding:0 14px 13px 60px!important;font-size:10px!important;line-height:1.56!important;color:#728497!important}
-      #${SUPPORT_ID} .ba-v86-purchase-answer[hidden]{display:none!important}
+      #${SUPPORT_ID} .ba-v87-purchase-stack{display:grid!important;gap:8px!important;margin-top:10px!important}
+      #${SUPPORT_ID} .ba-v87-purchase-card{overflow:hidden!important;border-radius:18px!important;background:rgba(255,255,255,.92)!important;border:1px solid rgba(94,113,148,.085)!important;box-shadow:0 7px 20px rgba(54,77,108,.04),inset 0 1px 0 rgba(255,255,255,.98)!important}
+      #${SUPPORT_ID} .ba-v87-purchase-toggle{width:100%!important;display:grid!important;grid-template-columns:38px minmax(0,1fr) 20px!important;gap:10px!important;align-items:center!important;padding:11px 12px!important;text-align:left!important;background:transparent!important;color:#334c62!important}
+      #${SUPPORT_ID} .ba-v87-purchase-toggle .ba-final-purchase-icon{width:38px!important;height:38px!important;border-radius:13px!important}
+      #${SUPPORT_ID} .ba-v87-purchase-toggle strong{display:block!important;font-size:11.7px!important;line-height:1.36!important;color:#354e63!important}
+      #${SUPPORT_ID} .ba-v87-purchase-toggle small{display:block!important;margin-top:3px!important;font-size:9.6px!important;line-height:1.42!important;color:#8492a0!important}
+      #${SUPPORT_ID} .ba-v87-purchase-chevron{font-size:20px!important;line-height:1!important;color:#8a77cd!important;transition:transform .18s ease!important}
+      #${SUPPORT_ID} .ba-v87-purchase-toggle[aria-expanded="true"] .ba-v87-purchase-chevron{transform:rotate(90deg)!important}
+      #${SUPPORT_ID} .ba-v87-purchase-answer{padding:0 14px 13px 60px!important;font-size:10px!important;line-height:1.56!important;color:#728497!important}
+      #${SUPPORT_ID} .ba-v87-purchase-answer[hidden]{display:none!important}
       #${SUPPORT_ID} .ba-final-purchase-boundary{display:none!important}
       #${SUPPORT_ID} .ba-final-purchase-actions{grid-template-columns:1fr!important;gap:8px!important;margin-top:11px!important}
       #${SUPPORT_ID} .ba-final-purchase-actions button{min-height:46px!important;border-radius:15px!important}
       html[lang^="th"] #${SUPPORT_ID} .ba-final-support-head h2,html[lang^="th"] #${SUPPORT_ID} .ba-final-support-lead,html[lang^="th"] #${SUPPORT_ID} .ba-final-faq-question strong,html[lang^="th"] #${SUPPORT_ID} .ba-final-faq-answer,
       html[lang^="ja"] #${SUPPORT_ID} .ba-final-support-head h2,html[lang^="ja"] #${SUPPORT_ID} .ba-final-support-lead,html[lang^="ja"] #${SUPPORT_ID} .ba-final-faq-question strong,html[lang^="ja"] #${SUPPORT_ID} .ba-final-faq-answer{white-space:normal!important;overflow:visible!important;text-overflow:clip!important;height:auto!important;max-height:none!important;letter-spacing:0!important}
 
-      [data-final-select-all].ba-v86-working{cursor:progress!important;opacity:.78!important}
+      [data-final-select-all].ba-v87-working{cursor:progress!important;opacity:.78!important}
       @media(max-width:390px){
         #baLargeFiles .ba-large-head,#baOldFiles .ba-old-head{padding-top:16px!important;padding-left:14px!important;padding-right:14px!important}
         html[lang^="ja"] #homeScreen .tool-card{grid-template-rows:42px 1.3em 1.25em!important;padding-inline:2px!important}
@@ -188,7 +205,7 @@
         html[lang^="ja"] #homeScreen .tool-card>strong{font-size:9.2px!important}
         html[lang^="ja"] #homeScreen .tool-card>small{font-size:7.8px!important}
       }
-      @media(prefers-reduced-motion:reduce){#${SUPPORT_ID} .ba-v86-purchase-chevron{transition:none!important}}
+      @media(prefers-reduced-motion:reduce){#${SUPPORT_ID} .ba-v87-purchase-chevron{transition:none!important}}
     `;
     document.head.appendChild(style);
   }
@@ -201,20 +218,20 @@
     const surface = byId(SUPPORT_ID);
     if (!surface || surface.hidden || surface.dataset.kind !== 'faq') return;
     const list = surface.querySelector('.ba-final-faq-list');
-    if (!list || list.dataset.v86Initialized === language()) return;
+    if (!list || list.dataset.v87Initialized === language()) return;
     list.querySelectorAll('[data-final-faq-toggle]').forEach((button) => {
       button.setAttribute('aria-expanded', 'false');
       const answer = button.closest('article')?.querySelector('.ba-final-faq-answer');
       if (answer) answer.hidden = true;
     });
-    list.dataset.v86Initialized = language();
+    list.dataset.v87Initialized = language();
   }
 
   function enrichPurchaseHelp() {
     const surface = byId(SUPPORT_ID);
     if (!surface || surface.hidden || surface.dataset.kind !== 'purchase') return;
     const stack = surface.querySelector('.ba-final-purchase-stack');
-    if (!stack || stack.dataset.v86Language === language()) return;
+    if (!stack || stack.dataset.v87Language === language()) return;
     const t = copy();
     const lead = surface.querySelector('.ba-final-support-lead');
     if (lead) lead.textContent = t.purchaseLead;
@@ -222,13 +239,13 @@
     const contact = surface.querySelector('[data-final-purchase-contact]');
     if (open) open.textContent = t.purchaseOpen;
     if (contact) contact.textContent = t.purchaseContact;
-    stack.classList.add('ba-v86-purchase-stack');
+    stack.classList.add('ba-v87-purchase-stack');
     stack.innerHTML = t.purchaseCards.map(([title, summary, body], index) =>
-      `<article class="ba-v86-purchase-card"><button class="ba-v86-purchase-toggle" type="button" data-v86-purchase-toggle aria-expanded="false" aria-controls="baV86PurchaseAnswer${index}">` +
-      `${purchaseIcon()}<span><strong>${esc(title)}</strong><small>${esc(summary)}</small></span><span class="ba-v86-purchase-chevron" aria-hidden="true">›</span></button>` +
-      `<div class="ba-v86-purchase-answer" id="baV86PurchaseAnswer${index}" hidden>${esc(body)}</div></article>`
+      `<article class="ba-v87-purchase-card"><button class="ba-v87-purchase-toggle" type="button" data-v87-purchase-toggle aria-expanded="false" aria-controls="baV87PurchaseAnswer${index}">` +
+      `${purchaseIcon()}<span><strong>${esc(title)}</strong><small>${esc(summary)}</small></span><span class="ba-v87-purchase-chevron" aria-hidden="true">›</span></button>` +
+      `<div class="ba-v87-purchase-answer" id="baV87PurchaseAnswer${index}" hidden>${esc(body)}</div></article>`
     ).join('');
-    stack.dataset.v86Language = language();
+    stack.dataset.v87Language = language();
   }
 
   function closeSiblingAccordions(button, selector, answerSelector) {
@@ -250,11 +267,11 @@
 
   function fastSelectAll(button, key) {
     const spec = BULK[key];
-    if (!spec || button.disabled || button.dataset.v86Busy === '1') return;
+    if (!spec || button.disabled || button.dataset.v87Busy === '1') return;
     const boxes = visibleBoxes(spec).slice(0, spec.cap);
     if (!boxes.length) return;
-    button.dataset.v86Busy = '1';
-    button.classList.add('ba-v86-working');
+    button.dataset.v87Busy = '1';
+    button.classList.add('ba-v87-working');
     const original = button.textContent;
     button.textContent = copy().selecting;
     button.disabled = true;
@@ -271,8 +288,8 @@
       requestAnimationFrame(() => {
         const current = document.querySelector(`[data-final-select-all="${key}"]`);
         if (current) {
-          current.dataset.v86Busy = '0';
-          current.classList.remove('ba-v86-working');
+          current.dataset.v87Busy = '0';
+          current.classList.remove('ba-v87-working');
           current.textContent = original;
         }
       });
@@ -314,48 +331,86 @@
 
   function polishOldestMetric() {
     const value = document.querySelector('#baOldFiles .ba-old-overview .ba-old-metric:nth-child(3) b');
-    if (!value || value.dataset.v86Date === language()) return;
+    if (!value || value.dataset.v87Date === language()) return;
     const parts = splitDateValue(value.textContent);
-    value.className = `${value.className || ''} ba-v86-oldest-value`.trim();
+    value.className = `${value.className || ''} ba-v87-oldest-value`.trim();
     value.classList.toggle('is-single', parts.single);
     value.innerHTML = parts.single
-      ? `<span class="ba-v86-date-main">${esc(parts.main)}</span>`
-      : `<span class="ba-v86-date-main">${esc(parts.main)}</span><span class="ba-v86-date-year">${esc(parts.year)}</span>`;
-    value.dataset.v86Date = language();
+      ? `<span class="ba-v87-date-main">${esc(parts.main)}</span>`
+      : `<span class="ba-v87-date-main">${esc(parts.main)}</span><span class="ba-v87-date-year">${esc(parts.year)}</span>`;
+    value.dataset.v87Date = language();
   }
 
   function polishJapaneseHome() {
     if (language() !== 'ja') return;
+
     const cta = document.querySelector('#homeScreen .checkup-cta__copy small');
-    if (cta && cta.dataset.v86Ja !== 'cta') {
-      cta.innerHTML = '<span class="ba-v86-ja-unit">ファイルやフォルダを選んで</span><br><span class="ba-v86-ja-unit">解析。</span>';
-      cta.dataset.v86Ja = 'cta';
-    }
+    const ctaHtml = '<span class="ba-v87-ja-unit">ファイルやフォルダを選んで</span><br><span class="ba-v87-ja-unit">解析</span>';
+    if (cta && cta.innerHTML !== ctaHtml) cta.innerHTML = ctaHtml;
+
+    const compact = {
+      cleanup: ['整理候補','候補を確認'],
+      duplicates: ['重複ファイル','重複を確認'],
+      large: ['大容量ファイル','サイズを確認'],
+      older: ['古いファイル','更新日を確認'],
+    };
+    Object.entries(compact).forEach(([tool, labels]) => {
+      const card = document.querySelector(`#homeScreen .tool-card[data-tool="${tool}"]`);
+      if (!card) return;
+      const title = card.querySelector(':scope > strong');
+      const subtitle = card.querySelector(':scope > small');
+      if (title && title.textContent !== labels[0]) title.textContent = labels[0];
+      if (subtitle && subtitle.textContent !== labels[1]) subtitle.textContent = labels[1];
+    });
+
     const quote = document.querySelector('#homeScreen .editorial-card blockquote');
-    if (quote && quote.dataset.v86Ja !== 'quote') {
-      quote.innerHTML = '<span class="ba-v86-ja-unit">デバイスが整うと、</span><br><span class="ba-v86-ja-unit">気持ちにも少し</span><br><span class="ba-v86-ja-unit">余白が生まれる。</span>';
-      quote.dataset.v86Ja = 'quote';
+    const quoteHtml = '<span class="ba-v87-ja-unit">デバイスが整うと、</span><br><span class="ba-v87-ja-unit">気持ちにも少し</span><br><span class="ba-v87-ja-unit">余白が生まれる。</span>';
+    if (quote && quote.innerHTML !== quoteHtml) quote.innerHTML = quoteHtml;
+  }
+
+  /* Generic native review must return to the surface that opened it.
+     Dedicated Tool surfaces already close back to their underlying screen; this only
+     corrects the generic review sheet, whose native default always returns to Scan Results. */
+  let reviewJourney = {origin:null, tool:null};
+
+  function visibleResultsSheet() { return visible(byId('nativeResultsSheet')); }
+
+  function rememberReviewOrigin(target) {
+    if (!target?.closest) return;
+    const tool = target.closest('[data-tool]');
+    if (tool && !tool.closest('[id$="Surface"],.ba-qc,.ba-dup,.ba-large,.ba-old')) {
+      if (tool.closest('#toolsScreen')) reviewJourney = {origin:'tools', tool:String(tool.dataset.tool || '')};
+      else if (tool.closest('#homeScreen')) reviewJourney = {origin:'home', tool:String(tool.dataset.tool || '')};
+    }
+    const category = target.closest('[data-review-category]');
+    if (category && visibleResultsSheet()) reviewJourney = {origin:'results', tool:null};
+  }
+
+  function syncGenericReviewReturn() {
+    const review = byId('nativeReviewSheet');
+    if (!visible(review)) return;
+    if ((reviewJourney.origin === 'tools' || reviewJourney.origin === 'home') && !review.dataset.v87Return) {
+      review.dataset.v87Return = reviewJourney.origin;
+      if (reviewJourney.tool) review.dataset.v87ReturnTool = reviewJourney.tool;
     }
   }
 
-  /* Preserve origin when Final Polish falls back from the dedicated Zero-byte Tool
-     to the generic native review. Default native-review navigation is untouched. */
-  let zeroToolVisibleBefore = false;
-  let zeroToolJourney = false;
-  function trackZeroReturnContext() {
-    const zero = byId('baZeroSurface');
-    const zeroVisible = visible(zero);
-    if (zeroVisible) {
-      zeroToolVisibleBefore = true;
-      zeroToolJourney = true;
-    }
-    const review = byId('nativeReviewSheet');
-    const zeroReview = visible(review) && /zero|0\s*byte/i.test(String(byId('nativeReviewTitle')?.textContent || ''));
-    if (zeroReview && zeroToolJourney) review.dataset.v86Return = 'tools';
-    if (!zeroVisible && zeroToolVisibleBefore && !zeroReview) {
-      zeroToolVisibleBefore = false;
-      zeroToolJourney = false;
-    }
+  function closeGenericReviewToOrigin(review) {
+    const destination = review?.dataset.v87Return || reviewJourney.origin;
+    if (destination !== 'tools' && destination !== 'home') return false;
+    const tool = String(review.dataset.v87ReturnTool || reviewJourney.tool || '');
+    review.hidden = true;
+    const confirm = byId('nativeConfirmSheet');
+    if (confirm) confirm.hidden = true;
+    delete review.dataset.v87Return;
+    delete review.dataset.v87ReturnTool;
+    reviewJourney = {origin:null, tool:null};
+    window.BearagnosticAppAPI?.switchScreen?.(destination);
+    requestAnimationFrame(() => {
+      if (!tool) return;
+      document.querySelector(`#${destination === 'tools' ? 'toolsScreen' : 'homeScreen'} [data-tool="${CSS.escape(tool)}"]`)?.focus?.();
+    });
+    return true;
   }
 
   function rectsNear(a, b, gap = 10) {
@@ -367,7 +422,7 @@
     cueTimer = 0;
     const cue = byId('baScrollCue');
     if (!cue) return;
-    cue.classList.remove('ba-v86-collision-safe-hide');
+    cue.classList.remove('ba-v87-collision-safe-hide');
     if (!cue.classList.contains('is-visible') || !visible(cue)) return;
     const cueRect = cue.getBoundingClientRect();
     const blockers = document.querySelectorAll([
@@ -382,35 +437,28 @@
       if (!visible(node) || node.closest('#baScrollCue')) return false;
       return rectsNear(cueRect, node.getBoundingClientRect(), 10);
     });
-    cue.classList.toggle('ba-v86-collision-safe-hide', collision);
+    cue.classList.toggle('ba-v87-collision-safe-hide', collision);
   }
   function scheduleCueSafety() {
     clearTimeout(cueTimer);
     cueTimer = window.setTimeout(() => requestAnimationFrame(() => requestAnimationFrame(applyCueSafety)), 0);
   }
 
-  function onPointerOrigin(event) {
-    const zeroTool = event.target?.closest?.('[data-tool="zero"]');
-    if (zeroTool && !zeroTool.closest?.('#baZeroSurface')) zeroToolJourney = true;
-  }
+  function onPointerOrigin(event) { rememberReviewOrigin(event.target); }
 
   function onCaptureClick(event) {
     const nativeBack = event.target?.closest?.('#nativeReviewBack');
     if (nativeBack) {
       const review = byId('nativeReviewSheet');
-      if (review?.dataset.v86Return === 'tools') {
+      if (review && closeGenericReviewToOrigin(review)) {
         event.preventDefault();
         event.stopPropagation();
         event.stopImmediatePropagation();
-        review.hidden = true;
-        delete review.dataset.v86Return;
-        zeroToolJourney = false;
-        zeroToolVisibleBefore = false;
-        const tools = document.querySelector('.bottom-nav .nav-button[data-nav="tools"]');
-        if (tools) tools.click();
         return;
       }
     }
+
+    rememberReviewOrigin(event.target);
 
     const faq = event.target?.closest?.('[data-final-faq-toggle]');
     if (faq && faq.closest(`#${SUPPORT_ID}`)) {
@@ -425,15 +473,15 @@
       return;
     }
 
-    const purchase = event.target?.closest?.('[data-v86-purchase-toggle]');
+    const purchase = event.target?.closest?.('[data-v87-purchase-toggle]');
     if (purchase) {
       event.preventDefault();
       event.stopPropagation();
       event.stopImmediatePropagation();
       const wasOpen = purchase.getAttribute('aria-expanded') === 'true';
-      closeSiblingAccordions(purchase, '[data-v86-purchase-toggle]', '.ba-v86-purchase-answer');
+      closeSiblingAccordions(purchase, '[data-v87-purchase-toggle]', '.ba-v87-purchase-answer');
       purchase.setAttribute('aria-expanded', wasOpen ? 'false' : 'true');
-      const answer = purchase.closest('article')?.querySelector('.ba-v86-purchase-answer');
+      const answer = purchase.closest('article')?.querySelector('.ba-v87-purchase-answer');
       if (answer) answer.hidden = wasOpen;
       return;
     }
@@ -457,7 +505,7 @@
     polishOldestMetric();
     polishJapaneseHome();
     syncUtilityStates();
-    trackZeroReturnContext();
+    syncGenericReviewReturn();
     scheduleCueSafety();
   }
   function queueRefresh() {
@@ -468,8 +516,8 @@
 
   function initialize() {
     ensureStyle();
-    document.addEventListener('pointerdown', onPointerOrigin, true);
-    document.addEventListener('click', onCaptureClick, true);
+    window.addEventListener('pointerdown', onPointerOrigin, true);
+    window.addEventListener('click', onCaptureClick, true);
     document.addEventListener('change', queueRefresh, true);
     document.addEventListener('scroll', scheduleCueSafety, {capture:true, passive:true});
     const observer = new MutationObserver(queueRefresh);
