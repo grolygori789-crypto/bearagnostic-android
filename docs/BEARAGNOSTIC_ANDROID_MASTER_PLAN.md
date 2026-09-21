@@ -2,17 +2,17 @@
 
 **Repository:** `grolygori789-crypto/bearagnostic-android`  
 **Canonical file:** `docs/BEARAGNOSTIC_ANDROID_MASTER_PLAN.md`  
-**Revision:** 8.0  
-**Revision date:** 20 September 2026  
+**Revision:** 9.0  
+**Revision date:** 21 September 2026  
 **Owner / Final Product Authority:** P'Benz  
 **Studio / Publisher:** Benedict Interactive  
 **Full Authorized DEV / Product-Design-Engineering Lead:** Biew (บิ๊ว)  
-**Current inspected GitHub main:** `cd7800fcf3464491ef5bd0fa76ef4ad661c8f113`  
-**Current runtime/source checkpoint:** `0acacf1077a305888a615c54e0e24b1fb32b272d` — `Add release isolation workflow`  
-**Current Android version:** `0.35.31-alpha79`, `versionCode 79`, adapter/cache `v=79`  
+**Current inspected GitHub main:** `401fafd9ac5159b87eb6f4dad7599cfe6511ff68` — `Fix tool polish and support flows`  
+**Current runtime/source checkpoint:** `401fafd9ac5159b87eb6f4dad7599cfe6511ff68` — current v83 source candidate
+**Current Android version:** `0.35.35-alpha83`, `versionCode 83`, adapter/cache `v=83`
 **Current Web main:** `30779427766ec220b0d5ffcb3081f58937f71a4f`  
-**Project state:** Pre-launch / production-signed physical QA completed / Final Polish next  
-**Supersedes:** Revision 7.0 while preserving every still-valid product, scanner, safety, commerce, privacy, UI, localization, distribution, QA and operating contract.
+**Project state:** Pre-launch / Final Polish corrective candidate v83 on GitHub / physical re-test and design acceptance PENDING
+**Supersedes:** Revision 8.0 while preserving every still-valid product, scanner, safety, commerce, privacy, UI, localization, distribution, QA and operating contract.
 
 > File-name rule: this canonical document keeps the stable filename `BEARAGNOSTIC_ANDROID_MASTER_PLAN.md`.  
 > Do not create dated, `final`, `v2`, `backup`, or duplicate canonical copies unless P'Benz explicitly requests an archive.
@@ -39,30 +39,40 @@ Bearagnostic must remain truthful, calm, bright, premium, privacy-first, local-f
 
 ## Current exact status
 
-The project has moved beyond the old Release-Isolation/signing blocker.
+The project is still pre-launch. Release-Isolation, production signing, core scan, Restore, duplicate deletion safety, Insights and verified cleanup history remain Frozen PASS unless directly affected by later source changes.
 
-Completed since Revision 7.0:
+The Android source has now advanced beyond the old v79/v80 documentation baseline:
 
-- Release-Isolation physical-device proof = **PASS**;
-- permanent production signing key created = **PASS**;
-- signing key custody/backup established on PC + separate flash-drive backup = **PASS**;
-- production-signed Release APK v79 created and signature verified = **PASS**;
-- production certificate SHA-256 fingerprint verified: `503FB4A77B38E7129E20002EC6A0B1D4225FD189BB16E0C71EBAD88ECA88AE90`;
-- Production v79 physically installed after removing test-signed Release-Isolation = **PASS**;
-- app launch/runtime/Home = **PASS**, subject to one startup visual blocker documented below;
-- Free scan/core flow = **PASS**;
-- production Pro Restore using existing purchase entitlement = **PASS**;
-- Pro entitlement persistence after app close/reopen = **PASS**;
-- Pro entitlement persistence after full device reboot = **PASS**;
-- Exact Duplicates detection + selection + confirm + native delete + verification = **PASS**;
-- keep-one-copy safeguard physically verified: 4 identical copies → 3 deleted → 1 actual copy remained = **PASS**;
-- verified reclaimed space for that test = **3.01 MB**;
-- Insights + Local History = **PASS**;
-- Verified Cleanup History correctly recorded 1 cleanup event / 3 items / 3.01 MB = **PASS**;
-- Tools functional review is broadly **PASS with known defects**;
-- app-wide pre-polish physical review is now considered sufficiently complete to enter Final Polish.
+```text
+v80  8fc4c053d3fc194db48c57a89af916af0d8fc937  Finish Android final polish
+v82  f3bd9ed584f4f78fb61482229769f00acee471d9  Fix Final Polish and preserve debug QA
+v83  401fafd9ac5159b87eb6f4dad7599cfe6511ff68  Fix tool polish and support flows
+```
 
-Public launch is **not** approved yet. Final App/Web/Ko-fi polish, support/legal/customer journey, production environment transition, distribution proof and final launch smoke remain.
+Current repository truth is **v83**:
+
+```text
+versionName 0.35.35-alpha83
+versionCode 83
+adapter/cache v83
+release package com.benedictinteractive.bearagnostic
+debug package   com.benedictinteractive.bearagnostic.debug
+pinned PWA      78a31c7752e171c0eafb63c0d0859f4072a193d6
+```
+
+Current evidence status must be interpreted carefully:
+
+- Production v79 physical/core evidence remains valid Frozen PASS where later Final Polish code cannot affect it.
+- v80 was physically inspected and exposed important Final Polish/design regressions, especially Help & Support presentation.
+- v81 was a local corrective attempt that overcorrected Debug entitlement UI and was explicitly **withdrawn / invalid / never a canonical repository baseline**.
+- v82 restored the Debug-vs-Release architecture and was uploaded to GitHub.
+- v83 is the latest GitHub corrective candidate, adding further Tool/support-flow polish on top of v82.
+- **P'Benz has not yet physically accepted v83.** Therefore v83 is NOT Physical-device PASS, NOT Visual/Design PASS, and NOT public-release approved.
+- Prior automated/headless checks are supporting evidence only. They never substitute for physical-device behavior, screenshot review, or P'Benz design acceptance.
+
+The next room must start with **targeted physical QA and design review of v83**, not by adding new features and not by re-running Frozen work from scratch.
+
+Public launch remains **NOT APPROVED**. App final acceptance, final customer journey, support/legal closure, production-environment transition, exact public binary proof, Benedict website distribution, Uptodown distribution and final launch smoke remain unfinished.
 
 ---
 
@@ -120,7 +130,7 @@ Before substantive implementation:
 9. validate honestly;
 10. package only canonical repo-relative files.
 
-The current Android `main` is three documentation-only commits ahead of runtime checkpoint `0acacf...`; no runtime/source behavior changed in those three commits. Treat latest main as repository truth while using `0acacf...` as the current runtime-code checkpoint until source changes again.
+Current Android `main` contains runtime/source changes through v83. Treat `401fafd...` as the current source checkpoint until a newer GitHub `main` exists. Do not fall back to `0acacf...`, v79, v80 or a withdrawn local package merely because an older document mentions them.
 
 ---
 
@@ -210,9 +220,10 @@ Current runtime baseline:
 
 - release app ID: `com.benedictinteractive.bearagnostic`;
 - debug app ID: `com.benedictinteractive.bearagnostic.debug`;
-- app version: `0.35.31-alpha79`;
-- versionCode: `79`;
-- adapter/cache: `v=79`;
+- current source candidate: `0.35.35-alpha83`;
+- last broadly physical-verified production baseline: v79;
+- current versionCode: `83`;
+- current adapter/cache: `v=83`;
 - compile/target SDK: 36;
 - min SDK: 26;
 - AGP: 9.4.0;
@@ -348,6 +359,8 @@ Customer distribution remains:
 1. Benedict Interactive official website;
 2. Uptodown;
 3. other stores only after explicit later approval.
+
+**No Google Play launch.** Play Billing remains an engineering/reference dependency only unless a future explicit strategy changes that.
 
 Do not broaden launch distribution just to accumulate listings. For a one-person operation, reliability, identical binary distribution and maintainability are more valuable than store count.
 
@@ -499,11 +512,132 @@ Cleanup history is intentionally aggregate-only and not clickable into filenames
 
 ---
 
+# 12A. FINAL POLISH CORRECTIVE HISTORY / TRUST RESET
+
+This section is mandatory context for the next room because the first Final Polish implementation exposed process and design failures that must not be repeated.
+
+## v80 physical-review findings
+
+After v80 was built and viewed on-device, P'Benz rejected the quality of the Help & Support work. Confirmed concerns included:
+
+- the `SUPPORT` kicker/header geometry could be clipped/obscured by the Back-button region;
+- `Help / FAQ`, `Contact Benedict Interactive`, and `Purchase & Restore help` appeared as plain text rows while `Report a Problem`, `Send Feedback`, and `Copy Diagnostic Info` used colorful icons, creating an inconsistent and visibly unfinished design system;
+- Help / FAQ content was too plain and visually weak for a premium release;
+- Contact Benedict Interactive did not feel like a professional support workflow and was visually inconsistent with Report/Feedback;
+- the overall result looked patched together rather than intentionally designed as one premium product surface.
+
+P'Benz explicitly requires **professional product-design quality approaching 10/10**. Merely being functional is not enough.
+
+## Debug entitlement clarification — critical
+
+P'Benz keeps **two installable Android variants on the same device**:
+
+```text
+Debug / QA
+applicationId = com.benedictinteractive.bearagnostic.debug
+BuildConfig.DEBUG = true
+Purpose = engineering QA, including entitlement switching
+
+Release / Production behavior
+applicationId = com.benedictinteractive.bearagnostic
+BuildConfig.DEBUG = false
+Purpose = customer behavior; no QA entitlement controls
+```
+
+Therefore:
+
+- `DEVELOPMENT ENTITLEMENT TEST` / `Test as FREE` / `Test as PRO` / `Reset` are **expected and required in Debug/QA**;
+- those controls are a **release blocker if visible in Release/Production**;
+- never judge this from a screenshot alone without first establishing which installed package/build is being viewed;
+- the repository already release-gates debug entitlement state with `BuildConfig.DEBUG`, and the Release-Isolation workflow verifies those gates.
+
+The v81 local attempt incorrectly hard-hid Debug controls across builds. **v81 is withdrawn and must never be used or resurrected.**
+
+## v82 / v83 corrective direction
+
+v82 restored the dual-build contract and redesigned Final Polish behavior. v83 then added additional Tool/support-flow polish. Relative to v80, the v82→v83 corrective work is intentionally narrow and centered on:
+
+```text
+app/build.gradle.kts
+app/src/main/legacy-adapter/android-final-polish.js
+```
+
+The MainActivity support-mail allowlist work from v80 remains on current main.
+
+Current v83 Final Polish intent includes:
+
+- preserve Debug entitlement controls only when native Debug contract exposes them;
+- keep Release behavior free of Debug entitlement UI;
+- professional Help & Support gateway;
+- consistent iconography and hierarchy across comparable support actions;
+- dedicated FAQ, Contact, and Purchase & Restore help surfaces;
+- safe bulk selection via each Tool's existing handlers;
+- Zero-byte truth fallback;
+- scroll-cue collision hardening;
+- Insights copy/layout hardening;
+- EN/TH/JA responsive polish;
+- production copy/legal truthfulness;
+- no mutation of scanner, destructive-delete, entitlement truth, Restore, history or payment truth.
+
+## Evidence boundary
+
+Any prior claim such as `276 automated checks PASS` is **not** visual acceptance and **not** physical-device acceptance.
+
+For Final Polish, the evidence ladder is:
+
+```text
+Source/Static PASS
+→ automated/headless/runtime-simulation PASS
+→ build/CI PASS
+→ physical-device functional PASS
+→ screenshot/visual-system review
+→ P'Benz design acceptance
+```
+
+Do not skip or reorder the last two steps for visible customer UI.
+
+## Professional visual-quality gate
+
+For every new or modified customer-facing screen, review all of the following before calling it complete:
+
+- coherent visual hierarchy;
+- consistent icon family, icon box size, radius, gradient/material treatment and alignment;
+- consistent row/card anatomy for comparable actions;
+- typography appropriate to EN/TH/JA rather than English-only geometry;
+- no clipped kicker/title/subtitle;
+- no Back-button/title collision;
+- safe-area and Bottom Nav separation;
+- no horizontal overflow;
+- comfortable spacing and touch targets;
+- intentional empty space, not accidental dead space;
+- premium states for loading, empty, error, disabled and success;
+- no visibly bolted-on controls;
+- no plain fallback screen where the surrounding product uses a richer premium system;
+- accessibility and reduced-motion behavior where relevant;
+- visual continuity with the rest of Bearagnostic.
+
+A technically correct but visually weak screen is **not done**.
+
+## Source-owner preference
+
+Structural/layout defects should be fixed at the component that owns the structure whenever practical. Cross-cutting Final Polish adapters may be used for narrowly scoped compatibility/hardening, but should not become a dumping ground for fragile DOM patching.
+
+Avoid:
+
+- uncontrolled MutationObserver patch loops;
+- one-off CSS that fixes one screenshot while breaking other widths/languages;
+- hiding architecture mistakes instead of correcting source truth;
+- visually inconsistent duplicate components.
+
+---
+
 # 13. FINAL POLISH — 9 CURRENT APP WORK ITEMS
 
-P'Benz has completed the pre-polish app review. These nine items are the current explicit Final Polish work list.
+These nine items remain the authoritative Final Polish acceptance list. v83 contains corrective implementation attempts for them, but **none of the v83-visible fixes are closed until physical retest and P'Benz visual acceptance**. Treat each item below as `IMPLEMENTED CANDIDATE / PHYSICAL VERIFICATION PENDING` unless a later room records explicit PASS evidence.
 
 ## 1. Startup Visual Continuity — LAUNCH BLOCKER
+
+**v83 status:** source guard exists; repeated physical cold-launch proof still required.
 
 Observed physical defect:
 
@@ -526,6 +660,8 @@ Requirements:
 
 ## 2. `Did you know?` False Affordance
 
+**v83 status:** corrective presentation code exists; physical visual/interaction confirmation pending.
+
 During scan, `Did you know?` visually appears tappable due to card styling + chevron but does nothing.
 
 Preferred solution:
@@ -535,6 +671,8 @@ Preferred solution:
 - do not invent a useless destination merely to justify the visual.
 
 ## 3. Scroll Cue / Layer Overlap
+
+**v83 status:** corrective collision logic exists; must be tested after real scrolling because shell code can rewrite cue position.
 
 The global translucent scroll cue is **not itself a defect**.
 
@@ -551,6 +689,8 @@ Defect:
 Fix only the overlap/layout/safe-area problem. Do **not** remove the scroll cue globally unless new evidence justifies it.
 
 ## 4. Consistent `Select all / Clear all`
+
+**v83 status:** candidate bulk controls exist; physically verify each Tool, selection caps, hidden/protected behavior, and Clear-all semantics.
 
 Every list-based Tool that allows multi-selection must provide efficient bulk selection.
 
@@ -578,6 +718,8 @@ Audit at least:
 
 ## 5. Dedicated Zero-byte / Review Empty Files Failure
 
+**v83 status:** candidate fallback exists; reproduce the previous contradictory case and verify real recovery on-device.
+
 Observed:
 
 - generic Zero-byte review path showed 4 real zero-byte items;
@@ -595,6 +737,8 @@ Required:
 
 ## 6. Insights `What Changed` Truncation
 
+**v83 status:** responsive override exists; verify on compact widths and all shipping locales.
+
 Observed cards show `No measur...`.
 
 This is a visual/copy defect.
@@ -607,6 +751,8 @@ Required:
 - if there is no comparable measurement, say so cleanly.
 
 ## 7. Remove Development / Google Play Customer Copy
+
+**v83 status:** customer-facing copy patch exists; Release physical audit remains mandatory. Debug-only engineering text is allowed only inside the Debug/QA entitlement surface.
 
 Production Pro screen still contains development-era copy such as:
 
@@ -623,6 +769,8 @@ Requirements:
 - Play Billing may remain an internal/reference dependency but must not be presented as the launch payment surface.
 
 ## 8. Help & Support Entry in More
+
+**v83 status:** substantially redesigned candidate exists. This is a high-priority visual acceptance area because v80 was rejected on-device.
 
 `Review`, `Feedback`, and `Support` are different customer needs.
 
@@ -643,6 +791,8 @@ Do not clutter More with full contact details. Use one professional support gate
 Preferred branded target remains `support@benedictinteractive.com`, but switch public copy only after inbound routing and reply identity are physically/procedurally proven. Until then retain the existing fallback support route.
 
 ## 9. Japanese Native-Quality Localization + Typography Audit
+
+**v83 status:** responsive/CJK hardening exists; whole-app Japanese physical review remains open.
 
 Japanese is currently a shipping language and must be first-class.
 
@@ -680,6 +830,79 @@ English
 ```
 
 ES/PT-BR remain hidden until the same first-class quality bar is met.
+
+---
+
+# 13A. MANDATORY v83 PHYSICAL QA MATRIX
+
+The next room must distinguish the two installed variants before interpreting any screenshot or behavior.
+
+## A. Debug / QA build
+
+Expected:
+
+```text
+package: com.benedictinteractive.bearagnostic.debug
+versionName includes -debug
+DEVELOPMENT ENTITLEMENT TEST visible
+Test as FREE works
+Test as PRO works
+Reset works
+```
+
+Verify:
+
+- switching FREE/PRO changes only Debug/QA behavior;
+- Debug app data does not corrupt or masquerade as the Release app;
+- Help & Support works in both Free and Pro Debug states;
+- no Final Polish code removes/hides Debug entitlement controls;
+- Pro UI remains visually coherent even with Debug controls present.
+
+## B. Release / production-behavior build
+
+Expected:
+
+```text
+package: com.benedictinteractive.bearagnostic
+debuggable=false
+no DEVELOPMENT ENTITLEMENT TEST
+no Test as FREE
+no Test as PRO
+no Reset
+native debug entitlement calls rejected
+```
+
+Verify:
+
+- no customer-visible development wording;
+- Pro purchase/restore copy reflects Ko-fi/Benedict truth;
+- customer Help/FAQ/Contact/Purchase & Restore surfaces are complete and professional;
+- no debug-only controls or QA labels are exposed.
+
+## C. Common v83 Final Polish regression sweep
+
+Physically verify at minimum:
+
+1. repeated cold launch: `Benedict Interactive → Dr.Bear → Home`, no black/legacy flash;
+2. `Did you know?` looks informational and has no false chevron/button affordance;
+3. scroll cue never covers CTA before or after actual scrolling;
+4. Select all / Clear all on Large, Older, Downloads, Installers, Archives, Zero-byte, Empty folders and other relevant lists;
+5. Duplicates bulk action selects **extras only**, preserving at least one copy;
+6. Zero-byte previous contradiction: native candidates exist while dedicated path previously errored;
+7. Insights full `No measurable change`-style text without meaningless ellipsis;
+8. Help & Support header/kicker/back geometry;
+9. consistent colorful icon treatment across all comparable Help actions;
+10. FAQ presentation and interaction quality;
+11. Contact Benedict composer/open-email/copy-details behavior and privacy copy;
+12. Purchase & Restore help behavior — opening help must never silently purchase or mutate entitlement;
+13. Report Problem / Send Feedback / Diagnostics still work;
+14. EN / TH / JA layout at compact phone widths;
+15. Bottom Nav, safe area, keyboard and modal/sheet layering;
+16. no horizontal overflow or clipped ordinary UI text;
+17. Release-only production-copy audit;
+18. Debug-vs-Release entitlement-isolation proof.
+
+For screenshot review, always record which package/build is shown. Do not infer Release failure from Debug-only UI.
 
 ---
 
@@ -911,33 +1134,33 @@ Environment changes are not trusted until deployment succeeds.
 
 # 21. FINAL RELEASE PATH — UPDATED
 
-Continue only unfinished/new scope:
+Current immediate continuation is no longer “implement the first Final Polish batch.” v83 implementation is already on GitHub. The immediate task is **prove or reject v83 on real devices**.
 
-1. **Final App Polish batch**: fix the 9 known work items.
-2. **Run the 4 cross-cutting audits** and fix only real findings.
-3. **Build next production candidate** using the same permanent signing identity.
-4. **Verify package/version/non-debuggable/signature/zipalign**.
-5. **Physical targeted regression**:
-   - startup;
-   - touched screens;
-   - Pro;
-   - Tools;
-   - Insights;
-   - EN/TH/JA;
-   - selection/deletion safety if touched.
-6. **Close Free destructive-delete proof** on final candidate if practical, or record explicit P'Benz risk exception.
-7. **Final App/Web/Ko-fi customer-journey polish**.
-8. **FAQ/Q&A + Help & Support + branded support routing + legal/refund/revoke/dispute closure**.
-9. **Website production download/update path**: exact signed APK, version, changelog, checksum, installer guidance.
-10. **FK-safe cleanup of synthetic QA data** after evidence is no longer needed.
-11. **Production environment transition**: remove/disable test-only email/OTP overrides, `TEST_MODE=false`.
-12. Keep public commerce fail-closed until final controlled gate.
-13. **Final controlled production commerce smoke**: real OTP, purchase/restore, webhook/payment ledger, entitlement, Pro, recovery.
-14. Earlier real purchase was 10 THB. Exact-price **249 THB** clean-identity live purchase is strongest final proof if P'Benz approves the real charge; otherwise record a deliberate exception.
-15. **Final Restore proof** on production candidate if relevant changed code can affect it.
-16. **Distribution proof**: Benedict website + Uptodown, exact same signed binary.
-17. **Final launch-readiness smoke**: customer copy, links, support, legal, purchase, restore, download/update, version, signature, no Dev surfaces.
-18. **Public launch + monitoring**.
+Proceed in this order:
+
+1. fetch latest Android `main`; confirm whether it is still `401fafd...` or newer;
+2. confirm current version/build truth before testing;
+3. build/obtain **Debug/QA** from the exact current commit;
+4. build/obtain **Release/production-behavior** from the same exact commit;
+5. run the mandatory v83 physical QA matrix in Section 13A;
+6. capture screenshots of every changed customer-facing Help/Support surface in EN/TH/JA and review design quality, not just function;
+7. if any defect is found, make the smallest source-owned fix, bump version/cache, and repeat only affected regression plus critical smoke;
+8. only after v83-or-later physical/design acceptance, run the 4 cross-cutting audits and close remaining Final Polish items;
+9. close Free destructive-delete proof on the accepted final candidate if practical, or record explicit P'Benz risk exception;
+10. finish App/Web/Ko-fi customer journey, FAQ depth, branded support routing, legal/refund/revoke/dispute closure;
+11. verify official Benedict signed-APK path, exact version, changelog, checksum, install/update guidance;
+12. clean synthetic QA data only after evidence is no longer needed;
+13. transition production environment: remove/disable test-only email/OTP overrides and set TEST MODE false;
+14. keep public commerce fail-closed until final controlled gate;
+15. run final controlled production commerce smoke;
+16. exact-price 249 THB clean-identity purchase remains strongest proof if P'Benz explicitly approves the real charge; otherwise record a deliberate exception;
+17. run final Restore proof only if relevant code/customer journey changed;
+18. create/select the **production-signed Release APK that will actually be public**;
+19. physically QA that exact production-signed APK;
+20. after PASS, **do not rebuild it**; publish the exact same tested binary to Benedict website and submit the same exact binary to Uptodown;
+21. verify published/downloaded binary identity and checksum;
+22. final launch-readiness smoke;
+23. public launch + monitoring.
 
 Do not claim 100% public readiness before these gates are complete or explicitly waived.
 
@@ -1054,7 +1277,15 @@ Do not repeat:
 - dead interactive-looking UI;
 - CTA overlap caused by global fixed layers;
 - whole-page English geometry forced onto Japanese;
-- documenting a test as PASS when it was only inferred.
+- documenting a test as PASS when it was only inferred;
+- treating automated/headless QA as visual acceptance;
+- changing Debug entitlement architecture while trying to clean Release UI;
+- confusing the Debug and Release apps installed side-by-side;
+- hard-hiding `Test as FREE/PRO` in Debug;
+- adding text-only support rows beside icon-led rows and calling the design complete;
+- clipping section kickers beneath Back-button geometry;
+- shipping a low-effort FAQ/contact surface inside an otherwise premium product;
+- rebuilding the public APK after final physical QA and thereby invalidating exact-binary evidence.
 
 ---
 
@@ -1082,14 +1313,19 @@ Never make dated canonical replacements unless explicitly requested.
 
 At next-room startup:
 
-1. read current Room Migration prompt;
-2. fetch latest Android + Web main;
-3. read canonical Master Plan;
-4. preserve Frozen #1–#25;
-5. inspect current version/build/signing state;
-6. establish rollback + allowlist;
-7. resume from the first unfinished item in Section 21;
-8. never make P'Benz restate completed commerce, signing, production QA or current Final Polish defects.
+1. read current Room Migration prompt completely;
+2. fetch latest Android + Web `main` before trusting SHA/version in this document;
+3. read this canonical Master Plan completely;
+4. preserve Frozen #1–#25 and prior physical evidence unless touched by later code;
+5. identify both installed app variants before screenshot/behavior interpretation;
+6. confirm current version/build/package and rollback SHA;
+7. establish changed-file allowlist before any patch;
+8. **begin with v83 physical/design QA, not new implementation, unless GitHub main has advanced**;
+9. never use withdrawn v81;
+10. never remove Debug FREE/PRO/Reset controls from the Debug build;
+11. never allow those controls in Release;
+12. treat customer-facing visual quality as an acceptance gate requiring P'Benz review;
+13. never make P'Benz restate completed commerce, signing, production QA or the v80→v83 corrective history.
 
 ---
 
@@ -1111,41 +1347,71 @@ Still binding unless explicitly superseded:
 
 # APPENDIX B — CURRENT OPEN/PASS SUMMARY
 
-**PASS / Frozen**
+**PASS / Frozen unless directly affected**
 
 - Commerce hardening #1–#25
 - Release-Isolation physical proof
-- Production signing setup
+- Production signing setup + backup
 - Production certificate verification
-- Production v79 physical install
-- Production no-Dev behavior
+- Production v79 physical install/core baseline
 - Free core scan
 - Existing-entitlement Restore to Pro
-- Pro persistence after reopen
-- Pro persistence after reboot
+- Pro persistence after reopen/reboot
 - Exact Duplicate detection
 - Keep-one-copy
 - Verified duplicate deletion
 - Insights / Local History
 - Verified Cleanup History
-- Aggregate-only privacy behavior
+- Aggregate-only cleanup-history privacy
 
-**OPEN before launch**
+**Current repository candidate**
 
-- 9 Final Polish work items
+```text
+Android main: 401fafd9ac5159b87eb6f4dad7599cfe6511ff68
+Version: 0.35.35-alpha83 / versionCode 83 / cache v83
+Status: Source candidate on GitHub
+Physical acceptance: PENDING
+Design acceptance: PENDING
+Public release approval: NO
+```
+
+**Historical corrective notes**
+
+- v80 = first Final Polish implementation; physical Help/Support quality rejected
+- v81 = withdrawn local overcorrection; never canonical
+- v82 = restored Debug/Release architecture
+- v83 = latest Tool/support-flow corrective candidate
+
+**OPEN / urgent next**
+
+- v83 Debug physical QA with FREE/PRO/Reset preserved
+- v83 Release physical QA with zero Debug entitlement controls
+- Help & Support professional visual acceptance
+- header/kicker/back geometry
+- FAQ visual/interaction quality
+- Contact Benedict workflow quality
+- Purchase & Restore help flow
+- startup continuity proof
+- Did-you-know affordance proof
+- scroll cue real-scroll collision proof
+- Tool Select all / Clear all physical proof
+- Zero-byte recovery proof
+- Insights truncation proof
+- EN/TH/JA compact-screen audit
 - 4 cross-cutting audits
 - Free destructive-delete final-candidate proof or explicit waiver
 - App/Web/Ko-fi final customer journey
-- FAQ / Help & Support
 - branded support routing proof
 - legal/refund/revoke/dispute closure
 - website signed-APK path
 - synthetic QA cleanup
-- production env transition
+- production environment transition
 - final commerce smoke
 - exact-price 249 THB proof decision
+- production-signed exact-binary physical QA
+- Benedict website exact-binary distribution
 - Uptodown exact-binary distribution proof
 - final launch smoke
 - public launch monitoring
 
-**End of Revision 8.0**
+**End of Revision 9.0**
