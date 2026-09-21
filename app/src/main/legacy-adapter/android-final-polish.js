@@ -2,11 +2,11 @@
   'use strict';
 
   /*
-   * Bearagnostic Android Final Polish (v82 corrective candidate)
+   * Bearagnostic Android Final Polish (v83 corrective candidate)
    *
    * Cross-build Final Polish hardening:
    * - preserves debug entitlement controls only when the native debug contract exposes them;
-   * - premium Help & Support gateway with dedicated FAQ/contact surfaces;
+   * - premium Help & Support gateway with dedicated FAQ/contact/purchase-support surfaces;
    * - safe bulk-selection convenience through each tool's existing handlers;
    * - zero-byte truth fallback to the proven generic native review;
    * - scroll-cue, Insights and EN/TH/JA layout hardening;
@@ -49,13 +49,20 @@
       faqRestoreQ:'How do I restore Pro?',
       faqRestoreA:'Open Purchase & Restore, enter the email used for the verified Ko-fi purchase, complete email verification, then restore the lifetime entitlement.',
       contactEyebrow:'BENEDICT SUPPORT', contactTitle:'Contact Benedict Interactive',
-      contactLead:'Need help from a person? Start a support email here and send it only when you are ready.',
-      contactEmailLabel:'SUPPORT EMAIL',
-      contactTipTitle:'For faster help',
-      contactTipBody:'For an app problem, Report a Problem can prepare an email with safe technical details. Never include passwords, payment details, private file names, or file paths.',
-      contactOpen:'Open email app', contactCopy:'Copy email', contactCopied:'Support email copied.',
-      contactFallback:'Could not open an email app. The support address was copied instead.',
-      close:'Close',
+      contactLead:'Write directly to Benedict Interactive Support using the same message pattern as problem reports and feedback.',
+      contactMessage:'Your message', contactPlaceholder:'How can Benedict Interactive Support help?',
+      contactIncludeTech:'Include technical details', contactTech:'Optional. Only safe app and device details are included; file names and selected-file details are never added.',
+      contactPrivacy:'Please do not include passwords, payment details, private file names, file paths, or sensitive personal information.',
+      contactEmailNote:'This opens your email app. Nothing is sent until you choose Send there.',
+      contactOpen:'Open Email to Send', contactCopy:'Copy Details', contactRequired:'Write a short message first.', contactCopied:'Details copied.',
+      purchaseEyebrow:'PURCHASE & RESTORE', purchaseTitle:'Purchase & Restore help',
+      purchaseLead:'Guidance for buying Lifetime Pro, restoring a verified Ko-fi purchase, or checking access. Opening this help page never changes your entitlement.',
+      purchaseRestoreTitle:'Already purchased Pro?', purchaseRestoreBody:'Use the same email used for the verified Ko-fi purchase. Open the Pro purchase & restore flow, verify your email, then choose Restore.',
+      purchaseBuyTitle:'Buying Pro?', purchaseBuyBody:'Lifetime Pro is a one-time purchase with no subscription. Ko-fi handles checkout; Benedict verifies entitlement after the purchase flow.',
+      purchaseBoundary:'Nothing is purchased or restored from this help page. You stay in control of every action.',
+      purchaseOpen:'Open Pro purchase & restore', purchaseContact:'Contact purchase support',
+      purchaseSupportPlaceholder:'Describe the purchase or restore issue you need help with…',
+      back:'Back', close:'Close',
       diagnosticsCopied:'Diagnostic info copied.', copyFailed:'Could not copy automatically.',
       proTitle:'Lifetime Pro · 249 THB',
       proBody:'Buy or restore Bearagnostic Pro through the verified Ko-fi purchase flow. One-time purchase. No subscription.',
@@ -88,13 +95,20 @@
       faqRestoreQ:'จะกู้คืน Pro ได้อย่างไร?',
       faqRestoreA:'เปิดเมนูซื้อและกู้คืน ใช้อีเมลเดียวกับรายการซื้อ Ko-fi ที่ยืนยันแล้ว ยืนยันอีเมล จากนั้นกู้คืนสิทธิ์ Pro แบบตลอดชีพ',
       contactEyebrow:'BENEDICT SUPPORT', contactTitle:'ติดต่อ Benedict Interactive',
-      contactLead:'ต้องการคุยกับฝ่ายสนับสนุนโดยตรง? เปิดอีเมลจากหน้านี้ แล้วกดส่งเมื่อคุณตรวจข้อความเรียบร้อยแล้ว',
-      contactEmailLabel:'อีเมลฝ่ายสนับสนุน',
-      contactTipTitle:'เพื่อให้ช่วยได้เร็วขึ้น',
-      contactTipBody:'ถ้าเป็นปัญหาการใช้งาน เมนูรายงานปัญหาจะช่วยเตรียมอีเมลพร้อมข้อมูลทางเทคนิคที่ปลอดภัย กรุณาอย่าใส่รหัสผ่าน ข้อมูลการชำระเงิน ชื่อไฟล์ส่วนตัว หรือพาธไฟล์',
-      contactOpen:'เปิดแอปอีเมล', contactCopy:'คัดลอกอีเมล', contactCopied:'คัดลอกอีเมลฝ่ายสนับสนุนแล้ว',
-      contactFallback:'เปิดแอปอีเมลไม่ได้ ระบบจึงคัดลอกอีเมลฝ่ายสนับสนุนไว้ให้แล้ว',
-      close:'ปิด',
+      contactLead:'เขียนข้อความถึงฝ่ายสนับสนุน Benedict Interactive โดยใช้รูปแบบเดียวกับรายงานปัญหาและส่งข้อเสนอแนะ',
+      contactMessage:'ข้อความของคุณ', contactPlaceholder:'ต้องการให้ฝ่ายสนับสนุน Benedict Interactive ช่วยเรื่องอะไร?',
+      contactIncludeTech:'แนบข้อมูลทางเทคนิค', contactTech:'เลือกได้ตามต้องการ ระบบแนบเฉพาะข้อมูลแอปและอุปกรณ์ที่ปลอดภัย และจะไม่ใส่ชื่อไฟล์หรือข้อมูลไฟล์ที่เลือก',
+      contactPrivacy:'กรุณาอย่าใส่รหัสผ่าน ข้อมูลการชำระเงิน ชื่อไฟล์หรือพาธส่วนตัว และข้อมูลอ่อนไหว',
+      contactEmailNote:'เมื่อกด ระบบจะเปิดแอปอีเมล และจะยังไม่มีอะไรถูกส่งจนกว่าคุณจะกดส่งเอง',
+      contactOpen:'เปิดอีเมลเพื่อส่ง', contactCopy:'คัดลอกรายละเอียด', contactRequired:'กรุณาเขียนข้อความสั้นๆ ก่อน', contactCopied:'คัดลอกรายละเอียดแล้ว',
+      purchaseEyebrow:'การซื้อและกู้คืน', purchaseTitle:'ช่วยเหลือเรื่องซื้อและกู้คืน Pro',
+      purchaseLead:'คำแนะนำสำหรับซื้อ Lifetime Pro กู้คืนรายการซื้อ Ko-fi ที่ยืนยันแล้ว หรือตรวจสอบสิทธิ์ การเปิดหน้าช่วยเหลือนี้จะไม่เปลี่ยนสิทธิ์ของคุณ',
+      purchaseRestoreTitle:'ซื้อ Pro ไว้แล้ว?', purchaseRestoreBody:'ใช้อีเมลเดียวกับรายการซื้อ Ko-fi ที่ยืนยันแล้ว เปิดขั้นตอนซื้อและกู้คืน Pro ยืนยันอีเมล แล้วเลือกกู้คืนสิทธิ์',
+      purchaseBuyTitle:'กำลังจะซื้อ Pro?', purchaseBuyBody:'Lifetime Pro ซื้อครั้งเดียว ไม่มีค่าสมาชิก Ko-fi เป็นผู้ดูแลการชำระเงิน และ Benedict จะตรวจสอบสิทธิ์หลังขั้นตอนการซื้อ',
+      purchaseBoundary:'หน้านี้เป็นหน้าช่วยเหลือเท่านั้น จะไม่มีการซื้อหรือกู้คืนสิทธิ์จนกว่าคุณจะเลือกทำรายการเอง',
+      purchaseOpen:'เปิดขั้นตอนซื้อและกู้คืน Pro', purchaseContact:'ติดต่อฝ่ายช่วยเหลือการซื้อ',
+      purchaseSupportPlaceholder:'อธิบายปัญหาเกี่ยวกับการซื้อหรือกู้คืนสิทธิ์ที่ต้องการให้ช่วย…',
+      back:'ย้อนกลับ', close:'ปิด',
       diagnosticsCopied:'คัดลอกข้อมูลทางเทคนิคแล้ว', copyFailed:'ไม่สามารถคัดลอกให้อัตโนมัติได้',
       proTitle:'Lifetime Pro · 249 บาท',
       proBody:'ซื้อหรือกู้คืน Bearagnostic Pro ผ่านขั้นตอนการซื้อ Ko-fi ที่ตรวจสอบสิทธิ์แล้ว ซื้อครั้งเดียว ไม่มีค่าสมาชิกรายเดือน',
@@ -127,13 +141,20 @@
       faqRestoreQ:'Pro を復元するには？',
       faqRestoreA:'「購入・復元」を開き、確認済み Ko-fi 購入で使ったメールアドレスを入力し、メール認証後に買い切り Pro 権限を復元します。',
       contactEyebrow:'BENEDICT SUPPORT', contactTitle:'Benedict Interactive に連絡',
-      contactLead:'担当者のサポートが必要ですか？ここからメールアプリを開き、内容を確認してから送信できます。',
-      contactEmailLabel:'サポートメール',
-      contactTipTitle:'より早いサポートのために',
-      contactTipBody:'アプリの問題は「問題を報告」から安全な技術情報を添えたメールを準備できます。パスワード、決済情報、個人的なファイル名やパスは記載しないでください。',
-      contactOpen:'メールアプリを開く', contactCopy:'メールをコピー', contactCopied:'サポートメールをコピーしました。',
-      contactFallback:'メールアプリを開けなかったため、サポート用メールアドレスをコピーしました。',
-      close:'閉じる',
+      contactLead:'問題報告やフィードバックと同じ入力パターンで、Benedict Interactive Support に直接メッセージを書けます。',
+      contactMessage:'メッセージ', contactPlaceholder:'Benedict Interactive Support にどのようなサポートが必要ですか？',
+      contactIncludeTech:'技術情報を含める', contactTech:'任意です。安全なアプリ・端末情報だけを含み、ファイル名や選択ファイルの情報は追加しません。',
+      contactPrivacy:'パスワード、決済情報、個人的なファイル名やパス、機密情報は入力しないでください。',
+      contactEmailNote:'メールアプリが開きます。そこで送信するまで、情報は送られません。',
+      contactOpen:'メールを開いて送信', contactCopy:'内容をコピー', contactRequired:'まず短いメッセージを入力してください。', contactCopied:'内容をコピーしました。',
+      purchaseEyebrow:'購入・復元', purchaseTitle:'購入・復元のヘルプ',
+      purchaseLead:'Lifetime Pro の購入、確認済み Ko-fi 購入の復元、アクセス状態の確認に関する案内です。このヘルプ画面を開くだけでは権限は変更されません。',
+      purchaseRestoreTitle:'Pro を購入済みですか？', purchaseRestoreBody:'確認済み Ko-fi 購入で使った同じメールアドレスを使用し、Pro の購入・復元フローを開いてメール認証後に「復元」を選びます。',
+      purchaseBuyTitle:'Pro を購入しますか？', purchaseBuyBody:'Lifetime Pro は買い切りでサブスクリプションではありません。決済は Ko-fi が処理し、購入フロー後に Benedict が権限を確認します。',
+      purchaseBoundary:'この画面は案内専用です。利用者が操作を選ぶまで購入・復元は実行されません。',
+      purchaseOpen:'Pro の購入・復元を開く', purchaseContact:'購入サポートに連絡',
+      purchaseSupportPlaceholder:'購入または復元について困っている内容を入力してください…',
+      back:'戻る', close:'閉じる',
       diagnosticsCopied:'診断情報をコピーしました。', copyFailed:'自動でコピーできませんでした。',
       proTitle:'Lifetime Pro · 249 THB',
       proBody:'確認済みの Ko-fi 購入フローから Bearagnostic Pro を購入または復元できます。買い切りで、サブスクリプションではありません。',
@@ -172,6 +193,7 @@
     '#baArchivesSelection > *', '.ba-archives-result-actions',
     '#baZeroSelection > *', '.ba-zero-result-actions',
     '#baEmptySelection > *', '.ba-empty-result-actions',
+    '#baMediaSelection > *', '.ba-media-result-actions',
     '.ba-billing-actions'
   ].join(',');
 
@@ -182,7 +204,8 @@
     installers: {surface:'#baInstallersSurface', checkbox:'[data-installer-id]', dataKey:'installerId', more:'[data-installer-action="more"]', clear:'[data-installer-action="clear"]', cap:500},
     archives: {surface:'#baArchivesSurface', checkbox:'[data-archive-id]', dataKey:'archiveId', more:'[data-archive-action="more"]', clear:'[data-archive-action="clear"]', cap:500},
     zero: {surface:'#baZeroSurface', checkbox:'[data-zero-id]', dataKey:'zeroId', more:'[data-zero-action="more"]', clear:'[data-zero-action="clear"]', cap:500},
-    empty: {surface:'#baEmptySurface', checkbox:'[data-empty-id]', dataKey:'emptyId', more:'[data-empty-action="more"]', clear:'[data-empty-action="clear"]', cap:100, empty:true}
+    empty: {surface:'#baEmptySurface', checkbox:'[data-empty-id]', dataKey:'emptyId', more:'[data-empty-action="more"]', clear:'[data-empty-action="clear"]', cap:100, empty:true},
+    media: {surface:'#baMediaSurface', checkbox:'[data-media-id]', dataKey:'mediaId', more:'[data-media-action="more"]', clear:'[data-media-action="clear"]', cap:500}
   });
 
   function language() {
@@ -398,6 +421,21 @@
       .ba-final-contact-actions button{min-height:44px;border-radius:15px;font-size:10.7px;font-weight:790}
       .ba-final-contact-primary{color:#fff;background:linear-gradient(118deg,#7962d7,#2997df);box-shadow:0 10px 21px rgba(76,76,173,.17)}
       .ba-final-contact-secondary{color:#527087;background:#edf5fa;border:1px solid rgba(72,120,150,.10)}
+      .ba-final-composer-label{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:12px 2px 7px;color:#4d6378;font-size:10.4px;font-weight:780}
+      .ba-final-composer-count{color:#8a99a7;font-size:9.6px;font-variant-numeric:tabular-nums}
+      .ba-final-composer-textarea{display:block;width:100%;min-height:142px;resize:vertical;box-sizing:border-box;padding:13px 14px;border-radius:18px;border:1px solid rgba(74,116,151,.13);background:rgba(255,255,255,.94);color:#263e55;font:500 12px/1.55 system-ui,-apple-system,sans-serif;outline:none;box-shadow:inset 0 1px 0 rgba(255,255,255,.95),0 7px 20px rgba(55,82,110,.035)}
+      .ba-final-composer-textarea:focus{border-color:rgba(94,91,199,.32);box-shadow:0 0 0 3px rgba(102,91,207,.08),inset 0 1px 0 rgba(255,255,255,.95)}
+      .ba-final-composer-toggle{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;margin-top:10px;padding:12px 13px;border-radius:18px;background:linear-gradient(145deg,#f7f8ff,#f4faff);border:1px solid rgba(102,96,190,.09)}
+      .ba-final-composer-toggle strong{display:block;font-size:11.2px;line-height:1.35;color:#4d4b80}.ba-final-composer-toggle small{display:block;margin-top:4px;font-size:9.8px;line-height:1.48;color:#78879a}
+      .ba-final-composer-toggle input{width:20px;height:20px;accent-color:#675bd0}
+      .ba-final-composer-privacy{margin:9px 2px 0;font-size:9.8px;line-height:1.5;color:#8b7880}
+      .ba-final-composer-note{margin:8px 2px 0;font-size:9.5px;line-height:1.45;color:#8795a2;text-align:center}
+      .ba-final-composer-actions{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px;margin-top:11px}.ba-final-composer-actions button{min-height:45px;border-radius:15px;padding:0 13px;font-size:10.5px;font-weight:790}
+      .ba-final-purchase-stack{display:grid;gap:9px;margin-top:11px}.ba-final-purchase-card{display:grid;grid-template-columns:42px minmax(0,1fr);gap:11px;align-items:start;padding:13px;border-radius:19px;background:rgba(255,255,255,.9);border:1px solid rgba(86,111,150,.09);box-shadow:0 7px 20px rgba(52,78,110,.04)}
+      .ba-final-purchase-icon{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;color:#fff;background:linear-gradient(145deg,#ffd97c,#e8ad44 52%,#9c7bd8);box-shadow:0 8px 18px rgba(155,117,49,.14)}
+      .ba-final-purchase-icon svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}.ba-final-purchase-card strong{display:block;font-size:11.8px;line-height:1.35;color:#374f65}.ba-final-purchase-card p{margin:5px 0 0;font-size:10.2px;line-height:1.5;color:#76889a}
+      .ba-final-purchase-boundary{margin:10px 1px 0;padding:10px 12px;border-radius:15px;background:#f7f9fc;border:1px solid rgba(77,111,143,.07);font-size:9.8px;line-height:1.48;color:#728598}
+      .ba-final-purchase-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:11px}.ba-final-purchase-actions button{min-height:45px;border-radius:15px;padding:0 10px;font-size:10.2px;font-weight:790}
 
       /* #9: Japanese/CJK uses CJK geometry for labels and prose, while file names may still ellipsize intentionally. */
       html[lang^="ja"] body{
@@ -424,9 +462,41 @@
       html[lang^="ja"] .checkup-cta__copy strong{line-height:1.25!important;letter-spacing:-.02em!important}
       html[lang^="ja"] .checkup-cta__copy small{display:block!important;margin-top:4px!important;line-height:1.45!important}
 
-      /* #4: bulk controls use each tool's existing visual language. */
+      /* #4/#10: professional review guidance + consistent bulk controls. */
       [data-final-select-all]{white-space:nowrap!important}
+      .ba-downloads-sectionhead,.ba-installers-sectionhead,.ba-archives-sectionhead,.ba-zero-sectionhead,.ba-media-sectionhead{
+        display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;align-items:center!important;
+        gap:10px 14px!important;margin:13px 0 10px!important;padding:12px 13px!important;
+        border-radius:17px!important;background:linear-gradient(145deg,rgba(255,255,255,.98),rgba(244,249,253,.95))!important;
+        border:1px solid rgba(70,113,149,.085)!important;box-shadow:0 7px 22px rgba(53,83,111,.045),inset 0 1px 0 rgba(255,255,255,.96)!important
+      }
+      .ba-downloads-sectionhead strong,.ba-installers-sectionhead strong,.ba-archives-sectionhead strong,.ba-zero-sectionhead strong,.ba-media-sectionhead strong{
+        display:block!important;min-width:0!important;margin:0!important;font-size:12.5px!important;line-height:1.46!important;
+        font-weight:760!important;letter-spacing:-.012em!important;color:#3d566b!important;white-space:normal!important;
+        overflow:visible!important;text-overflow:clip!important;overflow-wrap:anywhere!important;text-wrap:pretty!important
+      }
+      .ba-downloads-sectionhead small,.ba-installers-sectionhead small,.ba-archives-sectionhead small,.ba-zero-sectionhead small,.ba-media-sectionhead small{
+        display:inline-flex!important;align-items:center!important;justify-content:center!important;justify-self:end!important;
+        min-height:28px!important;max-width:100%!important;margin:0!important;padding:0 10px!important;border-radius:999px!important;
+        background:#eef5fa!important;border:1px solid rgba(68,112,147,.08)!important;color:#6c8193!important;
+        font-size:9.6px!important;line-height:1.2!important;font-weight:730!important;white-space:nowrap!important
+      }
+      html[lang^="th"] .ba-downloads-sectionhead strong,html[lang^="th"] .ba-installers-sectionhead strong,html[lang^="th"] .ba-archives-sectionhead strong,html[lang^="th"] .ba-zero-sectionhead strong,html[lang^="th"] .ba-media-sectionhead strong,
+      html[lang^="ja"] .ba-downloads-sectionhead strong,html[lang^="ja"] .ba-installers-sectionhead strong,html[lang^="ja"] .ba-archives-sectionhead strong,html[lang^="ja"] .ba-zero-sectionhead strong,html[lang^="ja"] .ba-media-sectionhead strong{
+        letter-spacing:0!important;line-height:1.55!important;word-break:normal!important;line-break:strict!important
+      }
+      #baDownloadsSelection .ba-downloads-selection__inner,#baMediaSelection .ba-media-selection__inner{
+        grid-template-columns:minmax(0,1fr) auto auto auto!important;gap:7px!important;align-items:center!important
+      }
+      #baDownloadsSelection .ba-downloads-secondary,#baMediaSelection .ba-media-secondary{display:inline-flex!important;align-items:center!important;justify-content:center!important}
+      #baDownloadsSelection button,#baMediaSelection button{white-space:nowrap!important}
 
+      @media(max-width:560px){
+        .ba-downloads-sectionhead,.ba-installers-sectionhead,.ba-archives-sectionhead,.ba-zero-sectionhead,.ba-media-sectionhead{
+          grid-template-columns:1fr!important;gap:8px!important;padding:12px!important
+        }
+        .ba-downloads-sectionhead small,.ba-installers-sectionhead small,.ba-archives-sectionhead small,.ba-zero-sectionhead small,.ba-media-sectionhead small{justify-self:start!important}
+      }
       @media(max-width:420px){
         #baUnifiedSettingsDetail[data-detail-kind="help"] .settings-title-row{grid-template-columns:66px minmax(0,1fr)!important;column-gap:16px!important;min-height:90px!important}
         #baUnifiedSettingsDetail .ba-final-help-group{padding-inline:12px!important}
@@ -436,6 +506,13 @@
         .ba-empty-selection .ba-empty-secondary{display:inline-flex!important}
         .ba-empty-selection__inner{grid-template-columns:minmax(0,1fr) auto!important;gap:7px!important}
         .ba-empty-selection__inner>div:first-child{grid-column:1/-1!important}
+        #baDownloadsSelection .ba-downloads-selection__inner,#baMediaSelection .ba-media-selection__inner{
+          grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:6px!important
+        }
+        #baDownloadsSelection .ba-downloads-selection__inner>div:first-child,#baMediaSelection .ba-media-selection__inner>div:first-child{grid-column:1/-1!important}
+        #baDownloadsSelection button,#baMediaSelection button{width:100%!important;min-width:0!important;padding-inline:7px!important;font-size:9.8px!important}
+        .ba-final-composer-actions{grid-template-columns:1fr 1fr!important}.ba-final-composer-actions .ba-final-contact-primary{grid-column:1/-1!important}
+        .ba-final-purchase-actions{grid-template-columns:1fr!important}
       }
       @media(prefers-reduced-motion:reduce){
         .ba-final-faq-chevron{transition:none!important}
@@ -746,23 +823,63 @@
     document.body.classList.remove('modal-open');
   }
 
+  const SUPPORT_MESSAGE_MAX = 1200;
+
+  function supportComposerBody(mode) {
+    const overlay = document.getElementById(SUPPORT_OVERLAY_ID);
+    const message = String(overlay?.querySelector('[data-final-support-message]')?.value || '').trim();
+    const includeTech = Boolean(overlay?.querySelector('[data-final-support-tech]')?.checked);
+    const heading = mode === 'purchase' ? 'Bearagnostic — Purchase & Restore Support' : 'Bearagnostic — Support';
+    const parts = [heading, '', 'Message:', message];
+    if (includeTech) {
+      let diagnostics = 'Unavailable';
+      try { diagnostics = window.BearagnosticAppAPI?.diagnostics?.() || 'Unavailable'; } catch (_) {}
+      parts.push('', 'Technical details:', diagnostics);
+    }
+    parts.push('', '---', 'Prepared locally in Bearagnostic. Nothing is sent until the user sends this email.');
+    return {message, body:parts.join('\n')};
+  }
+
   function openSupportOverlay(kind) {
     const overlay = ensureSupportOverlay();
     const t = c();
     overlay.dataset.kind = kind;
 
-    if (kind === 'contact') {
+    if (kind === 'contact' || kind === 'purchase-contact') {
+      const purchaseMode = kind === 'purchase-contact';
+      const title = purchaseMode ? t.purchaseTitle : t.contactTitle;
+      const eyebrow = purchaseMode ? t.purchaseEyebrow : t.contactEyebrow;
+      const lead = purchaseMode ? t.purchaseLead : t.contactLead;
+      const placeholder = purchaseMode ? t.purchaseSupportPlaceholder : t.contactPlaceholder;
       overlay.innerHTML = `<section class="ba-final-support-panel" role="dialog" aria-modal="true" aria-labelledby="baFinalSupportTitle">` +
         `<div class="ba-final-support-handle"></div>` +
         `<header class="ba-final-support-head"><span class="ba-final-support-mark is-contact"><svg viewBox="0 0 24 24">${HELP_ICONS.contact}</svg></span>` +
-        `<div><span class="ba-final-support-eyebrow">${esc(t.contactEyebrow)}</span><h2 id="baFinalSupportTitle">${esc(t.contactTitle)}</h2></div>` +
+        `<div><span class="ba-final-support-eyebrow">${esc(eyebrow)}</span><h2 id="baFinalSupportTitle">${esc(title)}</h2></div>` +
         `<button class="ba-final-support-close" type="button" data-final-overlay-close aria-label="${esc(t.close)}">×</button></header>` +
-        `<p class="ba-final-support-lead">${esc(t.contactLead)}</p>` +
-        `<section class="ba-final-contact-card"><span class="ba-final-contact-card__icon"><svg viewBox="0 0 24 24">${HELP_ICONS.contact}</svg></span>` +
-        `<div><small>${esc(t.contactEmailLabel)}</small><strong>${esc(SUPPORT_EMAIL)}</strong></div></section>` +
-        `<section class="ba-final-contact-note"><strong>${esc(t.contactTipTitle)}</strong><p>${esc(t.contactTipBody)}</p></section>` +
-        `<div class="ba-final-contact-actions"><button class="ba-final-contact-primary" type="button" data-final-contact-open>${esc(t.contactOpen)}</button>` +
-        `<button class="ba-final-contact-secondary" type="button" data-final-contact-copy>${esc(t.contactCopy)}</button></div></section>`;
+        `<p class="ba-final-support-lead">${esc(lead)}</p>` +
+        `<label class="ba-final-composer-label" for="baFinalSupportMessage"><span>${esc(t.contactMessage)}</span><span class="ba-final-composer-count" data-final-support-count>${SUPPORT_MESSAGE_MAX}</span></label>` +
+        `<textarea class="ba-final-composer-textarea" id="baFinalSupportMessage" data-final-support-message maxlength="${SUPPORT_MESSAGE_MAX}" placeholder="${esc(placeholder)}"></textarea>` +
+        `<label class="ba-final-composer-toggle"><span><strong>${esc(t.contactIncludeTech)}</strong><small>${esc(t.contactTech)}</small></span><input data-final-support-tech type="checkbox"></label>` +
+        `<p class="ba-final-composer-privacy">${esc(t.contactPrivacy)}</p>` +
+        `<div class="ba-final-composer-actions"><button class="ba-final-contact-primary" type="button" data-final-support-send="${purchaseMode ? 'purchase' : 'contact'}">${esc(t.contactOpen)}</button>` +
+        `<button class="ba-final-contact-secondary" type="button" data-final-support-copy="${purchaseMode ? 'purchase' : 'contact'}">${esc(t.contactCopy)}</button>` +
+        `<button class="ba-final-contact-secondary" type="button" data-final-support-back="${purchaseMode ? 'purchase' : 'contact'}">${esc(t.back)}</button></div>` +
+        `<p class="ba-final-composer-note">${esc(t.contactEmailNote)}</p></section>`;
+    } else if (kind === 'purchase') {
+      const ent = (() => { try { return window.BearagnosticEntitlement?.getState?.() || {}; } catch (_) { return {}; } })();
+      overlay.innerHTML = `<section class="ba-final-support-panel" role="dialog" aria-modal="true" aria-labelledby="baFinalSupportTitle">` +
+        `<div class="ba-final-support-handle"></div>` +
+        `<header class="ba-final-support-head"><span class="ba-final-support-mark"><svg viewBox="0 0 24 24">${HELP_ICONS.purchase}</svg></span>` +
+        `<div><span class="ba-final-support-eyebrow">${esc(t.purchaseEyebrow)}</span><h2 id="baFinalSupportTitle">${esc(t.purchaseTitle)}</h2></div>` +
+        `<button class="ba-final-support-close" type="button" data-final-overlay-close aria-label="${esc(t.close)}">×</button></header>` +
+        `<p class="ba-final-support-lead">${esc(t.purchaseLead)}</p>` +
+        `<div class="ba-final-purchase-stack">` +
+        `<article class="ba-final-purchase-card"><span class="ba-final-purchase-icon"><svg viewBox="0 0 24 24">${HELP_ICONS.purchase}</svg></span><div><strong>${esc(t.purchaseRestoreTitle)}</strong><p>${esc(t.purchaseRestoreBody)}</p></div></article>` +
+        `<article class="ba-final-purchase-card"><span class="ba-final-purchase-icon"><svg viewBox="0 0 24 24">${HELP_ICONS.purchase}</svg></span><div><strong>${esc(t.purchaseBuyTitle)}</strong><p>${esc(t.purchaseBuyBody)}</p></div></article>` +
+        `</div><p class="ba-final-purchase-boundary">${esc(t.purchaseBoundary)}</p>` +
+        `<div class="ba-final-purchase-actions"><button class="ba-final-contact-primary" type="button" data-final-purchase-open>${esc(t.purchaseOpen)}</button>` +
+        `<button class="ba-final-contact-secondary" type="button" data-final-purchase-contact>${esc(t.purchaseContact)}</button></div></section>`;
+      overlay.dataset.entitlement = ent.isPro === true ? 'pro' : 'free';
     } else {
       const questions = [
         [t.faqPrivacyQ, t.faqPrivacyA],
@@ -789,25 +906,31 @@
     document.body.classList.add('modal-open');
     const panel = overlay.querySelector('.ba-final-support-panel');
     if (panel) panel.scrollTop = 0;
-    window.requestAnimationFrame(() => overlay.querySelector('[data-final-overlay-close]')?.focus?.({preventScroll:true}));
+    window.requestAnimationFrame(() => {
+      const message = overlay.querySelector('[data-final-support-message]');
+      if (message) message.focus?.({preventScroll:true});
+      else overlay.querySelector('[data-final-overlay-close]')?.focus?.({preventScroll:true});
+    });
   }
 
-  async function copySupportEmail(showToast = true) {
+  async function copySupportComposer(mode) {
     const t = c();
-    let copied = false;
-    try { copied = Boolean(await window.BearagnosticAppAPI?.copyText?.(SUPPORT_EMAIL)); } catch (_) {}
-    if (showToast) window.BearagnosticAppAPI?.showToast?.(copied ? t.contactCopied : t.copyFailed);
-    return copied;
+    const {message, body} = supportComposerBody(mode);
+    if (!message) { window.BearagnosticAppAPI?.showToast?.(t.contactRequired); return; }
+    let ok = false;
+    try { ok = Boolean(await window.BearagnosticAppAPI?.copyText?.(body)); } catch (_) {}
+    window.BearagnosticAppAPI?.showToast?.(ok ? t.contactCopied : t.copyFailed);
   }
 
-  async function openContactEmail() {
+  function sendSupportComposer(mode) {
     const t = c();
-    const native = window.BearagnosticNative;
-    const url = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent('Bearagnostic Support')}`;
-    const result = parse(native?.openExternalUrl?.(url), {});
+    const {message, body} = supportComposerBody(mode);
+    if (!message) { window.BearagnosticAppAPI?.showToast?.(t.contactRequired); return; }
+    const subject = mode === 'purchase' ? 'Bearagnostic — Purchase & Restore Support' : 'Bearagnostic — Support';
+    const url = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    const result = parse(window.BearagnosticNative?.openExternalUrl?.(url), {});
     if (result?.accepted) return;
-    const copied = await copySupportEmail(false);
-    window.BearagnosticAppAPI?.showToast?.(copied ? t.contactFallback : SUPPORT_EMAIL);
+    window.BearagnosticAppAPI?.showToast?.(SUPPORT_EMAIL);
   }
 
   async function copyDiagnostics() {
@@ -879,11 +1002,7 @@
   function handleHelpAction(action) {
     if (action === 'faq') { openSupportOverlay('faq'); return; }
     if (action === 'contact') { openSupportOverlay('contact'); return; }
-    if (action === 'purchase') {
-      closeSupportOverlay();
-      window.dispatchEvent(new CustomEvent('bearagnostic:prorequest', {detail:{source:'more'}}));
-      return;
-    }
+    if (action === 'purchase') { openSupportOverlay('purchase'); return; }
     if (action === 'report') { window.BearagnosticHelp?.openComposer?.('report'); return; }
     if (action === 'feedback') { window.BearagnosticHelp?.openComposer?.('feedback'); return; }
     if (action === 'diagnostics') copyDiagnostics();
@@ -917,15 +1036,46 @@
         return;
       }
 
-      if (event.target?.closest?.('[data-final-contact-open]')) {
+      const supportMessage = event.target?.closest?.('[data-final-support-message]');
+      if (supportMessage) return;
+      const supportSend = event.target?.closest?.('[data-final-support-send]');
+      if (supportSend) {
         event.preventDefault();
-        openContactEmail();
+        sendSupportComposer(String(supportSend.dataset.finalSupportSend || 'contact'));
         return;
       }
-      if (event.target?.closest?.('[data-final-contact-copy]')) {
+      const supportCopy = event.target?.closest?.('[data-final-support-copy]');
+      if (supportCopy) {
         event.preventDefault();
-        copySupportEmail(true);
+        copySupportComposer(String(supportCopy.dataset.finalSupportCopy || 'contact'));
+        return;
       }
+      const supportBack = event.target?.closest?.('[data-final-support-back]');
+      if (supportBack) {
+        event.preventDefault();
+        const mode = String(supportBack.dataset.finalSupportBack || 'contact');
+        if (mode === 'purchase') openSupportOverlay('purchase');
+        else closeSupportOverlay();
+        return;
+      }
+      if (event.target?.closest?.('[data-final-purchase-contact]')) {
+        event.preventDefault();
+        openSupportOverlay('purchase-contact');
+        return;
+      }
+      if (event.target?.closest?.('[data-final-purchase-open]')) {
+        event.preventDefault();
+        closeSupportOverlay();
+        window.dispatchEvent(new CustomEvent('bearagnostic:prorequest', {detail:{source:'more'}}));
+        return;
+      }
+    });
+
+    document.addEventListener('input', (event) => {
+      const message = event.target?.closest?.('[data-final-support-message]');
+      if (!message) return;
+      const counter = document.querySelector(`#${SUPPORT_OVERLAY_ID} [data-final-support-count]`);
+      if (counter) counter.textContent = String(Math.max(0, SUPPORT_MESSAGE_MAX - String(message.value || '').length));
     });
 
     // Intercept only the contradictory Zero-byte Retry case. All genuine error
