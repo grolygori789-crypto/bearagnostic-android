@@ -45,6 +45,7 @@ val androidLocalePolish = layout.projectDirectory.file("src/main/legacy-adapter/
 val androidBuildTruth = layout.projectDirectory.file("src/main/legacy-adapter/android-build-truth.js").asFile
 val androidHomePolish = layout.projectDirectory.file("src/main/legacy-adapter/android-home-polish.js").asFile
 val androidFinalPolish = layout.projectDirectory.file("src/main/legacy-adapter/android-final-polish.js").asFile
+val androidReleaseTrust = layout.projectDirectory.file("src/main/legacy-adapter/android-release-trust.js").asFile
 val nativeAssetsDir = layout.projectDirectory.dir("src/main/native-assets").asFile
 fun gitBlobSha1(file: File): String {
     val bytes = file.readBytes()
@@ -80,12 +81,12 @@ val legacyCriticalBlobs = mapOf(
 val prepareLegacyFrontend by tasks.registering {
     group = "bearagnostic"
     description = "Imports the approved Bearagnostic PWA byte-for-byte, then overlays Android integration modules."
-    inputs.files(androidAdapter, androidReview, androidSettingsDetail, androidSupport, androidScanTrust, androidLiveScan, androidScanMotionPolish, androidReviewMedia, androidShareCard, androidPremiumColor, androidEntitlement, androidHiddenItems, androidCleanup, androidDuplicates, androidLargeFiles, androidOlderFiles, androidDownloads, androidInstallers, androidArchives, androidZero, androidEmptyFolders, androidAdvancedMedia, androidProUi, androidBilling, androidPlanStatus, androidReadability, androidCustomScan, androidInsights, androidShellUx, androidStabilization, androidLocalePolish, androidBuildTruth, androidHomePolish, androidFinalPolish)
+    inputs.files(androidAdapter, androidReview, androidSettingsDetail, androidSupport, androidScanTrust, androidLiveScan, androidScanMotionPolish, androidReviewMedia, androidShareCard, androidPremiumColor, androidEntitlement, androidHiddenItems, androidCleanup, androidDuplicates, androidLargeFiles, androidOlderFiles, androidDownloads, androidInstallers, androidArchives, androidZero, androidEmptyFolders, androidAdvancedMedia, androidProUi, androidBilling, androidPlanStatus, androidReadability, androidCustomScan, androidInsights, androidShellUx, androidStabilization, androidLocalePolish, androidBuildTruth, androidHomePolish, androidFinalPolish, androidReleaseTrust)
     inputs.dir(nativeAssetsDir)
     inputs.property("legacyCommit", legacyCommit)
     // Explicit Android bundle revision prevents stale generated WebView assets from being
     // reused across corrective builds even when the pinned legacy PWA itself is unchanged.
-    inputs.property("androidBundleRevision", 88)
+    inputs.property("androidBundleRevision", 89)
     outputs.dir(generatedLegacyAssetsDir)
     outputs.dir(generatedLegacyResDir)
     doLast {
@@ -158,40 +159,41 @@ val prepareLegacyFrontend by tasks.registering {
         }
         generatedCoreApp.writeText(androidCoreApp, StandardCharsets.UTF_8)
         val androidTags = buildString {
-            append("  <script src=\"./js/android-entitlement.js?v=88\"></script>\n")
-            append("  <script src=\"./js/android-hidden-items.js?v=88\"></script>\n")
-            append("  <script src=\"./js/android-cleanup.js?v=88\"></script>\n")
-            append("  <script src=\"./js/android-duplicates.js?v=88\"></script>\n")
-            append("  <script src=\"./js/android-large-files.js?v=88\"></script>\n")
-            append("  <script src=\"./js/android-older-files.js?v=88\"></script>\n")
-            append("  <script src=\"./js/android-downloads.js?v=88\"></script>\n")
-            append("  <script src=\"./js/android-installers.js?v=88\"></script>\n")
-            append("  <script src=\"./js/android-archives.js?v=88\"></script>\n")
-            append("  <script src=\"./js/android-zero.js?v=88\"></script>\n")
-            append("  <script src=\"./js/android-empty-folders.js?v=88\"></script>\n")
-            append("  <script src=\"./js/android-advanced-media.js?v=88\"></script>\n")
-            append("  <script src=\"./js/android-native.js?v=88\"></script>\n")
-            append("  <script src=\"./js/android-review.js?v=88\"></script>\n")
-            append("  <script src=\"./js/android-settings-detail.js?v=88\"></script>\n")
-            append("  <script src=\"./js/android-support.js?v=88\"></script>\n")
-            append("  <script src=\"./js/android-scan-trust.js?v=88\"></script>\n")
-            append("  <script src=\"./js/android-live-scan.js?v=88\"></script>\n")
-            append("  <script src=\"./js/android-scan-motion-polish.js?v=88\"></script>\n")
-            append("  <script src=\"./js/android-review-media.js?v=88\"></script>\n")
-            append("  <script src=\"./js/android-share-card.js?v=88\"></script>\n")
-            append("  <script src=\"./js/android-premium-color.js?v=88\"></script>\n")
-            append("  <script src=\"./js/android-pro-ui.js?v=88\"></script>\n")
-            append("  <script src=\"./js/android-billing.js?v=88\"></script>\n")
-            append("  <script src=\"./js/android-plan-status.js?v=88\"></script>\n")
-            append("  <script src=\"./js/android-readability.js?v=88\"></script>\n")
-            append("  <script src=\"./js/android-custom-scan.js?v=88\"></script>\n")
-            append("  <script src=\"./js/android-insights.js?v=88\"></script>\n")
-            append("  <script src=\"./js/android-shell-ux.js?v=88\"></script>\n")
-            append("  <script src=\"./js/android-stabilization.js?v=88\"></script>\n")
-            append("  <script src=\"./js/android-locale-polish.js?v=88\"></script>\n")
-            append("  <script src=\"./js/android-build-truth.js?v=88\"></script>\n")
-            append("  <script src=\"./js/android-final-polish.js?v=88\"></script>\n")
-            append("  <script src=\"./js/android-home-polish.js?v=88\"></script>\n")
+            append("  <script src=\"./js/android-entitlement.js?v=89\"></script>\n")
+            append("  <script src=\"./js/android-hidden-items.js?v=89\"></script>\n")
+            append("  <script src=\"./js/android-cleanup.js?v=89\"></script>\n")
+            append("  <script src=\"./js/android-duplicates.js?v=89\"></script>\n")
+            append("  <script src=\"./js/android-large-files.js?v=89\"></script>\n")
+            append("  <script src=\"./js/android-older-files.js?v=89\"></script>\n")
+            append("  <script src=\"./js/android-downloads.js?v=89\"></script>\n")
+            append("  <script src=\"./js/android-installers.js?v=89\"></script>\n")
+            append("  <script src=\"./js/android-archives.js?v=89\"></script>\n")
+            append("  <script src=\"./js/android-zero.js?v=89\"></script>\n")
+            append("  <script src=\"./js/android-empty-folders.js?v=89\"></script>\n")
+            append("  <script src=\"./js/android-advanced-media.js?v=89\"></script>\n")
+            append("  <script src=\"./js/android-native.js?v=89\"></script>\n")
+            append("  <script src=\"./js/android-review.js?v=89\"></script>\n")
+            append("  <script src=\"./js/android-settings-detail.js?v=89\"></script>\n")
+            append("  <script src=\"./js/android-support.js?v=89\"></script>\n")
+            append("  <script src=\"./js/android-scan-trust.js?v=89\"></script>\n")
+            append("  <script src=\"./js/android-live-scan.js?v=89\"></script>\n")
+            append("  <script src=\"./js/android-scan-motion-polish.js?v=89\"></script>\n")
+            append("  <script src=\"./js/android-review-media.js?v=89\"></script>\n")
+            append("  <script src=\"./js/android-share-card.js?v=89\"></script>\n")
+            append("  <script src=\"./js/android-premium-color.js?v=89\"></script>\n")
+            append("  <script src=\"./js/android-pro-ui.js?v=89\"></script>\n")
+            append("  <script src=\"./js/android-billing.js?v=89\"></script>\n")
+            append("  <script src=\"./js/android-plan-status.js?v=89\"></script>\n")
+            append("  <script src=\"./js/android-readability.js?v=89\"></script>\n")
+            append("  <script src=\"./js/android-custom-scan.js?v=89\"></script>\n")
+            append("  <script src=\"./js/android-insights.js?v=89\"></script>\n")
+            append("  <script src=\"./js/android-shell-ux.js?v=89\"></script>\n")
+            append("  <script src=\"./js/android-stabilization.js?v=89\"></script>\n")
+            append("  <script src=\"./js/android-locale-polish.js?v=89\"></script>\n")
+            append("  <script src=\"./js/android-build-truth.js?v=89\"></script>\n")
+            append("  <script src=\"./js/android-final-polish.js?v=89\"></script>\n")
+            append("  <script src=\"./js/android-home-polish.js?v=89\"></script>\n")
+            append("  <script src=\"./js/android-release-trust.js?v=89\"></script>\n")
         }
         check(originalHtml.contains("</body>")) { "Legacy index.html is missing </body>" }
         generatedIndex.writeText(originalHtml.replace("</body>", androidTags + "</body>"), StandardCharsets.UTF_8)
@@ -237,6 +239,49 @@ val prepareLegacyFrontend by tasks.registering {
         check(finalStabilizationSource.contains("installToolResultGuard")) { "B88 Tool scan-result navigation guard is missing" }
         androidBuildTruth.copyTo(File(jsRoot, "android-build-truth.js"), overwrite = true)
         androidFinalPolish.copyTo(File(jsRoot, "android-final-polish.js"), overwrite = true)
+        androidReleaseTrust.copyTo(File(jsRoot, "android-release-trust.js"), overwrite = true)
+
+        // Customer-facing production copy must never expose the retired Google Play
+        // launch plan even for a single frame. Sanitize the generated Android Pro
+        // source before packaging; internal Play Billing engineering code remains
+        // available for Debug/reference and is not presented as the sales channel.
+        val generatedProUi = File(jsRoot, "android-pro-ui.js")
+        var proUiSource = generatedProUi.readText(StandardCharsets.UTF_8)
+        proUiSource = proUiSource
+            .replace("Google Play purchase setup is intentionally not active in this development build yet.", "Lifetime Pro · 249 THB")
+            .replace("The next Billing batch will supply the local Play price, purchase, restore and ownership lifecycle to this entitlement layer.", "Buy or restore Bearagnostic Pro through the verified Ko-fi purchase flow. One-time purchase. No subscription.")
+            .replace("ระบบซื้อผ่าน Google Play ยังไม่เปิดใน development build นี้โดยตั้งใจ", "Lifetime Pro · 249 บาท")
+            .replace("Batch Billing ถัดไปจะเชื่อมราคาตามประเทศ การซื้อ การกู้คืนสิทธิ์ และวงจรสถานะเจ้าของเข้ากับ entitlement layer นี้", "ซื้อหรือกู้คืน Bearagnostic Pro ผ่านขั้นตอนการซื้อ Ko-fi ที่ตรวจสอบสิทธิ์แล้ว ซื้อครั้งเดียว ไม่มีค่าสมาชิกรายเดือน")
+            .replace("この開発ビルドでは Google Play の購入処理を意図的にまだ有効化していません。", "Lifetime Pro · 249 THB")
+            .replace("次の Billing バッチで、地域別価格・購入・復元・所有権ライフサイクルをこの entitlement layer に接続します。", "検証済みの Ko-fi 購入フローから Bearagnostic Pro を購入・復元できます。買い切り・サブスクリプションなし。")
+        check(!proUiSource.contains("Google Play purchase setup is intentionally not active")) {
+            "Customer Pro surface still contains retired Google Play launch copy"
+        }
+        generatedProUi.writeText(proUiSource, StandardCharsets.UTF_8)
+
+        // Keep the customer-visible Legal / Privacy surface aligned with the
+        // website + Ko-fi launch model. Play Billing may remain an internal
+        // engineering/reference dependency, but it is not the public sales path.
+        val generatedStabilization = File(jsRoot, "android-stabilization.js")
+        var stabilizationSource = generatedStabilization.readText(StandardCharsets.UTF_8)
+        stabilizationSource = stabilizationSource
+            .replace("Bearagnostic is local-first. File analysis, previews and aggregate Insights history are designed to remain on your device. The current app does not upload selected file contents or maintain a remote filename inventory. Google Play Billing may process purchase metadata required for ownership and transaction handling under Google Play terms. User-requested support links may use the network.", "Bearagnostic is local-first. File analysis, previews, and aggregate Insights history stay on your device, and selected file contents are not uploaded. Purchase and restore contact the Benedict entitlement service only when you start those actions; Ko-fi handles checkout. Support links use the network only when you choose to open them.")
+            .replace("Android, Google Play, Google Play Billing and other third-party components, services, fonts, libraries, marks and materials remain subject to their own licences and terms. Bearagnostic does not claim ownership of third-party or public-domain material. A valid third-party licence controls for its component where applicable.", "Android and other third-party components, services, fonts, libraries, marks, and materials remain subject to their own licences and terms. Bearagnostic does not claim ownership of third-party or public-domain material. A valid third-party licence controls for its component where applicable.")
+            .replace("Bearagnostic ออกแบบแบบ local-first การวิเคราะห์ไฟล์ preview และประวัติ Insights แบบสรุปถูกออกแบบให้เก็บบนอุปกรณ์ เวอร์ชันปัจจุบันไม่อัปโหลดเนื้อหาไฟล์ที่เลือกและไม่สร้างคลังชื่อไฟล์ระยะไกล Google Play Billing อาจประมวลผลข้อมูลการซื้อที่จำเป็นต่อการยืนยันสิทธิ์และธุรกรรมตามเงื่อนไขของ Google Play ส่วนลิงก์ช่วยเหลือจะใช้อินเทอร์เน็ตเมื่อผู้ใช้เป็นฝ่ายเลือกเปิดเอง", "Bearagnostic ออกแบบแบบ local-first การวิเคราะห์ไฟล์ พรีวิว และประวัติ Insights แบบสรุปอยู่บนอุปกรณ์ และไม่มีการอัปโหลดเนื้อหาไฟล์ที่เลือก การซื้อและกู้คืนจะติดต่อบริการสิทธิ์ของ Benedict เฉพาะเมื่อคุณเริ่มขั้นตอนนั้น โดย Ko-fi เป็นผู้ดูแลการชำระเงิน ส่วนลิงก์ช่วยเหลือจะใช้อินเทอร์เน็ตเมื่อคุณเลือกเปิดเท่านั้น")
+            .replace("Android, Google Play, Google Play Billing รวมถึง component บริการ ฟอนต์ ไลบรารี เครื่องหมาย และวัสดุของบุคคลที่สาม อยู่ภายใต้ licence และเงื่อนไขของเจ้าของแต่ละราย Bearagnostic ไม่อ้างกรรมสิทธิ์เหนือวัสดุของบุคคลที่สามหรือสาธารณสมบัติ และ licence ของบุคคลที่สามที่มีผลใช้บังคับย่อมมีผลกับ component นั้น", "Android และ component บริการ ฟอนต์ ไลบรารี เครื่องหมาย และวัสดุของบุคคลที่สาม อยู่ภายใต้ licence และเงื่อนไขของเจ้าของแต่ละราย Bearagnostic ไม่อ้างกรรมสิทธิ์เหนือวัสดุของบุคคลที่สามหรือสาธารณสมบัติ และ licence ที่มีผลใช้บังคับย่อมมีผลกับ component นั้น")
+            .replace("Bearagnostic はローカル優先で設計されています。ファイル解析、プレビュー、集計された Insights 履歴は端末内で扱うことを基本とします。現在のアプリは、選択したファイル内容をアップロードせず、ファイル名のリモート一覧も保持しません。Google Play Billing は、Google Play の条件に基づき、所有権や取引処理に必要な購入情報を扱う場合があります。サポート用リンクは、利用者が明示的に開いた場合にのみネットワークを利用します。", "Bearagnostic はローカル優先で設計されています。ファイル解析、プレビュー、集計された Insights 履歴は端末内で扱い、選択したファイル内容をアップロードしません。購入・復元は、利用者がその操作を開始した場合にのみ Benedict の権限サービスへ接続し、決済は Ko-fi が処理します。サポート用リンクも、利用者が選んで開いた場合にのみネットワークを使用します。")
+            .replace("Android、Google Play、Google Play Billing、および第三者のコンポーネント、サービス、フォント、ライブラリ、商標、素材には、それぞれのライセンスと利用条件が適用されます。Bearagnostic は第三者素材やパブリックドメイン素材の所有権を主張しません。該当コンポーネントについて有効な第三者ライセンスがある場合は、その条件が優先されます。", "Android、および第三者のコンポーネント、サービス、フォント、ライブラリ、商標、素材には、それぞれのライセンスと利用条件が適用されます。Bearagnostic は第三者素材やパブリックドメイン素材の所有権を主張しません。該当コンポーネントに有効な第三者ライセンスがある場合は、その条件が優先されます。")
+        check(!stabilizationSource.contains("Google Play Billing may process purchase metadata")) { "English production privacy copy still describes Google Play as the launch commerce path" }
+        check(!stabilizationSource.contains("Google Play Billing อาจประมวลผลข้อมูลการซื้อ")) { "Thai production privacy copy still describes Google Play as the launch commerce path" }
+        check(!stabilizationSource.contains("Google Play Billing は、Google Play の条件")) { "Japanese production privacy copy still describes Google Play as the launch commerce path" }
+        generatedStabilization.writeText(stabilizationSource, StandardCharsets.UTF_8)
+
+        val releaseTrustSource = File(jsRoot, "android-release-trust.js").readText(StandardCharsets.UTF_8)
+        check(releaseTrustSource.contains("const BUILD = 89;")) { "B89 release-trust source was not packaged" }
+        check(releaseTrustSource.contains("ba-r89-pro-owner")) { "B89 premium Pro ownership card is missing" }
+        check(releaseTrustSource.contains("ba-r89-permission-trust")) { "B89 file-access trust card is missing" }
+        check(releaseTrustSource.contains("benedictinteractive.com")) { "B89 official website trust copy is missing" }
+        check(releaseTrustSource.contains("Uptodown")) { "B89 authorized distribution trust copy is missing" }
         if (nativeAssetsDir.isDirectory) {
             copy {
                 from(nativeAssetsDir)
@@ -260,8 +305,8 @@ android {
         applicationId = "com.benedictinteractive.bearagnostic"
         minSdk = 26
         targetSdk = 36
-        versionCode = 88
-        versionName = "0.35.40-alpha88"
+        versionCode = 89
+        versionName = "0.35.41-alpha89"
     }
     sourceSets {
         getByName("main") {
