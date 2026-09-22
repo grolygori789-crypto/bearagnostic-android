@@ -86,7 +86,7 @@ val prepareLegacyFrontend by tasks.registering {
     inputs.property("legacyCommit", legacyCommit)
     // Explicit Android bundle revision prevents stale generated WebView assets from being
     // reused across corrective builds even when the pinned legacy PWA itself is unchanged.
-    inputs.property("androidBundleRevision", 90)
+    inputs.property("androidBundleRevision", 91)
     outputs.dir(generatedLegacyAssetsDir)
     outputs.dir(generatedLegacyResDir)
     doLast {
@@ -159,41 +159,41 @@ val prepareLegacyFrontend by tasks.registering {
         }
         generatedCoreApp.writeText(androidCoreApp, StandardCharsets.UTF_8)
         val androidTags = buildString {
-            append("  <script src=\"./js/android-entitlement.js?v=90\"></script>\n")
-            append("  <script src=\"./js/android-hidden-items.js?v=90\"></script>\n")
-            append("  <script src=\"./js/android-cleanup.js?v=90\"></script>\n")
-            append("  <script src=\"./js/android-duplicates.js?v=90\"></script>\n")
-            append("  <script src=\"./js/android-large-files.js?v=90\"></script>\n")
-            append("  <script src=\"./js/android-older-files.js?v=90\"></script>\n")
-            append("  <script src=\"./js/android-downloads.js?v=90\"></script>\n")
-            append("  <script src=\"./js/android-installers.js?v=90\"></script>\n")
-            append("  <script src=\"./js/android-archives.js?v=90\"></script>\n")
-            append("  <script src=\"./js/android-zero.js?v=90\"></script>\n")
-            append("  <script src=\"./js/android-empty-folders.js?v=90\"></script>\n")
-            append("  <script src=\"./js/android-advanced-media.js?v=90\"></script>\n")
-            append("  <script src=\"./js/android-native.js?v=90\"></script>\n")
-            append("  <script src=\"./js/android-review.js?v=90\"></script>\n")
-            append("  <script src=\"./js/android-settings-detail.js?v=90\"></script>\n")
-            append("  <script src=\"./js/android-support.js?v=90\"></script>\n")
-            append("  <script src=\"./js/android-scan-trust.js?v=90\"></script>\n")
-            append("  <script src=\"./js/android-live-scan.js?v=90\"></script>\n")
-            append("  <script src=\"./js/android-scan-motion-polish.js?v=90\"></script>\n")
-            append("  <script src=\"./js/android-review-media.js?v=90\"></script>\n")
-            append("  <script src=\"./js/android-share-card.js?v=90\"></script>\n")
-            append("  <script src=\"./js/android-premium-color.js?v=90\"></script>\n")
-            append("  <script src=\"./js/android-pro-ui.js?v=90\"></script>\n")
-            append("  <script src=\"./js/android-billing.js?v=90\"></script>\n")
-            append("  <script src=\"./js/android-plan-status.js?v=90\"></script>\n")
-            append("  <script src=\"./js/android-readability.js?v=90\"></script>\n")
-            append("  <script src=\"./js/android-custom-scan.js?v=90\"></script>\n")
-            append("  <script src=\"./js/android-insights.js?v=90\"></script>\n")
-            append("  <script src=\"./js/android-shell-ux.js?v=90\"></script>\n")
-            append("  <script src=\"./js/android-stabilization.js?v=90\"></script>\n")
-            append("  <script src=\"./js/android-locale-polish.js?v=90\"></script>\n")
-            append("  <script src=\"./js/android-build-truth.js?v=90\"></script>\n")
-            append("  <script src=\"./js/android-final-polish.js?v=90\"></script>\n")
-            append("  <script src=\"./js/android-home-polish.js?v=90\"></script>\n")
-            append("  <script src=\"./js/android-release-trust.js?v=90\"></script>\n")
+            append("  <script src=\"./js/android-entitlement.js?v=91\"></script>\n")
+            append("  <script src=\"./js/android-hidden-items.js?v=91\"></script>\n")
+            append("  <script src=\"./js/android-cleanup.js?v=91\"></script>\n")
+            append("  <script src=\"./js/android-duplicates.js?v=91\"></script>\n")
+            append("  <script src=\"./js/android-large-files.js?v=91\"></script>\n")
+            append("  <script src=\"./js/android-older-files.js?v=91\"></script>\n")
+            append("  <script src=\"./js/android-downloads.js?v=91\"></script>\n")
+            append("  <script src=\"./js/android-installers.js?v=91\"></script>\n")
+            append("  <script src=\"./js/android-archives.js?v=91\"></script>\n")
+            append("  <script src=\"./js/android-zero.js?v=91\"></script>\n")
+            append("  <script src=\"./js/android-empty-folders.js?v=91\"></script>\n")
+            append("  <script src=\"./js/android-advanced-media.js?v=91\"></script>\n")
+            append("  <script src=\"./js/android-native.js?v=91\"></script>\n")
+            append("  <script src=\"./js/android-review.js?v=91\"></script>\n")
+            append("  <script src=\"./js/android-settings-detail.js?v=91\"></script>\n")
+            append("  <script src=\"./js/android-support.js?v=91\"></script>\n")
+            append("  <script src=\"./js/android-scan-trust.js?v=91\"></script>\n")
+            append("  <script src=\"./js/android-live-scan.js?v=91\"></script>\n")
+            append("  <script src=\"./js/android-scan-motion-polish.js?v=91\"></script>\n")
+            append("  <script src=\"./js/android-review-media.js?v=91\"></script>\n")
+            append("  <script src=\"./js/android-share-card.js?v=91\"></script>\n")
+            append("  <script src=\"./js/android-premium-color.js?v=91\"></script>\n")
+            append("  <script src=\"./js/android-pro-ui.js?v=91\"></script>\n")
+            append("  <script src=\"./js/android-billing.js?v=91\"></script>\n")
+            append("  <script src=\"./js/android-plan-status.js?v=91\"></script>\n")
+            append("  <script src=\"./js/android-readability.js?v=91\"></script>\n")
+            append("  <script src=\"./js/android-custom-scan.js?v=91\"></script>\n")
+            append("  <script src=\"./js/android-insights.js?v=91\"></script>\n")
+            append("  <script src=\"./js/android-shell-ux.js?v=91\"></script>\n")
+            append("  <script src=\"./js/android-stabilization.js?v=91\"></script>\n")
+            append("  <script src=\"./js/android-locale-polish.js?v=91\"></script>\n")
+            append("  <script src=\"./js/android-build-truth.js?v=91\"></script>\n")
+            append("  <script src=\"./js/android-final-polish.js?v=91\"></script>\n")
+            append("  <script src=\"./js/android-home-polish.js?v=91\"></script>\n")
+            append("  <script src=\"./js/android-release-trust.js?v=91\"></script>\n")
         }
         check(originalHtml.contains("</body>")) { "Legacy index.html is missing </body>" }
         generatedIndex.writeText(originalHtml.replace("</body>", androidTags + "</body>"), StandardCharsets.UTF_8)
@@ -276,16 +276,144 @@ val prepareLegacyFrontend by tasks.registering {
         check(!stabilizationSource.contains("Google Play Billing は、Google Play の条件")) { "Japanese production privacy copy still describes Google Play as the launch commerce path" }
         generatedStabilization.writeText(stabilizationSource, StandardCharsets.UTF_8)
 
+        // B91 owns one customer-facing Pro surface. The older Settings-detail
+        // adapter used to intercept source="more" before the real Pro overlay,
+        // creating a second UI and a second commerce presentation. Remove only
+        // that interception from the generated Android runtime; Deep/Custom and
+        // More now reach the same Pro overlay and the same billing renderer.
+        val generatedSettingsDetail = File(jsRoot, "android-settings-detail.js")
+        var settingsDetailSource = generatedSettingsDetail.readText(StandardCharsets.UTF_8)
+        val proInterceptStartMarker = "  // Registered before android-pro-ui.js. This converts every normal Pro request into"
+        val proInterceptEndMarker = "\n\n  window.addEventListener('bearagnostic:languagechange'"
+        val proInterceptStart = settingsDetailSource.indexOf(proInterceptStartMarker)
+        val proInterceptEnd = if (proInterceptStart >= 0) settingsDetailSource.indexOf(proInterceptEndMarker, proInterceptStart) else -1
+        check(proInterceptStart >= 0 && proInterceptEnd > proInterceptStart) { "B91 could not locate the legacy More -> Settings-detail Pro interception" }
+        settingsDetailSource = settingsDetailSource.substring(0, proInterceptStart) +
+            "  // B91: More, Deep and Custom all use the canonical Pro overlay.\n" +
+            settingsDetailSource.substring(proInterceptEnd)
+        check(!settingsDetailSource.contains("if (source !== 'more') return;\n    event.stopImmediatePropagation();\n    renderPro(source);")) {
+            "B91 legacy More Pro interception is still active"
+        }
+        generatedSettingsDetail.writeText(settingsDetailSource, StandardCharsets.UTF_8)
+
+        // Once the B91 canonical grid exists, older Insights/Stabilization writers
+        // must stop injecting or restyling feature cards. They may run once before
+        // B91 initializes; the canonical renderer replaces that transient content.
+        val generatedInsights = File(jsRoot, "android-insights.js")
+        var insightsSource = generatedInsights.readText(StandardCharsets.UTF_8)
+        val insightsPatchMarker = "  function patchProSheet() {\n    const copy = c();"
+        check(insightsSource.contains(insightsPatchMarker)) { "B91 could not locate legacy Insights Pro writer" }
+        insightsSource = insightsSource.replace(
+            insightsPatchMarker,
+            "  function patchProSheet() {\n    if (document.querySelector('.ba-pro-feature-grid[data-r91-canonical=\\\"1\\\"]')) return;\n    const copy = c();"
+        )
+        generatedInsights.writeText(insightsSource, StandardCharsets.UTF_8)
+
+        stabilizationSource = generatedStabilization.readText(StandardCharsets.UTF_8)
+        val stabilizationPatchMarker = "  function patchProTruth() {\n    const grid = document.querySelector('.ba-pro-feature-grid');"
+        check(stabilizationSource.contains(stabilizationPatchMarker)) { "B91 could not locate legacy Stabilization Pro writer" }
+        stabilizationSource = stabilizationSource.replace(
+            stabilizationPatchMarker,
+            "  function patchProTruth() {\n    if (document.querySelector('.ba-pro-feature-grid[data-r91-canonical=\\\"1\\\"]')) return;\n    const grid = document.querySelector('.ba-pro-feature-grid');"
+        )
+        generatedStabilization.writeText(stabilizationSource, StandardCharsets.UTF_8)
+
+        // APK Installer truth contract: the Tools summary and the opened review
+        // must describe the same privacy-visible candidate set. Previously the
+        // Tools row used the unfiltered review summary while the detail surface
+        // applied Include-hidden-items privacy filtering, producing e.g. 3 vs 1.
+        val generatedInstallers = File(jsRoot, "android-installers.js")
+        var installersSource = generatedInstallers.readText(StandardCharsets.UTF_8)
+        val installerEntryStartMarker = """  function updateEntryCopy(entry = document.querySelector('#toolsScreen [data-tool="installers"]')) {"""
+        val installerEntryEndMarker = "\n\n  function ensureSurface()"
+        val installerEntryStart = installersSource.indexOf(installerEntryStartMarker)
+        val installerEntryEnd = if (installerEntryStart >= 0) installersSource.indexOf(installerEntryEndMarker, installerEntryStart) else -1
+        check(installerEntryStart >= 0 && installerEntryEnd > installerEntryStart) { "B91 could not locate APK Installer Tools summary renderer" }
+        val installerEntryReplacement = """  function visibleEntrySnapshot() {
+    const summary = parse(NATIVE.getReviewSummary?.(), {});
+    if (!summary?.available) return { available:false, count:0, bytes:0, excluded:0 };
+    const hiddenEnabled = HIDDEN?.isEnabled?.() === true;
+    const cacheKey = `${'$'}{n(summary.generatedAtMs)}|${'$'}{hiddenEnabled ? '1' : '0'}|${'$'}{n(summary.installersCount)}|${'$'}{n(summary.installersBytes)}`;
+    if (visibleEntrySnapshot.cacheKey === cacheKey && visibleEntrySnapshot.cacheValue) return visibleEntrySnapshot.cacheValue;
+    if (hiddenEnabled || !HIDDEN?.filter) {
+      const value = { available:true, count:n(summary.installersCount), bytes:n(summary.installersBytes), excluded:0 };
+      visibleEntrySnapshot.cacheKey = cacheKey;
+      visibleEntrySnapshot.cacheValue = value;
+      return value;
+    }
+    const items = [];
+    let offset = 0;
+    let total = 0;
+    for (let pageIndex = 0; pageIndex < 48; pageIndex++) {
+      const page = parse(NATIVE.getReviewCandidates?.(CATEGORY, offset, REVIEW_PAGE_SIZE), {});
+      if (!page?.available) break;
+      const next = Array.isArray(page.items) ? page.items : [];
+      items.push(...next);
+      total = n(page.totalCount);
+      if (!page.hasMore || next.length === 0 || items.length >= total) break;
+      offset += next.length;
+    }
+    const visible = HIDDEN.filter(items);
+    const value = {
+      available:true,
+      count:visible.length,
+      bytes:visible.reduce((sum, item) => sum + n(item.sizeBytes), 0),
+      excluded:Math.max(0, items.length - visible.length)
+    };
+    visibleEntrySnapshot.cacheKey = cacheKey;
+    visibleEntrySnapshot.cacheValue = value;
+    return value;
+  }
+
+  function updateEntryCopy(entry = document.querySelector('#toolsScreen [data-tool=\"installers\"]')) {
+    if (!entry) return;
+    const copy = c();
+    const visible = visibleEntrySnapshot();
+    const countLabel = language() === 'en' && visible.count === 1 ? 'Installer' : copy.installers;
+    const status = visible.available
+      ? `${'$'}{visible.count} ${'$'}{countLabel} · ${'$'}{formatBytes(visible.bytes)}`
+      : copy.toolSub;
+    const signature = `${'$'}{language()}|${'$'}{copy.toolTitle}|${'$'}{status}`;
+    if (entry.dataset.installersSignature !== signature) {
+      entry.dataset.installersSignature = signature;
+      entry.innerHTML = `<span class=\"mini-icon ba-installers-tool-icon\">${'$'}{installerBadge('tool')}</span><span><strong>${'$'}{esc(copy.toolTitle)}</strong><small>${'$'}{esc(status)}</small></span><b>›</b>`;
+      entry.setAttribute('aria-label', `${'$'}{copy.toolTitle}. ${'$'}{status}`);
+    }
+  }"""
+        installersSource = installersSource.substring(0, installerEntryStart) + installerEntryReplacement + installersSource.substring(installerEntryEnd)
+        installersSource = installersSource.replace("HIDDEN?.enabled === false", "HIDDEN?.isEnabled?.() === false && state.items.length > base.length")
+        installersSource = installersSource.replace(
+            "<div class=\"ba-installers-stat\"><b>${'$'}{base.length}</b><span>${'$'}{esc(copy.installers)}</span></div>",
+            "<div class=\"ba-installers-stat\"><b>${'$'}{base.length}</b><span>${'$'}{esc(language() === 'en' && base.length === 1 ? 'Installer' : copy.installers)}</span></div>"
+        )
+        val hiddenListenerOld = """  window.addEventListener('bearagnostic:hiddenitemschange', () => {
+    syncSelectionPrivacy();
+    if (state.open) render();
+  });"""
+        val hiddenListenerNew = """  window.addEventListener('bearagnostic:hiddenitemschange', () => {
+    syncSelectionPrivacy();
+    updateEntryCopy();
+    if (state.open) render();
+  });"""
+        check(installersSource.contains(hiddenListenerOld)) { "B91 could not locate APK Installer hidden-items listener" }
+        installersSource = installersSource.replace(hiddenListenerOld, hiddenListenerNew)
+        check(installersSource.contains("function visibleEntrySnapshot()")) { "B91 privacy-visible APK Installer summary is missing" }
+        check(!installersSource.contains("HIDDEN?.enabled === false")) { "B91 APK Installer still checks a non-existent hidden-items property" }
+        generatedInstallers.writeText(installersSource, StandardCharsets.UTF_8)
+
         val releaseTrustSource = File(jsRoot, "android-release-trust.js").readText(StandardCharsets.UTF_8)
-        check(releaseTrustSource.contains("const BUILD = 90;")) { "B90 release-trust source was not packaged" }
-        check(releaseTrustSource.contains("ba-r90-pro-owner")) { "B90 premium Pro ownership card is missing" }
-        check(releaseTrustSource.contains("ba-r90-permission-trust")) { "B90 file-access trust card is missing" }
-        check(releaseTrustSource.contains("benedictinteractive.com")) { "B90 official website trust copy is missing" }
-        check(releaseTrustSource.contains("Uptodown")) { "B90 authorized distribution trust copy is missing" }
-        check(releaseTrustSource.contains("ba-r90-feature-grid")) { "B90 canonical Pro feature grid is missing" }
-        check(releaseTrustSource.contains("ba-r90-overlay-grid")) { "B90 scrolling Pro grid normalization is missing" }
-        check(releaseTrustSource.contains("ba-r90-lifetime-value")) { "B90 Lifetime ownership hierarchy is missing" }
-        check(releaseTrustSource.contains("ba-r90-auth-warning")) { "B90 official-source warning hierarchy is missing" }
+        check(releaseTrustSource.contains("const BUILD = 91;")) { "B91 release-trust source was not packaged" }
+        check(releaseTrustSource.contains("ba-r91-pro-owner")) { "B91 premium Pro ownership card is missing" }
+        check(releaseTrustSource.contains("ba-r91-permission-trust")) { "B91 file-access trust card is missing" }
+        check(releaseTrustSource.contains("benedictinteractive.com")) { "B91 official website trust copy is missing" }
+        check(releaseTrustSource.contains("Uptodown")) { "B91 authorized distribution trust copy is missing" }
+        check(releaseTrustSource.contains("ba-r91-feature-grid")) { "B91 canonical Pro feature grid is missing" }
+        check(releaseTrustSource.contains("ba-r91-overlay-grid")) { "B91 scrolling Pro grid normalization is missing" }
+        check(releaseTrustSource.contains("data-r91-canonical")) { "B91 canonical Pro ownership marker is missing" }
+        check(!releaseTrustSource.contains("data-b42-insights=\"1\"")) { "B91 canonical Pro cards still expose the legacy Insights layout marker" }
+        check(!releaseTrustSource.contains("data-b45-feature=\"")) { "B91 canonical Pro cards still expose legacy stabilization layout markers" }
+        check(releaseTrustSource.contains("ba-r91-lifetime-value")) { "B91 Lifetime ownership hierarchy is missing" }
+        check(releaseTrustSource.contains("ba-r91-auth-warning")) { "B91 official-source warning hierarchy is missing" }
         if (nativeAssetsDir.isDirectory) {
             copy {
                 from(nativeAssetsDir)
@@ -309,8 +437,8 @@ android {
         applicationId = "com.benedictinteractive.bearagnostic"
         minSdk = 26
         targetSdk = 36
-        versionCode = 90
-        versionName = "0.35.42-alpha90"
+        versionCode = 91
+        versionName = "0.35.43-alpha91"
     }
     sourceSets {
         getByName("main") {
