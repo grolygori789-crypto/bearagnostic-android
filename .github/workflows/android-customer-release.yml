@@ -23,18 +23,18 @@ jobs:
       - name: Checkout exact source
         uses: actions/checkout@v4
 
-      - name: Lock B92 app change scope
+      - name: Lock B93 app change scope
         shell: bash
         run: |
           set -euo pipefail
-          BASE_COMMIT="ce126cafb7ef8824096f6cfa6a620f8d1accc88c"
+          BASE_COMMIT="9aba76300a75cd88ef5debc54a17bb247edd0db3"
           git fetch --no-tags --depth=1 origin "$BASE_COMMIT"
           mapfile -t CHANGED < <(git diff --name-only "$BASE_COMMIT" HEAD -- app | sort)
           EXPECTED=(
             "app/build.gradle.kts"
-            "app/src/main/legacy-adapter/android-final-polish.js"
+            "app/src/main/java/com/benedictinteractive/bearagnostic/FileHealthScanner.kt"
           )
-          printf 'B92 changed app files:\n%s\n' "${CHANGED[*]}"
+          printf 'B93 changed app files:\n%s\n' "${CHANGED[*]}"
           test "${#CHANGED[@]}" -eq "${#EXPECTED[@]}"
           for i in "${!EXPECTED[@]}"; do
             test "${CHANGED[$i]}" = "${EXPECTED[$i]}"
@@ -43,7 +43,7 @@ jobs:
       - name: Verify durable runtime contracts
         run: python3 scripts/verify_runtime_contracts.py
 
-      - name: Verify current B92 release isolation gates
+      - name: Verify current B93 release isolation + keeper gates
         shell: bash
         run: |
           python3 - <<'PY'
@@ -54,6 +54,7 @@ jobs:
           bridge = (root / 'app/src/main/java/com/benedictinteractive/bearagnostic/NativeBridge.kt').read_text(encoding='utf-8')
           pro_ui = (root / 'app/src/main/legacy-adapter/android-pro-ui.js').read_text(encoding='utf-8')
           billing = (root / 'app/src/main/legacy-adapter/android-billing.js').read_text(encoding='utf-8')
+          scanner = (root / 'app/src/main/java/com/benedictinteractive/bearagnostic/FileHealthScanner.kt').read_text(encoding='utf-8')
 
           def between(text, start, end):
               a = text.find(start)
@@ -85,7 +86,22 @@ jobs:
           assert (root / 'app/src/debug/java/com/benedictinteractive/bearagnostic/CommerceQaActivity.kt').is_file(), 'debug QA source set unexpectedly missing'
           assert (root / 'app/src/debug/java/com/benedictinteractive/bearagnostic/DebugBillingSandbox.kt').is_file(), 'debug sandbox source unexpectedly missing'
 
-          print('PASS current B92 release isolation source gates')
+          # B93: never recommend a trash/recycle copy as the keeper when the exact
+          # duplicate group still contains a verified normal copy.
+          for marker in (
+              'B93 duplicate keeper policy',
+              'private fun isTrashLikeDuplicateMember(file: File): Boolean',
+              'name.startsWith(".trashed-")',
+              'val preferredPool = members.filterNot(::isTrashLikeDuplicateMember).ifEmpty { members }',
+              'val keep = preferredDuplicateKeeper(members)',
+              '?: preferredDuplicateCandidate(unselected)',
+              '?: preferredDuplicateCandidate(validMembers)',
+              'val TRASH_PATH_SEGMENTS = setOf(',
+          ):
+              assert marker in scanner, f'B93 keeper-policy marker missing: {marker}'
+
+          print('PASS current B93 release isolation source gates')
+          print('PASS B93 non-trash duplicate keeper policy source gate')
           PY
 
       - name: Set up JDK 17
@@ -124,8 +140,8 @@ jobs:
           test -n "$UNSIGNED_APK"
           mkdir -p "$OUT"
 
-          ALIGNED="$OUT/SIGN_LATER_Bearagnostic-B92-CUSTOMER-RELEASE-unsigned-aligned.apk"
-          QA_SIGNED="$OUT/INSTALL_THIS_Bearagnostic-B92-CUSTOMER-RELEASE-QA.apk"
+          ALIGNED="$OUT/SIGN_LATER_Bearagnostic-B93-CUSTOMER-RELEASE-unsigned-aligned.apk"
+          QA_SIGNED="$OUT/INSTALL_THIS_Bearagnostic-B93-CUSTOMER-RELEASE-QA.apk"
 
           "$BUILD_TOOLS/zipalign" -p -f 4 "$UNSIGNED_APK" "$ALIGNED"
           "$BUILD_TOOLS/zipalign" -c -p 4 "$ALIGNED"
@@ -136,8 +152,8 @@ jobs:
           DEBUGGABLE="$($APKANALYZER manifest debuggable "$ALIGNED" | tr -d '\r\n' | tr '[:upper:]' '[:lower:]')"
 
           test "$APP_ID" = "com.benedictinteractive.bearagnostic"
-          test "$VERSION_NAME" = "0.35.44-alpha92"
-          test "$VERSION_CODE" = "92"
+          test "$VERSION_NAME" = "0.35.45-alpha93"
+          test "$VERSION_CODE" = "93"
           test "$DEBUGGABLE" = "false"
 
           python3 - "$ALIGNED" <<'PY'
@@ -158,6 +174,12 @@ jobs:
               for marker in forbidden_dex:
                   if marker in dex:
                       raise SystemExit(f'FAIL release DEX contains debug-only marker: {marker!r}')
+
+              # B93 binary evidence: these conservative trash/recycle signatures must
+              # survive Kotlin compilation into the exact Release APK being tested.
+              for marker in (b'.trashed-', b'.trash-', b'$recycle.bin', b'.recycle-bin'):
+                  if marker not in dex:
+                      raise SystemExit(f'FAIL release DEX missing B93 keeper-policy marker: {marker!r}')
 
               pro_name = 'assets/ui/js/android-pro-ui.js'
               billing_name = 'assets/ui/js/android-billing.js'
@@ -191,6 +213,7 @@ jobs:
           print('PASS release APK contains no debug-only QA classes')
           print('PASS packaged Pro UI remains gated by release native state')
           print('PASS packaged B92 settings viewport contract is present')
+          print('PASS packaged B93 non-trash duplicate keeper policy is present')
           PY
 
           # Test-sign only so P'Benz can install the exact Release behavior before
@@ -221,17 +244,18 @@ jobs:
           APP_TREE="$(git rev-parse HEAD:app)"
 
           {
-            echo "Bearagnostic B92 Customer Release QA Candidate"
+            echo "Bearagnostic B93 Customer Release QA Candidate"
             echo "Source commit: $SOURCE_COMMIT"
-            echo "Accepted B92 app tree: $APP_TREE"
+            echo "Accepted B93 app tree: $APP_TREE"
             echo "Application ID: $APP_ID"
             echo "Version name: $VERSION_NAME"
             echo "Version code: $VERSION_CODE"
             echo "Debuggable: $DEBUGGABLE"
+            echo "Duplicate keeper policy: prefer verified non-trash copy over trash/recycle copies"
             echo "Customer-visible Dev entitlement controls: gated OFF by Release BuildConfig.DEBUG=false"
             echo "QA APK signing: TEST-ONLY repository key; NOT FOR PUBLIC DISTRIBUTION"
-            echo "Install for QA: INSTALL_THIS_Bearagnostic-B92-CUSTOMER-RELEASE-QA.apk"
-            echo "Production signing input: SIGN_LATER_Bearagnostic-B92-CUSTOMER-RELEASE-unsigned-aligned.apk"
+            echo "Install for QA: INSTALL_THIS_Bearagnostic-B93-CUSTOMER-RELEASE-QA.apk"
+            echo "Production signing input: SIGN_LATER_Bearagnostic-B93-CUSTOMER-RELEASE-unsigned-aligned.apk"
             echo "Final public APK must be signed locally with the permanent Benedict production key"
           } > "$OUT/READ_ME_FIRST_customer-release-report.txt"
 
@@ -241,12 +265,12 @@ jobs:
       - name: Upload Customer Release QA candidate
         uses: actions/upload-artifact@v4
         with:
-          name: CUSTOMER-RELEASE-B92-QA-${{ github.run_number }}
+          name: CUSTOMER-RELEASE-B93-QA-${{ github.run_number }}
           path: |
-            app/build/outputs/apk/customer-release/INSTALL_THIS_Bearagnostic-B92-CUSTOMER-RELEASE-QA.apk
-            app/build/outputs/apk/customer-release/INSTALL_THIS_Bearagnostic-B92-CUSTOMER-RELEASE-QA.apk.sha256
-            app/build/outputs/apk/customer-release/SIGN_LATER_Bearagnostic-B92-CUSTOMER-RELEASE-unsigned-aligned.apk
-            app/build/outputs/apk/customer-release/SIGN_LATER_Bearagnostic-B92-CUSTOMER-RELEASE-unsigned-aligned.apk.sha256
+            app/build/outputs/apk/customer-release/INSTALL_THIS_Bearagnostic-B93-CUSTOMER-RELEASE-QA.apk
+            app/build/outputs/apk/customer-release/INSTALL_THIS_Bearagnostic-B93-CUSTOMER-RELEASE-QA.apk.sha256
+            app/build/outputs/apk/customer-release/SIGN_LATER_Bearagnostic-B93-CUSTOMER-RELEASE-unsigned-aligned.apk
+            app/build/outputs/apk/customer-release/SIGN_LATER_Bearagnostic-B93-CUSTOMER-RELEASE-unsigned-aligned.apk.sha256
             app/build/outputs/apk/customer-release/READ_ME_FIRST_customer-release-report.txt
             app/build/outputs/apk/customer-release/QA-test-signature-report.txt
           if-no-files-found: error
