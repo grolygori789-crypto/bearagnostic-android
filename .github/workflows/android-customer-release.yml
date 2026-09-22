@@ -23,20 +23,27 @@ jobs:
       - name: Checkout exact source
         uses: actions/checkout@v4
 
-      - name: Lock accepted B91 app source
+      - name: Lock B92 app change scope
         shell: bash
         run: |
           set -euo pipefail
-          EXPECTED_APP_TREE="7cc691820e13f2f2780ebdd6d0db8bea8908f988"
-          ACTUAL_APP_TREE="$(git rev-parse HEAD:app)"
-          echo "Expected app tree: $EXPECTED_APP_TREE"
-          echo "Actual app tree:   $ACTUAL_APP_TREE"
-          test "$ACTUAL_APP_TREE" = "$EXPECTED_APP_TREE"
+          BASE_COMMIT="ce126cafb7ef8824096f6cfa6a620f8d1accc88c"
+          git fetch --no-tags --depth=1 origin "$BASE_COMMIT"
+          mapfile -t CHANGED < <(git diff --name-only "$BASE_COMMIT" HEAD -- app | sort)
+          EXPECTED=(
+            "app/build.gradle.kts"
+            "app/src/main/legacy-adapter/android-final-polish.js"
+          )
+          printf 'B92 changed app files:\n%s\n' "${CHANGED[*]}"
+          test "${#CHANGED[@]}" -eq "${#EXPECTED[@]}"
+          for i in "${!EXPECTED[@]}"; do
+            test "${CHANGED[$i]}" = "${EXPECTED[$i]}"
+          done
 
       - name: Verify durable runtime contracts
         run: python3 scripts/verify_runtime_contracts.py
 
-      - name: Verify current B91 release isolation gates
+      - name: Verify current B92 release isolation gates
         shell: bash
         run: |
           python3 - <<'PY'
@@ -78,7 +85,7 @@ jobs:
           assert (root / 'app/src/debug/java/com/benedictinteractive/bearagnostic/CommerceQaActivity.kt').is_file(), 'debug QA source set unexpectedly missing'
           assert (root / 'app/src/debug/java/com/benedictinteractive/bearagnostic/DebugBillingSandbox.kt').is_file(), 'debug sandbox source unexpectedly missing'
 
-          print('PASS current B91 release isolation source gates')
+          print('PASS current B92 release isolation source gates')
           PY
 
       - name: Set up JDK 17
@@ -117,8 +124,8 @@ jobs:
           test -n "$UNSIGNED_APK"
           mkdir -p "$OUT"
 
-          ALIGNED="$OUT/SIGN_LATER_Bearagnostic-B91-CUSTOMER-RELEASE-unsigned-aligned.apk"
-          QA_SIGNED="$OUT/INSTALL_THIS_Bearagnostic-B91-CUSTOMER-RELEASE-QA.apk"
+          ALIGNED="$OUT/SIGN_LATER_Bearagnostic-B92-CUSTOMER-RELEASE-unsigned-aligned.apk"
+          QA_SIGNED="$OUT/INSTALL_THIS_Bearagnostic-B92-CUSTOMER-RELEASE-QA.apk"
 
           "$BUILD_TOOLS/zipalign" -p -f 4 "$UNSIGNED_APK" "$ALIGNED"
           "$BUILD_TOOLS/zipalign" -c -p 4 "$ALIGNED"
@@ -129,8 +136,8 @@ jobs:
           DEBUGGABLE="$($APKANALYZER manifest debuggable "$ALIGNED" | tr -d '\r\n' | tr '[:upper:]' '[:lower:]')"
 
           test "$APP_ID" = "com.benedictinteractive.bearagnostic"
-          test "$VERSION_NAME" = "0.35.43-alpha91"
-          test "$VERSION_CODE" = "91"
+          test "$VERSION_NAME" = "0.35.44-alpha92"
+          test "$VERSION_CODE" = "92"
           test "$DEBUGGABLE" = "false"
 
           python3 - "$ALIGNED" <<'PY'
@@ -154,11 +161,23 @@ jobs:
 
               pro_name = 'assets/ui/js/android-pro-ui.js'
               billing_name = 'assets/ui/js/android-billing.js'
-              if pro_name not in names or billing_name not in names:
-                  raise SystemExit('FAIL release APK missing canonical Pro/billing assets')
+              final_polish_name = 'assets/ui/js/android-final-polish.js'
+              if pro_name not in names or billing_name not in names or final_polish_name not in names:
+                  raise SystemExit('FAIL release APK missing canonical Pro/billing/final-polish assets')
 
               pro_ui = z.read(pro_name).decode('utf-8', errors='strict')
               billing = z.read(billing_name).decode('utf-8', errors='strict')
+              final_polish = z.read(final_polish_name).decode('utf-8', errors='strict')
+
+              for marker in (
+                  'B92 settings viewport contract',
+                  '#preferencesScreen.is-active:not([hidden])',
+                  '#baUnifiedSettingsDetail.is-active:not([hidden])',
+                  'grid-template-rows:auto minmax(0,1fr)!important',
+                  'scroll-padding-bottom:max(28px,env(safe-area-inset-bottom))!important',
+              ):
+                  if marker not in final_polish:
+                      raise SystemExit(f'FAIL packaged B92 settings viewport marker missing: {marker}')
 
               if 'const debug = state.debugControlsAvailable === true;' not in pro_ui:
                   raise SystemExit('FAIL packaged Pro UI lost native release debug gate')
@@ -171,6 +190,7 @@ jobs:
 
           print('PASS release APK contains no debug-only QA classes')
           print('PASS packaged Pro UI remains gated by release native state')
+          print('PASS packaged B92 settings viewport contract is present')
           PY
 
           # Test-sign only so P'Benz can install the exact Release behavior before
@@ -201,17 +221,17 @@ jobs:
           APP_TREE="$(git rev-parse HEAD:app)"
 
           {
-            echo "Bearagnostic B91 Customer Release QA Candidate"
+            echo "Bearagnostic B92 Customer Release QA Candidate"
             echo "Source commit: $SOURCE_COMMIT"
-            echo "Accepted B91 app tree: $APP_TREE"
+            echo "Accepted B92 app tree: $APP_TREE"
             echo "Application ID: $APP_ID"
             echo "Version name: $VERSION_NAME"
             echo "Version code: $VERSION_CODE"
             echo "Debuggable: $DEBUGGABLE"
             echo "Customer-visible Dev entitlement controls: gated OFF by Release BuildConfig.DEBUG=false"
             echo "QA APK signing: TEST-ONLY repository key; NOT FOR PUBLIC DISTRIBUTION"
-            echo "Install for QA: INSTALL_THIS_Bearagnostic-B91-CUSTOMER-RELEASE-QA.apk"
-            echo "Production signing input: SIGN_LATER_Bearagnostic-B91-CUSTOMER-RELEASE-unsigned-aligned.apk"
+            echo "Install for QA: INSTALL_THIS_Bearagnostic-B92-CUSTOMER-RELEASE-QA.apk"
+            echo "Production signing input: SIGN_LATER_Bearagnostic-B92-CUSTOMER-RELEASE-unsigned-aligned.apk"
             echo "Final public APK must be signed locally with the permanent Benedict production key"
           } > "$OUT/READ_ME_FIRST_customer-release-report.txt"
 
@@ -221,12 +241,12 @@ jobs:
       - name: Upload Customer Release QA candidate
         uses: actions/upload-artifact@v4
         with:
-          name: CUSTOMER-RELEASE-B91-QA-${{ github.run_number }}
+          name: CUSTOMER-RELEASE-B92-QA-${{ github.run_number }}
           path: |
-            app/build/outputs/apk/customer-release/INSTALL_THIS_Bearagnostic-B91-CUSTOMER-RELEASE-QA.apk
-            app/build/outputs/apk/customer-release/INSTALL_THIS_Bearagnostic-B91-CUSTOMER-RELEASE-QA.apk.sha256
-            app/build/outputs/apk/customer-release/SIGN_LATER_Bearagnostic-B91-CUSTOMER-RELEASE-unsigned-aligned.apk
-            app/build/outputs/apk/customer-release/SIGN_LATER_Bearagnostic-B91-CUSTOMER-RELEASE-unsigned-aligned.apk.sha256
+            app/build/outputs/apk/customer-release/INSTALL_THIS_Bearagnostic-B92-CUSTOMER-RELEASE-QA.apk
+            app/build/outputs/apk/customer-release/INSTALL_THIS_Bearagnostic-B92-CUSTOMER-RELEASE-QA.apk.sha256
+            app/build/outputs/apk/customer-release/SIGN_LATER_Bearagnostic-B92-CUSTOMER-RELEASE-unsigned-aligned.apk
+            app/build/outputs/apk/customer-release/SIGN_LATER_Bearagnostic-B92-CUSTOMER-RELEASE-unsigned-aligned.apk.sha256
             app/build/outputs/apk/customer-release/READ_ME_FIRST_customer-release-report.txt
             app/build/outputs/apk/customer-release/QA-test-signature-report.txt
           if-no-files-found: error
