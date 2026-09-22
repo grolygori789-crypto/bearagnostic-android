@@ -249,6 +249,35 @@
       }
 
 
+      /* B92 settings viewport contract: every settings scroller owns only the
+         remaining app-main row. This removes the legacy 58px fixed-height
+         assumption and prevents long/dynamic headers from pushing scrollable
+         content under the persistent bottom navigation. Privacy already used
+         the same grid model; B92 closes the equivalent gaps in Preferences and
+         every Unified Detail kind (Help, Support, Legal, About, Pro fallback). */
+      #preferencesScreen.is-active:not([hidden]),
+      #baUnifiedSettingsDetail.is-active:not([hidden]){
+        display:grid!important;
+        grid-template-rows:auto minmax(0,1fr)!important;
+        overflow:hidden!important
+      }
+      #preferencesScreen .settings-title-row,
+      #baUnifiedSettingsDetail .settings-title-row{
+        height:auto!important
+      }
+      #preferencesScreen .settings-scroll,
+      #baUnifiedSettingsDetail .settings-scroll{
+        height:auto!important;
+        min-height:0!important;
+        max-height:none!important;
+        overflow-y:auto!important;
+        overscroll-behavior-y:contain!important;
+        -webkit-overflow-scrolling:touch!important;
+        box-sizing:border-box!important;
+        padding-bottom:max(28px,env(safe-area-inset-bottom))!important;
+        scroll-padding-bottom:max(28px,env(safe-area-inset-bottom))!important
+      }
+
       /* #8: robust unified-detail header geometry; no kicker clipping behind Back. */
       #baUnifiedSettingsDetail[data-detail-kind="help"] .settings-title-row{
         display:grid!important;
