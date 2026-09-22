@@ -362,8 +362,11 @@ class FileHealthScanner(private val context: Context) {
             // becoming a delete-all operation merely because another copy changed or vanished.
             val unselected = validMembers.filter { it.id !in ids }
             val keep = unselected.firstOrNull { it.duplicateKeepSuggested }
-                ?: unselected.firstOrNull()
-                ?: validMembers.firstOrNull { it.duplicateKeepSuggested }
+                // Among unselected survivors, keep a normal copy ahead of trash/recycle
+                // when possible. If every verified member was selected, apply the same
+                // policy to the forced-protection fallback.
+                ?: preferredDuplicateCandidate(unselected)
+                ?: preferredDuplicateCandidate(validMembers)
                 ?: validMembers.first()
             if (keep.id in ids && validMembers.all { it.id in ids }) {
                 ids.remove(keep.id)
@@ -645,7 +648,10 @@ class FileHealthScanner(private val context: Context) {
                             val copies = members.size - 1L
                             duplicateCopies = safeAdd(duplicateCopies, copies)
                             duplicateReclaimableBytes = safeAdd(duplicateReclaimableBytes, safeMultiply(size, copies))
-                            val keep = members.maxWithOrNull(compareBy<File> { safeModified(it) }.thenBy { it.absolutePath.length }) ?: members.first()
+                            // B93 duplicate keeper policy: a verified copy outside Android/OEM trash
+                            // wins over a trash/recycle copy. Only when every verified member is
+                            // trash-like do we fall back to the existing newest-copy preference.
+                            val keep = preferredDuplicateKeeper(members)
                             val groupId = "${size}_${digest.take(16)}"
                             for (member in members) {
                                 addReviewCandidate(
@@ -1185,6 +1191,39 @@ class FileHealthScanner(private val context: Context) {
     }
 
     private fun safeLength(file: File): Long? = try { file.length().coerceAtLeast(0L) } catch (_: SecurityException) { null }
+
+    // B93 duplicate keeper policy. This is deliberately conservative: trash-like
+    // status changes keeper preference only. It never makes a file auto-cleanable,
+    // never bypasses confirmation, and never weakens destructive-time identity checks.
+    private fun isTrashLikeDuplicateMember(file: File): Boolean {
+        val canonical = canonicalFile(file)
+        val name = canonical.name.lowercase(Locale.ROOT)
+        if (name.startsWith(".trashed-") || name.startsWith(".trash-")) return true
+
+        val segments = canonical.absolutePath
+            .replace('\\', '/')
+            .lowercase(Locale.ROOT)
+            .split('/')
+            .filter { it.isNotBlank() }
+        return segments.any { it in TRASH_PATH_SEGMENTS }
+    }
+
+    private fun preferredDuplicateKeeper(members: List<File>): File {
+        val preferredPool = members.filterNot(::isTrashLikeDuplicateMember).ifEmpty { members }
+        return preferredPool.maxWithOrNull(
+            compareBy<File> { safeModified(it) }.thenBy { it.absolutePath.length }
+        ) ?: members.first()
+    }
+
+    private fun preferredDuplicateCandidate(members: List<ReviewCandidate>): ReviewCandidate? {
+        if (members.isEmpty()) return null
+        val preferredPool = members.filterNot { isTrashLikeDuplicateMember(File(it.path)) }.ifEmpty { members }
+        return preferredPool.firstOrNull { it.duplicateKeepSuggested }
+            ?: preferredPool.maxWithOrNull(
+                compareBy<ReviewCandidate> { it.modifiedMs }.thenBy { it.path.length }
+            )
+    }
+
     private fun normalizedPath(file: File): String = canonicalFile(file).absolutePath.replace('\\', '/').lowercase(Locale.ROOT)
     private fun isDownloadPath(path: String): Boolean = path.contains("/download/") || path.endsWith("/download") || path.contains("/downloads/") || path.endsWith("/downloads")
     private fun isTemporaryArtifact(name: String, ext: String, path: String): Boolean =
@@ -1435,6 +1474,13 @@ class FileHealthScanner(private val context: Context) {
         const val AUTO_CLEAN_TEMP_MIN_AGE_MS = 7L * 24L * 60L * 60L * 1000L
 
         val DEFAULT_CUSTOM_SCOPES = setOf("downloads", "photos", "videos", "documents")
+        // Exact path-segment matches only. Filename prefixes above cover Android MediaStore
+        // trash names such as .trashed-<timestamp>-<original>.
+        val TRASH_PATH_SEGMENTS = setOf(
+            ".trash", ".trashes", "trash", "trashes",
+            ".recycle", "recycle", ".recyclebin", "recyclebin",
+            ".recycle-bin", "recycle-bin", "\$recycle.bin",
+        )
         val STRONG_TEMP_EXTENSIONS = setOf("part", "partial", "crdownload")
         val WEAK_TEMP_EXTENSIONS = setOf("tmp", "temp")
         val ARCHIVE_EXTENSIONS = setOf("zip", "rar", "7z", "tar", "gz", "tgz", "bz2", "xz")
