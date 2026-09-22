@@ -1,9 +1,9 @@
 # Benedict Interactive / Bearagnostic — Room Migration / Immigration Prompt
 
-**Revision:** 11.0  
-**Date:** 21 September 2026  
+**Revision:** 12.0  
+**Date:** 22 September 2026  
 **Canonical filename:** `BEARAGNOSTIC_ROOM_MIGRATION_MASTER_PROMPT.md`  
-**Purpose:** Clean-room handoff for Bearagnostic Android at v83 corrective Final Polish checkpoint, preserving Frozen PASS evidence, dual Debug/Release QA architecture, v80 design-regression lessons, withdrawn-v81 warning, current physical-test priorities, release sequence and all still-valid safety/commerce/design contracts.
+**Purpose:** Clean-room handoff after Bearagnostic Android B93 production closure. Android Customer Release, targeted physical regression QA, permanent production signing, exact production-signed install and Restore Pro are complete; the next active phase is Final Website Polish, exact Golden-APK distribution, cross-surface launch closure and public-release smoke while preserving all still-valid Android safety/commerce/design history.
 
 > Stable-filename rule: keep this exact filename for future updates.  
 > Do not append dates/times, `final`, `v2`, or backup labels to the canonical file.
@@ -28,33 +28,69 @@ Branch:
 main
 ```
 
-Latest inspected main on 21 September 2026:
+Latest inspected main on 22 September 2026:
 
 ```text
-401fafd9ac5159b87eb6f4dad7599cfe6511ff68
-Fix tool polish and support flows
+1ab659e0937b41840d2a2a789f19183797208da7
+Build B93 customer release
 ```
 
-Current source candidate:
+Final accepted Android line:
 
 ```text
-versionName 0.35.35-alpha83
-versionCode 83
-adapter/cache v83
-release package com.benedictinteractive.bearagnostic
-debug package   com.benedictinteractive.bearagnostic.debug
-pinned PWA      78a31c7752e171c0eafb63c0d0859f4072a193d6
+B93 app source commit  d31fe574aefaf17acf57d12830a61cfe73abc689
+B93 final main         1ab659e0937b41840d2a2a789f19183797208da7
+B93 app tree           a7cf4ef1454d23d2e71787cb8fb0cdeff2b29e84
+versionName            0.35.45-alpha93
+versionCode            93
+adapter/cache          v93
+release package        com.benedictinteractive.bearagnostic
+debug package          com.benedictinteractive.bearagnostic.debug
+pinned PWA             78a31c7752e171c0eafb63c0d0859f4072a193d6
 ```
 
-Recent Final Polish chain:
+Recent closure chain:
 
 ```text
-8fc4c053d3fc194db48c57a89af916af0d8fc937  v80  Finish Android final polish
-f3bd9ed584f4f78fb61482229769f00acee471d9  v82  Fix Final Polish and preserve debug QA
-401fafd9ac5159b87eb6f4dad7599cfe6511ff68  v83  Fix tool polish and support flows
+e1e4ece37b3bda0590afc85fa44f9d05fecf45fe  v84  Fix v84 responsive tool polish
+6a6bafe398ef662e4b782962c5e53cd7c2168309  v85  Polish v85 premium UI and localization
+2d78605f709844e39ea940caa54dc16020e600d4  v86  Fix v86 physical UI regressions
+c9289cdb7394550dc747216ea814c475734685d5  v87  Fix v87 final physical regressions
+d001b902b0c8d39355119e372a3cda1ca8aa946c  v88  Fix v88 final tool regressions
+f6c79af8e2578b4d91c177dba694f8258b3feaef  B89  Polish B89 release trust surfaces
+efa654aede23778b99a4e4a3bd298c3b387a6cca  B90  Finish B90 release UI integration
+ce4c7f76d90fe89652a345cf5f2869cc70c283b0  B91  Fix B91 Pro and installer consistency
+40b98f2b5b4df6fdb2860912b642ac19cb284797  B92  app source viewport fix
+9aba76300a75cd88ef5debc54a17bb247edd0db3  B92  customer-release workflow update
+d31fe574aefaf17acf57d12830a61cfe73abc689  B93  duplicate keeper-policy app fix
+1ab659e0937b41840d2a2a789f19183797208da7  B93  final customer-release workflow
 ```
 
-`v81` was a **withdrawn local corrective attempt**, never a canonical GitHub baseline. It incorrectly overcorrected entitlement UI by hard-hiding Debug controls. Never use it.
+`v81` remains a **withdrawn local corrective attempt**, never a canonical GitHub baseline. It incorrectly hard-hid Debug entitlement controls. Never use it.
+
+### Golden APK truth
+
+```text
+Golden APK:
+Bearagnostic-0.35.45-alpha93.apk
+
+APK SHA-256:
+09c12a8eb81d1a9353bc588b49639648457a1d502318ba58bc10bd8da7cfb66f
+
+Production certificate SHA-256:
+503FB4A77B38E7129E20002EC6A0B1D4225FD189BB16E0C71EBAD88ECA88AE90
+```
+
+Customer-release provenance:
+
+```text
+Workflow     Build Android Customer Release Candidate
+Run          #4
+Run ID       35712459216
+Result       CI PASS
+Artifact     CUSTOMER-RELEASE-B93-QA-4
+Unsigned SHA 5f53829f753d7e8a8f819ecc58a699948f1e32aef626232310368a74e6d21eaa
+```
 
 ### Web repository truth
 
@@ -68,6 +104,7 @@ Latest inspected main:
 
 ```text
 30779427766ec220b0d5ffcb3081f58937f71a4f
+Update commerce hardening checkpoint
 ```
 
 Canonical origin:
@@ -78,27 +115,46 @@ https://benedictinteractive.com
 
 ### Exact current phase
 
-**Final Polish implementation is on GitHub through v83, but physical re-test and visual acceptance have NOT been completed.**
+**Android is closed and frozen at B93. The next active phase is Final Website Polish.**
 
-Do not start by adding new features. Do not restart frozen Release-Isolation/signing/backend/scanner tests from scratch.
+Do not start the next room by rebuilding Android, rerunning the historical v83 matrix, adding app locales, or “improving” the Golden APK.
 
-The next room's first job is:
-
-> **Build/obtain v83 Debug and Release from the same commit, identify each package correctly, perform targeted physical QA + professional visual review, fix only proven regressions, then continue toward final production candidate.**
-
-Critical evidence truth:
+Current evidence truth:
 
 ```text
-v83 Source/Static candidate = exists on GitHub
-prior automated/headless QA = supporting evidence only
-v83 Physical-device PASS = NOT YET
-v83 Design acceptance = NOT YET
-Public release approval = NO
+B93 Customer Release CI             PASS
+B93 Release isolation physical      PASS
+B92 viewport regression             CLOSED / Physical PASS
+B93 trash-keeper regression         CLOSED / Physical PASS
+Permanent production signing        PASS
+Exact production-signed install     PASS
+Restore Pro on exact signed B93     PASS
+Golden APK                          FROZEN
+Android development                 CLOSED
+Public launch                       NOT YET — website/distribution closure remains
 ```
 
-### Dual-build architecture — DO NOT BREAK
+Immediate next job:
 
-P'Benz intentionally keeps two versions installed on one device.
+> **Inspect the latest Benedict website source, perform Final Website Polish, align customer/support/legal/localization truth, host the exact Golden APK, verify public-download bytes/checksum, submit the same binary to Uptodown, then perform final launch smoke.**
+
+### Launch localization truth — mandatory
+
+```text
+Android app launch languages:
+English / ไทย / 日本語
+
+Website:
+10+ languages
+```
+
+The website must explicitly communicate that the Android app currently supports only English, Thai and Japanese even though the website is available in 10+ languages. Do not imply one-to-one language parity.
+
+Additional Android languages are post-launch work based on real demand and require complete localization/layout/functional QA before exposure.
+
+### Dual-build architecture — RETAIN FOR FUTURE ANDROID VERSIONS
+
+P'Benz intentionally used two installable variants during QA.
 
 **Debug / QA**
 
@@ -106,10 +162,10 @@ P'Benz intentionally keeps two versions installed on one device.
 applicationId: com.benedictinteractive.bearagnostic.debug
 BuildConfig.DEBUG: true
 Test as FREE / Test as PRO / Reset: REQUIRED
-Purpose: QA entitlement switching and engineering tests
+Purpose: engineering QA
 ```
 
-**Release / Production behavior**
+**Release / Production**
 
 ```text
 applicationId: com.benedictinteractive.bearagnostic
@@ -119,11 +175,7 @@ native debug entitlement calls: must reject
 Purpose: customer behavior
 ```
 
-Never call the Debug entitlement panel a production defect before verifying which package/build is being viewed.
-
-Never “clean up Release UI” by deleting Debug QA capability globally.
-
----
+This architecture remains binding for future Android releases, but **do not modify or rebuild B93 merely to retest it**. B93 customer Release already passed.
 
 ## 1. ABSOLUTE AUTHORITY / COMMUNICATION
 
@@ -177,7 +229,7 @@ At room start:
 6. preserve Frozen PASS;
 7. do not rerun old tests without regression reason;
 8. establish which installed package is Debug vs Release before interpreting screenshots;
-9. begin with v83 physical/design QA unless latest GitHub main has advanced.
+9. begin with Final Website Polish; Android B93 is frozen unless a new evidence-backed Android release blocker is discovered.
 
 ---
 
@@ -326,9 +378,9 @@ Do not add more stores before launch without explicit approval.
 
 ---
 
-## 8. PRODUCTION SIGNING — COMPLETED
+## 8. PRODUCTION SIGNING — FINAL PASS / GOLDEN IDENTITY
 
-Permanent production keystore created outside GitHub:
+Permanent production key:
 
 ```text
 %USERPROFILE%\Documents\BenedictInteractive\Signing\bearagnostic-production.jks
@@ -337,34 +389,64 @@ RSA 4096
 SHA256withRSA
 ```
 
-Certificate SHA-256:
+Production certificate SHA-256:
 
 ```text
 503FB4A77B38E7129E20002EC6A0B1D4225FD189BB16E0C71EBAD88ECA88AE90
 ```
 
-Backup:
+Custody:
 
-- PC = completed;
-- separate flash drive = completed.
+- PC primary copy outside GitHub;
+- separate flash-drive backup;
+- passwords/secrets never belong in GitHub, docs, screenshots, or chat.
 
-Never place keystore password/secrets in repository/docs/handoff.
+B93 signing closure:
 
-Useful APK verification:
+```text
+Input:
+SIGN_LATER_Bearagnostic-B93-CUSTOMER-RELEASE-unsigned-aligned.apk
 
-```powershell
-& "$env:LOCALAPPDATA\Android\Sdk\build-tools\36.0.0\apksigner.bat" verify --verbose --print-certs "<PATH_TO_APK>"
+Input SHA-256:
+5f53829f753d7e8a8f819ecc58a699948f1e32aef626232310368a74e6d21eaa
+
+Output:
+Bearagnostic-0.35.45-alpha93.apk
+
+Output SHA-256:
+09c12a8eb81d1a9353bc588b49639648457a1d502318ba58bc10bd8da7cfb66f
+
+Result:
+PRODUCTION SIGNING PASS
 ```
 
-```powershell
-& "$env:LOCALAPPDATA\Android\Sdk\build-tools\36.0.0\zipalign.exe" -c -p 4 "<PATH_TO_APK>"
+The exact production-signed APK was installed on a physical device and Restore Pro succeeded.
+
+Status:
+
+```text
+Production signing = PASS
+Exact signed install = PASS
+Restore Pro = PASS
+Golden APK = FROZEN
 ```
 
-Signing identity is permanent update identity. Preserve it.
-
----
+Do not rebuild/resign B93 after this acceptance. A future Android change requires a new version and a new signing/QA evidence line.
 
 ## 9. RELEASE-ISOLATION — PHYSICAL PASS
+
+B93 Customer Release re-confirmed the customer-side contract physically:
+
+```text
+no DEVELOPMENT ENTITLEMENT TEST
+no Test as FREE
+no Test as PRO
+no Reset
+debuggable=false
+```
+
+This is **closed** for the frozen B93 Golden APK.
+
 
 Old continuation said Release-Isolation physical proof was pending. That is now obsolete.
 
@@ -389,7 +471,10 @@ Do not retest this unless release gating code changes.
 
 ---
 
-## 10. PRODUCTION v79 — PHYSICAL INSTALL / CORE PASS
+## 10. PRODUCTION v79 — HISTORICAL PHYSICAL INSTALL / CORE PASS
+
+> Retain this evidence as historical baseline. Final production closure has advanced to B93; do not mistake v79 for the current public candidate.
+
 
 Production-signed v79 installed successfully on the physical device.
 
@@ -408,6 +493,11 @@ One startup visual defect exists and is documented in Section 15.
 ---
 
 ## 11. PRODUCTION RESTORE / ENTITLEMENT — PASS
+
+**B93 closure update:** P'Benz installed the exact production-signed B93 Golden APK and successfully restored the existing real Pro entitlement. This is Physical-device PASS.
+
+Prior reopen/reboot persistence evidence remains Frozen PASS; it was not separately repeated as a fresh B93 reboot experiment.
+
 
 P'Benz already owns Pro from prior controlled real purchase.
 
@@ -448,6 +538,11 @@ Pro persistence after reboot = PASS
 
 ## 12. EXACT DUPLICATES / DELETION SAFETY — PHYSICAL PASS
 
+**B93 closure update:** APK Installer physical QA exposed an edge case where a `.trashed-*` exact-duplicate member could become the suggested keeper because modified time was prioritized. B93 fixes the native source-of-truth keeper policy to prefer a verified non-trash copy over trash/recycle copies when one exists. Physical re-test passed: `.trashed-*` entries are no longer incorrectly locked as `Keep one copy`.
+
+This change does not auto-delete trash items and does not weaken stale-identity/hash revalidation or the keep-one-copy destructive safeguard.
+
+
 Controlled test used identical image copies.
 
 Observed:
@@ -485,7 +580,12 @@ Do not rerun unless duplicate/deletion code changes.
 
 ---
 
-## 13. FREE / SCAN / TOOLS / INSIGHTS CURRENT QA
+## 13. FREE / SCAN / TOOLS / INSIGHTS QA — FROZEN ANDROID EVIDENCE
+
+B84→B93 closed the Android polish line. Preserve the evidence below as baseline; do not rerun the whole matrix during website work without a regression reason.
+
+A dedicated current-B93 Free destructive-delete fixture was not separately rerun in final closure. Do not falsely mark it as a fresh B93 Physical PASS. P'Benz accepted Android closure based on existing destructive-safety evidence plus targeted B92/B93 regression proof.
+
 
 ### Free core
 
@@ -578,7 +678,27 @@ Do not “fix” the cleanup-history row into a filename browser.
 
 ---
 
-## 13A. v80 → v83 CORRECTIVE HISTORY — MUST READ
+## 13A. v80 → B93 CORRECTIVE HISTORY — MUST READ / CLOSED CONTEXT
+
+> The v80→v83 material below is intentionally retained. It explains design/process failures that later releases corrected. It is historical regression context, not an open Android work queue.
+
+B84→B93 closure chain:
+
+```text
+v84 responsive tool polish
+v85 premium UI/localization
+v86 physical UI regression fixes
+v87 final physical regression fixes
+v88 final Tool regression fixes
+B89 release-trust polish
+B90 final UI integration
+B91 Pro/APK Installer consistency
+B92 Settings/Detail viewport fix
+B93 trash/recycle duplicate-keeper fix + final customer release
+```
+
+By B93, P'Benz had physically accepted the customer Release behavior, viewport correction and duplicate keeper correction, and the exact production-signed APK installed/Restored successfully.
+
 
 ### What failed in v80
 
@@ -693,7 +813,10 @@ Do not add persistent deleted-file detail history just to make the row clickable
 
 ---
 
-## 15. FINAL POLISH — 9 KNOWN APP WORK ITEMS
+## 15. FINAL POLISH — HISTORICAL 9-ITEM CHECKLIST (CLOSED THROUGH B93)
+
+> The detailed v83 item text below is retained for future regression reference. Statements such as `candidate`, `pending`, and `launch blocker` describe the older checkpoint and are superseded by B93 closure. Do not reopen them during Final Website Polish unless a new reproducible Android regression appears.
+
 
 This remains the authoritative acceptance list. v83 contains candidate fixes, but every visible/interactive item remains OPEN until physical proof and P'Benz acceptance.
 
@@ -889,7 +1012,10 @@ ES/PT-BR stay hidden until equivalent first-class quality exists.
 
 ---
 
-## 15A. MANDATORY NEXT-ROOM PHYSICAL QA MATRIX
+## 15A. HISTORICAL ANDROID PHYSICAL QA MATRIX — DO NOT RERUN BY DEFAULT
+
+> B93 is frozen and accepted. Use this matrix only for a future Android release or a proven regression. It is not the next-room task.
+
 
 ### First: identify the build
 
@@ -959,6 +1085,9 @@ Do not batch-mark all 18 as PASS from code inspection. Record actual physical ob
 
 ## 16. FOUR CROSS-CUTTING FINAL AUDITS
 
+**Android status:** closed through B93. Preserve these principles for future Android releases and apply their website-relevant equivalents during Final Website Polish.
+
+
 After fixing the 9 known items, run these audits.
 
 ### A. Interaction Affordance
@@ -1016,6 +1145,22 @@ Across EN/TH/JA remove:
 
 ## 17. SCOPE FREEZE
 
+### B93 production freeze
+
+During the website/distribution phase:
+
+```text
+NO Android rebuild
+NO Android resign
+NO new Android locale
+NO cosmetic version bump
+NO speculative Android refactor
+NO reopening closed B84→B93 defects without evidence
+```
+
+A future Android change starts a new version/release line.
+
+
 From now until public launch:
 
 - no major new feature;
@@ -1032,6 +1177,9 @@ Focus on polish, consistency, trust and release correctness.
 ---
 
 ## 18. PRO / PURCHASE / RESTORE CUSTOMER JOURNEY
+
+**Android closure:** Restore Pro works on the exact production-signed B93 APK. Remaining work in this section is primarily website/Ko-fi/help/legal messaging alignment and public customer-journey validation, not frozen-APK modification.
+
 
 Current runtime still has separate Purchase / Restore plus paid-purchase recovery.
 
@@ -1060,6 +1208,8 @@ Customer copy must clearly state:
 ---
 
 ## 19. COMMERCE / EMAIL CURRENT CONTROLLED STATE
+
+The values below are the **last documented controlled test state**. Android closure does not prove that the live environment is unchanged. Inspect current deployment values before transition or public claims.
 
 Until final production transition:
 
@@ -1145,13 +1295,23 @@ Larger Ticket/Case platform remains deferred.
 
 ---
 
-## 22. WEBSITE / KO-FI / MARKETING STRATEGY
+## 22. WEBSITE / KO-FI / MARKETING STRATEGY — NEXT ACTIVE PHASE
 
-Benedict website is canonical source of product truth.
+Benedict website is the canonical source of public product truth.
 
-Before launch it must show:
+Immediate objective:
 
-- official signed APK;
+```text
+Final Website Polish
+→ exact Golden APK hosting
+→ public checksum verification
+→ same binary to Uptodown
+→ final launch smoke
+```
+
+Before launch the website must show:
+
+- official Golden APK `Bearagnostic-0.35.45-alpha93.apk`;
 - exact current version;
 - release notes;
 - install/update guidance;
@@ -1162,6 +1322,36 @@ Before launch it must show:
 - OTP help;
 - support;
 - privacy/legal/refund.
+
+### Mandatory language disclosure
+
+Android app launch languages:
+
+```text
+English
+ไทย
+日本語
+```
+
+Website:
+
+```text
+10+ languages
+```
+
+The website must clearly communicate this difference and must not imply that every website language exists inside the Android app.
+
+Preferred public meaning:
+
+```text
+App languages: English, Thai, and Japanese.
+Our website is available in 10+ languages.
+Additional app languages may be added in future updates.
+```
+
+Localized equivalents are allowed if semantically exact.
+
+Additional app languages are post-launch only, selected from real demand and shipped only after full translation/layout/functional/safety/Pro/Help/Legal/accessibility QA.
 
 Ko-fi must show:
 
@@ -1180,8 +1370,6 @@ Launch distribution remains deliberately simple:
 Benedict official website + Uptodown
 ```
 
-Do not chase many stores before launch. One-person operations benefit from fewer, better-maintained channels.
-
 Marketing must emphasize truthful differentiators:
 
 - local-first;
@@ -1195,118 +1383,132 @@ Marketing must emphasize truthful differentiators:
 
 No fake reviews, fake install counts, fake performance/security claims or fear-based cleaner marketing.
 
----
+## 23. FINAL RELEASE PATH — START FROM WEBSITE POLISH
 
-## 23. FINAL RELEASE PATH — START FROM HERE
+Android is already closed. Immediate next action is **Final Website Polish**, not Android QA.
 
-Immediate next action is **v83 physical/design QA**, not another speculative rewrite.
+Proceed in this order:
 
-Do only unfinished scope, in order:
+1. inspect latest `grolygori789-crypto/benedict-interactive-web` `main`;
+2. read the updated Master Plan fully;
+3. preserve B93 Golden APK and all Android Frozen evidence;
+4. perform Final Website Polish across desktop/mobile and all exposed website locales;
+5. align Product / Download / FAQ / Support / Privacy / Terms / License / Refund / Pro / Restore copy;
+6. add the website 10+ languages vs Android EN/TH/JA disclosure;
+7. verify Ko-fi 249 THB Lifetime/no-subscription presentation and post-purchase guidance;
+8. inspect the actual current commerce/email deployment state before changing test flags;
+9. close support/legal/refund/revoke/dispute launch items;
+10. host the exact Golden APK on Benedict;
+11. show exact version and SHA-256;
+12. download the public APK back and verify SHA-256 equals the Golden APK;
+13. test public Download → installer → app launch;
+14. submit the **same exact APK** to Uptodown;
+15. verify Uptodown metadata/binary identity when available;
+16. run final website → download/install → purchase/Restore/help smoke;
+17. make explicit decisions on any remaining unperformed evidence such as exact-price 249 THB proof rather than silently marking it PASS;
+18. public launch + monitoring.
 
-1. fetch latest Android main and confirm whether v83 is still current;
-2. obtain/build Debug and Release from the same exact source commit;
-3. run Section 15A physical QA matrix;
-4. capture/review Help/Support screenshots in EN/TH/JA;
-5. fix only proven defects with smallest coherent source-owned patch;
-6. bump version/cache for every changed runtime candidate;
-7. repeat affected regression plus critical smoke;
-8. close the 9 Final Polish items + 4 audits only with real evidence;
-9. Free destructive-delete proof or explicit P'Benz waiver;
-10. App/Web/Ko-fi customer journey + FAQ depth + support routing + legal/refund closure;
-11. website exact signed-APK/version/changelog/checksum path;
-12. synthetic QA cleanup when safe;
-13. remove test-only environment behavior / TEST MODE false;
-14. final controlled commerce smoke;
-15. 249 THB exact-price proof only if P'Benz approves real charge, otherwise explicit exception;
-16. final Restore smoke if affected;
-17. build/select production-signed Release APK from frozen accepted source;
-18. physically test that exact production-signed APK;
-19. after PASS, do not rebuild it;
-20. publish exact same binary on Benedict website and submit exact same binary to Uptodown;
-21. verify published bytes/checksum;
-22. final launch smoke;
-23. public launch + monitoring.
+Do not rebuild Android as part of this path.
 
----
+## 24. ONE FINAL CANDIDATE / ONE EXACT BINARY — ALREADY FROZEN
 
-## 24. ONE FINAL CANDIDATE / ONE EXACT BINARY
-
-After the final candidate passes:
+Golden APK:
 
 ```text
-build once
-→ sign with permanent key
-→ checksum
-→ physical QA that exact APK
-→ publish same exact APK to Benedict
-→ submit same exact APK to Uptodown
-→ verify published bytes
+Bearagnostic-0.35.45-alpha93.apk
 ```
 
-Do not rebuild after final QA unless source changes.
+SHA-256:
 
----
+```text
+09c12a8eb81d1a9353bc588b49639648457a1d502318ba58bc10bd8da7cfb66f
+```
+
+Production certificate SHA-256:
+
+```text
+503FB4A77B38E7129E20002EC6A0B1D4225FD189BB16E0C71EBAD88ECA88AE90
+```
+
+Evidence chain:
+
+```text
+B93 source
+→ Customer Release CI PASS
+→ QA-signed Release targeted physical PASS
+→ permanent production signing PASS
+→ exact signed APK install + Restore PASS
+→ Golden APK frozen
+→ Benedict exact same bytes
+→ Uptodown exact same bytes
+```
+
+Do not rebuild/resign after final acceptance unless a new source version is intentionally created.
 
 ## 25. CURRENT PASS / OPEN MATRIX
 
-### PASS / Frozen unless directly affected
+### ANDROID PASS / Frozen unless directly affected
 
 ```text
 Commerce hardening #1–#25
 Release-Isolation physical proof
-Production signing setup + backup
+Production signing key + backup
 Production certificate verification
-Production v79 core baseline
+B93 Customer Release CI
+B93 customer Release physical behavior
+B92 Settings/Detail viewport correction
+B93 trash/recycle duplicate-keeper correction
 Free scan/core
-Production Restore to Pro
-Pro persistence reopen/reboot
+Production Restore to Pro on exact signed B93
+prior Pro persistence reopen/reboot evidence
 Exact Duplicate detection
 Keep-one-copy safeguard
 Verified duplicate deletion
 Insights & Local History
 Verified Cleanup History
 Aggregate-only cleanup-history privacy
+Exact production-signed B93 installation
+Golden APK freeze
 ```
 
-### Current candidate
+### Golden Android release
 
 ```text
-Android main: 401fafd9ac5159b87eb6f4dad7599cfe6511ff68
-Version: 0.35.35-alpha83 / B83 / cache v83
-Physical PASS: PENDING
-Design acceptance: PENDING
-Public release: NOT APPROVED
+Android main:       1ab659e0937b41840d2a2a789f19183797208da7
+B93 app source:     d31fe574aefaf17acf57d12830a61cfe73abc689
+B93 app tree:       a7cf4ef1454d23d2e71787cb8fb0cdeff2b29e84
+Version:            0.35.45-alpha93 / B93 / cache v93
+Golden APK:         Bearagnostic-0.35.45-alpha93.apk
+APK SHA-256:        09c12a8eb81d1a9353bc588b49639648457a1d502318ba58bc10bd8da7cfb66f
+Certificate SHA256: 503FB4A77B38E7129E20002EC6A0B1D4225FD189BB16E0C71EBAD88ECA88AE90
+Android status:     CLOSED / FROZEN
+Public launch:      NOT YET
 ```
 
-### OPEN / immediate
+### OPEN / immediate — Website / distribution
 
 ```text
-v83 Debug QA — preserve Test FREE/PRO/Reset
-v83 Release QA — zero Debug entitlement controls
-Help & Support professional design acceptance
-FAQ / Contact / Purchase & Restore support behavior
-startup flash proof
-Did-you-know proof
-scroll cue post-scroll collision proof
-bulk Select all / Clear all proof
-zero-byte recovery proof
-Insights truncation proof
-EN/TH/JA compact-layout proof
-4 cross-cutting audits
-Free destructive-delete proof or waiver
-Final customer journey
-branded support routing proof
-legal/refund/revoke/dispute closure
-website signed APK path
-production environment transition
-final commerce smoke
-249 THB proof decision
-production-signed exact-binary physical QA
-Benedict + Uptodown exact-binary proof
+Final Website Polish
+website 10+ languages vs app EN/TH/JA disclosure
+Product/Download/FAQ/Support polish
+privacy/legal/refund/revoke/dispute closure
+Ko-fi final presentation/publication check
+current commerce/email environment inspection
+Golden APK website hosting
+website checksum/version/release-note presentation
+public-download binary hash verification
+real Download → install → launch smoke
+Uptodown exact-binary submission
+final purchase/Restore/help customer journey
 final launch smoke
+public launch decision + monitoring
 ```
 
----
+### Evidence boundary
+
+A dedicated current-B93 Free destructive-delete fixture was not separately rerun during final closure. Existing destructive-safety proof plus targeted B92/B93 regressions were accepted by P'Benz for Android closure. Never rewrite this as a fresh B93 destructive-delete Physical PASS.
+
+The exact-price 249 THB clean-identity purchase remains a separate final-proof/risk-decision item unless independently completed; do not infer it from the earlier 10 THB real-money proof.
 
 ## 26. DO-NOT-REGRESS LIST
 
@@ -1373,23 +1575,24 @@ When this prompt is loaded in a new room:
 
 1. inspect latest Android and Web `main` first;
 2. read `docs/BEARAGNOSTIC_ANDROID_MASTER_PLAN.md` completely;
-3. preserve Commerce #1–#25 and Frozen physical evidence unless touched by new source;
-4. recognize v79 is the last broad physical production baseline, while current source candidate is v83 or newer;
-5. recognize v81 is withdrawn and must never be used;
-6. identify Debug vs Release package before interpreting any screenshot;
-7. preserve Debug `Test as FREE / Test as PRO / Reset` functionality;
-8. enforce zero Debug entitlement UI/capability in Release;
-9. **start with physical/design QA of current v83-or-newer candidate**;
-10. treat Help & Support as a high-priority professional-design acceptance surface;
-11. do not accept “functional but ugly/inconsistent” customer UI;
-12. run targeted regression only — do not restart Release-Isolation/signing/backend/scanner work without a regression reason;
-13. source/static/headless QA may support a decision but may not replace physical or visual evidence;
-14. if fixes are required, use smallest coherent source-owned patch and bump candidate version/cache;
-15. after final accepted source, physically test the exact production-signed APK that will be public;
-16. publish that exact tested binary to Benedict and Uptodown; do not rebuild after final PASS;
-17. keep canonical documentation filenames stable;
-18. every GitHub-bound handoff must include canonical paths, evidence truth, rollback, SHA-256 when practical, and a <=50-character commit name in a fenced block;
-19. when P'Benz asks for a file, send a real clickable artifact;
-20. never make P'Benz reconstruct this corrective history again.
+3. recognize **Android B93 is closed/frozen**, not a candidate awaiting another polish loop;
+4. preserve Commerce #1–#25 and all Frozen Android evidence;
+5. retain v80→B93 corrective history as regression knowledge, not current work;
+6. never use withdrawn v81;
+7. preserve Debug/Release architecture for any future Android version;
+8. do **not** rebuild, resign, rename-version, add app locales or rerun historical Android QA during website work without a new evidence-backed reason;
+9. start with **Final Website Polish** in `grolygori789-crypto/benedict-interactive-web`;
+10. website must state that Android currently supports English / Thai / Japanese while the website is available in 10+ languages;
+11. align website/Ko-fi/support/legal/refund messaging with frozen B93 truth;
+12. host only `Bearagnostic-0.35.45-alpha93.apk` as the public Android binary;
+13. public Benedict APK SHA-256 must equal `09c12a8eb81d1a9353bc588b49639648457a1d502318ba58bc10bd8da7cfb66f`;
+14. submit the same exact APK to Uptodown;
+15. verify downloaded/public bytes rather than trusting filenames;
+16. inspect live commerce/email state before production-environment changes;
+17. keep evidence boundaries honest: no silent promotion of unperformed Free-destructive or 249 THB proof into PASS;
+18. keep canonical documentation filenames stable;
+19. every GitHub-bound handoff must include canonical paths, evidence truth, rollback, SHA-256 when practical, and a <=50-character commit name in a fenced block;
+20. when P'Benz asks for a file, send a real clickable artifact;
+21. never make P'Benz reconstruct the Android closure history again.
 
-**End of Revision 11.0**
+**End of Revision 12.0**
