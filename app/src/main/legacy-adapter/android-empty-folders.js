@@ -322,6 +322,14 @@
     }
     state.result=result; state.selected.clear(); state.summary=result.reviewSummary||parse(NATIVE.getEmptyFolderSummary?.(),{}); await loadItems(); state.view='result'; render(); updateEntry();
   }
+  // Bulk operations update the Set once; no per-row change events or full-list rebuild.
+  function bulkCandidates(){return sortedItems();}
+  function bulkStatus(){const eligible=bulkCandidates();const selectedEligible=eligible.reduce((count,item)=>count+(state.selected.has(String(item.id))?1:0),0);return{eligibleCount:eligible.length,selectedEligibleCount:selectedEligible,selectedTotal:state.selected.size,allSelected:eligible.length>0&&selectedEligible===eligible.length,capReached:state.selected.size>=MAX_SELECTION};}
+  function syncBulkSelectionDom(){const surface=byId('baEmptySurface');if(!surface||surface.hidden)return;surface.querySelectorAll('[data-empty-id]').forEach((box)=>{const id=String(box.dataset.emptyId||'');const checked=Boolean(id&&state.selected.has(id));if(box.checked!==checked)box.checked=checked;box.closest('.ba-empty-row')?.classList.toggle('is-selected',checked);});}
+  function finishBulkSelection(){state.message='';syncBulkSelectionDom();renderSelection();window.BearagnosticFinalPolish?.syncBulkControls?.();return bulkStatus();}
+  function bulkSelectAll(){if(!state.open||state.view!=='results'||!state.summary?.available||!fresh()||state.summary?.running)return bulkStatus();for(const item of bulkCandidates()){const id=String(item?.id||'');if(!id||state.selected.has(id))continue;if(state.selected.size>=MAX_SELECTION){state.message=c().limitReached;break;}state.selected.add(id);}return finishBulkSelection();}
+  function bulkClear(){if(state.selected.size)state.selected.clear();return finishBulkSelection();}
+
   function toggle(id,checked) {
     if (checked && !state.selected.has(id) && state.selected.size>=MAX_SELECTION) { state.message=c().limitReached; return; }
     checked?state.selected.add(id):state.selected.delete(id); render();
@@ -340,7 +348,7 @@
       else if(action==='permission'){try{NATIVE.requestBroadStorageAccess?.();}catch(_){}}
       else if(action==='scan') startScan();
       else if(action==='retry') await refresh();
-      else if(action==='clear'){state.selected.clear();render();}
+      else if(action==='clear'){bulkClear();}
       else if(action==='more'){state.renderLimit+=RENDER_BATCH;render();}
       else if(action==='review'){if(selectedItems().length&&fresh()){state.view='confirm';render();surface.querySelector('.ba-empty-scroll')?.scrollTo?.({top:0});}}
       else if(action==='back'){state.view='results';render();}
@@ -362,5 +370,5 @@
   window.addEventListener('focus',()=>{if(state.open)refresh();else updateEntry();});
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initialize,{once:true});else initialize();
 
-  window.BearagnosticEmptyFolders=Object.freeze({build:BUILD,open,close,refresh});
+  window.BearagnosticEmptyFolders=Object.freeze({build:BUILD,open,close,refresh,bulkSelectAll,bulkClear,bulkStatus});
 })();

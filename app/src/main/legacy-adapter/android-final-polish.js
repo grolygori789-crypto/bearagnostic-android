@@ -198,14 +198,14 @@
   ].join(',');
 
   const BULK_SPECS = Object.freeze({
-    large: {surface:'#baLargeFiles', checkbox:'[data-large-id]', dataKey:'largeId', more:'#baLargeMore', clear:'#baLargeClear', cap:500},
-    old: {surface:'#baOldFiles', checkbox:'[data-old-id]', dataKey:'oldId', more:'#baOldMore', clear:'#baOldClear', cap:500},
-    downloads: {surface:'#baDownloadsSurface', checkbox:'[data-download-id]', dataKey:'downloadId', more:'[data-download-action="more"]', clear:'[data-download-action="clear"]', cap:500},
-    installers: {surface:'#baInstallersSurface', checkbox:'[data-installer-id]', dataKey:'installerId', more:'[data-installer-action="more"]', clear:'[data-installer-action="clear"]', cap:500},
-    archives: {surface:'#baArchivesSurface', checkbox:'[data-archive-id]', dataKey:'archiveId', more:'[data-archive-action="more"]', clear:'[data-archive-action="clear"]', cap:500},
-    zero: {surface:'#baZeroSurface', checkbox:'[data-zero-id]', dataKey:'zeroId', more:'[data-zero-action="more"]', clear:'[data-zero-action="clear"]', cap:500},
-    empty: {surface:'#baEmptySurface', checkbox:'[data-empty-id]', dataKey:'emptyId', more:'[data-empty-action="more"]', clear:'[data-empty-action="clear"]', cap:100, empty:true},
-    media: {surface:'#baMediaSurface', checkbox:'[data-media-id]', dataKey:'mediaId', more:'[data-media-action="more"]', clear:'[data-media-action="clear"]', cap:500}
+    large: {surface:'#baLargeFiles', checkbox:'[data-large-id]', dataKey:'largeId', more:'#baLargeMore', clear:'#baLargeClear', cap:500, api:'BearagnosticLargeFiles'},
+    old: {surface:'#baOldFiles', checkbox:'[data-old-id]', dataKey:'oldId', more:'#baOldMore', clear:'#baOldClear', cap:500, api:'BearagnosticOlderFiles'},
+    downloads: {surface:'#baDownloadsSurface', checkbox:'[data-download-id]', dataKey:'downloadId', more:'[data-download-action="more"]', clear:'[data-download-action="clear"]', cap:500, api:'BearagnosticDownloads'},
+    installers: {surface:'#baInstallersSurface', checkbox:'[data-installer-id]', dataKey:'installerId', more:'[data-installer-action="more"]', clear:'[data-installer-action="clear"]', cap:500, api:'BearagnosticInstallers'},
+    archives: {surface:'#baArchivesSurface', checkbox:'[data-archive-id]', dataKey:'archiveId', more:'[data-archive-action="more"]', clear:'[data-archive-action="clear"]', cap:500, api:'BearagnosticArchives'},
+    zero: {surface:'#baZeroSurface', checkbox:'[data-zero-id]', dataKey:'zeroId', more:'[data-zero-action="more"]', clear:'[data-zero-action="clear"]', cap:500, api:'BearagnosticZeroFiles'},
+    empty: {surface:'#baEmptySurface', checkbox:'[data-empty-id]', dataKey:'emptyId', more:'[data-empty-action="more"]', clear:'[data-empty-action="clear"]', cap:100, empty:true, api:'BearagnosticEmptyFolders'},
+    media: {surface:'#baMediaSurface', checkbox:'[data-media-id]', dataKey:'mediaId', more:'[data-media-action="more"]', clear:'[data-media-action="clear"]', cap:500, api:'BearagnosticAdvancedMedia'}
   });
 
   function language() {
@@ -652,14 +652,19 @@
       if (select.textContent !== t.selectAll) select.textContent = t.selectAll;
       select.setAttribute('aria-label', t.selectAll);
 
-      const boxes = eligibleBoxes(spec);
-      const selectedCount = boxes.filter((box) => box.checked).length;
-      const more = surface.querySelector(spec.more);
-      const hasMore = Boolean(more && !more.disabled && isVisible(more));
-      const capReached = selectedCount >= spec.cap;
-      const allSelected = boxes.length > 0 && boxes.every((box) => box.checked) && !hasMore;
+      const api = window[spec.api];
+      const status = typeof api?.bulkStatus === 'function' ? api.bulkStatus() : null;
+      const boxes = status ? [] : eligibleBoxes(spec);
+      const selectedCount = status ? Number(status.selectedTotal || 0) : boxes.filter((box) => box.checked).length;
+      const eligibleCount = status ? Number(status.eligibleCount || 0) : boxes.length;
+      const more = status ? null : surface.querySelector(spec.more);
+      const hasMore = status ? false : Boolean(more && !more.disabled && isVisible(more));
+      const capReached = status ? Boolean(status.capReached) : selectedCount >= spec.cap;
+      const allSelected = status ? Boolean(status.allSelected) : (boxes.length > 0 && boxes.every((box) => box.checked) && !hasMore);
       const bulkBusy = surface.dataset.finalBulkSelecting === '1';
-      select.disabled = bulkBusy || !snapshotSafe(spec) || boxes.length === 0 || capReached || allSelected;
+      clear.disabled = selectedCount === 0;
+      clear.setAttribute('aria-disabled', selectedCount === 0 ? 'true' : 'false');
+      select.disabled = bulkBusy || !snapshotSafe(spec) || eligibleCount === 0 || capReached || allSelected;
       select.setAttribute('aria-busy', bulkBusy ? 'true' : 'false');
     });
 
@@ -683,59 +688,20 @@
     }
   }
 
-  async function selectAllThroughExistingHandlers(key) {
+  function selectAllThroughExistingHandlers(key) {
     const spec = BULK_SPECS[key];
     if (!spec || !snapshotSafe(spec)) return;
+    const surface = document.querySelector(spec.surface);
+    if (!surface || surface.hidden || surface.dataset.finalBulkSelecting === '1') return;
+    const api = window[spec.api];
+    if (typeof api?.bulkSelectAll !== 'function') return;
 
-    const startingSurface = document.querySelector(spec.surface);
-    if (!startingSurface || startingSurface.hidden || startingSurface.dataset.finalBulkSelecting === '1') return;
-    startingSurface.dataset.finalBulkSelecting = '1';
-    syncBulkControls();
-
+    surface.dataset.finalBulkSelecting = '1';
     try {
-      // Expand with the tool's own existing "more" action first.
-      for (let i = 0; i < 100; i += 1) {
-        const surface = document.querySelector(spec.surface);
-        if (!surface || surface.hidden) return;
-        if (eligibleBoxes(spec).length >= spec.cap) break;
-        const more = surface.querySelector(spec.more);
-        if (!more || more.disabled || !isVisible(more)) break;
-        more.click();
-        // Some dedicated Tool modules rebuild their footer synchronously. Restore
-        // the shared Select-all control before yielding a paint frame.
-        syncBulkControls();
-        await nextFrame();
-        if (!snapshotSafe(spec)) return;
-      }
-
-      const surface = document.querySelector(spec.surface);
-      if (!surface || surface.hidden || !snapshotSafe(spec)) return;
-      const ids = Array.from(surface.querySelectorAll(spec.checkbox))
-        .filter((box) => !box.disabled)
-        .map((box) => String(box.dataset[spec.dataKey] || ''))
-        .filter(Boolean)
-        .slice(0, spec.cap);
-
-      for (let i = 0; i < ids.length; i += 1) {
-        if (!snapshotSafe(spec)) break;
-        const currentSurface = document.querySelector(spec.surface);
-        if (!currentSurface || currentSurface.hidden) break;
-        const box = Array.from(currentSurface.querySelectorAll(spec.checkbox))
-          .find((node) => String(node.dataset[spec.dataKey] || '') === ids[i]);
-        if (!box || box.disabled || box.checked) continue;
-        box.checked = true;
-        box.dispatchEvent(new Event('change', {bubbles:true}));
-        if ((i + 1) % 20 === 0) {
-          // Reinsert/normalize controls synchronously before requestAnimationFrame
-          // lets the browser paint a transient Clear-all button in the left slot.
-          syncBulkControls();
-          await nextFrame();
-        }
-      }
+      // One state mutation pass, one footer update, zero synthetic checkbox events.
+      api.bulkSelectAll();
     } finally {
-      const currentSurface = document.querySelector(spec.surface);
-      if (currentSurface) delete currentSurface.dataset.finalBulkSelecting;
-      // Final synchronous normalization closes the same race for batches < 20.
+      delete surface.dataset.finalBulkSelecting;
       syncBulkControls();
       schedulePatch();
     }
@@ -1176,5 +1142,5 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initialize, {once:true});
   else initialize();
 
-  window.BearagnosticFinalPolish = Object.freeze({refresh:schedulePatch});
+  window.BearagnosticFinalPolish = Object.freeze({refresh:schedulePatch,syncBulkControls});
 })();

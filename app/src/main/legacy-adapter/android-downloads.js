@@ -910,6 +910,45 @@
     }
   }
 
+  // Bulk operations mutate selection state once and patch only selection UI.
+  function bulkCandidates() { return visibleItems(); }
+  function bulkStatus() {
+    const eligible = bulkCandidates();
+    const selectedEligible = eligible.reduce((count, item) => count + (state.selected.has(String(item.id)) ? 1 : 0), 0);
+    return { eligibleCount:eligible.length, selectedEligibleCount:selectedEligible, selectedTotal:state.selected.size, allSelected:eligible.length>0&&selectedEligible===eligible.length, capReached:state.selected.size>=MAX_DELETE_SELECTION };
+  }
+  function syncBulkSelectionDom() {
+    const surface = document.querySelector('#baDownloadsSurface');
+    if (!surface || surface.hidden) return;
+    surface.querySelectorAll('[data-download-id]').forEach((box) => {
+      const id = String(box.dataset.downloadId || '');
+      const checked = Boolean(id && state.selected.has(id));
+      if (box.checked !== checked) box.checked = checked;
+      box.closest('.ba-downloads-file')?.classList.toggle('is-selected', checked);
+    });
+  }
+  function finishBulkSelection() {
+    state.message = '';
+    syncBulkSelectionDom();
+    renderSelection();
+    window.BearagnosticFinalPolish?.syncBulkControls?.();
+    return bulkStatus();
+  }
+  function bulkSelectAll() {
+    if (!state.open || state.view !== 'results' || !state.summary?.available || !isFresh() || state.scannerRunning) return bulkStatus();
+    for (const item of bulkCandidates()) {
+      const id = String(item?.id || '');
+      if (!id || state.selected.has(id)) continue;
+      if (state.selected.size >= MAX_DELETE_SELECTION) { state.message = c().limitReached; break; }
+      state.selected.add(id);
+    }
+    return finishBulkSelection();
+  }
+  function bulkClear() {
+    if (state.selected.size) state.selected.clear();
+    return finishBulkSelection();
+  }
+
   function toggleSelection(id, checked) {
     if (!id) return;
     if (checked) {
@@ -955,7 +994,7 @@
         try { NATIVE.requestBroadStorageAccess?.(); } catch (_) {}
       } else if (action === 'scan') startQuickScan();
       else if (action === 'retry') await refresh();
-      else if (action === 'clear') { state.selected.clear(); state.message = ''; render(); }
+      else if (action === 'clear') { bulkClear(); }
       else if (action === 'more') { state.renderLimit += RENDER_BATCH; render(); }
       else if (action === 'review') {
         if (selectedItems().length && isFresh() && !state.scannerRunning) { state.view = 'confirm'; render(); surface.querySelector('.ba-downloads-scroll')?.scrollTo?.({top: 0}); }
@@ -1035,6 +1074,9 @@
     open,
     close,
     refresh: () => refresh(),
-    category: CATEGORY
+    category: CATEGORY,
+    bulkSelectAll,
+    bulkClear,
+    bulkStatus
   });
 })();
