@@ -19,17 +19,6 @@
   const SUPPORT_ID = 'baFinalSupportOverlay';
   const byId = (id) => document.getElementById(id);
 
-  const BULK = Object.freeze({
-    large:      {surface:'#baLargeFiles',       checkbox:'[data-large-id]',     dataKey:'largeId',     cap:500},
-    old:        {surface:'#baOldFiles',         checkbox:'[data-old-id]',       dataKey:'oldId',       cap:500},
-    downloads:  {surface:'#baDownloadsSurface', checkbox:'[data-download-id]',  dataKey:'downloadId',  cap:500},
-    installers: {surface:'#baInstallersSurface',checkbox:'[data-installer-id]', dataKey:'installerId', cap:500},
-    archives:   {surface:'#baArchivesSurface',  checkbox:'[data-archive-id]',   dataKey:'archiveId',   cap:500},
-    zero:       {surface:'#baZeroSurface',      checkbox:'[data-zero-id]',      dataKey:'zeroId',      cap:500},
-    empty:      {surface:'#baEmptySurface',     checkbox:'[data-empty-id]',     dataKey:'emptyId',     cap:100},
-    media:      {surface:'#baMediaSurface',     checkbox:'[data-media-id]',     dataKey:'mediaId',     cap:500},
-  });
-
   const COPY = {
     en: {
       selecting:'Selecting…',
@@ -267,43 +256,6 @@
     });
   }
 
-  function visibleBoxes(spec) {
-    const surface = document.querySelector(spec.surface);
-    if (!surface || surface.hidden) return [];
-    return Array.from(surface.querySelectorAll(spec.checkbox)).filter((box) => !box.disabled);
-  }
-
-  function fastSelectAll(button, key) {
-    const spec = BULK[key];
-    if (!spec || button.disabled || button.dataset.v87Busy === '1') return;
-    const boxes = visibleBoxes(spec).slice(0, spec.cap);
-    if (!boxes.length) return;
-    button.dataset.v87Busy = '1';
-    button.classList.add('ba-v87-working');
-    const original = button.textContent;
-    button.textContent = copy().selecting;
-    button.disabled = true;
-    requestAnimationFrame(() => {
-      const ids = boxes.map((box) => String(box.dataset[spec.dataKey] || '')).filter(Boolean);
-      for (const id of ids) {
-        const surface = document.querySelector(spec.surface);
-        if (!surface || surface.hidden) break;
-        const box = Array.from(surface.querySelectorAll(spec.checkbox)).find((node) => String(node.dataset[spec.dataKey] || '') === id);
-        if (!box || box.disabled || box.checked) continue;
-        box.checked = true;
-        box.dispatchEvent(new Event('change', {bubbles:true}));
-      }
-      requestAnimationFrame(() => {
-        const current = document.querySelector(`[data-final-select-all="${key}"]`);
-        if (current) {
-          current.dataset.v87Busy = '0';
-          current.classList.remove('ba-v87-working');
-          current.textContent = original;
-        }
-      });
-    });
-  }
-
   function setClearState(surfaceSelector, checkboxSelector, clearSelector, summarySelector) {
     const surface = document.querySelector(surfaceSelector);
     if (!surface || surface.hidden) return;
@@ -527,14 +479,10 @@
       return;
     }
 
-    const button = event.target?.closest?.('[data-final-select-all]');
-    if (!button) return;
-    const key = String(button.dataset.finalSelectAll || '');
-    if (!BULK[key]) return;
-    event.preventDefault();
-    event.stopPropagation();
-    event.stopImmediatePropagation();
-    fastSelectAll(button, key);
+    // Bulk Select all is owned exclusively by android-final-polish.js.
+    // Do not intercept it here: dedicated Tool modules may synchronously rebuild
+    // their footer after each checkbox change, and two competing owners can expose
+    // a one-frame Clear-all label in the Select-all slot.
   }
 
   let refreshQueued = false;

@@ -658,7 +658,9 @@
       const hasMore = Boolean(more && !more.disabled && isVisible(more));
       const capReached = selectedCount >= spec.cap;
       const allSelected = boxes.length > 0 && boxes.every((box) => box.checked) && !hasMore;
-      select.disabled = !snapshotSafe(spec) || boxes.length === 0 || capReached || allSelected;
+      const bulkBusy = surface.dataset.finalBulkSelecting === '1';
+      select.disabled = bulkBusy || !snapshotSafe(spec) || boxes.length === 0 || capReached || allSelected;
+      select.setAttribute('aria-busy', bulkBusy ? 'true' : 'false');
     });
 
     // Generic native review already owns safe select-all / clear-selection
@@ -685,38 +687,58 @@
     const spec = BULK_SPECS[key];
     if (!spec || !snapshotSafe(spec)) return;
 
-    // Expand with the tool's own existing "more" action first.
-    for (let i = 0; i < 100; i += 1) {
+    const startingSurface = document.querySelector(spec.surface);
+    if (!startingSurface || startingSurface.hidden || startingSurface.dataset.finalBulkSelecting === '1') return;
+    startingSurface.dataset.finalBulkSelecting = '1';
+    syncBulkControls();
+
+    try {
+      // Expand with the tool's own existing "more" action first.
+      for (let i = 0; i < 100; i += 1) {
+        const surface = document.querySelector(spec.surface);
+        if (!surface || surface.hidden) return;
+        if (eligibleBoxes(spec).length >= spec.cap) break;
+        const more = surface.querySelector(spec.more);
+        if (!more || more.disabled || !isVisible(more)) break;
+        more.click();
+        // Some dedicated Tool modules rebuild their footer synchronously. Restore
+        // the shared Select-all control before yielding a paint frame.
+        syncBulkControls();
+        await nextFrame();
+        if (!snapshotSafe(spec)) return;
+      }
+
       const surface = document.querySelector(spec.surface);
-      if (!surface || surface.hidden) return;
-      if (eligibleBoxes(spec).length >= spec.cap) break;
-      const more = surface.querySelector(spec.more);
-      if (!more || more.disabled || !isVisible(more)) break;
-      more.click();
-      await nextFrame();
-      if (!snapshotSafe(spec)) return;
-    }
+      if (!surface || surface.hidden || !snapshotSafe(spec)) return;
+      const ids = Array.from(surface.querySelectorAll(spec.checkbox))
+        .filter((box) => !box.disabled)
+        .map((box) => String(box.dataset[spec.dataKey] || ''))
+        .filter(Boolean)
+        .slice(0, spec.cap);
 
-    const surface = document.querySelector(spec.surface);
-    if (!surface || surface.hidden || !snapshotSafe(spec)) return;
-    const ids = Array.from(surface.querySelectorAll(spec.checkbox))
-      .filter((box) => !box.disabled)
-      .map((box) => String(box.dataset[spec.dataKey] || ''))
-      .filter(Boolean)
-      .slice(0, spec.cap);
-
-    for (let i = 0; i < ids.length; i += 1) {
-      if (!snapshotSafe(spec)) break;
+      for (let i = 0; i < ids.length; i += 1) {
+        if (!snapshotSafe(spec)) break;
+        const currentSurface = document.querySelector(spec.surface);
+        if (!currentSurface || currentSurface.hidden) break;
+        const box = Array.from(currentSurface.querySelectorAll(spec.checkbox))
+          .find((node) => String(node.dataset[spec.dataKey] || '') === ids[i]);
+        if (!box || box.disabled || box.checked) continue;
+        box.checked = true;
+        box.dispatchEvent(new Event('change', {bubbles:true}));
+        if ((i + 1) % 20 === 0) {
+          // Reinsert/normalize controls synchronously before requestAnimationFrame
+          // lets the browser paint a transient Clear-all button in the left slot.
+          syncBulkControls();
+          await nextFrame();
+        }
+      }
+    } finally {
       const currentSurface = document.querySelector(spec.surface);
-      if (!currentSurface || currentSurface.hidden) break;
-      const box = Array.from(currentSurface.querySelectorAll(spec.checkbox))
-        .find((node) => String(node.dataset[spec.dataKey] || '') === ids[i]);
-      if (!box || box.disabled || box.checked) continue;
-      box.checked = true;
-      box.dispatchEvent(new Event('change', {bubbles:true}));
-      if ((i + 1) % 20 === 0) await nextFrame();
+      if (currentSurface) delete currentSurface.dataset.finalBulkSelecting;
+      // Final synchronous normalization closes the same race for batches < 20.
+      syncBulkControls();
+      schedulePatch();
     }
-    schedulePatch();
   }
 
   function staleProCopy(text) {
