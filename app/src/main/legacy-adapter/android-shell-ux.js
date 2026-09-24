@@ -57,13 +57,23 @@
       .ba-scroll-cue{position:fixed;z-index:2100;left:50%;width:min(100%,760px);height:38px;transform:translateX(-50%);pointer-events:none;opacity:0;visibility:hidden;transition:opacity .16s ease,visibility .16s ease;display:flex;align-items:flex-end;justify-content:center}
       .ba-scroll-cue.is-visible{opacity:1;visibility:visible}
       .ba-scroll-cue__fade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(244,249,253,0),rgba(244,249,253,.76) 58%,rgba(244,249,253,.97));mask-image:linear-gradient(to bottom,transparent,#000 52%);-webkit-mask-image:linear-gradient(to bottom,transparent,#000 52%)}
-      .ba-scroll-cue__chevron{position:relative;z-index:1;width:28px;height:18px;margin-bottom:2px;display:grid;place-items:center;color:#7895ad;filter:drop-shadow(0 1px 0 rgba(255,255,255,.9));opacity:.86}
-      .ba-scroll-cue__chevron svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+      .ba-scroll-cue__chevron{position:relative;z-index:1;width:28px;height:18px;margin-bottom:2px;display:grid;place-items:center;color:#7895ad;filter:drop-shadow(0 1px 0 rgba(255,255,255,.9));opacity:.86;animation:none!important;transition:none!important}
+      .ba-scroll-cue__chevron svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;animation:none!important;transition:none!important}
       .ba-scroll-cue__hint{position:absolute;z-index:2;bottom:18px;left:50%;transform:translateX(-50%);display:inline-flex;align-items:center;gap:5px;min-height:27px;padding:0 10px;border-radius:999px;background:rgba(255,255,255,.92);border:1px solid rgba(91,124,151,.10);box-shadow:0 7px 18px rgba(63,93,120,.09);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:#607b91;font-size:10px;line-height:1;font-weight:720;letter-spacing:.005em;white-space:nowrap;opacity:0;visibility:hidden;transition:opacity .16s ease,visibility .16s ease}
       .ba-scroll-cue.show-hint .ba-scroll-cue__hint{opacity:1;visibility:visible}
+
+      /* B94 scoped polish: Empty Folders utility actions only. Higher specificity is
+         intentional so the late B88 stabilization layer cannot stretch these buttons. */
+      html body #baEmptySelection .ba-empty-selection__inner{grid-template-columns:repeat(2,minmax(0,1fr))!important;column-gap:12px!important;row-gap:12px!important;align-items:center!important}
+      html body #baEmptySelection .ba-empty-selection__inner>div:first-child{grid-column:1/-1!important;padding:0 2px 2px!important;margin:0!important}
+      html body #baEmptySelection [data-final-select-all="empty"],html body #baEmptySelection [data-empty-action="clear"]{grid-column:auto!important;display:grid!important;place-items:center!important;width:100%!important;height:54px!important;min-height:54px!important;padding:0 14px!important;margin:0!important;border-radius:18px!important;line-height:1!important;align-self:center!important}
+      html body #baEmptySelection [data-empty-action="clear"]:disabled{opacity:.46!important;box-shadow:none!important}
+      html body #baEmptySelection [data-empty-action="review"]{grid-column:1/-1!important;display:grid!important;place-items:center!important;width:100%!important;min-height:54px!important;margin:0!important;border-radius:18px!important}
+
       @media(max-width:390px){.ba-scroll-cue{height:34px}.ba-scroll-cue__hint{font-size:9.5px;min-height:25px}}
-      @media(prefers-reduced-motion:reduce){.ba-scroll-cue,.ba-scroll-cue__hint{transition:none!important}}
-      html[data-motion="reduced"] .ba-scroll-cue,html[data-motion="reduced"] .ba-scroll-cue__hint{transition:none!important}
+      @media(max-width:350px){html body #baEmptySelection .ba-empty-selection__inner{grid-template-columns:1fr!important;gap:10px!important}html body #baEmptySelection .ba-empty-selection__inner>div:first-child,html body #baEmptySelection [data-empty-action="review"]{grid-column:1!important}}
+      @media(prefers-reduced-motion:reduce){.ba-scroll-cue,.ba-scroll-cue__hint,.ba-scroll-cue__chevron,.ba-scroll-cue__chevron svg{transition:none!important;animation:none!important}}
+      html[data-motion="reduced"] .ba-scroll-cue,html[data-motion="reduced"] .ba-scroll-cue__hint,html[data-motion="reduced"] .ba-scroll-cue__chevron,html[data-motion="reduced"] .ba-scroll-cue__chevron svg{transition:none!important;animation:none!important}
     `;
     document.head.appendChild(style);
   }
@@ -265,7 +275,7 @@
 
   function initialize() {
     ensureStyle();
-    ensureCue();
+    const cue = ensureCue();
     resizeObserver = typeof ResizeObserver === 'function' ? new ResizeObserver(scheduleUpdate) : null;
     const appRoot = byId('appRoot');
     if (resizeObserver && appRoot) {
@@ -274,7 +284,12 @@
     scheduleUpdate();
 
     // A single observer owns app-shell scroll discoverability and Checkup shell state.
-    const observer = new MutationObserver(scheduleUpdate);
+    // Ignore mutations created by the cue itself; otherwise collision/visibility classes
+    // can feed back into this observer and produce visible flicker on some WebViews.
+    const observer = new MutationObserver((records) => {
+      const externalChange = records.some((record) => record.target !== cue && !cue.contains(record.target));
+      if (externalChange) scheduleUpdate();
+    });
     observer.observe(document.body, {
       childList: true,
       subtree: true,
