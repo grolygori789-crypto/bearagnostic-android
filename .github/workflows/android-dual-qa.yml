@@ -75,7 +75,7 @@ jobs:
           test -f "$APK"
           APP_ID="$($APKANALYZER manifest application-id "$APK" | tr -d '\r\n')"
           DEBUGGABLE="$($APKANALYZER manifest debuggable "$APK" | tr -d '\r\n' | tr '[:upper:]' '[:lower:]')"
-          test "$APP_ID" = "com.benedictinteractive.bearagnostic"
+          test "$APP_ID" = "com.benedictinteractive.bearagnostic.debug"
           test "$DEBUGGABLE" = "true"
           sha256sum "$APK" > "$APK.sha256"
           {
