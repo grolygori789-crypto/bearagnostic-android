@@ -32,13 +32,18 @@ jobs:
           ent = Path('app/src/main/java/com/benedictinteractive/bearagnostic/EntitlementManager.kt').read_text(encoding='utf-8')
           pro = Path('app/src/main/legacy-adapter/android-pro-ui.js').read_text(encoding='utf-8')
           shell = Path('app/src/main/legacy-adapter/android-shell-ux.js').read_text(encoding='utf-8')
+          home = Path('app/src/main/legacy-adapter/android-home-polish.js').read_text(encoding='utf-8')
+          final = Path('app/src/main/legacy-adapter/android-final-polish.js').read_text(encoding='utf-8')
           assert 'put("debugControlsAvailable", BuildConfig.DEBUG)' in ent
           assert 'const debug = state.debugControlsAvailable === true;' in pro
           assert 'data-debug-tier="free"' in pro and 'data-debug-tier="pro"' in pro and 'data-debug-reset' in pro
           assert '#baScrollCue.ba-v87-collision-safe-hide.is-visible{opacity:1!important;visibility:visible!important}' in shell
           assert "cue.classList.toggle('is-visible', !atBottom);" in shell
           assert 'data-final-select-all="empty"' in shell and 'data-empty-action="clear"' in shell
-          print('PASS TEST/DEV source contract + final UI hotfix markers')
+          assert 'function fastSelectAll(' not in home
+          assert "startingSurface.dataset.finalBulkSelecting = '1';" in final
+          assert 'syncBulkControls();' in final and 'aria-busy' in final
+          print('PASS TEST/DEV source contract + final UI/bulk-control ownership markers')
           PY
 
       - name: Set up JDK 17
@@ -120,6 +125,8 @@ jobs:
           pro = (root / 'app/src/main/legacy-adapter/android-pro-ui.js').read_text(encoding='utf-8')
           billing = (root / 'app/src/main/legacy-adapter/android-billing.js').read_text(encoding='utf-8')
           shell = (root / 'app/src/main/legacy-adapter/android-shell-ux.js').read_text(encoding='utf-8')
+          home = (root / 'app/src/main/legacy-adapter/android-home-polish.js').read_text(encoding='utf-8')
+          final = (root / 'app/src/main/legacy-adapter/android-final-polish.js').read_text(encoding='utf-8')
 
           def between(text, start, end):
               a = text.find(start)
@@ -152,9 +159,20 @@ jobs:
           assert 'html body #baEmptySelection [data-final-select-all="empty"]' in shell
           assert 'html body #baEmptySelection [data-empty-action="clear"]' in shell
 
+          # Bulk-control ownership contract: one shared owner for all eight list tools.
+          # Dedicated tool renders may rebuild footers synchronously, so controls must be
+          # normalized before any animation-frame yield to prevent a one-frame Clear flash.
+          assert 'function fastSelectAll(' not in home
+          assert "event.target?.closest?.('[data-final-select-all]')" not in home
+          assert "startingSurface.dataset.finalBulkSelecting = '1';" in final
+          assert "surface.dataset.finalBulkSelecting === '1'" in final
+          assert "select.setAttribute('aria-busy', bulkBusy ? 'true' : 'false');" in final
+          assert final.count('syncBulkControls();') >= 5
+
           print('PASS Customer Release source isolation')
           print('PASS scroll cue visible/not-blinking/until-bottom contract')
           print('PASS Empty Folders scoped action layout contract')
+          print('PASS single-owner bulk selection + no one-frame footer flash contract')
           PY
 
       - name: Set up JDK 17
@@ -222,9 +240,14 @@ jobs:
                   if marker in dex:
                       raise SystemExit(f'FAIL customer release contains debug-only marker: {marker!r}')
               shell_name = 'assets/ui/js/android-shell-ux.js'
-              if shell_name not in names:
-                  raise SystemExit('FAIL customer release missing android-shell-ux.js')
+              home_name = 'assets/ui/js/android-home-polish.js'
+              final_name = 'assets/ui/js/android-final-polish.js'
+              for required_name in (shell_name, home_name, final_name):
+                  if required_name not in names:
+                      raise SystemExit(f'FAIL customer release missing {required_name}')
               shell = z.read(shell_name).decode('utf-8', errors='strict')
+              home = z.read(home_name).decode('utf-8', errors='strict')
+              final = z.read(final_name).decode('utf-8', errors='strict')
               required = (
                   '.ba-scroll-cue.is-visible{opacity:1!important;visibility:visible!important}',
                   '#baScrollCue.ba-v87-collision-safe-hide.is-visible{opacity:1!important;visibility:visible!important}',
@@ -235,8 +258,19 @@ jobs:
               for marker in required:
                   if marker not in shell:
                       raise SystemExit(f'FAIL packaged final UI marker missing: {marker}')
+              if 'function fastSelectAll(' in home or "event.target?.closest?.('[data-final-select-all]')" in home:
+                  raise SystemExit('FAIL packaged Home polish still intercepts shared Select-all')
+              for marker in (
+                  "startingSurface.dataset.finalBulkSelecting = '1';",
+                  "surface.dataset.finalBulkSelecting === '1'",
+                  "select.setAttribute('aria-busy', bulkBusy ? 'true' : 'false');",
+                  'Final synchronous normalization closes the same race for batches < 20.',
+              ):
+                  if marker not in final:
+                      raise SystemExit(f'FAIL packaged bulk-control stability marker missing: {marker}')
           print('PASS Customer Release DEX contains no debug-only QA classes')
           print('PASS Customer Release contains exact final UI hotfix')
+          print('PASS Customer Release contains single-owner bulk-control stability fix')
           PY
 
           # QA install copy: release behavior, test-signed only so it can be installed before production signing.
