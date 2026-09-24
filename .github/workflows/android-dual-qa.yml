@@ -41,9 +41,18 @@ jobs:
           assert "cue.classList.toggle('is-visible', !atBottom);" in shell
           assert 'data-final-select-all="empty"' in shell and 'data-empty-action="clear"' in shell
           assert 'function fastSelectAll(' not in home
-          assert "startingSurface.dataset.finalBulkSelecting = '1';" in final
+          assert "api.bulkSelectAll();" in final
+          assert "box.dispatchEvent(new Event('change'" not in final
           assert 'syncBulkControls();' in final and 'aria-busy' in final
-          print('PASS TEST/DEV source contract + final UI/bulk-control ownership markers')
+          bulk_paths = (
+              'android-large-files.js','android-older-files.js','android-downloads.js','android-installers.js',
+              'android-archives.js','android-zero.js','android-empty-folders.js','android-advanced-media.js',
+          )
+          for name in bulk_paths:
+              source = (Path('app/src/main/legacy-adapter') / name).read_text(encoding='utf-8')
+              for marker in ('bulkSelectAll','bulkClear','bulkStatus','syncBulkSelectionDom'):
+                  assert marker in source, f'{name} missing fast bulk marker {marker}'
+          print('PASS TEST/DEV source contract + synchronous bulk selection markers')
           PY
 
       - name: Set up JDK 17
@@ -159,20 +168,29 @@ jobs:
           assert 'html body #baEmptySelection [data-final-select-all="empty"]' in shell
           assert 'html body #baEmptySelection [data-empty-action="clear"]' in shell
 
-          # Bulk-control ownership contract: one shared owner for all eight list tools.
-          # Dedicated tool renders may rebuild footers synchronously, so controls must be
-          # normalized before any animation-frame yield to prevent a one-frame Clear flash.
+          # Bulk-control contract: each tool owns one O(n) state update, while Final Polish
+          # only routes the shared Select-all control. No synthetic per-row change loop.
           assert 'function fastSelectAll(' not in home
           assert "event.target?.closest?.('[data-final-select-all]')" not in home
-          assert "startingSurface.dataset.finalBulkSelecting = '1';" in final
+          assert "api.bulkSelectAll();" in final
+          assert "box.dispatchEvent(new Event('change'" not in final
           assert "surface.dataset.finalBulkSelecting === '1'" in final
           assert "select.setAttribute('aria-busy', bulkBusy ? 'true' : 'false');" in final
-          assert final.count('syncBulkControls();') >= 5
+          assert 'window.BearagnosticFinalPolish = Object.freeze({refresh:schedulePatch,syncBulkControls});' in final
+          bulk_paths = (
+              'android-large-files.js','android-older-files.js','android-downloads.js','android-installers.js',
+              'android-archives.js','android-zero.js','android-empty-folders.js','android-advanced-media.js',
+          )
+          for name in bulk_paths:
+              source = (root / 'app/src/main/legacy-adapter' / name).read_text(encoding='utf-8')
+              for marker in ('bulkSelectAll','bulkClear','bulkStatus','syncBulkSelectionDom'):
+                  assert marker in source, f'{name} missing fast bulk marker {marker}'
+              assert "dispatchEvent(new Event('change'" not in between(source, 'function bulkSelectAll', 'function bulkClear'), f'{name} bulk Select-all still dispatches row changes'
 
           print('PASS Customer Release source isolation')
           print('PASS scroll cue visible/not-blinking/until-bottom contract')
           print('PASS Empty Folders scoped action layout contract')
-          print('PASS single-owner bulk selection + no one-frame footer flash contract')
+          print('PASS synchronous O(n) bulk selection contract')
           PY
 
       - name: Set up JDK 17
@@ -261,16 +279,30 @@ jobs:
               if 'function fastSelectAll(' in home or "event.target?.closest?.('[data-final-select-all]')" in home:
                   raise SystemExit('FAIL packaged Home polish still intercepts shared Select-all')
               for marker in (
-                  "startingSurface.dataset.finalBulkSelecting = '1';",
+                  "api.bulkSelectAll();",
                   "surface.dataset.finalBulkSelecting === '1'",
                   "select.setAttribute('aria-busy', bulkBusy ? 'true' : 'false');",
-                  'Final synchronous normalization closes the same race for batches < 20.',
+                  'syncBulkControls});',
               ):
                   if marker not in final:
-                      raise SystemExit(f'FAIL packaged bulk-control stability marker missing: {marker}')
+                      raise SystemExit(f'FAIL packaged bulk-control marker missing: {marker}')
+              if "box.dispatchEvent(new Event('change'" in final:
+                  raise SystemExit('FAIL packaged Final Polish still contains synthetic per-row bulk loop')
+              bulk_assets = (
+                  'android-large-files.js','android-older-files.js','android-downloads.js','android-installers.js',
+                  'android-archives.js','android-zero.js','android-empty-folders.js','android-advanced-media.js',
+              )
+              for asset in bulk_assets:
+                  name = 'assets/ui/js/' + asset
+                  if name not in names:
+                      raise SystemExit(f'FAIL customer release missing bulk module {name}')
+                  source = z.read(name).decode('utf-8', errors='strict')
+                  for marker in ('bulkSelectAll','bulkClear','bulkStatus','syncBulkSelectionDom'):
+                      if marker not in source:
+                          raise SystemExit(f'FAIL packaged {asset} missing fast bulk marker: {marker}')
           print('PASS Customer Release DEX contains no debug-only QA classes')
           print('PASS Customer Release contains exact final UI hotfix')
-          print('PASS Customer Release contains single-owner bulk-control stability fix')
+          print('PASS Customer Release contains synchronous bulk-selection fix')
           PY
 
           # QA install copy: release behavior, test-signed only so it can be installed before production signing.
