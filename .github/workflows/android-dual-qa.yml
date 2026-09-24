@@ -1,0 +1,284 @@
+name: Build Android TEST + CUSTOMER QA
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-dual-qa-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test-dev:
+    name: TEST DEV (Free/Pro controls ON)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify runtime contracts
+        run: python3 scripts/verify_runtime_contracts.py
+
+      - name: Verify TEST/DEV entitlement contract
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          ent = Path('app/src/main/java/com/benedictinteractive/bearagnostic/EntitlementManager.kt').read_text(encoding='utf-8')
+          pro = Path('app/src/main/legacy-adapter/android-pro-ui.js').read_text(encoding='utf-8')
+          shell = Path('app/src/main/legacy-adapter/android-shell-ux.js').read_text(encoding='utf-8')
+          assert 'put("debugControlsAvailable", BuildConfig.DEBUG)' in ent
+          assert 'const debug = state.debugControlsAvailable === true;' in pro
+          assert 'data-debug-tier="free"' in pro and 'data-debug-tier="pro"' in pro and 'data-debug-reset' in pro
+          assert '#baScrollCue.ba-v87-collision-safe-hide.is-visible{opacity:1!important;visibility:visible!important}' in shell
+          assert "cue.classList.toggle('is-visible', !atBottom);" in shell
+          assert 'data-final-select-all="empty"' in shell and 'data-empty-action="clear"' in shell
+          print('PASS TEST/DEV source contract + final UI hotfix markers')
+          PY
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+
+      - name: Install Android SDK packages
+        shell: bash
+        run: |
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager "platform-tools" "platforms;android-36" "build-tools;36.0.0"
+
+      - name: Set up Gradle 9.6.0
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '9.6.0'
+
+      - name: Build TEST/DEV APK
+        run: gradle --no-daemon --stacktrace :app:assembleDebug
+
+      - name: Verify TEST/DEV APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          APK="app/build/outputs/apk/debug/app-debug.apk"
+          APKANALYZER="$ANDROID_HOME/cmdline-tools/latest/bin/apkanalyzer"
+          test -f "$APK"
+          APP_ID="$($APKANALYZER manifest application-id "$APK" | tr -d '\r\n')"
+          DEBUGGABLE="$($APKANALYZER manifest debuggable "$APK" | tr -d '\r\n' | tr '[:upper:]' '[:lower:]')"
+          test "$APP_ID" = "com.benedictinteractive.bearagnostic"
+          test "$DEBUGGABLE" = "true"
+          sha256sum "$APK" > "$APK.sha256"
+          {
+            echo "Bearagnostic TEST/DEV QA"
+            echo "Application ID: $APP_ID"
+            echo "Debuggable: $DEBUGGABLE"
+            echo "Expected UI: DEVELOPMENT ENTITLEMENT TEST / Test as FREE / Test as PRO / Reset"
+            echo "Purpose: functional QA only — NEVER public distribution"
+          } > app/build/outputs/apk/debug/READ_ME_FIRST_TEST_DEV.txt
+
+      - name: Upload TEST/DEV APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: TEST-DEV-Bearagnostic-${{ github.run_number }}
+          path: |
+            app/build/outputs/apk/debug/app-debug.apk
+            app/build/outputs/apk/debug/app-debug.apk.sha256
+            app/build/outputs/apk/debug/READ_ME_FIRST_TEST_DEV.txt
+          if-no-files-found: error
+          retention-days: 7
+
+  customer-release:
+    name: CUSTOMER RELEASE QA (Dev controls OFF)
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify runtime contracts
+        run: python3 scripts/verify_runtime_contracts.py
+
+      - name: Verify release isolation + hotfix contract
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          root = Path('.')
+          ent = (root / 'app/src/main/java/com/benedictinteractive/bearagnostic/EntitlementManager.kt').read_text(encoding='utf-8')
+          bridge = (root / 'app/src/main/java/com/benedictinteractive/bearagnostic/NativeBridge.kt').read_text(encoding='utf-8')
+          pro = (root / 'app/src/main/legacy-adapter/android-pro-ui.js').read_text(encoding='utf-8')
+          billing = (root / 'app/src/main/legacy-adapter/android-billing.js').read_text(encoding='utf-8')
+          shell = (root / 'app/src/main/legacy-adapter/android-shell-ux.js').read_text(encoding='utf-8')
+
+          def between(text, start, end):
+              a = text.find(start)
+              assert a >= 0, f'missing section: {start}'
+              b = text.find(end, a + len(start))
+              return text[a:] if b < 0 else text[a:b]
+
+          set_debug = between(ent, 'fun setDebugTier(rawTier: String): String {', 'fun clearDebugTier(): String {')
+          clear_debug = between(ent, 'fun clearDebugTier(): String {', 'fun updatePlayOwnership(')
+          state_json = between(ent, 'fun stateJsonObject(): JSONObject {', 'companion object {')
+          qa_bridge = between(bridge, 'fun runCommerceQaScenario(scenario: String): String {', 'fun setDebugEntitlement(tier: String): String {')
+
+          assert 'if (!BuildConfig.DEBUG)' in set_debug and 'debug_controls_unavailable' in set_debug
+          assert 'if (!BuildConfig.DEBUG)' in clear_debug and 'debug_controls_unavailable' in clear_debug
+          assert 'put("debugControlsAvailable", BuildConfig.DEBUG)' in state_json
+          assert 'if (!BuildConfig.DEBUG) return rejected("qa_unavailable")' in qa_bridge
+          assert 'const debug = state.debugControlsAvailable === true;' in pro
+          assert 'const debugBlock = debug ?' in pro
+          assert 'ent?.debugControlsAvailable === true' in billing
+          assert 'if (!available) {' in billing and 'owned?.remove?.();' in billing
+
+          # Final UI contract: arrow remains visible while more content exists, never blinks,
+          # and existing at-bottom logic alone removes is-visible at the end of the scroller.
+          assert '.ba-scroll-cue.is-visible{opacity:1!important;visibility:visible!important}' in shell
+          assert '#baScrollCue.ba-v87-collision-safe-hide.is-visible{opacity:1!important;visibility:visible!important}' in shell
+          assert 'transition:none!important' in shell
+          assert 'animation:none!important' in shell
+          assert "const atBottom = scroller.scrollTop + scroller.clientHeight >= scroller.scrollHeight - BOTTOM_EPSILON;" in shell
+          assert "cue.classList.toggle('is-visible', !atBottom);" in shell
+          assert 'html body #baEmptySelection [data-final-select-all="empty"]' in shell
+          assert 'html body #baEmptySelection [data-empty-action="clear"]' in shell
+
+          print('PASS Customer Release source isolation')
+          print('PASS scroll cue visible/not-blinking/until-bottom contract')
+          print('PASS Empty Folders scoped action layout contract')
+          PY
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+
+      - name: Install Android SDK packages
+        shell: bash
+        run: |
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager "platform-tools" "platforms;android-36" "build-tools;36.0.0"
+
+      - name: Set up Gradle 9.6.0
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '9.6.0'
+
+      - name: Build Release behavior
+        run: gradle --no-daemon --stacktrace :app:assembleRelease
+
+      - name: Verify and prepare Customer Release QA APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          BUILD_TOOLS="$ANDROID_HOME/build-tools/36.0.0"
+          APKANALYZER="$ANDROID_HOME/cmdline-tools/latest/bin/apkanalyzer"
+          OUT="app/build/outputs/apk/customer-release-dual-qa"
+          UNSIGNED="$(find app/build/outputs/apk/release -maxdepth 1 -type f -name '*-unsigned.apk' -print -quit)"
+          test -n "$UNSIGNED"
+          mkdir -p "$OUT"
+
+          ALIGNED="$OUT/SIGN_LATER_Bearagnostic-CUSTOMER-RELEASE-unsigned-aligned.apk"
+          QA="$OUT/INSTALL_THIS_Bearagnostic-CUSTOMER-RELEASE-QA.apk"
+          "$BUILD_TOOLS/zipalign" -p -f 4 "$UNSIGNED" "$ALIGNED"
+          "$BUILD_TOOLS/zipalign" -c -p 4 "$ALIGNED"
+
+          APP_ID="$($APKANALYZER manifest application-id "$ALIGNED" | tr -d '\r\n')"
+          VERSION_NAME="$($APKANALYZER manifest version-name "$ALIGNED" | tr -d '\r\n')"
+          VERSION_CODE="$($APKANALYZER manifest version-code "$ALIGNED" | tr -d '\r\n')"
+          DEBUGGABLE="$($APKANALYZER manifest debuggable "$ALIGNED" | tr -d '\r\n' | tr '[:upper:]' '[:lower:]')"
+          test "$APP_ID" = "com.benedictinteractive.bearagnostic"
+          test "$DEBUGGABLE" = "false"
+
+          python3 - "$ALIGNED" <<'PY'
+          import sys, zipfile
+          apk = sys.argv[1]
+          forbidden = (
+              b'CommerceQaActivity',
+              b'Bearagnostic Commerce QA',
+              b'Lcom/benedictinteractive/bearagnostic/DebugBillingSandbox;',
+              b'Lcom/benedictinteractive/bearagnostic/DebugCommerceQaHarness;',
+              b'bearagnostic_debug_billing_sandbox_v2',
+          )
+          with zipfile.ZipFile(apk) as z:
+              names = z.namelist()
+              dex = b''.join(z.read(n) for n in names if n.startswith('classes') and n.endswith('.dex'))
+              for marker in forbidden:
+                  if marker in dex:
+                      raise SystemExit(f'FAIL customer release contains debug-only marker: {marker!r}')
+              shell_name = 'assets/ui/js/android-shell-ux.js'
+              if shell_name not in names:
+                  raise SystemExit('FAIL customer release missing android-shell-ux.js')
+              shell = z.read(shell_name).decode('utf-8', errors='strict')
+              required = (
+                  '.ba-scroll-cue.is-visible{opacity:1!important;visibility:visible!important}',
+                  '#baScrollCue.ba-v87-collision-safe-hide.is-visible{opacity:1!important;visibility:visible!important}',
+                  "cue.classList.toggle('is-visible', !atBottom);",
+                  'data-final-select-all="empty"',
+                  'data-empty-action="clear"',
+              )
+              for marker in required:
+                  if marker not in shell:
+                      raise SystemExit(f'FAIL packaged final UI marker missing: {marker}')
+          print('PASS Customer Release DEX contains no debug-only QA classes')
+          print('PASS Customer Release contains exact final UI hotfix')
+          PY
+
+          # QA install copy: release behavior, test-signed only so it can be installed before production signing.
+          "$BUILD_TOOLS/apksigner" sign \
+            --ks signing/bearagnostic-debug.jks \
+            --ks-key-alias bearagnosticdebug \
+            --ks-pass pass:android \
+            --key-pass pass:android \
+            --out "$QA" \
+            "$ALIGNED"
+          "$BUILD_TOOLS/apksigner" verify --verbose --print-certs "$QA" > "$OUT/QA-test-signature-report.txt"
+          "$BUILD_TOOLS/zipalign" -c -p 4 "$QA"
+
+          QA_DEBUGGABLE="$($APKANALYZER manifest debuggable "$QA" | tr -d '\r\n' | tr '[:upper:]' '[:lower:]')"
+          test "$QA_DEBUGGABLE" = "false"
+
+          {
+            echo "Bearagnostic CUSTOMER RELEASE QA"
+            echo "Application ID: $APP_ID"
+            echo "Version name: $VERSION_NAME"
+            echo "Version code: $VERSION_CODE"
+            echo "Debuggable: $DEBUGGABLE"
+            echo "Customer-visible Dev controls: OFF"
+            echo "Expected absent UI: DEVELOPMENT ENTITLEMENT TEST / Test as FREE / Test as PRO / Reset"
+            echo "QA APK signing: TEST-ONLY repository key; NOT FOR PUBLIC DISTRIBUTION"
+            echo "Use INSTALL_THIS_* only for physical QA"
+            echo "Use SIGN_LATER_* only after QA passes and when doing permanent Benedict signing"
+          } > "$OUT/READ_ME_FIRST_CUSTOMER_RELEASE.txt"
+
+          sha256sum "$ALIGNED" > "$ALIGNED.sha256"
+          sha256sum "$QA" > "$QA.sha256"
+
+      - name: Upload CUSTOMER RELEASE QA
+        uses: actions/upload-artifact@v4
+        with:
+          name: CUSTOMER-RELEASE-QA-Bearagnostic-${{ github.run_number }}
+          path: |
+            app/build/outputs/apk/customer-release-dual-qa/INSTALL_THIS_Bearagnostic-CUSTOMER-RELEASE-QA.apk
+            app/build/outputs/apk/customer-release-dual-qa/INSTALL_THIS_Bearagnostic-CUSTOMER-RELEASE-QA.apk.sha256
+            app/build/outputs/apk/customer-release-dual-qa/SIGN_LATER_Bearagnostic-CUSTOMER-RELEASE-unsigned-aligned.apk
+            app/build/outputs/apk/customer-release-dual-qa/SIGN_LATER_Bearagnostic-CUSTOMER-RELEASE-unsigned-aligned.apk.sha256
+            app/build/outputs/apk/customer-release-dual-qa/READ_ME_FIRST_CUSTOMER_RELEASE.txt
+            app/build/outputs/apk/customer-release-dual-qa/QA-test-signature-report.txt
+          if-no-files-found: error
+          retention-days: 7

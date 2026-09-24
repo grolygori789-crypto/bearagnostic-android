@@ -1,15 +1,13 @@
-name: Build Android Debug APK
+name: Build Android Debug APK (manual legacy)
 
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: android-debug-${{ github.ref }}
+  group: android-debug-manual-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -56,9 +54,9 @@ jobs:
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
         with:
-          name: bearagnostic-android-debug-${{ github.run_number }}
+          name: LEGACY-MANUAL-DEBUG-${{ github.run_number }}
           path: |
             app/build/outputs/apk/debug/app-debug.apk
             app/build/outputs/apk/debug/app-debug.apk.sha256
           if-no-files-found: error
-          retention-days: 14
+          retention-days: 7
