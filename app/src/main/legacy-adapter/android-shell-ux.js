@@ -54,8 +54,11 @@
       .app-shell.is-checkup.ba-checkup-root .bottom-nav .nav-button[data-nav="checkup"]{color:var(--blue)!important}
       #nativeModeSheet:not([hidden]) .native-mode-panel{max-height:calc(100dvh - max(24px,env(safe-area-inset-top)) - max(24px,env(safe-area-inset-bottom)));overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
 
-      .ba-scroll-cue{position:fixed;z-index:2100;left:50%;width:min(100%,760px);height:38px;transform:translateX(-50%);pointer-events:none;opacity:0;visibility:hidden;transition:opacity .16s ease,visibility .16s ease;display:flex;align-items:flex-end;justify-content:center}
-      .ba-scroll-cue.is-visible{opacity:1;visibility:visible}
+      .ba-scroll-cue{position:fixed;z-index:2100;left:50%;width:min(100%,760px);height:38px;transform:translateX(-50%);pointer-events:none;opacity:0;visibility:hidden;transition:none!important;display:flex;align-items:flex-end;justify-content:center}
+      .ba-scroll-cue.is-visible{opacity:1!important;visibility:visible!important}
+      /* Keep the cue visible whenever content remains below. B88 collision safety may add
+         its legacy hide class, but positioning is already handled by cueBottomPx(). */
+      #baScrollCue.ba-v87-collision-safe-hide.is-visible{opacity:1!important;visibility:visible!important}
       .ba-scroll-cue__fade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(244,249,253,0),rgba(244,249,253,.76) 58%,rgba(244,249,253,.97));mask-image:linear-gradient(to bottom,transparent,#000 52%);-webkit-mask-image:linear-gradient(to bottom,transparent,#000 52%)}
       .ba-scroll-cue__chevron{position:relative;z-index:1;width:28px;height:18px;margin-bottom:2px;display:grid;place-items:center;color:#7895ad;filter:drop-shadow(0 1px 0 rgba(255,255,255,.9));opacity:.86;animation:none!important;transition:none!important}
       .ba-scroll-cue__chevron svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;animation:none!important;transition:none!important}
